@@ -28,7 +28,7 @@ const Packages = () => {
   const [sortBy, setSortBy] = useState('recommended');
   
   // 패키지 데이터 (실제로는 API에서 가져올 데이터)
-  const [packages, setPackages] = useState<Package[]>([
+  const [packages] = useState<Package[]>([
     {
       id: '1',
       name: '로마, 피렌체, 베니스를 아우르는 이탈리아 핵심 투어',

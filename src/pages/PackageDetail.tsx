@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 // 상세 여행 패키지 타입
 interface PackageDetail {
@@ -32,7 +32,6 @@ interface PackageDetail {
 }
 
 const PackageDetail = () => {
-  const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedDate, setSelectedDate] = useState('');
   const [travelers, setTravelers] = useState(2);
