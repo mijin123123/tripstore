@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -22,9 +23,9 @@ export default function Footer() {
           <div>
             <h4 className="text-md font-semibold text-neutral-800 mb-4">고객 지원</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/notice" className="text-neutral-600 hover:text-brand-blue transition-colors">공지사항</a></li>
-              <li><a href="#" className="text-neutral-600 hover:text-brand-blue transition-colors">자주 묻는 질문</a></li>
-              <li><a href="#" className="text-neutral-600 hover:text-brand-blue transition-colors">문의하기</a></li>
+              <li><Link href="/notice" className="text-neutral-600 hover:text-brand-blue transition-colors">공지사항</Link></li>
+              <li><Link href="#" className="text-neutral-600 hover:text-brand-blue transition-colors">자주 묻는 질문</Link></li>
+              <li><Link href="#" className="text-neutral-600 hover:text-brand-blue transition-colors">문의하기</Link></li>
             </ul>
           </div>
           <div>

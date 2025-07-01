@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Calendar, CreditCard, Check, Info, User, Users, Mail, Phone, MapPin, Globe, Shield, ExclamationCircle } from "lucide-react";
+import { ArrowLeft, Calendar, CreditCard, Check, Info, User, Users, Mail, Phone, MapPin, Globe, Shield, AlertCircle } from "lucide-react";
 import { getPackageById, TravelPackage } from "@/data/packagesData";
 
 
@@ -526,7 +526,7 @@ export default function ReservationPage() {
                             </select>
                             {errors.departureDate && (
                               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <ExclamationCircle className="h-5 w-5 text-red-500" />
+                                <AlertCircle className="h-5 w-5 text-red-500" />
                               </div>
                             )}
                           </div>
