@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import { AuthProvider } from "@/lib/auth";
+import ClientLayout from "@/components/layout/ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,20 +25,5 @@ export default function RootLayout({
         <div id="root-portal" />
       </body>
     </html>
-  );
-}
-
-// 클라이언트 컴포넌트를 별도로 선언
-"use client";
-
-function ClientLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <AuthProvider>
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-      </AuthProvider>
-    </>
   );
 }
