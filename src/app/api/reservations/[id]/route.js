@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase';
-import { checkAdminPermission } from '@/lib/auth';
+import { checkAdminPermission } from '@/lib/admin-auth';
 
 // 예약 조회 API (단일 예약 조회)
 export async function GET(request, { params }) {

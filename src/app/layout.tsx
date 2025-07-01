@@ -1,5 +1,3 @@
-"use client";
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -22,13 +20,27 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <AuthProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <div id="root-portal" />
-        </AuthProvider>
+        {/* 클라이언트 컴포넌트는 별도 파일로 분리 */}
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+        <div id="root-portal" />
       </body>
     </html>
+  );
+}
+
+// 클라이언트 컴포넌트를 별도로 선언
+"use client";
+
+function ClientLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <AuthProvider>
+        <Header />
+        <main className="flex-grow">{children}</main>
+        <Footer />
+      </AuthProvider>
+    </>
   );
 }

@@ -1,12 +1,13 @@
+"use client";
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import supabase, { createClient } from '@/lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
 
-// 관리자 권한 확인 함수 추가
-export async function checkAdminPermission(email: string) {
+// 관리자 권한 확인 함수 (클라이언트 컴포넌트용)
+async function checkAdminPermissionClient(email: string) {
   try {
-    const supabaseServer = createClient();
-    const { data, error } = await supabaseServer
+    const { data, error } = await supabase
       .from('admins')
       .select('*')
       .eq('email', email)
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkIsAdmin = async () => {
     if (!user?.email) return false;
     
-    const isAdminUser = await checkAdminPermission(user.email);
+    const isAdminUser = await checkAdminPermissionClient(user.email);
     setIsAdmin(isAdminUser);
     return isAdminUser;
   };
@@ -71,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // 사용자가 있으면 관리자 권한 확인
       if (session?.user?.email) {
-        const isAdminUser = await checkAdminPermission(session.user.email);
+        const isAdminUser = await checkAdminPermissionClient(session.user.email);
         setIsAdmin(isAdminUser);
       }
       
@@ -88,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // 사용자가 있으면 관리자 권한 확인
         if (session?.user?.email) {
-          const isAdminUser = await checkAdminPermission(session.user.email);
+          const isAdminUser = await checkAdminPermissionClient(session.user.email);
           setIsAdmin(isAdminUser);
         } else {
           setIsAdmin(false);
