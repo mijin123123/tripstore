@@ -1,8 +1,53 @@
-import { LogIn, Mail, Lock } from 'lucide-react';
+"use client";
+
+import { useState } from 'react';
+import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { signIn } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      setError('이메일과 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { error: signInError } = await signIn(email, password);
+      
+      if (signInError) {
+        throw signInError;
+      }
+      
+      // 로그인 성공 시 메인 페이지로 이동
+      router.push('/');
+    } catch (err: any) {
+      console.error('로그인 오류:', err);
+      
+      // 오류 메시지 설정
+      if (err.message === 'Invalid login credentials') {
+        setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else {
+        setError(err.message || '로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Image */}
@@ -29,7 +74,14 @@ export default function LoginPage() {
             <h1 className="text-4xl font-extrabold mb-3 text-neutral-800 tracking-tight">로그인</h1>
             <p className="text-lg text-neutral-600">TripStore에 오신 것을 환영합니다.</p>
           </div>
-          <form className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
+          
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+              <AlertCircle className="text-red-500 w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
             <div className="space-y-2">
               <label className="block text-sm font-bold text-neutral-700" htmlFor="email">
                 이메일 주소
@@ -42,6 +94,8 @@ export default function LoginPage() {
                   type="email"
                   placeholder="you@example.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -57,6 +111,8 @@ export default function LoginPage() {
                   type="password"
                   placeholder="••••••••"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
@@ -77,9 +133,22 @@ export default function LoginPage() {
               <button
                 className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300"
                 type="submit"
+                disabled={loading}
               >
-                <LogIn className="mr-2 h-5 w-5" />
-                로그인
+                {loading ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    로그인 중...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <LogIn className="mr-2 h-5 w-5" />
+                    로그인
+                  </span>
+                )}
               </button>
             </div>
           </form>
