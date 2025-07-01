@@ -1,6 +1,28 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import supabase from '@/lib/supabase';
+import supabase, { createClient } from '@/lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
+
+// 관리자 권한 확인 함수 추가
+export async function checkAdminPermission(email: string) {
+  try {
+    const supabaseServer = createClient();
+    const { data, error } = await supabaseServer
+      .from('admins')
+      .select('*')
+      .eq('email', email)
+      .single();
+    
+    if (error) {
+      console.error('관리자 권한 확인 중 오류:', error);
+      return false;
+    }
+    
+    return !!data; // 데이터가 있으면 관리자임
+  } catch (error) {
+    console.error('관리자 권한 확인 중 예외 발생:', error);
+    return false;
+  }
+}
 
 // Auth 컨텍스트 타입 정의
 type AuthContextType = {
@@ -11,6 +33,8 @@ type AuthContextType = {
   signUp: (email: string, password: string) => Promise<{ error: any | null; data: any | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any | null }>;
+  isAdmin: boolean;
+  checkIsAdmin: () => Promise<boolean>;
 };
 
 // Auth 컨텍스트 생성
@@ -21,6 +45,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // 관리자 여부 확인 함수
+  const checkIsAdmin = async () => {
+    if (!user?.email) return false;
+    
+    const isAdminUser = await checkAdminPermission(user.email);
+    setIsAdmin(isAdminUser);
+    return isAdminUser;
+  };
 
   useEffect(() => {
     // 현재 세션 가져오기
@@ -34,6 +68,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       setSession(session);
       setUser(session?.user || null);
+      
+      // 사용자가 있으면 관리자 권한 확인
+      if (session?.user?.email) {
+        const isAdminUser = await checkAdminPermission(session.user.email);
+        setIsAdmin(isAdminUser);
+      }
+      
       setLoading(false);
     };
 
@@ -41,9 +82,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 세션 변경 감지 리스너 설정
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setSession(session);
         setUser(session?.user || null);
+        
+        // 사용자가 있으면 관리자 권한 확인
+        if (session?.user?.email) {
+          const isAdminUser = await checkAdminPermission(session.user.email);
+          setIsAdmin(isAdminUser);
+        } else {
+          setIsAdmin(false);
+        }
+        
         setLoading(false);
       }
     );
@@ -96,6 +146,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signOut,
     resetPassword,
+    isAdmin,
+    checkIsAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

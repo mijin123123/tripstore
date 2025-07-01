@@ -1,4 +1,4 @@
-import supabase from './supabase';
+import supabase, { createClient } from './supabase';
 import { TravelPackage } from '@/data/packagesData';
 
 /**
@@ -15,6 +15,29 @@ export async function getAllPackages(): Promise<TravelPackage[]> {
   }
   
   return data || [];
+}
+
+/**
+ * 관리자 페이지용 모든 패키지 데이터 조회
+ */
+export async function getPackages() {
+  try {
+    const supabaseServer = createClient();
+    const { data, error } = await supabaseServer
+      .from('packages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('패키지 데이터를 불러오는 중 오류가 발생했습니다:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('패키지 데이터를 불러오는 중 예외가 발생했습니다:', error);
+    return [];
+  }
 }
 
 /**
