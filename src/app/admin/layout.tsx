@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 import { createClient } from '@/lib/supabase';
-import { checkAdminPermission } from '@/lib/auth';
+import { checkAdminPermission } from '@/lib/admin-auth';
 
 export default async function AdminLayout({ children }) {
   // 서버 사이드에서 관리자 권한 확인

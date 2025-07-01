@@ -816,50 +816,20 @@ export const packagesData: TravelPackage[] = [
   }
 ];
 
-export const packageFeatures = [
-  {
-    icon: Calendar,
-    name: "기간",
-    keyName: "duration",
-  },
-  {
-    icon: MapPin,
-    name: "목적지",
-    keyName: "destination",
-  },
-  {
-    icon: Clock,
-    name: "출발일",
-    keyName: "departureDate",
-  },
-  {
-    icon: Users,
-    name: "그룹 규모",
-    keyName: "groupSize",
-  },
-  {
-    icon: Utensils,
-    name: "식사",
-    keyName: "meals",
-  },
-  {
-    icon: Home,
-    name: "숙박",
-    keyName: "accommodation",
-  },
-  {
-    icon: Plane,
-    name: "주요 활동",
-    keyName: "activities",
-  },
-  {
-    icon: Camera,
-    name: "하이라이트",
-    keyName: "highlights",
-  },
-];
-
-export function getPackageById(id: number | string): TravelPackage | undefined {
-  const numericId = typeof id === "string" ? parseInt(id, 10) : id;
-  return packagesData.find(pkg => pkg.id === numericId);
+// 패키지 ID로 패키지 데이터 가져오기
+export function getPackageById(id: string | string[]): TravelPackage | undefined {
+  const packageId = Array.isArray(id) ? parseInt(id[0]) : parseInt(id);
+  return packagesData.find(pkg => pkg.id === packageId);
 }
+
+// 패키지 기능 아이콘 매핑
+export const packageFeatures = [
+  { icon: Calendar, label: "기간" },
+  { icon: MapPin, label: "목적지" },
+  { icon: Clock, label: "일정" },
+  { icon: Users, label: "그룹 크기" },
+  { icon: Utensils, label: "식사" },
+  { icon: Home, label: "숙박" },
+  { icon: Camera, label: "액티비티" },
+  { icon: Plane, label: "교통" }
+];
