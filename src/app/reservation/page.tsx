@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,6 +33,23 @@ interface ReservationFormErrors {
 }
 
 export default function ReservationPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto p-6 min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-md p-8">
+        <div className="animate-pulse flex flex-col space-y-4">
+          <div className="h-10 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-40 bg-gray-200 rounded w-full"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+        </div>
+      </div>
+    </div>}>
+      <ReservationContent />
+    </Suspense>
+  );
+}
+
+function ReservationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [packageData, setPackageData] = useState<TravelPackage | null>(null);
