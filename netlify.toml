@@ -10,22 +10,21 @@
   NEXT_PUBLIC_SUPABASE_URL = "https://ewezrjlymdfinpwfruga.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3ZXpyamx5bWRmaW5wd2ZydWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMzI5MTAsImV4cCI6MjA2NjkwODkxMH0.KWLNVNQUSzMa2pNzF-q8BWhZ6jIzavQT4_aWo6LFM90"
 
-# SPA 페이지 리디렉션 설정 - 클라이언트 사이드 라우팅 지원
+# 비밀번호 재설정 경로는 항상 해당 페이지로 직접 전달
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/reset-password/update*"
+  to = "/reset-password/update/index.html"
   status = 200
 
-# 인증 관련 리디렉션 처리 - type=recovery 파라미터가 있는 경우
+# 인증 관련 리디렉션 처리 - hash 또는 type=recovery 파라미터가 있는 경우
 [[redirects]]
   from = "/*type=recovery*"
   to = "/reset-password/update"
   status = 301
   force = true
 
-# 이메일 링크의 쿼리 파라미터 처리
+# 기본 SPA 리디렉션 (가장 마지막에 위치하여 이전 규칙이 우선 적용되게)
 [[redirects]]
-  from = "/?type=recovery*"
-  to = "/reset-password/update"
-  status = 301
-  force = true
+  from = "/*"
+  to = "/index.html"
+  status = 200

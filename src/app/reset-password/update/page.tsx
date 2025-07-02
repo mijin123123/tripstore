@@ -23,121 +23,152 @@ export default function UpdatePasswordPage() {
         console.log('비밀번호 재설정 페이지 초기화 중...');
         console.log('현재 URL:', window.location.href);
         
-        // 1. 현재 세션 확인
+        // 우선 URL 처리 시도 - Supabase가 제공하는 함수를 사용
+        try {
+          const { error } = await supabase.auth.refreshSession();
+          console.log('세션 리프레시 시도 결과:', error ? '실패' : '성공');
+        } catch (e) {
+          console.warn('세션 리프레시 오류:', e);
+        }
+        
+        // 현재 세션 확인
         const { data: currentSession, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('세션 확인 오류:', sessionError);
-          setError('인증 상태를 확인할 수 없습니다.');
-          return;
         }
         
         // 이미 유효한 세션이 있으면 사용
         if (currentSession?.session) {
-          console.log('기존 세션 발견, 비밀번호 변경 준비됨');
+          console.log('유효한 세션 발견, 비밀번호 변경 준비됨');
           setSessionReady(true);
           return;
         }
         
-        // 2. URL에서 파라미터 확인
+        // 2. URL 분석 및 처리
         const urlParams = new URLSearchParams(window.location.search);
         const urlHash = window.location.hash.substring(1);
-        const hashParams = new URLSearchParams(urlHash);
         
-        console.log('URL 분석:',
-          '쿼리:', Object.fromEntries(urlParams.entries()),
-          '해시:', urlHash ? '존재함' : '없음'
-        );
+        console.log('URL 분석:', {
+          full: window.location.href,
+          path: window.location.pathname,
+          hash: urlHash || '없음',
+          search: window.location.search || '없음'
+        });
         
-        // 3. 해시에서 세션 설정 시도 (Supabase 기본 방식)
-        if (urlHash && (urlHash.includes('access_token') || urlHash.includes('type=recovery'))) {
-          console.log('해시 파라미터에서 세션 설정 시도');
+        // 3. 토큰 확인 또는 설정 (여러 방법 시도)
+        // 방법 1: URL에서 직접 세션 가져오기
+        try {
+          console.log('방법 1: URL에서 직접 세션 처리 시도');
+          const { data, error } = await supabase.auth.getSessionFromUrl();
           
+          if (!error && data.session) {
+            console.log('URL에서 세션 가져오기 성공');
+            setSessionReady(true);
+            return;
+          } else if (error) {
+            console.warn('URL에서 세션 가져오기 실패:', error.message);
+          }
+        } catch (err) {
+          console.warn('URL 세션 처리 중 예외 발생:', err);
+        }
+        
+        // 방법 2: 해시에서 토큰 추출 시도
+        if (urlHash) {
           try {
-            const { data, error } = await supabase.auth.getSessionFromUrl();
+            console.log('방법 2: 해시에서 토큰 추출 시도');
+            const hashParams = new URLSearchParams(urlHash);
             
-            if (error) {
-              console.error('URL에서 세션 설정 실패:', error);
+            // type=recovery 확인
+            if (hashParams.get('type') === 'recovery') {
+              console.log('Recovery 타입 감지됨');
               
-              // 수동으로 토큰 처리 시도
+              // 해시에 토큰이 있으면 처리
               const accessToken = hashParams.get('access_token');
               const refreshToken = hashParams.get('refresh_token');
               
               if (accessToken && refreshToken) {
-                console.log('수동으로 세션 설정 시도');
-                const { error: manualError } = await supabase.auth.setSession({
+                console.log('해시에서 토큰 발견, 세션 설정 시도');
+                const { error: setError } = await supabase.auth.setSession({
                   access_token: accessToken,
                   refresh_token: refreshToken
                 });
                 
-                if (manualError) {
-                  console.error('수동 세션 설정 실패:', manualError);
-                  setError('인증 토큰이 유효하지 않거나 만료되었습니다.');
-                } else {
-                  console.log('수동 세션 설정 성공');
+                if (!setError) {
+                  console.log('해시 토큰으로 세션 설정 성공');
                   setSessionReady(true);
+                  return;
+                } else {
+                  console.warn('해시 토큰으로 세션 설정 실패:', setError.message);
                 }
               } else {
-                setError('필요한 인증 정보가 URL에 없습니다.');
+                console.log('Recovery 타입이지만 토큰 없음, 계속 진행');
+                // Recovery 타입이면 세션 준비 상태로 변경
+                setSessionReady(true);
+                return;
               }
-            } else {
-              console.log('URL에서 세션 설정 성공');
-              setSessionReady(true);
             }
           } catch (err) {
-            console.error('세션 설정 중 예외 발생:', err);
-            setError('인증 처리 중 오류가 발생했습니다.');
+            console.warn('해시 파라미터 처리 중 오류:', err);
           }
         }
-        // 4. 쿼리 파라미터에서 세션 설정 시도
-        else if (urlParams.has('access_token') || urlParams.has('type')) {
-          console.log('쿼리 파라미터에서 세션 설정 시도');
-          
-          const accessToken = urlParams.get('access_token');
-          const refreshToken = urlParams.get('refresh_token');
-          const type = urlParams.get('type');
-          
-          // 토큰이 있으면 세션 설정
-          if (accessToken && refreshToken) {
-            try {
-              const { error: setSessionError } = await supabase.auth.setSession({
+        
+        // 방법 3: 쿼리 파라미터에서 토큰 추출 시도
+        if (urlParams.has('type') || urlParams.has('access_token')) {
+          try {
+            console.log('방법 3: 쿼리 파라미터 처리');
+            
+            if (urlParams.get('type') === 'recovery') {
+              console.log('쿼리에서 Recovery 타입 감지됨, 계속 진행');
+              setSessionReady(true);
+              return;
+            }
+            
+            // 액세스 토큰이 있으면 세션 설정 시도
+            const accessToken = urlParams.get('access_token');
+            const refreshToken = urlParams.get('refresh_token');
+            
+            if (accessToken && refreshToken) {
+              console.log('쿼리에서 토큰 발견, 세션 설정 시도');
+              const { error: setError } = await supabase.auth.setSession({
                 access_token: accessToken,
                 refresh_token: refreshToken
               });
               
-              if (setSessionError) {
-                console.error('쿼리 파라미터 세션 설정 실패:', setSessionError);
-                setError('인증 토큰이 유효하지 않거나 만료되었습니다.');
-              } else {
-                console.log('쿼리 파라미터로 세션 설정 성공');
+              if (!setError) {
+                console.log('쿼리 토큰으로 세션 설정 성공');
                 setSessionReady(true);
+                return;
               }
-            } catch (err) {
-              console.error('쿼리 세션 설정 중 예외 발생:', err);
-              setError('인증 처리 중 오류가 발생했습니다.');
             }
-          } 
-          // recovery 타입만 있는 경우 (이메일 링크 클릭)
-          else if (type === 'recovery') {
-            console.log('Recovery 타입 감지됨, 계속 진행');
-            setSessionReady(true);
-          } else {
-            console.warn('세션 설정에 필요한 토큰 정보가 부족함');
-            setError('비밀번호를 재설정하는데 필요한 정보가 URL에 없습니다.');
+          } catch (err) {
+            console.warn('쿼리 파라미터 처리 중 오류:', err);
           }
-        } else {
-          console.log('인증 파라미터 없음, 세션 확인');
+        }
+        
+        // 방법 4: 기본 인증 상태 확인
+        try {
+          console.log('방법 4: 기본 인증 상태 확인');
+          const { data: session } = await supabase.auth.getSession();
           
-          // 세션 재확인
-          const { data: refreshedSession } = await supabase.auth.getSession();
-          
-          if (refreshedSession?.session) {
-            console.log('세션 확인됨, 계속 진행');
+          if (session?.session) {
+            console.log('유효한 세션 발견, 비밀번호 변경 가능');
             setSessionReady(true);
-          } else {
-            console.warn('세션 없음, 비밀번호 재설정 불가');
-            setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
+            return;
           }
+        } catch (err) {
+          console.warn('세션 확인 중 오류:', err);
+        }
+        
+        // 모든 방법이 실패하면 오류 표시
+        console.error('모든 인증 시도 실패, 비밀번호 재설정 불가');
+        setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
+        
+        // 개발 모드에서는 비밀번호 변경을 허용 (디버깅용)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('개발 환경에서 비밀번호 변경 허용');
+          setSessionReady(true);
+        }
         }
       } catch (err) {
         console.error('초기화 중 예외 발생:', err);

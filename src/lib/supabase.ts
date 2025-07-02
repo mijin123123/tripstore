@@ -32,9 +32,10 @@ const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
         window.localStorage.removeItem(key);
       }
     },
-    // 중요: 이메일 링크 처리 방식 설정
-    // 미들웨어에서 URL 파라미터를 분석하여 세션을 설정할 수 있게 함
-    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/reset-password/update` : undefined
+    // URL 처리 개선 - 절대 경로 사용, 타입 명시
+    emailRedirectTo: typeof window !== 'undefined' 
+      ? `${window.location.origin}/reset-password/update?type=recovery` 
+      : 'https://mellifluous-druid-c34db0.netlify.app/reset-password/update?type=recovery'
   }
 });
 
