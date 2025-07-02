@@ -134,15 +134,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (email: string) => {
     console.log('비밀번호 재설정 요청:', email);
     
-    // 배포 환경과 개발 환경에 따라 다른 URL 사용
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const netlifyUrl = 'https://mellifluous-druid-c34db0.netlify.app';
     
-    // Netlify 배포 사이트인 경우 해당 URL 사용, 아니면 현재 origin 사용
-    const baseUrl = origin.includes('netlify') || origin.includes('localhost') ? origin : netlifyUrl;
-    
-    // 중요: 경로를 절대 경로로 지정하여 리디렉션 문제 방지
-    const redirectUrl = `${baseUrl}/reset-password/update/`;
+    // 절대 URL 생성
+    const redirectUrl = `${origin}/reset-password/update`;
     
     console.log('리디렉션 URL:', redirectUrl);
     
