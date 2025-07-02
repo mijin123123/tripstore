@@ -134,13 +134,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (email: string) => {
     console.log('비밀번호 재설정 요청:', email);
     
-    // 현재 환경에 따른 기본 URL 설정
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const netlifyUrl = 'https://mellifluous-druid-c34db0.netlify.app';
-    const baseUrl = origin || netlifyUrl;
-    
-    // 쿼리 파라미터를 포함한 명확한 URL 생성
-    const redirectUrl = `${baseUrl}/reset-password/update?type=recovery`;
+    // Netlify 도메인 직접 사용 (일관성 유지)
+    const redirectUrl = 'https://mellifluous-druid-c34db0.netlify.app/reset-password/update?type=recovery';
     
     console.log('비밀번호 재설정 리디렉션 URL:', redirectUrl);
     

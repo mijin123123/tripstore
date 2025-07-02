@@ -32,10 +32,8 @@ const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
         window.localStorage.removeItem(key);
       }
     },
-    // URL 처리 개선 - 절대 경로 사용, 타입 명시
-    redirectTo: typeof window !== 'undefined' 
-      ? `${window.location.origin}/reset-password/update?type=recovery` 
-      : 'https://mellifluous-druid-c34db0.netlify.app/reset-password/update?type=recovery'
+    // URL 처리 개선 - Netlify 도메인 직접 사용 
+    redirectTo: 'https://mellifluous-druid-c34db0.netlify.app/reset-password/update?type=recovery'
   }
 });
 
