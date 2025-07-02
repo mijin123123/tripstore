@@ -133,11 +133,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 비밀번호 재설정 함수
   const resetPassword = async (email: string) => {
     console.log('비밀번호 재설정 요청:', email);
+
+    // 환경에 따라 리디렉션 URL 동적 설정
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const redirectUrl = isDevelopment
+      ? 'http://localhost:3000/reset-password/update'
+      : 'https://mellifluous-druid-c34db0.netlify.app/reset-password/update';
     
-    // Netlify 도메인 직접 사용 (일관성 유지)
-    const redirectUrl = 'https://mellifluous-druid-c34db0.netlify.app/reset-password/update?type=recovery';
-    
-    console.log('비밀번호 재설정 리디렉션 URL:', redirectUrl);
+    console.log(`비밀번호 재설정 리디렉션 URL (${isDevelopment ? '개발' : '프로덕션'}):`, redirectUrl);
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {

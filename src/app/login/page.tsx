@@ -12,9 +12,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [resetError, setResetError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn, resetPassword } = useAuth();
 
   // 환경 정보 로드
   useEffect(() => {
@@ -65,6 +69,30 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      setResetError('이메일을 입력해주세요.');
+      return;
+    }
+    setLoading(true);
+    setResetError(null);
+    setResetMessage(null);
+
+    try {
+      const { error } = await resetPassword(resetEmail);
+      if (error) {
+        throw error;
+      }
+      setResetMessage('비밀번호 재설정 이메일을 보냈습니다. 받은 편지함을 확인해주세요.');
+    } catch (err: any) {
+      setResetError(err.message || '이메일 발송 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Image */}
@@ -99,101 +127,160 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* 개발 환경에서만 표시되는 디버그 정보 */}
-          {process.env.NODE_ENV === 'development' && debugInfo && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-semibold mb-2 text-blue-800">디버그 정보 (개발환경)</h4>
-              <pre className="text-xs text-blue-700 whitespace-pre-wrap">{debugInfo}</pre>
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-neutral-700" htmlFor="email">
-                이메일 주소
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                <input
-                  className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                  autoFocus
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-neutral-700" htmlFor="password">
-                비밀번호
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                <input
-                  className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center">
-                <input id="remember-me" name="remember-me" type="checkbox" className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-neutral-300 rounded" />
-                <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-neutral-700">로그인 정보 저장</label>
-              </div>
-              <div className="text-sm">
-                <Link href="/reset-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                  비밀번호를 잊으셨나요?
-                </Link>
-              </div>
-            </div>
-            
-            <div className="pt-4">
+          {/* 비밀번호 재설정 UI */}
+          {showResetPassword ? (
+            <div className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
+              <h3 className="text-2xl font-bold text-center">비밀번호 재설정</h3>
+              {resetMessage && (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                  {resetMessage}
+                </div>
+              )}
+              {resetError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {resetError}
+                </div>
+              )}
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label htmlFor="reset-email" className="block text-sm font-bold text-neutral-700">
+                    가입한 이메일 주소
+                  </label>
+                  <div className="relative mt-1">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                    <input
+                      id="reset-email"
+                      type="email"
+                      className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      placeholder="you@example.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                >
+                  {loading ? '전송 중...' : '재설정 이메일 보내기'}
+                </button>
+              </form>
               <button
-                className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300"
-                type="submit"
-                disabled={loading}
+                onClick={() => setShowResetPassword(false)}
+                className="w-full text-center text-sm text-blue-600 hover:underline"
               >
-                {loading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    로그인 중...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <LogIn className="mr-2 h-5 w-5" />
-                    로그인
-                  </span>
-                )}
+                로그인으로 돌아가기
               </button>
             </div>
-          </form>
-          
-          <div className="mt-10 pt-6 border-t border-neutral-200">
-            <p className="text-center text-neutral-600">
-              아직 회원이 아니신가요?{' '}
-              <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
-                회원가입 하러 가기
-              </Link>
-            </p>
-          </div>
-          
-          <div className="text-center mt-6 text-neutral-500 text-sm">
-            <Link href="/" className="hover:text-blue-600 transition-colors">← 홈으로 돌아가기</Link>
-          </div>
+          ) : (
+            <>
+              {/* 개발 환경에서만 표시되는 디버그 정보 */}
+              {process.env.NODE_ENV === 'development' && debugInfo && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-semibold mb-2 text-blue-800">디버그 정보 (개발환경)</h4>
+                  <pre className="text-xs text-blue-700 whitespace-pre-wrap">{debugInfo}</pre>
+                </div>
+              )}
+              
+              <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-neutral-700" htmlFor="email">
+                    이메일 주소
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                    <input
+                      className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-neutral-700" htmlFor="password">
+                    비밀번호
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                    <input
+                      className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                      로그인 상태 유지
+                    </label>
+                  </div>
+                  <div className="text-sm">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetPassword(true)}
+                      className="font-medium text-blue-600 hover:text-blue-500"
+                    >
+                      비밀번호를 잊으셨나요?
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="pt-4">
+                  <button
+                    className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                    type="submit"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        로그인 중...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <LogIn className="mr-2 h-5 w-5" />
+                        로그인
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </form>
+              
+              <div className="text-center mt-6">
+                <p className="text-sm text-neutral-600">
+                  계정이 없으신가요?{' '}
+                  <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                    회원가입
+                  </Link>
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
