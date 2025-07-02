@@ -216,8 +216,9 @@ export default function PackageDetail() {
                                 {Array.isArray(value) ? (
                                   <div className="flex flex-wrap gap-1">
                                     {value.slice(0, 3).map((item, i) => (
-                                      <span key={i} className="inline-block">
-                                        {item}{i < Math.min(value.length, 3) - 1 && ", "}
+                                      <span key={i}>
+                                        {typeof item === 'string' && item}
+                                        {i < Math.min(value.length, 3) - 1 && ", "}
                                       </span>
                                     ))}
                                     {value.length > 3 && " 외 " + (value.length - 3) + "개"}
