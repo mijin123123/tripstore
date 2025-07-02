@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Clock, Users, Utensils, Home, Camera, Plane } from 'lucide-react';
+import { Calendar, MapPin, Users, Utensils, Home, Camera } from 'lucide-react';
 
 export interface TravelPackage {
   id: number;
@@ -25,6 +25,12 @@ export interface TravelPackage {
   gallery?: string[];
   highlights?: string[];
   departureDate?: string[];
+}
+
+export interface PackageFeature {
+  key: keyof TravelPackage;
+  icon: React.ElementType;
+  label: string;
 }
 
 export const packagesData: TravelPackage[] = [
@@ -823,13 +829,11 @@ export function getPackageById(id: string | string[]): TravelPackage | undefined
 }
 
 // 패키지 기능 아이콘 매핑
-export const packageFeatures = [
-  { icon: Calendar, label: "기간" },
-  { icon: MapPin, label: "목적지" },
-  { icon: Clock, label: "일정" },
-  { icon: Users, label: "그룹 크기" },
-  { icon: Utensils, label: "식사" },
-  { icon: Home, label: "숙박" },
-  { icon: Camera, label: "액티비티" },
-  { icon: Plane, label: "교통" }
+export const packageFeatures: PackageFeature[] = [
+  { key: 'duration', icon: Calendar, label: "기간" },
+  { key: 'destination', icon: MapPin, label: "목적지" },
+  { key: 'groupSize', icon: Users, label: "그룹 크기" },
+  { key: 'meals', icon: Utensils, label: "식사" },
+  { key: 'accommodation', icon: Home, label: "숙박" },
+  { key: 'activities', icon: Camera, label: "액티비티" },
 ];

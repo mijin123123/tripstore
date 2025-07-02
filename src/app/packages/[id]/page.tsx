@@ -202,16 +202,16 @@ export default function PackageDetail() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {packageFeatures.map((feature) => {
-                        const value = packageData[feature.keyName as keyof TravelPackage];
+                        const value = packageData[feature.key as keyof TravelPackage];
                         if (!value) return null;
                         
                         return (
-                          <div key={feature.name} className="flex items-start">
+                          <div key={feature.key} className="flex items-start">
                             <div className="flex-shrink-0 mt-1">
                               <feature.icon className="h-5 w-5 text-gray-500" />
                             </div>
                             <div className="ml-3">
-                              <h3 className="text-sm font-medium text-gray-800">{feature.name}</h3>
+                              <h3 className="text-sm font-medium text-gray-800">{feature.label}</h3>
                               <div className="mt-1 text-sm text-gray-600">
                                 {Array.isArray(value) ? (
                                   <div className="flex flex-wrap gap-1">
@@ -277,7 +277,6 @@ export default function PackageDetail() {
                                     <Image
                                       src={day.image}
                                       alt={day.title}
-                                      fill
                                       className="object-cover"
                                     />
                                   </div>
