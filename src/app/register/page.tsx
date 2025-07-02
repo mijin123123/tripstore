@@ -3,7 +3,7 @@
 import { UserPlus, Mail, Lock, User } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
@@ -14,12 +14,64 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [envInfo, setEnvInfo] = useState<string>('환경변수 확인 중...');
   const router = useRouter();
   const supabase = createClient();
+  
+  useEffect(() => {
+    // 환경 변수 확인 (URL의 일부만 표시하여 보안 유지)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '설정 안됨';
+    const hasAnonKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    setEnvInfo(`Supabase URL: ${supabaseUrl.substring(0, 15)}... / API Key 설정됨: ${hasAnonKey ? '예' : '아니오'}`);
+    
+    console.log('Supabase 환경설정:', {
+      url: supabaseUrl,
+      hasKey: hasAnonKey
+    });
+  }, []);
+
+  // 관리자 계정 자동 생성 함수 (개발 환경에서만 사용)
+  const createAdminAccount = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // 이메일과 비밀번호 설정
+      const adminEmail = 'sonchanmin89@gmail.com';
+      const adminPassword = 'Admin123!@#'; // 안전한 비밀번호 사용
+      
+      console.log('관리자 계정 생성 시도:', adminEmail);
+      
+      // Supabase Auth로 회원가입
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: adminEmail,
+        password: adminPassword,
+        options: {
+          data: {
+            name: '시스템 관리자'
+          }
+        }
+      });
+      
+      console.log('관리자 계정 생성 응답:', { data, error: signUpError });
+
+      if (signUpError) throw signUpError;
+      
+      alert(`관리자 계정(${adminEmail})이 생성되었습니다. 이메일 인증을 확인해주세요.`);
+    } catch (err: any) {
+      console.error('관리자 계정 생성 오류:', err);
+      setError(err.message || '관리자 계정 생성 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    console.log('회원가입 시도:', { name, email });
 
     // 입력 검증
     if (!name || !email || !password) {
@@ -35,6 +87,8 @@ export default function RegisterPage() {
     setLoading(true);
     
     try {
+      console.log('Supabase signUp 호출 전');
+      
       // Supabase Auth로 회원가입
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -45,10 +99,13 @@ export default function RegisterPage() {
           }
         }
       });
+      
+      console.log('Supabase signUp 응답:', { data, error: signUpError });
 
       if (signUpError) throw signUpError;
       
       alert('회원가입이 완료되었습니다. 이메일 인증을 확인해주세요.');
+      console.log('회원가입 성공, 데이터:', data);
       router.push('/login');
     } catch (err: any) {
       console.error('회원가입 오류:', err);
@@ -83,6 +140,7 @@ export default function RegisterPage() {
           <div className="text-center mb-10">
             <h1 className="text-4xl font-extrabold mb-3 text-neutral-800">회원가입</h1>
             <p className="text-lg text-neutral-600">TripStore와 함께 특별한 여행을 시작하세요.</p>
+            <p className="text-xs text-neutral-400 mt-2">{envInfo}</p>
           </div>
           
           {error && (
@@ -193,6 +251,22 @@ export default function RegisterPage() {
                 로그인 하러 가기
               </Link>
             </p>
+            
+            {/* 개발 환경에서만 표시 (나중에 process.env.NODE_ENV === 'development'로 체크) */}
+            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-sm text-gray-500 mb-2">🛠️ 개발 도구</p>
+              <button
+                onClick={createAdminAccount}
+                className="w-full py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded transition-colors"
+                type="button"
+                disabled={loading}
+              >
+                관리자 계정 자동 생성
+              </button>
+              <p className="text-xs text-gray-400 mt-2">
+                ℹ️ sonchanmin89@gmail.com 계정을 자동으로 생성합니다
+              </p>
+            </div>
           </div>
         </div>
       </div>
