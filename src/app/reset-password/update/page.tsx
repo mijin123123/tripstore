@@ -19,31 +19,64 @@ export default function UpdatePasswordPage() {
   // URL에서 해시 파라미터 추출
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      console.log('현재 URL:', window.location.href);
+      
+      // URL 전체를 분석
+      const url = new URL(window.location.href);
+      console.log('URL 파라미터:', Object.fromEntries(url.searchParams.entries()));
+      
       // URL 해시에서 액세스 토큰과 리프레시 토큰 추출
       const hash = window.location.hash.substring(1);
       setHashFromURL(hash);
-
-      // 해시가 있으면 Supabase 세션 설정 시도
-      if (hash) {
-        const handleHashChange = async () => {
-          try {
-            // Supabase에 해시 처리 요청
-            const { data, error } = await supabase.auth.getSession();
+      console.log('URL 해시 존재 여부:', hash ? '있음' : '없음');
+      
+      // Supabase 세션 가져오기 시도
+      const getSession = async () => {
+        try {
+          // 현재 세션 확인
+          const { data, error } = await supabase.auth.getSession();
+          
+          if (error) {
+            console.error('세션 가져오기 오류:', error);
+            setError('인증 세션을 가져올 수 없습니다. 다시 시도해주세요.');
+          } else if (data?.session) {
+            console.log('현재 세션 정보:', data.session);
+          } else {
+            console.log('유효한 세션이 없습니다.');
             
-            if (error) {
-              console.error('세션 처리 오류:', error);
-              setError('유효하지 않은 또는 만료된 비밀번호 재설정 링크입니다. 다시 시도해주세요.');
-            } else if (data?.session) {
-              console.log('세션 처리 성공:', data.session);
+            // 해시 파라미터가 있는 경우 처리 시도
+            if (hash) {
+              try {
+                // URL 파라미터로부터 세션 복구 시도
+                const hashParams = new URLSearchParams(hash);
+                const type = hashParams.get('type');
+                
+                if (type === 'recovery') {
+                  console.log('비밀번호 복구 파라미터 감지됨');
+                  
+                  // 토큰이 있으면 Supabase에 직접 전달
+                  const { error: setSessionError } = await supabase.auth.setSession({
+                    access_token: hashParams.get('access_token') || '',
+                    refresh_token: hashParams.get('refresh_token') || ''
+                  });
+                  
+                  if (setSessionError) {
+                    console.error('세션 설정 오류:', setSessionError);
+                    setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
+                  }
+                }
+              } catch (hashError) {
+                console.error('해시 파라미터 처리 오류:', hashError);
+              }
             }
-          } catch (err) {
-            console.error('세션 처리 중 예외 발생:', err);
-            setError('비밀번호 재설정 링크 처리 중 오류가 발생했습니다.');
           }
-        };
-
-        handleHashChange();
-      }
+        } catch (err) {
+          console.error('세션 처리 중 예외 발생:', err);
+          setError('인증 처리 중 오류가 발생했습니다.');
+        }
+      };
+      
+      getSession();
     }
   }, []);
 
@@ -71,8 +104,12 @@ export default function UpdatePasswordPage() {
       
       console.log('비밀번호 업데이트 시도');
       
+      // 현재 세션 확인
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('현재 세션 상태:', sessionData?.session ? '세션 있음' : '세션 없음');
+      
       // Supabase API를 사용하여 비밀번호 업데이트
-      const { error: updateError } = await supabase.auth.updateUser({
+      const { error: updateError, data } = await supabase.auth.updateUser({
         password: password
       });
       
@@ -80,6 +117,8 @@ export default function UpdatePasswordPage() {
         console.error('비밀번호 업데이트 오류:', updateError);
         throw updateError;
       }
+      
+      console.log('비밀번호 업데이트 결과:', data);
       
       // 성공 메시지 표시
       setSuccess(true);
@@ -93,7 +132,7 @@ export default function UpdatePasswordPage() {
       console.error('비밀번호 업데이트 오류:', err);
       
       // 오류 메시지 설정
-      if (err.message.includes('JWT')) {
+      if (err.message?.includes('JWT')) {
         setError('인증 세션이 만료되었습니다. 비밀번호 재설정을 다시 요청해주세요.');
       } else {
         setError(err.message || '비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.');

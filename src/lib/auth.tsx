@@ -132,9 +132,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 비밀번호 재설정 함수
   const resetPassword = async (email: string) => {
+    console.log('비밀번호 재설정 요청:', email);
+    console.log('리디렉션 URL:', `${window.location.origin}/reset-password/update`);
+    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password/update`,
     });
+    
+    if (error) {
+      console.error('비밀번호 재설정 요청 오류:', error);
+    } else {
+      console.log('비밀번호 재설정 이메일 발송 성공');
+    }
     
     return { error };
   };
