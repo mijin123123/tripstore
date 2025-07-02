@@ -119,7 +119,7 @@ export default function UpdatePasswordPage() {
               console.error('세션 설정 중 예외 발생:', err);
             }
           }
-          // 그 외의 경우, 현재 세션 확인 
+          // 그 외의 경우, 현재 세션 확인
           else {
             const { data, error } = await supabase.auth.getSession();
             
