@@ -20,63 +20,84 @@ export default function UpdatePasswordPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       console.log('현재 URL:', window.location.href);
+      console.log('현재 위치:', window.location.pathname);
+      console.log('현재 해시:', window.location.hash);
+      console.log('현재 쿼리:', window.location.search);
       
       // URL 전체를 분석
       const url = new URL(window.location.href);
-      console.log('URL 파라미터:', Object.fromEntries(url.searchParams.entries()));
+      const searchParams = url.searchParams;
+      console.log('URL 파라미터:', Object.fromEntries(searchParams.entries()));
       
-      // URL 해시에서 액세스 토큰과 리프레시 토큰 추출
-      const hash = window.location.hash.substring(1);
-      setHashFromURL(hash);
-      console.log('URL 해시 존재 여부:', hash ? '있음' : '없음');
-      
-      // Supabase 세션 가져오기 시도
-      const getSession = async () => {
+      // 두 가지 가능한 방법으로 토큰 처리
+      const processHashToken = async () => {
         try {
-          // 현재 세션 확인
-          const { data, error } = await supabase.auth.getSession();
+          // 방법 1: URL 해시에서 직접 토큰 추출 (#access_token=xxx&refresh_token=yyy&type=recovery)
+          let hash = window.location.hash.substring(1);
+          setHashFromURL(hash);
           
-          if (error) {
-            console.error('세션 가져오기 오류:', error);
-            setError('인증 세션을 가져올 수 없습니다. 다시 시도해주세요.');
-          } else if (data?.session) {
-            console.log('현재 세션 정보:', data.session);
-          } else {
-            console.log('유효한 세션이 없습니다.');
+          // 방법 2: 쿼리 파라미터에서 토큰 추출 (?access_token=xxx&refresh_token=yyy&type=recovery)
+          const accessToken = searchParams.get('access_token');
+          const refreshToken = searchParams.get('refresh_token');
+          const type = searchParams.get('type');
+          
+          console.log('토큰 정보 확인:', { 
+            hashExists: !!hash, 
+            accessTokenInQuery: !!accessToken,
+            refreshTokenInQuery: !!refreshToken,
+            type
+          });
+          
+          // 해시에 토큰이 있는 경우 (일반적인 Supabase 인증 후 리디렉션 방식)
+          if (hash && hash.includes('access_token')) {
+            console.log('해시에서 토큰 감지됨, 세션 설정 시도');
             
-            // 해시 파라미터가 있는 경우 처리 시도
-            if (hash) {
-              try {
-                // URL 파라미터로부터 세션 복구 시도
-                const hashParams = new URLSearchParams(hash);
-                const type = hashParams.get('type');
-                
-                if (type === 'recovery') {
-                  console.log('비밀번호 복구 파라미터 감지됨');
-                  
-                  // 토큰이 있으면 Supabase에 직접 전달
-                  const { error: setSessionError } = await supabase.auth.setSession({
-                    access_token: hashParams.get('access_token') || '',
-                    refresh_token: hashParams.get('refresh_token') || ''
-                  });
-                  
-                  if (setSessionError) {
-                    console.error('세션 설정 오류:', setSessionError);
-                    setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
-                  }
-                }
-              } catch (hashError) {
-                console.error('해시 파라미터 처리 오류:', hashError);
-              }
+            // Supabase 내장 함수로 URL에서 세션 설정 시도
+            const { data, error } = await supabase.auth.getSessionFromUrl();
+            
+            if (error) {
+              console.error('URL에서 세션 가져오기 오류:', error);
+              setError('인증 링크를 처리할 수 없습니다. 비밀번호 재설정을 다시 요청해주세요.');
+            } else if (data?.session) {
+              console.log('URL에서 세션 설정 성공:', data.session);
+            }
+          } 
+          // 쿼리 파라미터에 토큰이 있는 경우 (미들웨어에서 변환한 경우)
+          else if (accessToken && refreshToken) {
+            console.log('쿼리 파라미터에서 토큰 감지됨, 세션 설정 시도');
+            
+            const { error: setSessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            
+            if (setSessionError) {
+              console.error('세션 설정 오류:', setSessionError);
+              setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
+            } else {
+              console.log('쿼리 파라미터로 세션 설정 성공');
+            }
+          }
+          // 그 외의 경우, 현재 세션 확인 
+          else {
+            const { data, error } = await supabase.auth.getSession();
+            
+            if (error) {
+              console.error('세션 가져오기 오류:', error);
+            } else if (data?.session) {
+              console.log('현재 세션 있음:', data.session);
+            } else {
+              console.log('유효한 세션이 없음. 비밀번호 재설정 링크가 필요합니다.');
+              setError('유효한 비밀번호 재설정 링크로 접속해주세요.');
             }
           }
         } catch (err) {
-          console.error('세션 처리 중 예외 발생:', err);
+          console.error('토큰/세션 처리 중 오류 발생:', err);
           setError('인증 처리 중 오류가 발생했습니다.');
         }
       };
       
-      getSession();
+      processHashToken();
     }
   }, []);
 

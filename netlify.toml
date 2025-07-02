@@ -9,3 +9,22 @@
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
   NEXT_PUBLIC_SUPABASE_URL = "https://ewezrjlymdfinpwfruga.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3ZXpyamx5bWRmaW5wd2ZydWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMzI5MTAsImV4cCI6MjA2NjkwODkxMH0.KWLNVNQUSzMa2pNzF-q8BWhZ6jIzavQT4_aWo6LFM90"
+
+# SPA 페이지 리디렉션 설정 - 클라이언트 사이드 라우팅 지원
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# 비밀번호 재설정 경로 특별 처리
+[[redirects]]
+  from = "/reset-password/*"
+  to = "/reset-password/[...slug].html"
+  status = 200
+
+# 인증 관련 리디렉션 처리 
+[[redirects]]
+  from = "/#access_token=*"
+  to = "/reset-password/update"
+  status = 301
+  force = true

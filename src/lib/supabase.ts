@@ -12,7 +12,26 @@ const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    flowType: 'pkce'
+    flowType: 'pkce',
+    storageKey: 'supabase.auth.token',
+    storage: {
+      getItem: (key) => {
+        if (typeof window === 'undefined') return null;
+        const value = window.localStorage.getItem(key);
+        console.log(`Storage GET [${key}]: ${value ? 'Found' : 'Not found'}`);
+        return value;
+      },
+      setItem: (key, value) => {
+        if (typeof window === 'undefined') return;
+        console.log(`Storage SET [${key}]: Value set`);
+        window.localStorage.setItem(key, value);
+      },
+      removeItem: (key) => {
+        if (typeof window === 'undefined') return;
+        console.log(`Storage REMOVE [${key}]`);
+        window.localStorage.removeItem(key);
+      }
+    }
   }
 });
 
