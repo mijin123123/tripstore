@@ -18,7 +18,7 @@
 
 # 비밀번호 재설정 특별 처리
 [[redirects]]
-  from = "/reset-password/index.html"
+  from = "/reset-password"
   to = "/reset-password/index.html"
   status = 200
   force = true
