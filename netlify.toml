@@ -16,15 +16,29 @@
   to = "/index.html"
   status = 200
 
-# 비밀번호 재설정 경로 특별 처리
+# 비밀번호 재설정 특별 처리
 [[redirects]]
   from = "/reset-password/*"
   to = "/reset-password/[...slug].html"
   status = 200
 
-# 인증 관련 리디렉션 처리 
+# 인증 관련 리디렉션 처리 - 해시 파라미터 (# 이후 부분)
 [[redirects]]
-  from = "/#access_token=*"
-  to = "/reset-password/update"
+  from = "/*type=recovery*"
+  to = "/reset-password/update/"
   status = 301
+  force = true
+
+# 쿼리 파라미터가 있는 URL 처리
+[[redirects]]
+  from = "/?type=recovery*"
+  to = "/reset-password/update/"
+  status = 301
+  force = true
+
+# 비밀번호 재설정 이메일의 리디렉션
+[[redirects]]
+  from = "/reset-password"
+  to = "/reset-password/update/"
+  status = 200
   force = true
