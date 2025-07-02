@@ -36,9 +36,8 @@
   status = 301
   force = true
 
-# 비밀번호 재설정 이메일의 리디렉션
+# 비밀번호 재설정 처리 - type=recovery 파라미터가 있는 경우만 update 페이지로 리디렉션
 [[redirects]]
   from = "/reset-password"
-  to = "/reset-password/update/"
+  to = "/reset-password/index.html"
   status = 200
-  force = true
