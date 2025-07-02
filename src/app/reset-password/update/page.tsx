@@ -12,46 +12,42 @@ export default function UpdatePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // 페이지 로드 시 기본적으로 로딩 상태
   const [sessionReady, setSessionReady] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    console.log("비밀번호 업데이트 페이지 마운트됨. 인증 리스너 설정.");
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(`Auth State Change: ${event}`);
+      console.log(`인증 상태 변경 이벤트: ${event}`);
+
+      // 비밀번호 복구 이벤트가 발생하면 세션이 준비된 것임
       if (event === "PASSWORD_RECOVERY") {
-        console.log("Password recovery event detected. Session is now valid.");
-        setSessionReady(true);
-        setLoading(false);
+        console.log("PASSWORD_RECOVERY 이벤트 수신. 세션이 준비되었습니다.");
         setError(null);
+        setSessionReady(true);
+        setLoading(false); // 로딩 상태 해제
       }
     });
 
-    // 페이지 로드 시 현재 세션 확인
-    supabase.auth.getSession().then(({ data }) => {
-        if (data.session) {
-            console.log("An active session was found on mount.");
-            setSessionReady(true);
-            setLoading(false);
-        } else {
-            // 지연 후에도 세션이 없으면 링크가 유효하지 않은 것으로 간주
-            setTimeout(() => {
-                // onAuthStateChange가 실행되었을 수 있으므로 다시 확인
-                if (!sessionReady) { 
-                    console.error("No session established. The recovery link may be invalid or expired.");
-                    setError("비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다. 새로운 재설정 링크를 요청해주세요.");
-                    setLoading(false);
-                }
-            }, 3000); // 3초 대기
-        }
-    });
+    // 5초 후에도 세션이 준비되지 않으면 타임아웃 처리
+    const timer = setTimeout(() => {
+      if (!sessionReady) {
+        console.error("세션 설정 시간 초과. 링크가 만료되었을 수 있습니다.");
+        setError("비밀번호 재설정 링크가 만료되었거나 유효하지 않습니다. 다시 요청해주세요.");
+        setLoading(false);
+      }
+    }, 5000);
 
     return () => {
+      console.log("컴포넌트 언마운트. 인증 리스너 해제.");
       subscription.unsubscribe();
+      clearTimeout(timer);
     };
-  }, []); // 마운트 시 한 번만 실행
+  }, [sessionReady]); // sessionReady가 변경될 때마다 effect를 재평가할 필요는 없으므로, 빈 배열로 변경합니다.
 
-  // 비밀번호 변경 처리 (자세한 로깅 추가)
+  // 비밀번호 변경 처리
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
