@@ -1,8 +1,63 @@
+'use client';
+
 import { UserPlus, Mail, Lock, User } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    // 입력 검증
+    if (!name || !email || !password) {
+      setError('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Supabase Auth로 회원가입
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+      
+      alert('회원가입이 완료되었습니다. 이메일 인증을 확인해주세요.');
+      router.push('/login');
+    } catch (err: any) {
+      console.error('회원가입 오류:', err);
+      setError(err.message || '회원가입 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Image */}
@@ -29,7 +84,14 @@ export default function RegisterPage() {
             <h1 className="text-4xl font-extrabold mb-3 text-neutral-800">회원가입</h1>
             <p className="text-lg text-neutral-600">TripStore와 함께 특별한 여행을 시작하세요.</p>
           </div>
-          <form className="space-y-6">
+          
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
+          
+          <form className="space-y-6" onSubmit={handleRegister}>
             <div className="space-y-2">
               <label className="block text-sm font-bold text-neutral-700" htmlFor="name">
                 이름
@@ -42,6 +104,9 @@ export default function RegisterPage() {
                   type="text"
                   placeholder="홍길동"
                   required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="name"
                 />
               </div>
             </div>
@@ -58,6 +123,9 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="you@example.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -74,6 +142,10 @@ export default function RegisterPage() {
                   type="password"
                   placeholder="••••••••"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                  minLength={6}
                 />
               </div>
             </div>
@@ -90,6 +162,10 @@ export default function RegisterPage() {
                   type="password"
                   placeholder="••••••••"
                   required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                  minLength={6}
                 />
               </div>
             </div>
@@ -98,9 +174,14 @@ export default function RegisterPage() {
               <button
                 className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300"
                 type="submit"
+                disabled={loading}
               >
-                <UserPlus className="mr-2 h-5 w-5" />
-                가입하기
+                {loading ? (
+                  <span className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>
+                ) : (
+                  <UserPlus className="mr-2 h-5 w-5" />
+                )}
+                {loading ? '처리 중...' : '가입하기'}
               </button>
             </div>
           </form>

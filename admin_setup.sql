@@ -19,7 +19,7 @@ CREATE TABLE public.admins (
 -- 2. 관리자 추가하기 (기본 관리자)
 INSERT INTO admins (email, name, role, permissions) 
 VALUES (
-  'seomijin039@gmail.com', 
+  'sonchanmin89@gmail.com', 
   '시스템 관리자', 
   'superadmin',
   '{"packages": true, "reservations": true, "notices": true, "users": true, "settings": true}'::jsonb
