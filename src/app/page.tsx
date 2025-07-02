@@ -29,53 +29,29 @@ import { packagesData } from "@/data/packagesData";
 // featuredPackages 데이터는 packagesData와 id를 일치시킵니다
 const featuredPackages = [
 	{
-		id: 6, // 실제 packagesData 아이디와 매칭
-		name: "스위스 알프스 7일 완벽 일주",
-		description: "융프라우와 마테호른의 절경",
-		price: "3,500,000",
-		image:
-			"https://images.unsplash.com/photo-1539035104074-dee66086b5e3?q=80&w=2070&auto=format&fit=crop",
-		rating: 4.9,
+		id: "bali-luxury-villa",
+		name: "발리 럭셔리 빌라 휴양",
+		description: "프라이빗 풀장이 있는 럭셔리 빌라에서 완벽한 휴식을 즐기세요.",
+		price: "1,990,000",
+		rating: "4.9",
+		image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1740"
 	},
 	{
-		id: 1, // 실제 packagesData의 파리 패키지 아이디
-		name: "낭만의 도시, 파리 5일",
-		description: "에펠탑, 루브르 박물관 핵심 코스",
-		price: "2,800,000",
-		image:
-			"https://images.unsplash.com/photo-1502602898429-353d916e6251?q=80&w=2070&auto=format&fit=crop",
-		rating: 4.8,
+		id: "tokyo-culture",
+		name: "도쿄 문화 탐방",
+		description: "현대적인 도시와 전통이 공존하는 도쿄의 문화를 경험하세요.",
+		price: "1,290,000",
+		rating: "4.8",
+		image: "https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=1753"
 	},
 	{
-		id: 14, // 산토리니 패키지(임의의 고유 ID)
-		name: "지중해의 보석, 산토리니",
-		description: "푸른 바다와 하얀 건물의 조화",
-		price: "4,200,000",
-		image:
-			"https://images.unsplash.com/photo-1533105079780-52b9be48d077?q=80&w=2070&auto=format&fit=crop",
-		rating: 4.9,
-	},
-];
-
-const whyChooseUs = [
-	{
-		icon: Award,
-		title: "최고의 여행 전문가",
-		description:
-			"수년간의 경험을 가진 저희 전문가들이 완벽한 여행을 계획해 드립니다.",
-	},
-	{
-		icon: ThumbsUp,
-		title: "믿을 수 있는 서비스",
-		description:
-			"수천 개의 5성급 후기가 증명하는 고객 만족도를 자랑합니다.",
-	},
-	{
-		icon: ShieldCheck,
-		title: "안전한 예약 시스템",
-		description:
-			"고객님의 정보 보호를 최우선으로 생각하는 안전한 결제 시스템을 갖추고 있습니다.",
-	},
+		id: "paris-romance",
+		name: "파리 로맨틱 투어",
+		description: "세계에서 가장 낭만적인 도시에서 특별한 추억을 만들어보세요.",
+		price: "2,390,000",
+		rating: "4.7",
+		image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1742"
+	}
 ];
 
 // 인기 여행지 데이터
@@ -83,224 +59,240 @@ const popularDestinations = [
 	{
 		name: "파리",
 		country: "프랑스",
-		image: "https://images.unsplash.com/photo-1499856871958-5b9357976b82?q=80&w=2070&auto=format&fit=crop",
-		count: 26
-	},
-	{
-		name: "로마",
-		country: "이탈리아",
-		image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=2070&auto=format&fit=crop",
-		count: 18
+		image: "https://images.unsplash.com/photo-1499856871958-5b9357976b82?q=80&w=1740",
+		count: 28
 	},
 	{
 		name: "도쿄",
 		country: "일본",
-		image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1971&auto=format&fit=crop",
+		image: "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=1636",
 		count: 24
-	},
-	{
-		name: "바르셀로나",
-		country: "스페인",
-		image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?q=80&w=2070&auto=format&fit=crop",
-		count: 16
-	},
-	{
-		name: "방콕",
-		country: "태국",
-		image: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?q=80&w=2070&auto=format&fit=crop",
-		count: 20
 	},
 	{
 		name: "뉴욕",
 		country: "미국",
-		image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=2070&auto=format&fit=crop",
+		image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=1740",
 		count: 32
+	},
+	{
+		name: "바르셀로나",
+		country: "스페인",
+		image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?q=80&w=1740",
+		count: 18
+	},
+	{
+		name: "발리",
+		country: "인도네시아",
+		image: "https://images.unsplash.com/photo-1539367628448-4bc5c9d171c8?q=80&w=1735",
+		count: 22
+	},
+	{
+		name: "서울",
+		country: "한국",
+		image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=1740",
+		count: 26
 	}
 ];
 
-// 특별 할인 패키지
+// 특별 할인 상품 데이터
 const specialOffers = [
 	{
-		id: 2, // 발리 패키지
-		name: "발리 꿈의 휴양 6일",
-		description: "완벽한 휴식을 위한 발리 리조트",
-		regularPrice: "3,800,000",
-		discountPrice: "2,850,000",
-		discountRate: 25,
-		image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop",
+		id: "jeju-healing",
+		name: "제주 힐링 3일",
+		description: "에메랄드 빛 바다와 청정 자연을 만끽하는 제주도 힐링 여행",
+		regularPrice: "890,000",
+		discountPrice: "599,000",
+		discountRate: 33,
 		endDate: "2025년 7월 15일",
+		image: "https://images.unsplash.com/photo-1561424111-c47df0f91351?q=80&w=1726"
 	},
 	{
-		id: 5, // 로마 패키지
-		name: "베트남 후에 & 다낭 5일",
-		description: "역사와 해변의 완벽한 조화",
-		regularPrice: "1,500,000",
-		discountPrice: "1,125,000",
-		discountRate: 25,
-		image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=2070&auto=format&fit=crop",
-		endDate: "2025년 7월 15일",
+		id: "kyoto-autumn",
+		name: "교토 단풍 특집",
+		description: "가을의 정취가 물든 교토의 사찰과 정원 순례",
+		regularPrice: "1,290,000",
+		discountPrice: "990,000",
+		discountRate: 23,
+		endDate: "2025년 8월 30일",
+		image: "https://images.unsplash.com/photo-1558862107-d49ef2a04d72?q=80&w=1740"
 	},
 	{
-		id: 3, // 교토 패키지
-		name: "후쿠오카 맛집 탐방 3일",
-		description: "일본 최고의 음식 문화 체험",
-		regularPrice: "1,200,000",
-		discountPrice: "960,000",
-		discountRate: 20,
-		image: "https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=2025&auto=format&fit=crop",
-		endDate: "2025년 7월 20일",
-	},
+		id: "danang-golf",
+		name: "다낭 골프 패키지",
+		description: "해변과 골프를 동시에 즐기는 프리미엄 다낭 골프 여행",
+		regularPrice: "1,590,000",
+		discountPrice: "1,190,000",
+		discountRate: 25,
+		endDate: "2025년 7월 31일",
+		image: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=1750"
+	}
 ];
 
 // 시즌별 추천 패키지
 const seasonalPackages = [
 	{
-		title: "여름 휴가 베스트",
+		title: "여름 추천 여행",
 		packages: [
 			{
-				id: 7, // 그리스 산토리니 & 아테네 8일 패키지
-				name: "그리스 산토리니 & 아테네 8일",
-				price: "3,890,000",
-				image: "https://images.unsplash.com/photo-1533105079780-52b9be48d077?q=80&w=2070&auto=format&fit=crop",
+				id: "maldives-summer",
+				name: "몰디브 여름 에디션",
+				price: "2,890,000",
+				image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1365"
 			},
 			{
-				id: 8,
-				name: "하와이 오아후 & 마우이 7일",
-				price: "4,290,000", 
-				image: "https://images.unsplash.com/photo-1483168527879-c66136b56105?q=80&w=2016&auto=format&fit=crop",
-			},
+				id: "hawaii-beach",
+				name: "하와이 비치 패키지",
+				price: "3,190,000",
+				image: "https://images.unsplash.com/photo-1559494007-9f5847c49d94?q=80&w=1374"
+			}
 		]
 	},
 	{
-		title: "가을 단풍 여행",
+		title: "가을 추천 여행",
 		packages: [
 			{
-				id: 9,
-				name: "캐나다 밴쿠버 & 로키 9일",
-				price: "4,590,000",
-				image: "https://images.unsplash.com/photo-1609825488888-3a928d3f0a54?q=80&w=2072&auto=format&fit=crop",
+				id: "europe-autumn",
+				name: "유럽 가을 낭만",
+				price: "2,790,000",
+				image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=1740"
 			},
 			{
-				id: 10, // 교토 단풍 명소 5일 패키지
-				name: "교토 단풍 명소 5일",
-				price: "1,990,000",
-				image: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?q=80&w=2070&auto=format&fit=crop",
-			},
+				id: "korea-autumn",
+				name: "한국의 가을",
+				price: "690,000",
+				image: "https://images.unsplash.com/photo-1604430352727-c0cd66be47aa?q=80&w=1770"
+			}
 		]
 	},
 	{
-		title: "겨울 이색 체험",
+		title: "겨울 추천 여행",
 		packages: [
 			{
-				id: 11,
-				name: "핀란드 오로라 헌팅 6일",
-				price: "3,490,000",
-				image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=2070&auto=format&fit=crop",
+				id: "swiss-winter",
+				name: "스위스 스키 여행",
+				price: "3,290,000",
+				image: "https://images.unsplash.com/photo-1551867633-194f125bddfa?q=80&w=1740"
 			},
 			{
-				id: 12,
-				name: "홋카이도 스키 & 온천 5일",
-				price: "2,190,000",
-				image: "https://images.unsplash.com/photo-1548092372-6d990a13f182?q=80&w=2070&auto=format&fit=crop",
-			},
+				id: "japan-winter",
+				name: "일본 온천 여행",
+				price: "1,690,000",
+				image: "https://images.unsplash.com/photo-1493514789931-586cb221d7a7?q=80&w=1741"
+			}
 		]
+	}
+];
+
+// 왜 TripStore 선택하는지 데이터
+const whyChooseUs = [
+	{
+		title: "프리미엄 서비스",
+		description: "다년간의 노하우를 바탕으로 고객님께 최고의 여행 서비스를 제공합니다.",
+		icon: Award
+	},
+	{
+		title: "맞춤형 여행 설계",
+		description: "여행 전문가가 고객님의 취향과 요구에 맞는 최적의 여행을 설계합니다.",
+		icon: ThumbsUp
+	},
+	{
+		title: "안전한 여행 보장",
+		description: "24시간 현지 긴급 지원 서비스와 여행 보험으로 안전한 여행을 보장합니다.",
+		icon: ShieldCheck
 	}
 ];
 
 // 고객 후기 데이터
 const customerReviews = [
 	{
-		name: "고객1",
-		package: "그랜드 캐니언, 미국",
+		name: "김지혜",
+		date: "2025.06.15",
 		rating: 5,
-		comment: "웅장한 그랜드 캐니언의 경치에 압도되었습니다. 가이드님도 너무 친절하셨고, 일정도 여유있게 진행되어 정말 좋았어요. 특히 호텔이 모두 쾌적했습니다.",
-		date: "2025년 6월 15일"
+		package: "발리 럭셔리 빌라 휴양",
+		comment: "정말 잊지 못할 여행이었습니다. 빌라는 사진보다 더 좋았고, 서비스도 완벽했어요. 특히 현지 가이드분이 친절하게 안내해주셔서 더욱 즐거운 시간이었습니다."
 	},
 	{
-		name: "고객2",
-		package: "파리 5일",
+		name: "이상현",
+		date: "2025.06.10",
 		rating: 4,
-		comment: "파리 여행은 처음이었는데, 정말 로맨틱한 도시더라구요! 에펠탑, 루브르 박물관, 몽마르뜨 모두 좋았습니다. 다만 일정이 조금 빡빡한 점이 아쉬웠어요.",
-		date: "2025년 5월 22일"
+		package: "도쿄 문화 탐방",
+		comment: "일본 여행은 여러 번 다녀왔지만 이번 패키지로 새로운 경험을 했어요. 가이드북에 나오지 않는 현지인 맛집을 많이 알게 되어 좋았습니다."
 	},
 	{
-		name: "고객3",
-		package: "발리 꿈의 휴양 6일",
+		name: "박민준",
+		date: "2025.06.05",
 		rating: 5,
-		comment: "정말 완벽한 휴식이었습니다. 발리 리조트는 사진보다 더 멋졌고, 스파와 마사지 서비스도 만족스러웠어요. TripStore를 통해 예약해서 큰 할인도 받았습니다!",
-		date: "2025년 6월 2일"
+		package: "파리 로맨틱 투어",
+		comment: "신혼여행으로 다녀왔는데, 정말 로맨틱한 시간이었어요. 에펠탑에서의 디너는 평생 잊지 못할 추억이 되었습니다. 세심한 준비에 감사드립니다."
 	}
 ];
 
-// 여행 준비 팁 데이터
+// 여행 팁 데이터
 const travelTips = [
 	{
-		icon: Plane,
-		title: "항공권 예약",
-		description: "비수기에 예약하면 최대 30% 할인된 가격으로 항공권을 구매할 수 있습니다. 출발 2-3개월 전에 예약하는 것이 좋습니다."
+		title: "여행 필수품",
+		description: "여행지에 따라 꼭 챙겨야 할 필수품 목록과 현지에서 구하기 어려운 물품을 미리 체크하세요.",
+		icon: Briefcase
 	},
 	{
-		icon: Briefcase,
-		title: "짐 꾸리기",
-		description: "여행지 날씨를 미리 확인하고, 필수품 목록을 작성해 효율적으로 짐을 꾸리세요. 여권, 충전기, 상비약은 반드시 확인하세요."
+		title: "현지 문화 이해하기",
+		description: "방문하는 나라의 기본 예절과 문화적 금기사항을 미리 알아두면 더 풍요로운 여행이 됩니다.",
+		icon: Globe
 	},
 	{
-		icon: Camera,
-		title: "여행 계획",
-		description: "너무 빡빡한 일정보다는 여유있게 계획하고, 현지에서만 경험할 수 있는 특별한 활동을 포함시키세요."
+		title: "사진 촬영 팁",
+		description: "여행의 추억을 더 아름답게 담기 위한 기본적인 사진 촬영 팁과 인생샷 포인트를 소개합니다.",
+		icon: Camera
 	},
 	{
-		icon: ShieldCheck,
-		title: "여행 보험",
-		description: "해외여행 시 예상치 못한 상황에 대비하여 여행자 보험에 가입하는 것이 좋습니다. 의료비용, 수하물 분실 등을 보장받을 수 있습니다."
+		title: "안전한 여행하기",
+		description: "해외여행 시 주의해야 할 안전 수칙과 위급상황 대처법을 알려드립니다.",
+		icon: Users
 	}
 ];
 
-// FAQ 데이터
+// 자주 묻는 질문
 const faqs = [
 	{
-		question: "예약 취소는 언제까지 가능한가요?",
-		answer: "일반적으로 출발 30일 전까지는 100% 환불, 15일 전까지는 70% 환불, 7일 전까지는 50% 환불이 가능합니다. 자세한 사항은 각 상품의 취소 규정을 확인해주세요."
+		question: "패키지 여행에는 어떤 것들이 포함되어 있나요?",
+		answer: "기본적으로 항공, 숙박, 식사(조식 포함), 공항-호텔 간 이동 교통편이 포함됩니다. 상품에 따라 현지 투어와 가이드 서비스가 추가될 수 있습니다. 각 패키지 상세 페이지에서 정확한 포함 사항을 확인하실 수 있습니다."
 	},
 	{
-		question: "여행 상품에 항공권이 포함되어 있나요?",
-		answer: "대부분의 패키지 상품에는 왕복 항공권이 포함되어 있습니다. 상품 상세 페이지의 '포함 사항'에서 확인하실 수 있습니다."
+		question: "예약 취소 및 환불 정책은 어떻게 되나요?",
+		answer: "출발 30일 전까지는 전액 환불, 15일 전까지는 80% 환불, 7일 전까지는 50% 환불이 가능합니다. 출발 7일 이내 취소 시에는 환불이 불가능합니다. 일부 특가 상품은 별도의 취소 정책이 적용될 수 있으니 예약 전 확인해주세요."
 	},
 	{
-		question: "비자 발급 서비스를 제공하나요?",
-		answer: "네, 비자가 필요한 국가의 경우 별도 비용으로 비자 발급 대행 서비스를 제공하고 있습니다. 예약 시 추가 옵션으로 선택하실 수 있습니다."
+		question: "여행 준비를 위한 조언을 얻을 수 있을까요?",
+		answer: "네, 예약 확정 후 담당 여행 컨설턴트가 배정되어 필요한 서류, 준비물, 현지 정보 등을 안내해드립니다. 또한 출발 전 오리엔테이션을 통해 여행지에 대한 상세한 정보를 제공해드립니다."
+	},
+	{
+		question: "단체가 아닌 개인 맞춤 여행도 가능한가요?",
+		answer: "네, 프라이빗 투어 옵션을 선택하시면 개인 또는 가족 단위의 맞춤형 여행이 가능합니다. 원하시는 일정과 선호도를 알려주시면 전문 컨설턴트가 최적의 여행 계획을 설계해 드립니다."
 	}
 ];
 
-
-
 export default function Home() {
+	const router = useRouter();
 	const [destination, setDestination] = useState("");
 	const [tripType, setTripType] = useState("모든 종류");
 	const [email, setEmail] = useState("");
 	const [isSubscribed, setIsSubscribed] = useState(false);
-	const router = useRouter();
 
-	const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSearch = (e) => {
 		e.preventDefault();
-		const params = new URLSearchParams();
 		if (destination) {
-			params.append("destination", destination);
+			router.push(`/packages?destination=${encodeURIComponent(destination)}&type=${encodeURIComponent(tripType)}`);
 		}
-		if (tripType !== "모든 종류") {
-			params.append("type", tripType);
-		}
-		router.push(`/packages?${params.toString()}`);
 	};
 
-	const handleSubscribe = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubscribe = (e) => {
 		e.preventDefault();
-		// 실제로는 API로 뉴스레터 구독 처리
-		setIsSubscribed(true);
-		setTimeout(() => {
-			setIsSubscribed(false);
+		// 이메일 유효성 검사
+		if (email && /^\S+@\S+\.\S+$/.test(email)) {
+			// 실제 구현에서는 API 호출로 대체
+			setIsSubscribed(true);
 			setEmail("");
-		}, 3000);
+		}
 	};
 
 	return (
@@ -311,9 +303,8 @@ export default function Home() {
 					<Image
 						src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2070&auto=format&fit=crop"
 						alt="Hero background"
-						layout="fill"
-						objectFit="cover"
-						className="image-filter-warm"
+						fill
+						className="object-cover image-filter-warm"
 						priority
 					/>
 					<div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/50 to-transparent"></div>
@@ -345,11 +336,11 @@ export default function Home() {
 			</section>
 
 			{/* Search Form Section */}
-			<section className="-mt-24 relative z-20">
+			<section className="mt-12 relative z-20">
 				<div className="container mx-auto px-4">
 					<form
 						onSubmit={handleSearch}
-						className="glassmorphism p-8 rounded-2xl shadow-soft-2xl max-w-4xl mx-auto border border-white/20 animate-scale-in"
+						className="bg-white p-8 rounded-2xl shadow-soft-2xl max-w-4xl mx-auto border border-neutral-100 animate-scale-in"
 					>
 						<h2 className="text-xl font-bold text-center mb-6 text-neutral-800">어디로 떠나고 싶으신가요?</h2>
 						<div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
@@ -433,9 +424,8 @@ export default function Home() {
 									<Image
 										src={destination.image}
 										alt={destination.name}
-										layout="fill"
-										objectFit="cover"
-										className="transition-transform duration-700 group-hover:scale-110"
+										fill
+										className="object-cover transition-transform duration-700 group-hover:scale-110"
 									/>
 									<div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/60 to-transparent group-hover:from-blue-900/80 transition-all duration-300">
 										<div className="absolute bottom-0 p-5 w-full transform transition-transform duration-300 group-hover:translate-y-0 translate-y-2">
@@ -495,9 +485,8 @@ export default function Home() {
 										<Image
 											src={pkg.image}
 											alt={pkg.name}
-											layout="fill"
-											objectFit="cover"
-											className="transition-transform duration-700 group-hover:scale-110"
+											fill
+											className="object-cover transition-transform duration-700 group-hover:scale-110"
 										/>
 										<div className="absolute top-4 right-4 z-20 bg-white/80 backdrop-blur-md text-neutral-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-subtle">
 											<Star className="h-4 w-4 text-yellow-500 mr-1.5" fill="currentColor" />
