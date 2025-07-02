@@ -169,7 +169,6 @@ export default function UpdatePasswordPage() {
           console.log('개발 환경에서 비밀번호 변경 허용');
           setSessionReady(true);
         }
-        }
       } catch (err) {
         console.error('초기화 중 예외 발생:', err);
         setError('인증 상태를 초기화하는 중 오류가 발생했습니다.');
