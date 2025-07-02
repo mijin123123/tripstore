@@ -42,21 +42,33 @@ export default function RegisterPage() {
       const adminPassword = 'Admin123!@#'; // 안전한 비밀번호 사용
       
       console.log('관리자 계정 생성 시도:', adminEmail);
+      console.log('Supabase 클라이언트 설정:', { 
+        url: supabase.supabaseUrl, 
+        hasKey: !!supabase.supabaseKey,
+        keyPreview: supabase.supabaseKey ? `${supabase.supabaseKey.substring(0, 10)}...` : 'none'
+      });
       
-      // Supabase Auth로 회원가입
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: adminEmail,
-        password: adminPassword,
-        options: {
+      // Supabase Auth로 회원가입 - API 직접 호출 방식으로 시도
+      const response = await fetch(`${supabase.supabaseUrl}/auth/v1/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabase.supabaseKey || '',
+          'X-Client-Info': 'supabase-js/2.38.0'
+        },
+        body: JSON.stringify({
+          email: adminEmail,
+          password: adminPassword,
           data: {
             name: '시스템 관리자'
           }
-        }
+        })
       });
       
-      console.log('관리자 계정 생성 응답:', { data, error: signUpError });
+      const result = await response.json();
+      console.log('관리자 계정 생성 직접 API 응답:', { status: response.status, result });
 
-      if (signUpError) throw signUpError;
+      if (!response.ok) throw new Error(`API 응답 오류: ${response.status} - ${JSON.stringify(result)}`);
       
       alert(`관리자 계정(${adminEmail})이 생성되었습니다. 이메일 인증을 확인해주세요.`);
     } catch (err: any) {
