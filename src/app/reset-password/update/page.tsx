@@ -106,14 +106,17 @@ export default function UpdatePasswordPage() {
             try {
               const { error: setSessionError } = await supabase.auth.setSession({
                 access_token: accessToken,
-              refresh_token: refreshToken
-            });
-            
-            if (setSessionError) {
-              console.error('세션 설정 오류:', setSessionError);
-              setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
-            } else {
-              console.log('쿼리 파라미터로 세션 설정 성공');
+                refresh_token: refreshToken
+              });
+              
+              if (setSessionError) {
+                console.error('세션 설정 오류:', setSessionError);
+                setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
+              } else {
+                console.log('쿼리 파라미터로 세션 설정 성공');
+              }
+            } catch (err) {
+              console.error('세션 설정 중 예외 발생:', err);
             }
           }
           // 그 외의 경우, 현재 세션 확인 
