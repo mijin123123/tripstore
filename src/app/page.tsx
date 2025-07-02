@@ -305,6 +305,7 @@ export default function Home() {
 						alt="Hero background"
 						fill
 						className="object-cover image-filter-warm"
+						style={{ objectFit: "cover" }}
 						priority
 					/>
 					<div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/50 to-transparent"></div>
@@ -426,6 +427,7 @@ export default function Home() {
 										alt={destination.name}
 										fill
 										className="object-cover transition-transform duration-700 group-hover:scale-110"
+										style={{ objectFit: "cover" }}
 									/>
 									<div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/60 to-transparent group-hover:from-blue-900/80 transition-all duration-300">
 										<div className="absolute bottom-0 p-5 w-full transform transition-transform duration-300 group-hover:translate-y-0 translate-y-2">
@@ -487,6 +489,7 @@ export default function Home() {
 											alt={pkg.name}
 											fill
 											className="object-cover transition-transform duration-700 group-hover:scale-110"
+											style={{ objectFit: "cover" }}
 										/>
 										<div className="absolute top-4 right-4 z-20 bg-white/80 backdrop-blur-md text-neutral-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-subtle">
 											<Star className="h-4 w-4 text-yellow-500 mr-1.5" fill="currentColor" />
@@ -560,6 +563,7 @@ export default function Home() {
 											width={400}
 											height={250}
 											className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105"
+											style={{ objectFit: "cover" }}
 										/>
 										<div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/30 to-transparent"></div>
 										<div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-sm">
@@ -633,6 +637,7 @@ export default function Home() {
 														width={250}
 														height={150}
 														className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+														style={{ objectFit: "cover" }}
 													/>
 												</div>
 												<div className="p-4 md:p-6 flex flex-col justify-between w-2/3 md:w-3/5">
