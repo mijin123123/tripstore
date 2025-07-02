@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,8 +12,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const router = useRouter();
   const { signIn } = useAuth();
+
+  // 환경 정보 로드
+  useEffect(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    const envInfo = `
+      Supabase URL: ${supabaseUrl ? '설정됨' : '설정되지 않음'}
+      Supabase Anon Key: ${supabaseAnonKey ? '설정됨' : '설정되지 않음'}
+    `;
+    
+    setDebugInfo(envInfo);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,12 +41,15 @@ export default function LoginPage() {
       setLoading(true);
       setError(null);
       
+      console.log('로그인 시도:', email);
       const { error: signInError } = await signIn(email, password);
       
       if (signInError) {
+        console.error('로그인 오류 상세:', signInError);
         throw signInError;
       }
       
+      console.log('로그인 성공!');
       // 로그인 성공 시 메인 페이지로 이동
       router.push('/');
     } catch (err: any) {
@@ -81,6 +98,15 @@ export default function LoginPage() {
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
+
+          {/* 개발 환경에서만 표시되는 디버그 정보 */}
+          {process.env.NODE_ENV === 'development' && debugInfo && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="font-semibold mb-2 text-blue-800">디버그 정보 (개발환경)</h4>
+              <pre className="text-xs text-blue-700 whitespace-pre-wrap">{debugInfo}</pre>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
             <div className="space-y-2">
               <label className="block text-sm font-bold text-neutral-700" htmlFor="email">
@@ -96,6 +122,8 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  autoFocus
                 />
               </div>
             </div>
@@ -113,6 +141,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                 />
               </div>
             </div>
