@@ -33,7 +33,7 @@ const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
       }
     },
     // URL 처리 개선 - 절대 경로 사용, 타입 명시
-    emailRedirectTo: typeof window !== 'undefined' 
+    redirectTo: typeof window !== 'undefined' 
       ? `${window.location.origin}/reset-password/update?type=recovery` 
       : 'https://mellifluous-druid-c34db0.netlify.app/reset-password/update?type=recovery'
   }

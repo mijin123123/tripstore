@@ -57,20 +57,23 @@ export default function UpdatePasswordPage() {
         });
         
         // 3. 토큰 확인 또는 설정 (여러 방법 시도)
-        // 방법 1: URL에서 직접 세션 가져오기
+        // 방법 1: URL 파라미터 직접 처리 (getSessionFromUrl 대체)
         try {
-          console.log('방법 1: URL에서 직접 세션 처리 시도');
-          const { data, error } = await supabase.auth.getSessionFromUrl();
+          console.log('방법 1: URL 파라미터 직접 처리 시도');
+          
+          // Supabase v2에서는 자동으로 URL 파라미터를 처리함
+          // 여기서는 별도 작업 없이 현재 세션 확인만 수행
+          const { data, error } = await supabase.auth.getSession();
           
           if (!error && data.session) {
-            console.log('URL에서 세션 가져오기 성공');
+            console.log('현재 세션 확인 성공, 세션 있음');
             setSessionReady(true);
             return;
-          } else if (error) {
-            console.warn('URL에서 세션 가져오기 실패:', error.message);
+          } else {
+            console.log('현재 세션 없음, 다른 방법 시도');
           }
         } catch (err) {
-          console.warn('URL 세션 처리 중 예외 발생:', err);
+          console.warn('세션 확인 중 예외 발생:', err);
         }
         
         // 방법 2: 해시에서 토큰 추출 시도
