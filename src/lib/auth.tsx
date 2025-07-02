@@ -133,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 비밀번호 재설정 함수
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/reset-password/update`,
     });
     
     return { error };

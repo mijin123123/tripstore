@@ -152,7 +152,7 @@ export default function LoginPage() {
                 <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-neutral-700">로그인 정보 저장</label>
               </div>
               <div className="text-sm">
-                <Link href="#" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                <Link href="/reset-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
                   비밀번호를 잊으셨나요?
                 </Link>
               </div>
