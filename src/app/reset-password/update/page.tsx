@@ -12,97 +12,53 @@ export default function UpdatePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sessionReady, setSessionReady] = useState(false);
   const router = useRouter();
 
-  // 비밀번호 재설정 세션 처리 로직
   useEffect(() => {
-    const initializeSession = async () => {
-      try {
-        console.log('비밀번호 재설정 페이지 초기화', { url: window.location.href });
-        
-        // 1. 현재 URL에서 토큰 정보 확인 (해시 및 쿼리 파라미터)
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const queryParams = new URLSearchParams(window.location.search);
-        
-        // 중요 정보 로깅
-        console.log('URL 정보:', {
-          hash: Object.fromEntries(hashParams.entries()),
-          query: Object.fromEntries(queryParams.entries()),
-        });
-        
-        // 2. 현재 세션 확인
-        const { data: sessionData } = await supabase.auth.getSession();
-        console.log('현재 세션:', sessionData?.session ? '있음' : '없음');
-        
-        // 3. 세션이 있으면 그대로 사용
-        if (sessionData?.session) {
-          console.log('기존 세션 사용');
-          setSessionReady(true);
-          return;
-        }
-        
-        // 4. 개발 환경에서는 항상 활성화 (테스트 용이성)
-        if (process.env.NODE_ENV === 'development') {
-          console.log('개발 환경 - 세션 검증 생략');
-          setSessionReady(true);
-          return;
-        }
-        
-        // 5. 쿼리에 type=recovery가 있으면 재설정 모드로 간주
-        if (queryParams.get('type') === 'recovery') {
-          console.log('recovery 쿼리 파라미터 감지됨');
-          // 토큰을 직접 가져올 수 없지만, 이미 세션을 설정했다고 가정
-          setSessionReady(true);
-          return;
-        }
-        
-        // 6. 해시에 access_token이 있는 경우
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
-        
-        if (accessToken && refreshToken) {
-          console.log('토큰 정보 발견, 세션 설정 시도');
-          try {
-            // Supabase v2에서는 setSession으로 세션을 설정
-            const result = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-            
-            console.log('세션 설정 결과:', result.error ? '실패' : '성공');
-            
-            if (!result.error) {
-              setSessionReady(true);
-              return;
-            }
-          } catch (e) {
-            console.error('세션 설정 중 오류:', e);
-          }
-        }
-        
-        // 7. 모든 시도 실패
-        console.log('유효한 세션을 찾을 수 없음');
-        setError('비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.');
-        
-        // 문제 해결을 위해 항상 활성화 (테스트용)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(`Auth State Change: ${event}`);
+      if (event === "PASSWORD_RECOVERY") {
+        console.log("Password recovery event detected. Session is now valid.");
         setSessionReady(true);
-      } catch (err) {
-        console.error('초기화 중 오류:', err);
-        setError('인증 상태를 초기화하는 중 오류가 발생했습니다.');
-        
-        // 문제 해결을 위해 항상 활성화 (테스트용)
-        setSessionReady(true);
+        setLoading(false);
+        setError(null);
       }
+    });
+
+    // 페이지 로드 시 현재 세션 확인
+    supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+            console.log("An active session was found on mount.");
+            setSessionReady(true);
+            setLoading(false);
+        } else {
+            // 지연 후에도 세션이 없으면 링크가 유효하지 않은 것으로 간주
+            setTimeout(() => {
+                // onAuthStateChange가 실행되었을 수 있으므로 다시 확인
+                if (!sessionReady) { 
+                    console.error("No session established. The recovery link may be invalid or expired.");
+                    setError("비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다. 새로운 재설정 링크를 요청해주세요.");
+                    setLoading(false);
+                }
+            }, 3000); // 3초 대기
+        }
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
-    
-    initializeSession();
-  }, []);
+  }, []); // 마운트 시 한 번만 실행
 
   // 비밀번호 변경 처리 (자세한 로깅 추가)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!sessionReady) {
+      setError("세션이 유효하지 않습니다. 페이지를 새로고침하거나 다시 시도해주세요.");
+      return;
+    }
     
     // 비밀번호 검증
     if (password.length < 8) {
@@ -198,107 +154,88 @@ export default function UpdatePasswordPage() {
           )}
           
           {success ? (
-            <div className="mb-6 p-6 bg-green-50 border border-green-200 rounded-lg text-center">
-              <div className="mb-4 flex justify-center">
-                <div className="rounded-full bg-green-100 p-3">
-                  <Check className="text-green-600 h-8 w-8" />
+            <div className="text-center p-8 bg-green-50 border border-green-200 rounded-2xl shadow-md">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <Check className="w-10 h-10 text-green-600" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-green-800 mb-2">비밀번호가 변경되었습니다!</h3>
-              <p className="text-green-700 mb-4">
-                비밀번호가 성공적으로 재설정되었습니다.
-              </p>
-              <p className="text-green-600 text-sm mb-4">
-                5초 후 로그인 페이지로 이동합니다...
-              </p>
-              <Link 
-                href="/login" 
-                className="inline-block px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
-              >
+              <h3 className="text-2xl font-bold text-green-800 mb-2">비밀번호 변경 완료</h3>
+              <p className="text-green-700 mb-6">비밀번호가 성공적으로 변경되었습니다. 이제 새 비밀번호로 로그인할 수 있습니다.</p>
+              <Link href="/login" className="inline-flex items-center justify-center w-full py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700">
+                <ArrowLeft className="mr-2 h-5 w-5" />
                 로그인 페이지로 이동
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-neutral-700" htmlFor="password">
-                  새 비밀번호
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                  <input
-                    className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={!sessionReady || loading}
-                    autoFocus
-                  />
+              <fieldset disabled={!sessionReady || loading}>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-neutral-700" htmlFor="password">
+                    새 비밀번호
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                    <input
+                      className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-neutral-100"
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <p className="text-xs text-neutral-500">비밀번호는 최소 8자 이상이어야 합니다.</p>
                 </div>
-                <p className="text-xs text-neutral-500 mt-1">비밀번호는 최소 8자 이상이어야 합니다.</p>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-neutral-700" htmlFor="confirm-password">
-                  비밀번호 확인
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                  <input
-                    className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    id="confirm-password"
-                    type="password"
-                    placeholder="••••••••"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    disabled={!sessionReady || loading}
-                  />
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-neutral-700" htmlFor="confirm-password">
+                    비밀번호 확인
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                    <input
+                      className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-neutral-100"
+                      id="confirm-password"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              <div className="pt-4">
-                <button
-                  className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
-                  type="submit"
-                  disabled={!sessionReady || loading}
-                >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      처리 중...
-                    </span>
-                  ) : !sessionReady ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      인증 확인 중...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <Check className="mr-2 h-5 w-5" />
-                      비밀번호 변경하기
-                    </span>
-                  )}
-                </button>
-              </div>
+                
+                <div className="pt-4">
+                  <button
+                    className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                    type="submit"
+                    disabled={loading || !sessionReady}
+                  >
+                    {loading ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        처리 중...
+                      </span>
+                    ) : '비밀번호 변경하기'}
+                  </button>
+                </div>
+              </fieldset>
             </form>
           )}
           
-          <div className="text-center mt-6">
-            <Link href="/login" className="inline-flex items-center text-blue-600 hover:text-blue-500 transition-colors">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              로그인 페이지로 돌아가기
-            </Link>
-          </div>
+          {!success && (
+            <div className="text-center mt-6">
+              <Link href="/login" className="text-sm text-blue-600 hover:underline">
+                <ArrowLeft className="inline-block mr-1 h-4 w-4" />
+                로그인 페이지로 돌아가기
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
