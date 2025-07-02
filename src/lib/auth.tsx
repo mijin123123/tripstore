@@ -142,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const baseUrl = origin.includes('netlify') || origin.includes('localhost') ? origin : netlifyUrl;
     
     // 중요: 경로를 절대 경로로 지정하여 리디렉션 문제 방지
-    const redirectUrl = `${baseUrl}/reset-password/update`;
+    const redirectUrl = `${baseUrl}/reset-password/update/`;
     
     console.log('리디렉션 URL:', redirectUrl);
     

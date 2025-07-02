@@ -18,9 +18,10 @@
 
 # 비밀번호 재설정 특별 처리
 [[redirects]]
-  from = "/reset-password/*"
-  to = "/reset-password/[...slug].html"
+  from = "/reset-password/index.html"
+  to = "/reset-password/index.html"
   status = 200
+  force = true
 
 # 인증 관련 리디렉션 처리 - 해시 파라미터 (# 이후 부분)
 [[redirects]]
@@ -40,4 +41,5 @@
 [[redirects]]
   from = "/reset-password"
   to = "/reset-password/index.html"
-  status = 200
+  status = 302
+  force = true
