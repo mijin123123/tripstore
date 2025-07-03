@@ -1,7 +1,6 @@
-```tsx
 "use client";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase";
 
 const ResetPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -51,4 +50,3 @@ const ResetPasswordPage = () => {
 };
 
 export default ResetPasswordPage;
-```
