@@ -833,18 +833,7 @@ export const packagesData: TravelPackage[] = [
   }
 ];
 
-// 패키지 ID로 패키지 데이터 가져오기
 export function getPackageById(id: string | string[]): TravelPackage | undefined {
   const packageId = Array.isArray(id) ? parseInt(id[0]) : parseInt(id);
   return packagesData.find(pkg => pkg.id === packageId);
 }
-
-// 패키지 기능 아이콘 매핑
-export const packageFeatures: PackageFeature[] = [
-  { key: 'duration', icon: Calendar, label: "기간" },
-  { key: 'destination', icon: MapPin, label: "목적지" },
-  { key: 'groupSize', icon: Users, label: "그룹 크기" },
-  { key: 'meals', icon: Utensils, label: "식사" },
-  { key: 'accommodation', icon: Home, label: "숙박" },
-  { key: 'activities', icon: Camera, label: "액티비티" },
-];

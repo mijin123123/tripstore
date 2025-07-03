@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  // output: 'export', // 정적 내보내기 사용 안함
   trailingSlash: true,
   images: {
     unoptimized: true,
