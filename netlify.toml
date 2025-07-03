@@ -5,8 +5,7 @@
 [build.environment]
   NEXT_PUBLIC_SUPABASE_URL = "https://ewezrjlymdfinpwfruga.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3ZXpyamx5bWRmaW5wd2ZydWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMzI5MTAsImV4cCI6MjA2NjkwODkxMH0.KWLNVNQUSzMa2pNzF-q8BWhZ6jIzavQT4_aWo6LFM90"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  
+# 넷리파이에서 Next.js 사이트를 올바르게 배포하기 위한 플러그인
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
