@@ -1,31 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface NoticeFormProps {
-  initialData?: {
-    id?: string;
-    title?: string;
-    content?: string;
-    is_important?: boolean;
-  } | null;
+  id?: string;
 }
 
-export default function NoticeForm({ initialData = null }: NoticeFormProps) {
+export default function NoticeForm({ id }: NoticeFormProps) {
   const router = useRouter();
-  const isEditing = !!initialData?.id;
+  const isEditing = !!id;
 
   const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    content: initialData?.content || '',
-    is_important: initialData?.is_important || false,
+    title: '',
+    content: '',
+    is_important: false,
   });
 
+  const [isLoading, setIsLoading] = useState(isEditing);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isEditing) {
+      const fetchNotice = async () => {
+        try {
+          const response = await fetch(`/api/notices/${id}`);
+          if (!response.ok) {
+            throw new Error('공지사항 데이터를 불러오는데 실패했습니다.');
+          }
+          const data = await response.json();
+          setFormData({
+            title: data.title || '',
+            content: data.content || '',
+            is_important: data.is_important || false,
+          });
+        } catch (err) {
+          console.error('공지사항 데이터 조회 오류:', err);
+          setError('데이터를 불러올 수 없습니다.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchNotice();
+    }
+  }, [id, isEditing]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -43,8 +64,7 @@ export default function NoticeForm({ initialData = null }: NoticeFormProps) {
     setError('');
 
     try {
-      // API 요청 (실제 API 구현 필요)
-      const response = await fetch(`/api/notices${isEditing ? `/${initialData.id}` : ''}`, {
+      const response = await fetch(`/api/notices${isEditing ? `/${id}` : ''}`, {
         method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,6 +85,10 @@ export default function NoticeForm({ initialData = null }: NoticeFormProps) {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return <div>로딩 중...</div>;
+  }
 
   return (
     <Card>
@@ -103,19 +127,17 @@ export default function NoticeForm({ initialData = null }: NoticeFormProps) {
                 className="w-full p-2 border rounded-md"
               />
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
-                id="is_important"
                 name="is_important"
+                id="is_important"
                 checked={formData.is_important}
-                onChange={handleChange as any}
-                className="h-4 w-4"
+                onChange={handleChange}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
-              <label htmlFor="is_important" className="text-sm font-medium">
-                중요 공지사항으로 표시
-              </label>
+              <label htmlFor="is_important" className="text-sm font-medium">중요 공지</label>
             </div>
           </div>
           
@@ -130,7 +152,7 @@ export default function NoticeForm({ initialData = null }: NoticeFormProps) {
             </Button>
             
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? '저장 중...' : isEditing ? '수정하기' : '작성하기'}
+              {isSubmitting ? '저장 중...' : (isEditing ? '수정하기' : '작성하기')}
             </Button>
           </div>
         </form>
