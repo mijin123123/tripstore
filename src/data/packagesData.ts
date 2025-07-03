@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Users, Utensils, Home, Camera } from 'lucide-react';
+import { Calendar, MapPin, Users, Utensils, Home, Camera, Plane, Clock } from 'lucide-react';
 
 export interface TravelPackage {
   id: number;
@@ -32,6 +32,17 @@ export interface PackageFeature {
   icon: React.ElementType;
   label: string;
 }
+
+export const packageFeatures: PackageFeature[] = [
+  { key: 'duration', icon: Clock, label: '여행 기간' },
+  { key: 'destination', icon: MapPin, label: '여행지' },
+  { key: 'groupSize', icon: Users, label: '그룹 규모' },
+  { key: 'meals', icon: Utensils, label: '제공 식사' },
+  { key: 'accommodation', icon: Home, label: '숙박 시설' },
+  { key: 'activities', icon: Camera, label: '주요 활동' },
+  { key: 'departureDate', icon: Calendar, label: '출발일' },
+  { key: 'transportation', icon: Plane, label: '교통 수단' },
+];
 
 export const packagesData: TravelPackage[] = [
   {

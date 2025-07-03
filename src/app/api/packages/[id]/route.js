@@ -4,6 +4,16 @@ import { checkAdminPermission } from '@/lib/admin-auth';
 
 export const dynamic = "force-static";
 
+// 정적 경로 생성을 위한 함수
+export async function generateStaticParams() {
+  // 패키지 ID 목록 (임시 ID 목록 사용)
+  const packageIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
+  
+  return packageIds.map((id) => ({
+    id: id,
+  }));
+}
+
 export async function PUT(request, { params }) {
   try {
     const { id } = params;
