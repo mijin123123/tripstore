@@ -2,6 +2,15 @@ import NoticeForm from '@/components/admin/NoticeForm';
 import { createClient } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 
+// Static export를 위한 generateStaticParams 함수
+export async function generateStaticParams() {
+  const noticeIds = ['1', '2', '3', '4', '5'];
+  
+  return noticeIds.map((id) => ({
+    id: id,
+  }));
+}
+
 interface NoticeEditPageProps {
   params: {
     id: string;

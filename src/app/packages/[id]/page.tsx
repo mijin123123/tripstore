@@ -22,7 +22,14 @@ import {
   Heart,
   ShoppingCart
 } from "lucide-react";
-import { getPackageById, packageFeatures, TravelPackage } from "@/data/packagesData";
+import { getPackageById, packageFeatures, TravelPackage, packagesData } from "@/data/packagesData";
+
+// Static export를 위한 generateStaticParams 함수
+export async function generateStaticParams() {
+  return packagesData.map((pkg) => ({
+    id: pkg.id.toString(),
+  }));
+}
 
 export default function PackageDetail() {
   const params = useParams();

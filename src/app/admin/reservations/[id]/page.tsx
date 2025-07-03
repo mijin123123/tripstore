@@ -5,6 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { ArrowLeft, Check, X } from 'lucide-react';
 
+// Static export를 위한 generateStaticParams 함수
+export async function generateStaticParams() {
+  const reservationIds = ['1', '2', '3', '4', '5'];
+  
+  return reservationIds.map((id) => ({
+    id: id,
+  }));
+}
+
 interface ReservationDetailPageProps {
   params: {
     id: string;

@@ -15,6 +15,16 @@ import {
   Bell
 } from 'lucide-react';
 
+// Static export를 위한 generateStaticParams 함수
+export async function generateStaticParams() {
+  // 임시 공지사항 ID 목록 (실제로는 API에서 가져올 것)
+  const noticeIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
+  
+  return noticeIds.map((id) => ({
+    id: id,
+  }));
+}
+
 // 임시 공지사항 데이터 (실제 구현에서는 API로 가져올 것입니다)
 const notices = [
   { id: 1, title: 'TripStore 그랜드 오픈! 특별 할인 이벤트를 확인하세요.', date: '2025-06-29', category: '이벤트', content: '안녕하세요, TripStore 고객 여러분!\n\n저희 TripStore가 드디어 그랜드 오픈을 하게 되었습니다. 이를 기념하여 특별한 할인 이벤트를 준비했습니다.\n\n## 오픈 기념 할인 이벤트 안내\n\n### 1. 전 상품 15% 할인\n- 기간: 2025년 7월 1일 ~ 7월 31일\n- 대상: 모든 여행 상품\n- 방법: 결제 시 쿠폰 코드 "GRAND2025" 입력\n\n### 2. 얼리버드 추가 5% 할인\n- 기간: 2025년 7월 1일 ~ 7월 15일\n- 조건: 9월 이후 출발 상품 예약 시\n\n### 3. 첫 구매 고객 웰컴 기프트\n- 여행용 파우치 세트 증정 (선착순 100명)\n\n이번 할인 이벤트를 통해 더 많은 고객님들께서 저희 TripStore와 함께 특별한 여행 경험을 시작하시길 바랍니다.\n\n감사합니다.', views: 428 },
