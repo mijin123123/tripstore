@@ -1,12 +1,14 @@
 ```tsx
+"use client";
 import { useState } from "react";
-import { supabase } from "../utils/supabaseClient";
+import { createClient } from "@/lib/supabase/client";
 
 const ResetPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const supabase = createClient();
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
