@@ -17,35 +17,65 @@ export default function UpdatePasswordPage() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("비밀번호 업데이트 페이지 마운트됨. 인증 리스너 설정.");
+    console.log("UpdatePasswordPage mounted. Checking for tokens in URL hash.");
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(`인증 상태 변경 이벤트: ${event}`);
+    // URL 해시에서 토큰 파싱
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const error = params.get('error_description');
 
-      // 비밀번호 복구 이벤트가 발생하면 세션이 준비된 것임
-      if (event === "PASSWORD_RECOVERY") {
-        console.log("PASSWORD_RECOVERY 이벤트 수신. 세션이 준비되었습니다.");
-        setError(null);
-        setSessionReady(true);
-        setLoading(false); // 로딩 상태 해제
-      }
-    });
-
-    // 5초 후에도 세션이 준비되지 않으면 타임아웃 처리
-    const timer = setTimeout(() => {
-      if (!sessionReady) {
-        console.error("세션 설정 시간 초과. 링크가 만료되었을 수 있습니다.");
-        setError("비밀번호 재설정 링크가 만료되었거나 유효하지 않습니다. 다시 요청해주세요.");
+    if (error) {
+        console.error("URL에 오류가 포함되어 있습니다:", error);
+        setError(`오류: ${error}`);
         setLoading(false);
-      }
-    }, 5000);
+        return;
+    }
 
-    return () => {
-      console.log("컴포넌트 언마운트. 인증 리스너 해제.");
-      subscription.unsubscribe();
-      clearTimeout(timer);
-    };
-  }, [sessionReady]); // sessionReady가 변경될 때마다 effect를 재평가할 필요는 없으므로, 빈 배열로 변경합니다.
+    // 토큰이 있으면 수동으로 세션 설정
+    if (accessToken && refreshToken) {
+        console.log("URL에서 토큰 발견. 수동으로 세션 설정 시도.");
+        supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+        }).then(({ data, error }) => {
+            if (error) {
+                console.error("수동 세션 설정 실패:", error);
+                setError("세션 설정에 실패했습니다. 링크가 유효하지 않을 수 있습니다.");
+                setLoading(false);
+            } else {
+                console.log("수동 세션 설정 성공:", data.session);
+                setSessionReady(true);
+                setLoading(false);
+            }
+        });
+    } else {
+        // 토큰이 없는 경우, onAuthStateChange에 의존
+        console.log("URL에 토큰 없음. onAuthStateChange 리스너에 의존합니다.");
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === "PASSWORD_RECOVERY") {
+                console.log("PASSWORD_RECOVERY 이벤트 수신. 세션이 준비되었습니다.");
+                setSessionReady(true);
+                setLoading(false);
+            }
+        });
+
+        // 타임아웃 설정
+        const timer = setTimeout(() => {
+            if (!sessionReady) {
+                console.error("세션 설정 시간 초과.");
+                setError("비밀번호 재설정 링크가 만료되었거나 유효하지 않습니다.");
+                setLoading(false);
+            }
+        }, 5000);
+
+        return () => {
+            subscription.unsubscribe();
+            clearTimeout(timer);
+        };
+    }
+  }, []); // 마운트 시 한 번만 실행
 
   // 비밀번호 변경 처리
   const handleSubmit = async (e: React.FormEvent) => {
