@@ -24,12 +24,8 @@ import {
 } from "lucide-react";
 import { getPackageById, packageFeatures, TravelPackage, packagesData } from "@/data/packagesData";
 
-// Static export를 위한 generateStaticParams 함수
-export async function generateStaticParams() {
-  return packagesData.map((pkg) => ({
-    id: pkg.id.toString(),
-  }));
-}
+// generateStaticParams는 클라이언트 컴포넌트와 함께 사용할 수 없으므로 제거합니다
+// Next.js가 동적 렌더링으로 처리하도록 합니다
 
 export default function PackageDetail() {
   const params = useParams();
