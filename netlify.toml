@@ -10,39 +10,6 @@
   NEXT_PUBLIC_SUPABASE_URL = "https://ewezrjlymdfinpwfruga.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3ZXpyamx5bWRmaW5wd2ZydWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMzI5MTAsImV4cCI6MjA2NjkwODkxMH0.KWLNVNQUSzMa2pNzF-q8BWhZ6jIzavQT4_aWo6LFM90"
 
-# 비밀번호 재설정 페이지는 직접 서비스
-[[redirects]]
-  from = "/reset-password/update"
-  to = "/reset-password/update/index.html"
-  status = 200
-
-# 비밀번호 재설정 쿼리 파라미터 처리
-[[redirects]]
-  from = "/reset-password/update"
-  query = {type = "recovery"}
-  to = "/reset-password/update/index.html"
-  status = 200
-
-# 다른 비밀번호 관련 경로
-[[redirects]]
-  from = "/reset-password/*"
-  to = "/reset-password/update/index.html"
-  status = 200
-
-# 이메일 링크로 들어온 recovery 파라미터 처리
-[[redirects]]
-  from = "/*"
-  query = {type = "recovery"}
-  to = "/reset-password/update/index.html"
-  status = 200
-
-# 액세스 토큰을 가진 경로 처리
-[[redirects]]
-  from = "/*access_token*"
-  to = "/reset-password/update/index.html"
-  status = 200
-
-# 기본 SPA 리디렉션 (가장 마지막에 위치하여 이전 규칙이 우선 적용되게)
 [[redirects]]
   from = "/*"
   to = "/index.html"
