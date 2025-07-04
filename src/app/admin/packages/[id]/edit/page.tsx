@@ -1,6 +1,8 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import PackageForm from '@/components/admin/PackageForm';
-import { createClient } from '@/lib/supabase';
-import { notFound } from 'next/navigation';
+import { useParams, notFound } from 'next/navigation';
 
 // Static export를 위한 generateStaticParams 함수
 export async function generateStaticParams() {
@@ -11,26 +13,39 @@ export async function generateStaticParams() {
   }));
 }
 
-interface PackageEditPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function PackageEditPage({ params }: PackageEditPageProps) {
-  const { id } = params;
+export default function PackageEditPage() {
+  const params = useParams();
+  const id = params.id as string;
+  const [packageData, setPackageData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  // 패키지 데이터 조회
-  const supabase = createClient();
-  const { data: packageData, error } = await supabase
-    .from('packages')
-    .select('*')
-    .eq('id', id)
-    .single();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/packages/${id}`);
+        if (!response.ok) {
+          throw new Error('패키지 데이터를 불러올 수 없습니다.');
+        }
+        const data = await response.json();
+        setPackageData(data);
+      } catch (err: any) {
+        console.error('패키지 데이터 조회 오류:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [id]);
+  
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
   
   if (error || !packageData) {
-    console.error('패키지 데이터 조회 오류:', error);
-    notFound();
+    return <div>패키지 정보를 불러올 수 없습니다.</div>;
   }
   
   return (

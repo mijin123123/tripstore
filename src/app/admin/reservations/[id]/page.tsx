@@ -1,5 +1,7 @@
-import { createClient } from '@/lib/supabase-server';
-import { notFound } from 'next/navigation';
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -14,26 +16,44 @@ export async function generateStaticParams() {
   }));
 }
 
-interface ReservationDetailPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function ReservationDetailPage({ params }: ReservationDetailPageProps) {
-  const { id } = params;
+export default function ReservationDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = params.id as string;
   
-  // 예약 데이터 조회
-  const supabase = createClient();
-  const { data: reservation, error } = await supabase
-    .from('reservations')
-    .select('*, packages(title, destination, images)')
-    .eq('id', id)
-    .single();
+  const [reservation, setReservation] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // API 엔드포인트로부터 예약 정보 가져오기
+        const response = await fetch(`/api/reservations/${id}`);
+        
+        if (!response.ok) {
+          throw new Error('예약 데이터를 불러올 수 없습니다.');
+        }
+        
+        const data = await response.json();
+        setReservation(data);
+      } catch (err: any) {
+        console.error('예약 데이터 조회 오류:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [id]);
+  
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
   
   if (error || !reservation) {
-    console.error('예약 데이터 조회 오류:', error);
-    notFound();
+    return <div>예약 정보를 불러올 수 없습니다.</div>;
   }
   
   // 숫자를 통화 형식으로 포맷팅

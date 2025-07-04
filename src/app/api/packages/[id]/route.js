@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-server';
 import { checkAdminPermission } from '@/lib/admin-auth';
 
 export const dynamic = "force-static";
@@ -134,6 +134,43 @@ export async function DELETE(request, { params }) {
     console.error('패키지 삭제 중 예외 발생:', error);
     return new NextResponse(
       JSON.stringify({ error: '패키지 삭제 중 오류가 발생했습니다.' }),
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request, { params }) {
+  try {
+    const { id } = params;
+    const supabase = createClient();
+    
+    // Supabase에서 패키지 데이터 조회
+    const { data, error } = await supabase
+      .from('packages')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      console.error('패키지 조회 오류:', error);
+      return new NextResponse(
+        JSON.stringify({ error: error.message }),
+        { status: 500 }
+      );
+    }
+    
+    if (!data) {
+      return new NextResponse(
+        JSON.stringify({ error: '패키지를 찾을 수 없습니다.' }),
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('패키지 조회 중 예외 발생:', error);
+    return new NextResponse(
+      JSON.stringify({ error: '패키지 조회 중 오류가 발생했습니다.' }),
       { status: 500 }
     );
   }
