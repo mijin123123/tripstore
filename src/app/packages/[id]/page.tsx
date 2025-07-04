@@ -22,10 +22,33 @@ import {
   Heart,
   ShoppingCart
 } from "lucide-react";
-import { getPackageById, packageFeatures, TravelPackage, packagesData } from "@/data/packagesData";
+import { TravelPackage, packagesData } from "@/data/packagesData";
 
-// generateStaticParams는 클라이언트 컴포넌트와 함께 사용할 수 없으므로 제거합니다
-// Next.js가 동적 렌더링으로 처리하도록 합니다
+// 클라이언트 컴포넌트에서 직접 패키지 검색 함수 구현
+function getPackageById(id: string | number) {
+  const numId = typeof id === 'string' ? parseInt(id) : id;
+  return packagesData.find(pkg => pkg.id === numId);
+}
+
+// 패키지 기능 정의
+const packageFeatures = [
+  { key: 'duration', icon: Clock, label: '여행 기간' },
+  { key: 'destination', icon: MapPin, label: '여행지' },
+  { key: 'groupSize', icon: Users, label: '그룹 규모' },
+  { key: 'meals', icon: Utensils, label: '제공 식사' },
+  { key: 'accommodation', icon: Home, label: '숙박 시설' },
+  { key: 'activities', icon: Camera, label: '주요 활동' },
+  { key: 'departureDate', icon: Calendar, label: '출발일' },
+  { key: 'transportation', icon: Plane, label: '교통 수단' },
+];
+
+// generateStaticParams 추가 (정적 빌드를 위해 미리 생성할 경로 지정)
+export async function generateStaticParams() {
+  // 패키지 데이터를 기반으로 정적 경로 생성
+  return packagesData.map((pkg) => ({
+    id: String(pkg.id),
+  }));
+}
 
 export default function PackageDetail() {
   const params = useParams();

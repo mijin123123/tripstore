@@ -5,7 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar, CreditCard, Check, Info, User, Users, Mail, Phone, MapPin, Globe, Shield, AlertCircle } from "lucide-react";
-import { getPackageById, TravelPackage } from "@/data/packagesData";
+import { packagesData, TravelPackage } from "@/data/packagesData";
+
+// 클라이언트 컴포넌트에서 직접 패키지 검색 함수 구현
+function getPackageById(id: string | number) {
+  const numId = typeof id === 'string' ? parseInt(id) : id;
+  return packagesData.find(pkg => pkg.id === numId);
+}
 
 
 interface ReservationForm {
