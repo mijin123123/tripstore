@@ -7,14 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { ArrowLeft, Check, X } from 'lucide-react';
 
-// Static export를 위한 generateStaticParams 함수
-export async function generateStaticParams() {
-  // 정적 빌드를 위한 고정 ID 목록 반환
-  const reservationIds = ['1', '2', '3', '4', '5'];
-  return reservationIds.map((id) => ({
-    id: id,
-  }));
-}
+// generateStaticParams는 별도 파일로 이동했습니다
 
 export default function ReservationDetailPage() {
   const params = useParams();
