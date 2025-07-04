@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-server';
 
 // 관리자 권한 확인 함수 추가 (서버 컴포넌트용)
 export async function checkAdminPermission(email: string) {
