@@ -7,24 +7,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface NoticeFormProps {
   id?: string;
+  initialData?: {
+    title: string;
+    content: string;
+    is_important: boolean;
+  };
 }
 
-export default function NoticeForm({ id }: NoticeFormProps) {
+export default function NoticeForm({ id, initialData }: NoticeFormProps) {
   const router = useRouter();
-  const isEditing = !!id;
+  const isEditing = !!id || !!initialData;
 
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    is_important: false,
+    title: initialData?.title || '',
+    content: initialData?.content || '',
+    is_important: initialData?.is_important || false,
   });
 
-  const [isLoading, setIsLoading] = useState(isEditing);
+  const [isLoading, setIsLoading] = useState(isEditing && !initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && !initialData) {
       const fetchNotice = async () => {
         try {
           const response = await fetch(`/api/notices/${id}`);
@@ -46,7 +51,7 @@ export default function NoticeForm({ id }: NoticeFormProps) {
       };
       fetchNotice();
     }
-  }, [id, isEditing]);
+  }, [id, isEditing, initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
