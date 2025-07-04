@@ -35,6 +35,14 @@ const nextConfig: NextConfig = {
       allowedOrigins: ['localhost:3000', 'tripstore.netlify.app'],
     },
   },
+  // 페이지 생성 방식을 더 명확하게 제어
+  generateBuildId: async () => {
+    return 'tripstore-build'
+  },
+  // Netlify 빌드에서 발생하는 서버/클라이언트 불일치 문제를 해결하기 위해
+  // 관리자 페이지를 클라이언트 전용으로 지정
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  transpilePackages: ['@supabase/ssr'],
 };
 
 export default nextConfig;

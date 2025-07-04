@@ -1,0 +1,15 @@
+{
+  "excludeDynamicRoutes": true,
+  "staticRoutes": [
+    "/",
+    "/login",
+    "/register",
+    "/notice",
+    "/packages",
+    "/mypage"
+  ],
+  "excludeStaticRoutes": [
+    "/admin/**",
+    "/reset-password/**"
+  ]
+}
