@@ -2,17 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { checkAdminPermission } from '@/lib/admin-auth';
 
-export const dynamic = "force-static";
-
-// 정적 경로 생성을 위한 함수
-export async function generateStaticParams() {
-  // 공지사항 ID 목록 (임시 ID 목록 사용)
-  const noticeIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
-  
-  return noticeIds.map((id) => ({
-    id: id,
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function PUT(request, { params }) {
   try {

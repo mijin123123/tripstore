@@ -2,16 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { checkAdminPermission } from '@/lib/admin-auth';
 
-export const dynamic = "force-static";
-
-// 정적 경로 생성을 위한 함수
-export async function generateStaticParams() {
-  // 정적 빌드를 위한 고정 ID 목록 반환
-  const reservationIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
-  return reservationIds.map((id) => ({
-    id: id,
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 // 예약 조회 API (단일 예약 조회)
 export async function GET(request, { params }) {
