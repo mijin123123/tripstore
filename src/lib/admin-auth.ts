@@ -1,10 +1,12 @@
-import { createClient } from '@/lib/supabase-server';
+"use client";
 
-// 관리자 권한 확인 함수 추가 (서버 컴포넌트용)
+import { createClient } from '@/lib/supabase';
+
+// 관리자 권한 확인 함수 (클라이언트 컴포넌트용)
 export async function checkAdminPermission(email: string) {
   try {
-    const supabaseServer = createClient();
-    const { data, error } = await supabaseServer
+    const supabase = createClient();
+    const { data, error } = await supabase
       .from('admins')
       .select('*')
       .eq('email', email)
