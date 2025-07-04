@@ -11,7 +11,37 @@ ADD COLUMN IF NOT EXISTS profile_image TEXT,
 ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
 ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT '{"packages": true, "reservations": true, "notices": true, "users": false, "settings": false}'::jsonb;
 
--- 2. 관리자 추가하기 (기본 관리자)
+-- 2. 관리자 계정 생성 및 설정
+-- 먼저 auth.users 테이블에 관리자 계정 생성
+INSERT INTO auth.users (
+  id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  is_super_admin,
+  role
+) VALUES (
+  gen_random_uuid(),
+  'sonchanmin89@gmail.com',
+  crypt('aszx1212', gen_salt('bf')),
+  now(),
+  now(),
+  now(),
+  '{"provider": "email", "providers": ["email"]}',
+  '{"name": "시스템 관리자"}',
+  false,
+  'authenticated'
+)
+ON CONFLICT (email) DO UPDATE SET
+  encrypted_password = crypt('aszx1212', gen_salt('bf')),
+  email_confirmed_at = now(),
+  updated_at = now();
+
+-- 3. 관리자 테이블에 추가 (기본 관리자)
 INSERT INTO admins (email, name, role, permissions) 
 VALUES (
   'sonchanmin89@gmail.com', 
@@ -25,8 +55,38 @@ ON CONFLICT (email) DO UPDATE SET
   permissions = EXCLUDED.permissions,
   is_active = true;
 
--- 3. 테스트용 추가 관리자 (주석 처리)
+-- 4. 추가 관리자 계정 생성 (필요시 주석 해제)
 /*
+-- 운영 관리자 계정 생성
+INSERT INTO auth.users (
+  id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  is_super_admin,
+  role
+) VALUES (
+  gen_random_uuid(),
+  'manager@tripstore.com',
+  crypt('aszx1212', gen_salt('bf')),
+  now(),
+  now(),
+  now(),
+  '{"provider": "email", "providers": ["email"]}',
+  '{"name": "운영 관리자"}',
+  false,
+  'authenticated'
+)
+ON CONFLICT (email) DO UPDATE SET
+  encrypted_password = crypt('aszx1212', gen_salt('bf')),
+  email_confirmed_at = now(),
+  updated_at = now();
+
+-- 관리자 테이블에 추가
 INSERT INTO admins (email, name, role, permissions) 
 VALUES (
   'manager@tripstore.com', 
@@ -41,7 +101,7 @@ ON CONFLICT (email) DO UPDATE SET
   is_active = true;
 */
 
--- 4. 관리자 알림 테이블 생성 (없는 경우)
+-- 5. 관리자 알림 테이블 생성 (없는 경우)
 CREATE TABLE IF NOT EXISTS public.admin_notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   admin_id UUID REFERENCES public.admins(id),
@@ -51,7 +111,7 @@ CREATE TABLE IF NOT EXISTS public.admin_notifications (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
--- 5. 관리자 접근 로그 테이블 생성 (없는 경우)
+-- 6. 관리자 접근 로그 테이블 생성 (없는 경우)
 CREATE TABLE IF NOT EXISTS public.admin_access_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   admin_id UUID REFERENCES public.admins(id),
@@ -61,7 +121,7 @@ CREATE TABLE IF NOT EXISTS public.admin_access_logs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
--- 6. RLS 정책 설정
+-- 7. RLS 정책 설정
 ALTER TABLE IF EXISTS public.admin_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS public.admin_access_logs ENABLE ROW LEVEL SECURITY;
 
@@ -78,5 +138,5 @@ CREATE POLICY IF NOT EXISTS "슈퍼 관리자 로그 접근 정책" ON public.ad
     )
   );
 
--- 7. 관리자 목록 확인하기
+-- 8. 관리자 목록 확인하기
 SELECT * FROM admins;

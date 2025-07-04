@@ -23,21 +23,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session || !session.user?.email) {
-          router.push('/login?returnUrl=/admin');
+          router.push('/admin/login');
           return;
         }
         
         const isAdmin = await checkAdminPermission(session.user.email);
         
         if (!isAdmin) {
-          router.push('/');
+          router.push('/admin/login');
           return;
         }
         
         setIsAuthorized(true);
       } catch (error) {
         console.error('인증 확인 중 오류:', error);
-        router.push('/login?returnUrl=/admin');
+        router.push('/admin/login');
       } finally {
         setIsLoading(false);
       }

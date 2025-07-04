@@ -16,7 +16,7 @@ export default function AdminHeader() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.push('/login');
+      router.push('/admin/login');
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
     }
