@@ -42,14 +42,6 @@ const packageFeatures = [
   { key: 'transportation', icon: Plane, label: '교통 수단' },
 ];
 
-// generateStaticParams 추가 (정적 빌드를 위해 미리 생성할 경로 지정)
-export async function generateStaticParams() {
-  // 패키지 데이터를 기반으로 정적 경로 생성
-  return packagesData.map((pkg) => ({
-    id: String(pkg.id),
-  }));
-}
-
 export default function PackageDetail() {
   const params = useParams();
   const router = useRouter();
