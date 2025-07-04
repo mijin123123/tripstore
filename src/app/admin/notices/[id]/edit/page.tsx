@@ -1,5 +1,5 @@
 import NoticeForm from '@/components/admin/NoticeForm';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-server';
 import { notFound } from 'next/navigation';
 
 // Static export를 위한 generateStaticParams 함수

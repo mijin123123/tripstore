@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import supabase, { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
 
 // 관리자 권한 확인 함수 (클라이언트 컴포넌트용)
 async function checkAdminPermissionClient(email: string) {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('admins')
       .select('*')
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // 현재 세션 가져오기
     const getSession = async () => {
+      const supabase = createClient();
       setLoading(true);
       const { data: { session }, error } = await supabase.auth.getSession();
       
@@ -82,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getSession();
 
     // 세션 변경 감지 리스너 설정
+    const supabase = createClient();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
@@ -99,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // 클린업 함수
+    // 컴포넌트 언마운트 시 리스너 정리
     return () => {
       subscription.unsubscribe();
     };
@@ -107,78 +110,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 로그인 함수
   const signIn = async (email: string, password: string) => {
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    
     return { error };
   };
 
   // 회원가입 함수
   const signUp = async (email: string, password: string) => {
+    const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
-    
-    return { data, error };
+    return { error, data };
   };
 
   // 로그아웃 함수
   const signOut = async () => {
+    const supabase = createClient();
     await supabase.auth.signOut();
   };
 
   // 비밀번호 재설정 함수
   const resetPassword = async (email: string) => {
-    console.log('비밀번호 재설정 요청:', email);
-
-    // 현재 페이지의 origin을 사용하여 리디렉션 URL 생성
-    const redirectUrl = `${window.location.origin}/reset-password/update`;
-    
-    console.log(`비밀번호 재설정 리디렉션 URL:`, redirectUrl);
-    
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectUrl,
-      });
-      
-      if (error) {
-        console.error('비밀번호 재설정 요청 오류:', error);
-      } else {
-        console.log('비밀번호 재설정 이메일 발송 성공!');
-      }
-      
-      return { error };
-    } catch (err) {
-      console.error('비밀번호 재설정 예외 발생:', err);
-      return { error: err };
-    }
+    const supabase = createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password/update`,
+    });
+    return { error };
   };
 
-  const value = {
-    session,
-    user,
-    loading,
-    signIn,
-    signUp,
-    signOut,
-    resetPassword,
-    isAdmin,
-    checkIsAdmin,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{
+      session,
+      user,
+      loading,
+      signIn,
+      signUp,
+      signOut,
+      resetPassword,
+      isAdmin,
+      checkIsAdmin,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-// Auth 컨텍스트 사용을 위한 훅
+// Auth 컨텍스트 사용 훅
 export function useAuth() {
   const context = useContext(AuthContext);
-  
   if (context === undefined) {
-    throw new Error('useAuth는 AuthProvider 내부에서만 사용할 수 있습니다');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  
   return context;
 }

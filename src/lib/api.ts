@@ -1,10 +1,11 @@
-import supabase, { createClient } from './supabase';
+import { createClient } from '@/lib/supabase';
 import { TravelPackage } from '@/data/packagesData';
 
 /**
  * 모든 여행 패키지를 가져옵니다.
  */
 export async function getAllPackages(): Promise<TravelPackage[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
     .select('*');
@@ -22,8 +23,8 @@ export async function getAllPackages(): Promise<TravelPackage[]> {
  */
 export async function getPackages() {
   try {
-    const supabaseServer = createClient();
-    const { data, error } = await supabaseServer
+    const supabase = createClient();
+    const { data, error } = await supabase
       .from('packages')
       .select('*')
       .order('created_at', { ascending: false });
@@ -44,6 +45,7 @@ export async function getPackages() {
  * ID로 특정 여행 패키지를 가져옵니다.
  */
 export async function getPackageById(id: string): Promise<TravelPackage | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
     .select('*')
@@ -62,6 +64,7 @@ export async function getPackageById(id: string): Promise<TravelPackage | null> 
  * 추천 패키지 목록을 가져옵니다.
  */
 export async function getFeaturedPackages(): Promise<TravelPackage[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
     .select('*')
@@ -80,6 +83,7 @@ export async function getFeaturedPackages(): Promise<TravelPackage[]> {
  * 특가 패키지 목록을 가져옵니다.
  */
 export async function getSpecialOffers(): Promise<TravelPackage[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
     .select('*')
@@ -98,6 +102,7 @@ export async function getSpecialOffers(): Promise<TravelPackage[]> {
  * 시즌별 패키지 목록을 가져옵니다.
  */
 export async function getSeasonalPackages(season: string): Promise<TravelPackage[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
     .select('*')
@@ -116,6 +121,7 @@ export async function getSeasonalPackages(season: string): Promise<TravelPackage
  * 새 패키지를 추가합니다.
  */
 export async function addPackage(packageData: Omit<TravelPackage, 'id'>): Promise<TravelPackage | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
     .insert([packageData])
@@ -134,6 +140,7 @@ export async function addPackage(packageData: Omit<TravelPackage, 'id'>): Promis
  * 패키지를 업데이트합니다.
  */
 export async function updatePackage(id: string, packageData: Partial<TravelPackage>): Promise<TravelPackage | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
     .update(packageData)
@@ -153,6 +160,7 @@ export async function updatePackage(id: string, packageData: Partial<TravelPacka
  * 패키지를 삭제합니다.
  */
 export async function deletePackage(id: string): Promise<boolean> {
+  const supabase = createClient();
   const { error } = await supabase
     .from('packages')
     .delete()
