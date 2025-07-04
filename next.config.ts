@@ -28,21 +28,30 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 특정 경로에 대해 정적 생성을 비활성화
+  
+  // 정적 생성 문제 해결을 위한 설정
+  output: 'standalone', // 독립 실행형 출력 사용
+  
+  // 서버 컴포넌트 설정
   experimental: {
-    // 특정 페이지 사전 렌더링 비활성화 (SSR 또는 CSR 사용)
     serverActions: {
       allowedOrigins: ['localhost:3000', 'tripstore.netlify.app'],
     },
   },
+  
   // 페이지 생성 방식을 더 명확하게 제어
   generateBuildId: async () => {
     return 'tripstore-build'
   },
-  // Netlify 빌드에서 발생하는 서버/클라이언트 불일치 문제를 해결하기 위해
-  // 관리자 페이지를 클라이언트 전용으로 지정
+  
+  // 파일 확장자 지정
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  
+  // 트랜스파일 패키지
   transpilePackages: ['@supabase/ssr'],
+  
+  // 정적 내보내기 설정
+  // 이 부분은 Netlify의 Next.js 플러그인이 자동으로 처리하도록 둠
 };
 
 export default nextConfig;
