@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
 const ResetPasswordPage = () => {
@@ -11,13 +10,19 @@ const ResetPasswordPage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const supabase = createClient();
 
   const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
     setError("");
+
+    // 이메일 확인
+    if (!email) {
+      setError("이메일을 입력해주세요.");
+      setLoading(false);
+      return;
+    }
 
     // 비밀번호 일치 확인
     if (password !== confirmPassword) {
@@ -34,22 +39,27 @@ const ResetPasswordPage = () => {
     }
 
     try {
-      // 직접 사용자 비밀번호 변경
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password
+      // API를 통해 비밀번호 변경
+      const response = await fetch('/api/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          newPassword: password
+        }),
       });
 
-      if (updateError) {
-        // 사용자가 로그인하지 않은 경우
-        setError("로그인 상태에서만 비밀번호를 변경할 수 있습니다. 로그인 페이지로 이동합니다.");
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || '비밀번호 변경 중 오류가 발생했습니다.');
         setLoading(false);
         return;
       }
 
-      setMessage("비밀번호가 성공적으로 변경되었습니다.");
+      setMessage(`${email}의 비밀번호가 성공적으로 변경되었습니다. 로그인 페이지로 이동합니다.`);
       setTimeout(() => {
         router.push("/login");
       }, 2000);
@@ -63,7 +73,10 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">비밀번호 변경</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">비밀번호 재설정</h1>
+      <p className="text-sm text-gray-600 mb-6 text-center">
+        이메일과 새로운 비밀번호를 입력하여 비밀번호를 변경하세요.
+      </p>
       <form onSubmit={handlePasswordReset} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">이메일 주소</label>
@@ -72,7 +85,7 @@ const ResetPasswordPage = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="이메일 주소"
+            placeholder="변경할 계정의 이메일 주소"
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -85,7 +98,7 @@ const ResetPasswordPage = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="새 비밀번호"
+            placeholder="새 비밀번호 (최소 6자)"
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -98,7 +111,7 @@ const ResetPasswordPage = () => {
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="비밀번호 확인"
+            placeholder="새 비밀번호 확인"
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -115,6 +128,12 @@ const ResetPasswordPage = () => {
       
       {message && <p className="mt-4 text-green-600 text-center">{message}</p>}
       {error && <p className="mt-4 text-red-600 text-center">{error}</p>}
+      
+      <div className="mt-6 pt-4 border-t border-gray-200">
+        <p className="text-xs text-gray-500 text-center">
+          주의: 이 기능은 관리자 권한으로 동작하며, 이메일 인증 없이 즉시 비밀번호가 변경됩니다.
+        </p>
+      </div>
     </div>
   );
 };
