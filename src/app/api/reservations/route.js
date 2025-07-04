@@ -11,7 +11,7 @@ export async function GET(request) {
     
     if (!session) {
       return new NextResponse(
-        JSON.stringify({ error: '로그?�이 ?�요?�니??' }),
+        JSON.stringify({ error: '로그인이 필요합니다.' }),
         { status: 401 }
       );
     }
@@ -20,19 +20,19 @@ export async function GET(request) {
     
     if (!isAdmin) {
       return new NextResponse(
-        JSON.stringify({ error: '관리자 권한???�습?�다.' }),
+        JSON.stringify({ error: '관리자 권한이 없습니다.' }),
         { status: 403 }
       );
     }
     
-    // ?�약 목록 가?�오�?
+    // 예약 목록 가져오기
     const { data, error } = await supabase
       .from('reservations')
       .select('*')
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('?�약 목록 조회 ?�류:', error);
+      console.error('예약 목록 조회 오류:', error);
       return new NextResponse(
         JSON.stringify({ error: error.message }),
         { status: 500 }
@@ -41,9 +41,9 @@ export async function GET(request) {
     
     return NextResponse.json(data);
   } catch (error) {
-    console.error('?�약 목록 조회 �??�외 발생:', error);
+    console.error('예약 목록 조회 중 예외 발생:', error);
     return new NextResponse(
-      JSON.stringify({ error: '?�약 목록 조회 �??�류가 발생?�습?�다.' }),
+      JSON.stringify({ error: '예약 목록 조회 중 오류가 발생했습니다.' }),
       { status: 500 }
     );
   }
@@ -51,13 +51,13 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    // 관리자 권한 ?�인
+    // 관리자 권한 확인
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
       return new NextResponse(
-        JSON.stringify({ error: '로그?�이 ?�요?�니??' }),
+        JSON.stringify({ error: '로그인이 필요합니다.' }),
         { status: 401 }
       );
     }
@@ -66,19 +66,19 @@ export async function POST(request) {
     
     if (!isAdmin) {
       return new NextResponse(
-        JSON.stringify({ error: '관리자 권한???�습?�다.' }),
+        JSON.stringify({ error: '관리자 권한이 없습니다.' }),
         { status: 403 }
       );
     }
     
-    // ?�청 ?�이???�싱
+    // 요청 데이터 파싱
     const reservationData = await request.json();
     
-    // UUID ?�성
+    // UUID 생성
     const uuid = crypto.randomUUID();
     reservationData.id = uuid;
     
-    // Supabase???�이???�입
+    // Supabase에 데이터 삽입
     const { data, error } = await supabase
       .from('reservations')
       .insert(reservationData)
@@ -86,7 +86,7 @@ export async function POST(request) {
       .single();
     
     if (error) {
-      console.error('?�약 ?�성 ?�류:', error);
+      console.error('예약 생성 오류:', error);
       return new NextResponse(
         JSON.stringify({ error: error.message }),
         { status: 500 }
@@ -95,9 +95,9 @@ export async function POST(request) {
     
     return NextResponse.json(data);
   } catch (error) {
-    console.error('?�약 ?�성 �??�외 발생:', error);
+    console.error('예약 생성 중 예외 발생:', error);
     return new NextResponse(
-      JSON.stringify({ error: '?�약 ?�성 �??�류가 발생?�습?�다.' }),
+      JSON.stringify({ error: '예약 생성 중 오류가 발생했습니다.' }),
       { status: 500 }
     );
   }
