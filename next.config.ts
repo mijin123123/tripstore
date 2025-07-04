@@ -28,6 +28,13 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // 특정 경로에 대해 정적 생성을 비활성화
+  experimental: {
+    // 특정 페이지 사전 렌더링 비활성화 (SSR 또는 CSR 사용)
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'tripstore.netlify.app'],
+    },
+  },
 };
 
 export default nextConfig;
