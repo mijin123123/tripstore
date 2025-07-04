@@ -39,6 +39,9 @@ const nextConfig: NextConfig = {
     },
   },
   
+  // Netlify에서 정적 생성 관련 문제 해결을 위한 설정
+  distDir: '.next',
+  
   // 페이지 생성 방식을 더 명확하게 제어
   generateBuildId: async () => {
     return 'tripstore-build'

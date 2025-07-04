@@ -6,9 +6,13 @@
   NEXT_PUBLIC_SUPABASE_URL = "https://ewezrjlymdfinpwfruga.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3ZXpyamx5bWRmaW5wd2ZydWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMzI5MTAsImV4cCI6MjA2NjkwODkxMH0.KWLNVNQUSzMa2pNzF-q8BWhZ6jIzavQT4_aWo6LFM90"
   # Next.js에 사전 렌더링을 비활성화하도록 지시하는 환경 변수
-  NEXT_PUBLIC_SKIP_BUILD_STATIC_GENERATION = "true"
-  NEXT_DISABLE_NEXTJS_PRERENDERING = "true"
+  NEXT_DISABLE_PRERENDER = "true"
+  NEXT_TELEMETRY_DISABLED = "1"
+  NODE_VERSION = "20"
   
 # 넷리파이에서 Next.js 사이트를 올바르게 배포하기 위한 플러그인
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[functions]
+  included_files = ["!node_modules/@next/swc-*/**, !.next/cache/**"]
