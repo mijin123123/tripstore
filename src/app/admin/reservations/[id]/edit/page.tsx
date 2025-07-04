@@ -3,14 +3,28 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase-server';
 
 // Static export를 위한 generateStaticParams 함수
 export async function generateStaticParams() {
-  // TODO: 실제 API에서 모든 예약 ID를 가져와야 합니다.
-  const reservationIds = ['1', '2', '3']; // 임시 데이터
-  return reservationIds.map((id) => ({
-    id: id,
-  }));
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('reservations')
+      .select('id')
+      .limit(10); // 최대 10개의 예약 ID만 가져옴
+    
+    return (data || []).map((reservation) => ({
+      id: String(reservation.id),
+    }));
+  } catch (error) {
+    console.error('예약 ID 가져오기 오류:', error);
+    // 오류 발생 시 기본 ID 목록 반환
+    const reservationIds = ['1', '2', '3'];
+    return reservationIds.map((id) => ({
+      id: id,
+    }));
+  }
 }
 
 interface ReservationEditPageProps {

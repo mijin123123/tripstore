@@ -833,7 +833,7 @@ export const packagesData: TravelPackage[] = [
   }
 ];
 
-export function getPackageById(id: string | string[]): TravelPackage | undefined {
-  const packageId = Array.isArray(id) ? parseInt(id[0]) : parseInt(id);
-  return packagesData.find(pkg => pkg.id === packageId);
+export function getPackageById(id: number | string) {
+  const numId = typeof id === 'string' ? parseInt(id) : id;
+  return packagesData.find(pkg => pkg.id === numId);
 }

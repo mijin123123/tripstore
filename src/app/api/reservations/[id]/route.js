@@ -6,12 +6,24 @@ export const dynamic = "force-static";
 
 // 정적 경로 생성을 위한 함수
 export async function generateStaticParams() {
-  // 예약 ID 목록 (임시 ID 목록 사용)
-  const reservationIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
-  
-  return reservationIds.map((id) => ({
-    id: id,
-  }));
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('reservations')
+      .select('id')
+      .limit(10); // 최대 10개의 예약 ID만 가져옴
+    
+    return (data || []).map((reservation) => ({
+      id: String(reservation.id),
+    }));
+  } catch (error) {
+    console.error('예약 ID 가져오기 오류:', error);
+    // 오류 발생 시 기본 ID 목록 반환
+    const reservationIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
+    return reservationIds.map((id) => ({
+      id: id,
+    }));
+  }
 }
 
 // 예약 조회 API (단일 예약 조회)
