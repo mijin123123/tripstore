@@ -73,9 +73,10 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">비밀번호 재설정</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">비밀번호 재설정</h1>
       <p className="text-sm text-gray-600 mb-6 text-center">
-        이메일과 새로운 비밀번호를 입력하여 비밀번호를 변경하세요.
+        계정의 이메일 주소와 새로운 비밀번호를 입력하면<br/>
+        <strong>즉시 비밀번호가 변경</strong>됩니다.
       </p>
       <form onSubmit={handlePasswordReset} className="space-y-4">
         <div>
