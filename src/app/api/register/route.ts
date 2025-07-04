@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 
 export async function POST(request: NextRequest) {
@@ -31,25 +30,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const adminClient = createAdminClient();
 
-    // Sign up user without email confirmation
-    const { data, error } = await supabase.auth.signUp({
+    // Create user using admin client (automatically confirmed)
+    const { data, error } = await adminClient.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          name: name,
-        },
-        emailRedirectTo: undefined, // No email verification
+      user_metadata: {
+        name: name,
       },
+      email_confirm: true, // Skip email verification
     });
 
     if (error) {
       console.error('Registration error:', error);
       
       // Handle specific error cases
-      if (error.message.includes('User already registered')) {
+      if (error.message.includes('User already registered') || error.message.includes('already registered')) {
         return NextResponse.json(
           { error: '이미 가입된 이메일 주소입니다.' },
           { status: 409 }
@@ -69,32 +66,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If user is created but not confirmed, we need to confirm them manually
-    // This is a workaround for Supabase's email confirmation requirement
-    let finalUser = data.user;
-    
-    if (!data.user.email_confirmed_at) {
-      // Try to confirm the user using admin client
-      const adminClient = createAdminClient();
-      const { data: confirmData, error: confirmError } = await adminClient.auth.admin.updateUserById(
-        data.user.id,
-        { email_confirm: true }
-      );
-      
-      if (confirmError) {
-        console.error('User confirmation error:', confirmError);
-        // Continue anyway, user is created but may need to be manually confirmed
-      } else if (confirmData.user) {
-        finalUser = confirmData.user;
-      }
-    }
-
     // Insert user profile into profiles table
-    const { error: profileError } = await supabase
+    const { error: profileError } = await adminClient
       .from('profiles')
       .insert([
         {
-          id: finalUser.id,
+          id: data.user.id,
           name: name,
           email: email,
           created_at: new Date().toISOString(),
@@ -111,10 +88,10 @@ export async function POST(request: NextRequest) {
       { 
         message: '회원가입이 완료되었습니다. 로그인해주세요.',
         user: {
-          id: finalUser.id,
-          email: finalUser.email,
+          id: data.user.id,
+          email: data.user.email,
           name: name,
-          confirmed: !!finalUser.email_confirmed_at,
+          confirmed: true,
         }
       },
       { status: 201 }
