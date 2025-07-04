@@ -1,23 +1,57 @@
-import { redirect } from 'next/navigation';
+"use client";
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 import { createClient } from '@/lib/supabase';
 import { checkAdminPermission } from '@/lib/admin-auth';
 
-export default async function AdminLayout({ children }) {
-  // 서버 사이드에서 관리자 권한 확인
+interface AdminLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const router = useRouter();
   const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
   
-  if (!session) {
-    redirect('/login?returnUrl=/admin');
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session || !session.user?.email) {
+          router.push('/login?returnUrl=/admin');
+          return;
+        }
+        
+        const isAdmin = await checkAdminPermission(session.user.email);
+        
+        if (!isAdmin) {
+          router.push('/');
+          return;
+        }
+        
+        setIsAuthorized(true);
+      } catch (error) {
+        console.error('인증 확인 중 오류:', error);
+        router.push('/login?returnUrl=/admin');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    checkAuth();
+  }, [router, supabase]);
+  
+  if (isLoading) {
+    return <div className="flex min-h-screen items-center justify-center">로딩 중...</div>;
   }
   
-  const isAdmin = await checkAdminPermission(session.user.email);
-  
-  if (!isAdmin) {
-    redirect('/');
+  if (!isAuthorized) {
+    return <div className="flex min-h-screen items-center justify-center">인증 확인 중...</div>;
   }
   
   return (
