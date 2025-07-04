@@ -1,11 +1,48 @@
-import { getPackages } from "@/lib/api";
+"use client";
+
+import { useState, useEffect } from "react";
 import PackageItem from "@/components/admin/PackageItem";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-export default async function PackagesPage() {
-  const packages = await getPackages();
+interface PackageData {
+  id: string;
+  [key: string]: any;
+}
+
+export default function PackagesPage() {
+  const [packages, setPackages] = useState<PackageData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function fetchPackages() {
+      try {
+        const response = await fetch('/api/packages');
+        if (!response.ok) {
+          throw new Error('패키지 데이터를 불러오는데 실패했습니다.');
+        }
+        const data = await response.json();
+        setPackages(data);
+      } catch (err) {
+        console.error('패키지 데이터 조회 오류:', err);
+        setError('패키지 데이터를 불러올 수 없습니다.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPackages();
+  }, []);
+
+  if (loading) {
+    return <div className="p-6">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-600">{error}</div>;
+  }
   
   return (
     <div>

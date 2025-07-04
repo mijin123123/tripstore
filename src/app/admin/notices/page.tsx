@@ -1,21 +1,51 @@
-import { createClient } from '@/lib/supabase';
-import { redirect } from 'next/navigation';
+"use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import NoticeItem from '@/components/admin/NoticeItem';
 
-export default async function NoticesPage() {
-  // 공지사항 데이터 조회
-  const supabase = createClient();
-  const { data: notices, error } = await supabase
-    .from('notices')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
+interface NoticeData {
+  id: string;
+  title: string;
+  content: string;
+  is_important: boolean;
+  created_at: string;
+  [key: string]: any;
+}
+
+export default function NoticesPage() {
+  const [notices, setNotices] = useState<NoticeData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function fetchNotices() {
+      try {
+        const response = await fetch('/api/notices');
+        if (!response.ok) {
+          throw new Error('공지사항 데이터를 불러오는데 실패했습니다.');
+        }
+        const data = await response.json();
+        setNotices(data);
+      } catch (err) {
+        console.error('공지사항 데이터 조회 오류:', err);
+        setError('공지사항 데이터를 불러올 수 없습니다.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchNotices();
+  }, []);
+
+  if (loading) {
+    return <div className="p-6">로딩 중...</div>;
+  }
+
   if (error) {
-    console.error('공지사항 데이터 조회 중 오류:', error);
-    return <div>공지사항 데이터를 불러오는 중 오류가 발생했습니다.</div>;
+    return <div className="p-6 text-red-600">{error}</div>;
   }
   
   return (
