@@ -117,3 +117,33 @@ export async function DELETE(request, { params }) {
     );
   }
 }
+
+export async function GET(request, { params }) {
+  try {
+    const { id } = params;
+    const supabase = createClient();
+    
+    // Supabase에서 특정 공지사항 조회
+    const { data, error } = await supabase
+      .from('notices')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      console.error('공지사항 조회 오류:', error);
+      return new NextResponse(
+        JSON.stringify({ error: error.message }),
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('공지사항 조회 중 예외 발생:', error);
+    return new NextResponse(
+      JSON.stringify({ error: '공지사항 조회 중 오류가 발생했습니다.' }),
+      { status: 500 }
+    );
+  }
+}

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-server';
 import { checkAdminPermission } from '@/lib/admin-auth';
 
 export const dynamic = "force-static";
@@ -53,6 +53,34 @@ export async function POST(request) {
     console.error('공지사항 생성 중 예외 발생:', error);
     return new NextResponse(
       JSON.stringify({ error: '공지사항 생성 중 오류가 발생했습니다.' }),
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const supabase = createClient();
+    
+    // Supabase에서 공지사항 조회
+    const { data, error } = await supabase
+      .from('notices')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('공지사항 조회 오류:', error);
+      return new NextResponse(
+        JSON.stringify({ error: error.message }),
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('공지사항 조회 중 예외 발생:', error);
+    return new NextResponse(
+      JSON.stringify({ error: '공지사항 조회 중 오류가 발생했습니다.' }),
       { status: 500 }
     );
   }
