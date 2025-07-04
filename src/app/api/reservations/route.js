@@ -7,15 +7,32 @@ export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
     
-    // ?¨í‚¤ì§€ ëª©ë¡ ê°€?¸ì˜¤ê¸?
+    if (!session) {
+      return new NextResponse(
+        JSON.stringify({ error: 'ë¡œê·¸?¸ì´ ?„ìš”?©ë‹ˆ??' }),
+        { status: 401 }
+      );
+    }
+    
+    const isAdmin = await checkAdminPermissionServer(session.user.email);
+    
+    if (!isAdmin) {
+      return new NextResponse(
+        JSON.stringify({ error: 'ê´€ë¦¬ì ê¶Œí•œ???†ìŠµ?ˆë‹¤.' }),
+        { status: 403 }
+      );
+    }
+    
+    // ?ˆì•½ ëª©ë¡ ê°€?¸ì˜¤ê¸?
     const { data, error } = await supabase
-      .from('packages')
+      .from('reservations')
       .select('*')
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('?¨í‚¤ì§€ ëª©ë¡ ì¡°íšŒ ?¤ë¥˜:', error);
+      console.error('?ˆì•½ ëª©ë¡ ì¡°íšŒ ?¤ë¥˜:', error);
       return new NextResponse(
         JSON.stringify({ error: error.message }),
         { status: 500 }
@@ -24,9 +41,9 @@ export async function GET(request) {
     
     return NextResponse.json(data);
   } catch (error) {
-    console.error('?¨í‚¤ì§€ ëª©ë¡ ì¡°íšŒ ì¤??ˆì™¸ ë°œìƒ:', error);
+    console.error('?ˆì•½ ëª©ë¡ ì¡°íšŒ ì¤??ˆì™¸ ë°œìƒ:', error);
     return new NextResponse(
-      JSON.stringify({ error: '?¨í‚¤ì§€ ëª©ë¡ ì¡°íšŒ ì¤??¤ë¥˜ê°€ ë°œìƒ?ˆìŠµ?ˆë‹¤.' }),
+      JSON.stringify({ error: '?ˆì•½ ëª©ë¡ ì¡°íšŒ ì¤??¤ë¥˜ê°€ ë°œìƒ?ˆìŠµ?ˆë‹¤.' }),
       { status: 500 }
     );
   }
@@ -55,21 +72,21 @@ export async function POST(request) {
     }
     
     // ?”ì²­ ?°ì´???Œì‹±
-    const packageData = await request.json();
+    const reservationData = await request.json();
     
     // UUID ?ì„±
     const uuid = crypto.randomUUID();
-    packageData.id = uuid;
+    reservationData.id = uuid;
     
     // Supabase???°ì´???½ì…
     const { data, error } = await supabase
-      .from('packages')
-      .insert(packageData)
+      .from('reservations')
+      .insert(reservationData)
       .select()
       .single();
     
     if (error) {
-      console.error('?¨í‚¤ì§€ ?ì„± ?¤ë¥˜:', error);
+      console.error('?ˆì•½ ?ì„± ?¤ë¥˜:', error);
       return new NextResponse(
         JSON.stringify({ error: error.message }),
         { status: 500 }
@@ -78,9 +95,9 @@ export async function POST(request) {
     
     return NextResponse.json(data);
   } catch (error) {
-    console.error('?¨í‚¤ì§€ ?ì„± ì¤??ˆì™¸ ë°œìƒ:', error);
+    console.error('?ˆì•½ ?ì„± ì¤??ˆì™¸ ë°œìƒ:', error);
     return new NextResponse(
-      JSON.stringify({ error: '?¨í‚¤ì§€ ?ì„± ì¤??¤ë¥˜ê°€ ë°œìƒ?ˆìŠµ?ˆë‹¤.' }),
+      JSON.stringify({ error: '?ˆì•½ ?ì„± ì¤??¤ë¥˜ê°€ ë°œìƒ?ˆìŠµ?ˆë‹¤.' }),
       { status: 500 }
     );
   }
