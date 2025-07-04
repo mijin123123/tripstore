@@ -1,18 +1,11 @@
+"use client";
+
 import ReservationEditForm from '@/components/admin/ReservationEditForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase-server';
-
-// Static export를 위한 generateStaticParams 함수
-export async function generateStaticParams() {
-  // 정적 빌드를 위한 고정 ID 목록 반환
-  const reservationIds = ['1', '2', '3'];
-  return reservationIds.map((id) => ({
-    id: id,
-  }));
-}
+import { useParams } from 'next/navigation';
 
 interface ReservationEditPageProps {
   params: {
@@ -20,8 +13,9 @@ interface ReservationEditPageProps {
   };
 }
 
-export default function ReservationEditPage({ params }: ReservationEditPageProps) {
-  const { id } = params;
+export default function ReservationEditPage() {
+  const params = useParams();
+  const id = params.id as string;
 
   return (
     <div>

@@ -53,8 +53,8 @@ const nextConfig: NextConfig = {
   // 트랜스파일 패키지
   transpilePackages: ['@supabase/ssr'],
   
-  // 정적 내보내기 설정
-  // 이 부분은 Netlify의 Next.js 플러그인이 자동으로 처리하도록 둠
+  // 정적 최적화 비활성화
+  poweredByHeader: false,
 };
 
 export default nextConfig;
