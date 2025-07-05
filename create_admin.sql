@@ -22,7 +22,7 @@ INSERT INTO auth.users (
   now(),
   now(),
   '{"provider": "email", "providers": ["email"]}',
-  '{"name": "시스템 관리자"}',
+  '{"name": "슈퍼 관리자"}',
   false,
   'authenticated'
 )
@@ -35,7 +35,7 @@ ON CONFLICT (email) DO UPDATE SET
 INSERT INTO admins (email, name, role, permissions) 
 VALUES (
   'sonchanmin89@gmail.com', 
-  '시스템 관리자', 
+  '슈퍼 관리자', 
   'superadmin',
   '{"packages": true, "reservations": true, "notices": true, "users": true, "settings": true}'::jsonb
 )

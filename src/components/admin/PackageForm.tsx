@@ -52,7 +52,7 @@ export default function PackageForm({ initialData = null }) {
         images: [formData.images],
       };
 
-      // API 요청 (실제 API 구현 필요)
+      // API 요청
       const response = await fetch(`/api/packages${isEditing ? `/${initialData.id}` : ''}`, {
         method: isEditing ? 'PUT' : 'POST',
         headers: {
@@ -62,14 +62,15 @@ export default function PackageForm({ initialData = null }) {
       });
 
       if (!response.ok) {
-        throw new Error('패키지 저장 중 오류가 발생했습니다.');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       router.push('/admin/packages');
       router.refresh();
     } catch (err) {
       console.error('패키지 저장 오류:', err);
-      setError(err.message);
+      setError(err.message || '패키지 저장 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
     }

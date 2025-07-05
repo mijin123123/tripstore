@@ -19,7 +19,7 @@ export async function GET(request, { params }) {
       );
     }
     
-    const isAdmin = await checkAdminPermission(session.user.email);
+    const isAdmin = await checkAdminPermissionServer(session.user.email);
     
     if (!isAdmin) {
       return new NextResponse(
@@ -74,7 +74,7 @@ export async function PUT(request, { params }) {
       );
     }
     
-    const isAdmin = await checkAdminPermission(session.user.email);
+    const isAdmin = await checkAdminPermissionServer(session.user.email);
     
     if (!isAdmin) {
       return new NextResponse(
@@ -183,7 +183,7 @@ export async function DELETE(request, { params }) {
       );
     }
     
-    const isAdmin = await checkAdminPermission(session.user.email);
+    const isAdmin = await checkAdminPermissionServer(session.user.email);
     
     if (!isAdmin) {
       return new NextResponse(
