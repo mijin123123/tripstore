@@ -1,8 +1,17 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TripStore - 여행 패키지 관리 시스템
 
-## Getting Started
+Next.js와 Supabase를 기반으로 한 여행 패키지 예약 및 관리 시스템입니다.
 
-First, run the development server:
+## 관리자 계정 정보
+
+**슈퍼 관리자**
+- 이메일: `sonchanmin89@gmail.com`
+- 비밀번호: `aszx1212`
+- 역할: 시스템 슈퍼 관리자 (모든 권한)
+
+## 시작하기
+
+개발 서버를 실행하려면:
 
 ```bash
 npm run dev

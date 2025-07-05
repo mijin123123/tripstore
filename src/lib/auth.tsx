@@ -8,6 +8,14 @@ import { Session, User } from '@supabase/supabase-js';
 async function checkAdminPermissionClient(email: string) {
   try {
     console.log('관리자 권한 확인 중:', email);
+    
+    // 하드코딩된 관리자 이메일 먼저 확인
+    const adminEmails = ['sonchanmin89@gmail.com'];
+    if (adminEmails.includes(email)) {
+      console.log('하드코딩된 관리자 인증 성공:', email);
+      return true;
+    }
+    
     const supabase = createClient();
     const { data, error } = await supabase
       .from('admins')

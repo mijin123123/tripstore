@@ -7,6 +7,7 @@ export async function checkAdminPermissionServer(email: string) {
     const adminEmails = ['sonchanmin89@gmail.com'];
     
     if (adminEmails.includes(email)) {
+      console.log('하드코딩된 관리자 인증 성공:', email);
       return true;
     }
     
@@ -23,6 +24,7 @@ export async function checkAdminPermissionServer(email: string) {
       return false;
     }
     
+    console.log('데이터베이스 관리자 확인 결과:', data);
     return !!data; // 데이터가 있으면 관리자임
   } catch (error) {
     console.error('관리자 권한 확인 중 예외 발생:', error);
