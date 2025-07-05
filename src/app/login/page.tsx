@@ -37,8 +37,11 @@ export default function LoginPage() {
       }
       
       console.log('로그인 성공, 메인 페이지로 이동');
-      // 로그인 성공 시 메인 페이지로 이동
-      router.push('/');
+      
+      // 로그인 성공 시 약간의 지연 후 메인 페이지로 이동 (상태 업데이트를 기다림)
+      setTimeout(() => {
+        router.push('/');
+      }, 100);
     } catch (err: any) {
       console.error('로그인 처리 중 오류:', err);
       

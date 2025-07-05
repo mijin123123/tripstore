@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const { user, loading, signOut } = useAuth();
 
   const showHeaderBg = !isHome || isScrolled;
 
@@ -36,6 +38,14 @@ export default function Header() {
     };
   }, [isHome]);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('로그아웃 오류:', error);
+    }
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -57,12 +67,38 @@ export default function Header() {
           <Link href="/notice" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
             고객센터
           </Link>
-          <Link href="/login" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
-            로그인
-          </Link>
-          <Link href="/register" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
-            회원가입
-          </Link>
+          
+          {loading ? (
+            <span className={`text-lg font-medium ${showHeaderBg ? 'text-neutral-700' : 'text-white'}`}>
+              로딩 중...
+            </span>
+          ) : user ? (
+            // 로그인된 상태
+            <>
+              <Link href="/mypage" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
+                마이페이지
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}
+              >
+                로그아웃
+              </button>
+              <span className={`text-sm ${showHeaderBg ? 'text-neutral-600' : 'text-white/80'}`}>
+                {user.email}
+              </span>
+            </>
+          ) : (
+            // 로그인되지 않은 상태
+            <>
+              <Link href="/login" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
+                로그인
+              </Link>
+              <Link href="/register" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
+                회원가입
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>
