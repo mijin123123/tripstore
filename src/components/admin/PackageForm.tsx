@@ -41,6 +41,10 @@ export default function PackageForm({ initialData = null }) {
     setError('');
 
     try {
+      console.log('📝 패키지 폼 제출 시작');
+      console.log('🔍 isEditing:', isEditing);
+      console.log('🆔 initialData.id:', initialData?.id);
+      
       // 데이터 형식 변환
       const packageData = {
         ...formData,
@@ -52,24 +56,37 @@ export default function PackageForm({ initialData = null }) {
         images: [formData.images],
       };
 
+      console.log('📦 변환된 패키지 데이터:', packageData);
+
+      const url = `/api/packages${isEditing ? `/${initialData.id}` : ''}`;
+      const method = isEditing ? 'PUT' : 'POST';
+      
+      console.log('🌐 API 요청:', method, url);
+
       // API 요청
-      const response = await fetch(`/api/packages${isEditing ? `/${initialData.id}` : ''}`, {
-        method: isEditing ? 'PUT' : 'POST',
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(packageData),
       });
 
+      console.log('📡 API 응답 상태:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ API 오류 응답:', errorData);
         throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
+
+      const result = await response.json();
+      console.log('✅ API 성공 응답:', result);
 
       router.push('/admin/packages');
       router.refresh();
     } catch (err) {
-      console.error('패키지 저장 오류:', err);
+      console.error('💥 패키지 저장 오류:', err);
       setError(err.message || '패키지 저장 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);

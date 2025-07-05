@@ -7,12 +7,16 @@ export const dynamic = 'force-dynamic';
 export async function PUT(request, { params }) {
   try {
     const { id } = params;
+    console.log('🔵 패키지 수정 요청 시작 - ID:', id);
     
     // 관리자 권한 확인
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
     
+    console.log('👤 세션 확인:', session?.user?.email);
+    
     if (!session) {
+      console.log('❌ 세션 없음 - 401 반환');
       return new NextResponse(
         JSON.stringify({ error: '로그인이 필요합니다.' }),
         { status: 401 }
@@ -20,8 +24,10 @@ export async function PUT(request, { params }) {
     }
     
     const isAdmin = await checkAdminPermissionServer(session.user.email);
+    console.log('🔐 관리자 권한 확인 결과:', isAdmin);
     
     if (!isAdmin) {
+      console.log('❌ 관리자 권한 없음 - 403 반환');
       return new NextResponse(
         JSON.stringify({ error: '관리자 권한이 없습니다.' }),
         { status: 403 }
@@ -30,36 +36,52 @@ export async function PUT(request, { params }) {
     
     // 요청 데이터 파싱
     const packageData = await request.json();
+    console.log('📦 받은 패키지 데이터:', JSON.stringify(packageData, null, 2));
     
     // id는 변경하지 않음
     delete packageData.id;
     
+    // 데이터 검증
+    if (!packageData.title || !packageData.destination) {
+      console.log('❌ 필수 필드 누락');
+      return new NextResponse(
+        JSON.stringify({ error: '필수 필드가 누락되었습니다.' }),
+        { status: 400 }
+      );
+    }
+    
     // Supabase에서 데이터 업데이트
+    console.log('🔄 Supabase 업데이트 시작 - ID:', id);
     const { data, error } = await supabase
       .from('packages')
       .update(packageData)
       .eq('id', id)
       .select();
-      if (error) {
-      console.error('패키지 업데이트 오류:', error);
+    
+    console.log('📊 Supabase 응답 - error:', error, 'data:', data);
+    
+    if (error) {
+      console.error('❌ 패키지 업데이트 오류:', error);
       return new NextResponse(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ error: `데이터베이스 오류: ${error.message}` }),
         { status: 500 }
       );
     }
     
     if (!data || data.length === 0) {
+      console.error('❌ 업데이트된 데이터 없음 - 패키지를 찾을 수 없거나 권한이 없음');
       return new NextResponse(
-        JSON.stringify({ error: '패키지 업데이트에 실패했습니다.' }),
-        { status: 500 }
+        JSON.stringify({ error: '패키지를 찾을 수 없거나 업데이트 권한이 없습니다.' }),
+        { status: 404 }
       );
     }
 
+    console.log('✅ 패키지 업데이트 성공:', data[0]);
     return NextResponse.json(data[0]);
   } catch (error) {
-    console.error('패키지 업데이트 중 예외 발생:', error);
+    console.error('💥 패키지 업데이트 중 예외 발생:', error);
     return new NextResponse(
-      JSON.stringify({ error: '패키지 업데이트 중 오류가 발생했습니다.' }),
+      JSON.stringify({ error: `서버 오류: ${error.message}` }),
       { status: 500 }
     );
   }
