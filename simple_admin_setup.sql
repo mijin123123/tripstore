@@ -13,14 +13,10 @@ CREATE TABLE IF NOT EXISTS public.admins (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
--- 2. RLS 활성화
-ALTER TABLE public.admins ENABLE ROW LEVEL SECURITY;
+-- 2. RLS 비활성화 (테스트용)
+ALTER TABLE public.admins DISABLE ROW LEVEL SECURITY;
 
--- 3. 관리자만 접근 가능한 정책 생성
-CREATE POLICY IF NOT EXISTS "관리자 테이블 접근 정책" ON public.admins
-  FOR ALL USING (auth.email() = email);
-
--- 4. 관리자 계정 추가
+-- 3. 관리자 계정 추가
 INSERT INTO public.admins (email, name, role, permissions) 
 VALUES (
   'sonchanmin89@gmail.com', 
@@ -34,5 +30,5 @@ ON CONFLICT (email) DO UPDATE SET
   permissions = EXCLUDED.permissions,
   is_active = true;
 
--- 5. 확인
+-- 4. 확인
 SELECT * FROM public.admins WHERE email = 'sonchanmin89@gmail.com';

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
-import { checkAdminPermission } from '@/lib/admin-auth';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -20,6 +19,8 @@ export default function AdminLogin() {
     try {
       const supabase = createClient();
       
+      console.log('관리자 로그인 시도:', email);
+      
       // 로그인 시도
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -27,22 +28,34 @@ export default function AdminLogin() {
       });
 
       if (error) {
+        console.error('로그인 오류:', error);
         setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
         return;
       }
 
+      console.log('로그인 성공, 관리자 권한 확인 중');
+      
       // 관리자 권한 확인
-      const isAdmin = await checkAdminPermission(email);
-      if (!isAdmin) {
+      const { data: adminData, error: adminError } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('email', email)
+        .single();
+      
+      console.log('관리자 데이터:', adminData);
+      console.log('관리자 조회 오류:', adminError);
+      
+      if (adminError || !adminData) {
         await supabase.auth.signOut();
         setError('관리자 권한이 없습니다.');
         return;
       }
 
+      console.log('관리자 권한 확인 완료, 대시보드로 이동');
       // 관리자 대시보드로 리디렉션
       router.push('/admin/dashboard');
     } catch (error) {
-      console.error('로그인 에러:', error);
+      console.error('로그인 예외 발생:', error);
       setError('로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
