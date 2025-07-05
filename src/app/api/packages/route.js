@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
+import { createAdminClient } from '@/lib/supabase-admin';
 import { checkAdminPermissionServer } from '@/lib/admin-auth-server';
 
 export const dynamic = 'force-dynamic';
@@ -62,8 +63,9 @@ export async function POST(request) {
     const uuid = crypto.randomUUID();
     packageData.id = uuid;
     
-    // Supabase에 데이터 삽입
-    const { data, error } = await supabase
+    // Supabase에 데이터 삽입 (Service Role Key 사용)
+    const adminSupabase = createAdminClient();
+    const { data, error } = await adminSupabase
       .from('packages')
       .insert(packageData)
       .select()

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
+import { createAdminClient } from '@/lib/supabase-admin';
 import { checkAdminPermissionServer } from '@/lib/admin-auth-server';
 
 export const dynamic = 'force-dynamic';
@@ -50,9 +51,39 @@ export async function PUT(request, { params }) {
       );
     }
     
-    // Supabase에서 데이터 업데이트
+    // Supabase에서 데이터 업데이트 (Service Role Key 사용)
     console.log('🔄 Supabase 업데이트 시작 - ID:', id);
-    const { data, error } = await supabase
+    console.log('📦 업데이트할 데이터:', JSON.stringify(packageData, null, 2));
+    
+    const adminSupabase = createAdminClient();
+    
+    // 먼저 해당 패키지가 존재하는지 확인
+    const { data: existingPackage, error: existingError } = await adminSupabase
+      .from('packages')
+      .select('*')
+      .eq('id', id)
+      .limit(1);
+    
+    console.log('🔍 기존 패키지 확인:', existingPackage, existingError);
+    
+    if (existingError) {
+      console.error('❌ 기존 패키지 조회 오류:', existingError);
+      return new NextResponse(
+        JSON.stringify({ error: `기존 패키지 조회 오류: ${existingError.message}` }),
+        { status: 500 }
+      );
+    }
+    
+    if (!existingPackage || existingPackage.length === 0) {
+      console.error('❌ 패키지를 찾을 수 없음 - ID:', id);
+      return new NextResponse(
+        JSON.stringify({ error: '패키지를 찾을 수 없습니다.' }),
+        { status: 404 }
+      );
+    }
+    
+    // 실제 업데이트 수행
+    const { data, error } = await adminSupabase
       .from('packages')
       .update(packageData)
       .eq('id', id)
@@ -111,8 +142,9 @@ export async function DELETE(request, { params }) {
       );
     }
     
-    // 먼저 이 패키지와 관련된 예약이 있는지 확인
-    const { data: reservations, error: reservationError } = await supabase
+    // 먼저 이 패키지와 관련된 예약이 있는지 확인 (Service Role Key 사용)
+    const adminSupabase = createAdminClient();
+    const { data: reservations, error: reservationError } = await adminSupabase
       .from('reservations')
       .select('id')
       .eq('package_id', id);
@@ -132,8 +164,8 @@ export async function DELETE(request, { params }) {
       );
     }
     
-    // Supabase에서 데이터 삭제
-    const { error } = await supabase
+    // Supabase에서 데이터 삭제 (Service Role Key 사용)
+    const { error } = await adminSupabase
       .from('packages')
       .delete()
       .eq('id', id);
