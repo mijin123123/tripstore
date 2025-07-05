@@ -27,20 +27,26 @@ export default function LoginPage() {
       setLoading(true);
       setError(null);
       
+      console.log('로그인 시도:', email);
+      
       const { error: signInError } = await signIn(email, password);
       
       if (signInError) {
+        console.error('로그인 오류:', signInError);
         throw signInError;
       }
       
+      console.log('로그인 성공, 메인 페이지로 이동');
       // 로그인 성공 시 메인 페이지로 이동
       router.push('/');
     } catch (err: any) {
-      console.error('로그인 오류:', err);
+      console.error('로그인 처리 중 오류:', err);
       
       // 오류 메시지 설정
       if (err.message === 'Invalid login credentials') {
         setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else if (err.message?.includes('Email not confirmed')) {
+        setError('이메일 인증이 필요합니다. 이메일을 확인해주세요.');
       } else {
         setError(err.message || '로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
       }

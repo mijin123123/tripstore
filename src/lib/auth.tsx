@@ -7,6 +7,7 @@ import { Session, User } from '@supabase/supabase-js';
 // 관리자 권한 확인 함수 (클라이언트 컴포넌트용)
 async function checkAdminPermissionClient(email: string) {
   try {
+    console.log('관리자 권한 확인 중:', email);
     const supabase = createClient();
     const { data, error } = await supabase
       .from('admins')
@@ -19,6 +20,7 @@ async function checkAdminPermissionClient(email: string) {
       return false;
     }
     
+    console.log('관리자 데이터:', data);
     return !!data; // 데이터가 있으면 관리자임
   } catch (error) {
     console.error('관리자 권한 확인 중 예외 발생:', error);
@@ -72,10 +74,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user || null);
       
-      // 사용자가 있으면 관리자 권한 확인
+      // 사용자가 있으면 관리자 권한 확인 (비동기로 처리)
       if (session?.user?.email) {
-        const isAdminUser = await checkAdminPermissionClient(session.user.email);
-        setIsAdmin(isAdminUser);
+        checkAdminPermissionClient(session.user.email).then(isAdminUser => {
+          setIsAdmin(isAdminUser);
+        }).catch(err => {
+          console.error('관리자 권한 확인 실패:', err);
+          setIsAdmin(false);
+        });
       }
       
       setLoading(false);
@@ -90,10 +96,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user || null);
         
-        // 사용자가 있으면 관리자 권한 확인
+        // 사용자가 있으면 관리자 권한 확인 (비동기로 처리)
         if (session?.user?.email) {
-          const isAdminUser = await checkAdminPermissionClient(session.user.email);
-          setIsAdmin(isAdminUser);
+          checkAdminPermissionClient(session.user.email).then(isAdminUser => {
+            setIsAdmin(isAdminUser);
+          }).catch(err => {
+            console.error('관리자 권한 확인 실패:', err);
+            setIsAdmin(false);
+          });
         } else {
           setIsAdmin(false);
         }
@@ -110,11 +120,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 로그인 함수
   const signIn = async (email: string, password: string) => {
+    console.log('signIn 함수 호출:', email);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    console.log('signIn 결과:', error ? '오류' : '성공', error);
     return { error };
   };
 
