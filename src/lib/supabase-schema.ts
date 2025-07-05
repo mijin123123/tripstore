@@ -16,7 +16,7 @@ CREATE TABLE packages (
   price DECIMAL(10, 2) NOT NULL,
   discountPrice DECIMAL(10, 2),
   duration INTEGER NOT NULL,
-  departureDate TEXT[] NOT NULL,
+  available_dates TEXT[] NOT NULL,
   images TEXT[] NOT NULL,
   rating DECIMAL(2, 1),
   reviewCount INTEGER DEFAULT 0,
@@ -202,7 +202,7 @@ ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "관리자만 관리자 목록 읽기" ON admins
   FOR SELECT USING (auth.role() = 'authenticated' AND auth.email() IN (SELECT email FROM admins));
 
--- 슈퍼 관리자만 관리자를 추가/수정/삭제할 수 있음
+-- 슈퍼 관리자만 관리를 추가/수정/삭제할 수 있음
 CREATE POLICY "슈퍼 관리자 권한" ON admins
   FOR ALL USING (auth.role() = 'authenticated' AND auth.email() IN (SELECT email FROM admins WHERE role = 'super_admin'));
 */
