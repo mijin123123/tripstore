@@ -32,7 +32,7 @@ export async function GET(request, { params }) {
       .from('reservations')
       .select('*, packages(title, destination, images)')
       .eq('id', id)
-      .single();
+      .limit(1);
     
     if (error) {
       console.error('예약 조회 오류:', error);
@@ -42,12 +42,14 @@ export async function GET(request, { params }) {
       );
     }
     
-    if (!data) {
+    if (!data || data.length === 0) {
       return new NextResponse(
         JSON.stringify({ error: '예약을 찾을 수 없습니다.' }),
         { status: 404 }
       );
     }
+    
+    return NextResponse.json(data[0]);
     
     return NextResponse.json(data);
   } catch (error) {
@@ -88,14 +90,12 @@ export async function PUT(request, { params }) {
     
     // id는 변경하지 않음
     delete reservationData.id;
-    
-    // Supabase에서 데이터 업데이트
+      // Supabase에서 데이터 업데이트
     const { data, error } = await supabase
       .from('reservations')
       .update(reservationData)
       .eq('id', id)
-      .select()
-      .single();
+      .select();
     
     if (error) {
       console.error('예약 업데이트 오류:', error);
@@ -105,7 +105,14 @@ export async function PUT(request, { params }) {
       );
     }
     
-    return NextResponse.json(data);
+    if (!data || data.length === 0) {
+      return new NextResponse(
+        JSON.stringify({ error: '예약 업데이트에 실패했습니다.' }),
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data[0]);
   } catch (error) {
     console.error('예약 업데이트 중 예외 발생:', error);
     return new NextResponse(

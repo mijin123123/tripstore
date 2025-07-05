@@ -39,10 +39,8 @@ export async function PUT(request, { params }) {
       .from('packages')
       .update(packageData)
       .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
+      .select();
+      if (error) {
       console.error('패키지 업데이트 오류:', error);
       return new NextResponse(
         JSON.stringify({ error: error.message }),
@@ -50,7 +48,14 @@ export async function PUT(request, { params }) {
       );
     }
     
-    return NextResponse.json(data);
+    if (!data || data.length === 0) {
+      return new NextResponse(
+        JSON.stringify({ error: '패키지 업데이트에 실패했습니다.' }),
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data[0]);
   } catch (error) {
     console.error('패키지 업데이트 중 예외 발생:', error);
     return new NextResponse(
@@ -134,12 +139,14 @@ export async function GET(request, { params }) {
     const { id } = params;
     const supabase = createClient();
     
-    // Supabase에서 패키지 데이터 조회
+    console.log('패키지 조회 요청:', id);
+    
+    // Supabase에서 패키지 데이터 조회 (single 대신 limit 사용)
     const { data, error } = await supabase
       .from('packages')
       .select('*')
       .eq('id', id)
-      .single();
+      .limit(1);
     
     if (error) {
       console.error('패키지 조회 오류:', error);
@@ -149,14 +156,15 @@ export async function GET(request, { params }) {
       );
     }
     
-    if (!data) {
+    if (!data || data.length === 0) {
       return new NextResponse(
         JSON.stringify({ error: '패키지를 찾을 수 없습니다.' }),
         { status: 404 }
       );
     }
     
-    return NextResponse.json(data);
+    console.log('패키지 조회 성공:', data[0]);
+    return NextResponse.json(data[0]);
   } catch (error) {
     console.error('패키지 조회 중 예외 발생:', error);
     return new NextResponse(

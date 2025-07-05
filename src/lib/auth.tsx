@@ -21,7 +21,7 @@ async function checkAdminPermissionClient(email: string) {
       .from('admins')
       .select('*')
       .eq('email', email)
-      .single();
+      .limit(1);
     
     if (error) {
       console.error('관리자 권한 확인 중 오류:', error);
@@ -29,7 +29,7 @@ async function checkAdminPermissionClient(email: string) {
     }
     
     console.log('관리자 데이터:', data);
-    return !!data; // 데이터가 있으면 관리자임
+    return !!(data && data.length > 0); // 데이터가 있으면 관리자임
   } catch (error) {
     console.error('관리자 권한 확인 중 예외 발생:', error);
     return false;
