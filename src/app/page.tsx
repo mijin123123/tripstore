@@ -629,15 +629,13 @@ export default function Home() {
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 									{season.packages.map(pkg => (
 										<Link href={`/packages/${pkg.id}`} key={pkg.id}>
-											<div className="flex bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all group">
-												<div className="relative w-1/3 md:w-2/5">
+											<div className="flex bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all group h-full">
+												<div className="relative w-1/3 md:w-2/5 h-48">
 													<Image
 														src={pkg.image}
 														alt={pkg.name}
-														width={250}
-														height={150}
-														className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-														style={{ objectFit: "cover" }}
+														fill
+														className="object-cover transition-transform duration-500 group-hover:scale-105"
 													/>
 												</div>
 												<div className="p-4 md:p-6 flex flex-col justify-between w-2/3 md:w-3/5">
