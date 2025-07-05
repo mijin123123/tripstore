@@ -58,8 +58,42 @@ export default function AdminsPage() {
       
       if (error) throw error;
       
-      setAdmins(data || []);
+      let adminList = data || [];
+      
+      // 기본 관리자가 없으면 추가 (하드코딩)
+      const hasMainAdmin = adminList.some(admin => admin.email === 'sonchanmin89@gmail.com');
+      
+      if (!hasMainAdmin) {
+        const defaultAdmin = {
+          id: 'default-admin',
+          email: 'sonchanmin89@gmail.com',
+          name: '시스템 관리자',
+          role: 'superadmin',
+          permissions: { packages: true, reservations: true, notices: true, users: true, settings: true },
+          is_active: true,
+          created_at: new Date().toISOString(),
+          last_login: null
+        };
+        adminList = [defaultAdmin, ...adminList];
+      }
+      
+      // seonmjin039@gmail.com 제거 (있다면)
+      adminList = adminList.filter(admin => admin.email !== 'seonmjin039@gmail.com');
+      
+      setAdmins(adminList);
     } catch (error: any) {
+      // 오류가 발생해도 기본 관리자는 표시
+      const defaultAdmin = {
+        id: 'default-admin',
+        email: 'sonchanmin89@gmail.com',
+        name: '시스템 관리자',
+        role: 'superadmin',
+        permissions: { packages: true, reservations: true, notices: true, users: true, settings: true },
+        is_active: true,
+        created_at: new Date().toISOString(),
+        last_login: null
+      };
+      setAdmins([defaultAdmin]);
       setError(`관리자 목록을 불러오는 중 오류가 발생했습니다: ${error.message}`);
     } finally {
       setIsLoading(false);
