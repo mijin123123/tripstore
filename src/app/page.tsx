@@ -477,9 +477,9 @@ export default function Home() {
 					
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 						{featuredPackages.map((pkg, index) => (
-							<Link href={`/packages/${pkg.id}`} key={pkg.id}>
+							<Link href={`/packages/${pkg.id}`} key={pkg.id} className="flex">
 								<div 
-									className="bg-white rounded-2xl shadow-lifted overflow-hidden transform transition-all duration-500 cursor-pointer hover:shadow-glow group"
+									className="bg-white rounded-2xl shadow-lifted overflow-hidden transform transition-all duration-500 cursor-pointer hover:shadow-glow group flex flex-col w-full"
 									style={{ animationDelay: `${index * 150}ms` }}
 								>
 									<div className="relative h-72 overflow-hidden">
@@ -496,14 +496,14 @@ export default function Home() {
 											{pkg.rating}
 										</div>
 									</div>
-									<div className="p-7">
+									<div className="p-7 flex flex-col flex-grow">
 										<h3 className="font-bold text-2xl mb-2 text-neutral-900 group-hover:text-blue-600 transition-colors">
 											{pkg.name}
 										</h3>
 										<p className="text-neutral-600 mb-5">
 											{pkg.description}
 										</p>
-										<div className="flex justify-between items-center">
+										<div className="flex justify-between items-center mt-auto">
 											<div className="text-right font-extrabold text-2xl text-blue-600">
 												₩{pkg.price}
 											</div>
