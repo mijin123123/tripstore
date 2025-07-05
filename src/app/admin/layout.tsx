@@ -18,45 +18,37 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   useEffect(() => {
     async function checkAuth() {
       try {
-        console.log('관리자 인증 확인 시작');
+        console.log('🔍 관리자 인증 확인 시작');
         const supabase = createClient();
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        console.log('세션 정보:', session?.user?.email);
+        console.log('👤 세션 정보:', session?.user?.email);
         
         if (error) {
-          console.error('세션 가져오기 오류:', error);
+          console.error('❌ 세션 가져오기 오류:', error);
           router.push('/admin/login');
           return;
         }
         
         if (!session || !session.user?.email) {
-          console.log('세션이 없어서 로그인 페이지로 이동');
+          console.log('❌ 세션이 없어서 로그인 페이지로 이동');
           router.push('/admin/login');
           return;
         }
         
-        // 관리자 권한 확인
-        console.log('관리자 권한 확인 중:', session.user.email);
-        const { data: adminData, error: adminError } = await supabase
-          .from('admins')
-          .select('*')
-          .eq('email', session.user.email)
-          .single();
+        // 관리자 이메일 목록 (하드코딩으로 간단하게 처리)
+        const adminEmails = ['sonchanmin89@gmail.com'];
         
-        console.log('관리자 데이터:', adminData);
-        console.log('관리자 조회 오류:', adminError);
-        
-        if (adminError || !adminData) {
-          console.log('관리자 권한이 없어서 로그인 페이지로 이동');
+        if (adminEmails.includes(session.user.email)) {
+          console.log('✅ 관리자 이메일 확인됨, 권한 승인');
+          setIsAuthorized(true);
+        } else {
+          console.log('❌ 관리자 권한이 없어서 로그인 페이지로 이동');
           router.push('/admin/login');
-          return;
         }
         
-        console.log('관리자 인증 성공');
-        setIsAuthorized(true);
       } catch (error) {
-        console.error('인증 확인 중 예외 발생:', error);
+        console.error('💥 인증 확인 중 예외 발생:', error);
         router.push('/admin/login');
       } finally {
         setIsLoading(false);

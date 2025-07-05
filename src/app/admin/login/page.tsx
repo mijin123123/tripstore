@@ -35,17 +35,10 @@ export default function AdminLogin() {
 
       console.log('로그인 성공, 관리자 권한 확인 중');
       
-      // 관리자 권한 확인
-      const { data: adminData, error: adminError } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('email', email)
-        .single();
+      // 관리자 이메일 목록 (하드코딩으로 간단하게 처리)
+      const adminEmails = ['sonchanmin89@gmail.com'];
       
-      console.log('관리자 데이터:', adminData);
-      console.log('관리자 조회 오류:', adminError);
-      
-      if (adminError || !adminData) {
+      if (!adminEmails.includes(email)) {
         await supabase.auth.signOut();
         setError('관리자 권한이 없습니다.');
         return;
