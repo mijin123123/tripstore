@@ -22,7 +22,8 @@ export async function GET(request) {
       );
     }
     
-    return NextResponse.json(data);
+    console.log('패키지 목록 조회 성공:', data?.length || 0, '개');
+    return NextResponse.json(data || []);
   } catch (error) {
     console.error('패키지 목록 조회 중 예외 발생:', error);
     return new NextResponse(

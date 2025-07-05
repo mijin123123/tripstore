@@ -55,6 +55,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkIsAdmin = async () => {
     if (!user?.email) return false;
     
+    // 하드코딩된 관리자 이메일 (개발용)
+    const adminEmails = ['sonchanmin89@gmail.com'];
+    
+    if (adminEmails.includes(user.email)) {
+      setIsAdmin(true);
+      return true;
+    }
+    
     const isAdminUser = await checkAdminPermissionClient(user.email);
     setIsAdmin(isAdminUser);
     return isAdminUser;
@@ -76,12 +84,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // 사용자가 있으면 관리자 권한 확인 (비동기로 처리)
       if (session?.user?.email) {
-        checkAdminPermissionClient(session.user.email).then(isAdminUser => {
-          setIsAdmin(isAdminUser);
-        }).catch(err => {
-          console.error('관리자 권한 확인 실패:', err);
-          setIsAdmin(false);
-        });
+        // 하드코딩된 관리자 이메일 먼저 확인
+        const adminEmails = ['sonchanmin89@gmail.com'];
+        if (adminEmails.includes(session.user.email)) {
+          setIsAdmin(true);
+        } else {
+          checkAdminPermissionClient(session.user.email).then(isAdminUser => {
+            setIsAdmin(isAdminUser);
+          }).catch(err => {
+            console.error('관리자 권한 확인 실패:', err);
+            setIsAdmin(false);
+          });
+        }
       }
       
       setLoading(false);
@@ -98,12 +112,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // 사용자가 있으면 관리자 권한 확인 (비동기로 처리)
         if (session?.user?.email) {
-          checkAdminPermissionClient(session.user.email).then(isAdminUser => {
-            setIsAdmin(isAdminUser);
-          }).catch(err => {
-            console.error('관리자 권한 확인 실패:', err);
-            setIsAdmin(false);
-          });
+          // 하드코딩된 관리자 이메일 먼저 확인
+          const adminEmails = ['sonchanmin89@gmail.com'];
+          if (adminEmails.includes(session.user.email)) {
+            setIsAdmin(true);
+          } else {
+            checkAdminPermissionClient(session.user.email).then(isAdminUser => {
+              setIsAdmin(isAdminUser);
+            }).catch(err => {
+              console.error('관리자 권한 확인 실패:', err);
+              setIsAdmin(false);
+            });
+          }
         } else {
           setIsAdmin(false);
         }

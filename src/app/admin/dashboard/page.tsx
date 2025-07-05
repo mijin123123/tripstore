@@ -54,9 +54,21 @@ export default function Dashboard() {
           fetch('/api/notices')
         ]);
 
-        const packages = await packagesRes.json();
-        const reservations = await reservationsRes.json();
-        const notices = await noticesRes.json();
+        // 각 응답 확인
+        const packages = packagesRes.ok ? await packagesRes.json() : [];
+        const reservations = reservationsRes.ok ? await reservationsRes.json() : [];
+        const notices = noticesRes.ok ? await noticesRes.json() : [];
+
+        // 에러 로깅
+        if (!packagesRes.ok) {
+          console.error('패키지 API 오류:', packagesRes.status, packagesRes.statusText);
+        }
+        if (!reservationsRes.ok) {
+          console.error('예약 API 오류:', reservationsRes.status, reservationsRes.statusText);
+        }
+        if (!noticesRes.ok) {
+          console.error('공지사항 API 오류:', noticesRes.status, noticesRes.statusText);
+        }
 
         // 통계 계산
         const today = new Date();
@@ -65,48 +77,48 @@ export default function Dashboard() {
         const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
 
-        const todayReservations = reservations.filter((r: any) => 
+        const todayReservations = Array.isArray(reservations) ? reservations.filter((r: any) => 
           new Date(r.created_at) >= todayStart
-        ).length;
+        ).length : 0;
 
-        const thisMonthReservations = reservations.filter((r: any) => 
+        const thisMonthReservations = Array.isArray(reservations) ? reservations.filter((r: any) => 
           new Date(r.created_at) >= monthStart
-        ).length;
+        ).length : 0;
 
-        const lastMonthReservations = reservations.filter((r: any) => {
+        const lastMonthReservations = Array.isArray(reservations) ? reservations.filter((r: any) => {
           const date = new Date(r.created_at);
           return date >= lastMonthStart && date <= lastMonthEnd;
-        }).length;
+        }).length : 0;
 
         const monthlyGrowth = lastMonthReservations > 0 
           ? ((thisMonthReservations - lastMonthReservations) / lastMonthReservations) * 100
           : 0;
 
-        const pendingReservations = reservations.filter((r: any) => 
+        const pendingReservations = Array.isArray(reservations) ? reservations.filter((r: any) => 
           r.status === 'pending' || r.status === '대기중'
-        ).length;
+        ).length : 0;
 
         // 총 수익 계산 (확정된 예약만)
-        const totalRevenue = reservations
+        const totalRevenue = Array.isArray(reservations) ? reservations
           .filter((r: any) => r.status === 'confirmed' || r.status === '확정')
           .reduce((sum: number, r: any) => {
-            const packageData = packages.find((p: any) => p.id === r.package_id);
+            const packageData = Array.isArray(packages) ? packages.find((p: any) => p.id === r.package_id) : null;
             return sum + (packageData?.price || 0);
-          }, 0);
+          }, 0) : 0;
 
         // 최근 예약 (상위 5개)
-        const recentReservations = reservations
+        const recentReservations = Array.isArray(reservations) ? reservations
           .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
           .slice(0, 5)
           .map((r: any) => ({
             ...r,
-            packages: packages.find((p: any) => p.id === r.package_id)
-          }));
+            packages: Array.isArray(packages) ? packages.find((p: any) => p.id === r.package_id) : null
+          })) : [];
 
         setStats({
           totalUsers: 0, // 사용자 정보가 없는 경우
-          totalPackages: packages.length || 0,
-          totalReservations: reservations.length || 0,
+          totalPackages: Array.isArray(packages) ? packages.length : 0,
+          totalReservations: Array.isArray(reservations) ? reservations.length : 0,
           recentReservations,
           monthlyGrowth,
           todayReservations,
