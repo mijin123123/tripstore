@@ -1,9 +1,11 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 
-if (!process.env.NETLIFY_DATABASE_URL) {
-  throw new Error('NETLIFY_DATABASE_URL is not set');
+const DATABASE_URL = process.env.NETLIFY_DATABASE_URL || process.env.NEON_DATABASE_URL;
+
+if (!DATABASE_URL) {
+  throw new Error('NETLIFY_DATABASE_URL or NEON_DATABASE_URL is not set');
 }
 
-const sql = neon(process.env.NETLIFY_DATABASE_URL);
+const sql = neon(DATABASE_URL);
 export const db = drizzle(sql);
