@@ -231,15 +231,6 @@ function ReservationContent() {
     }
   };
 
-  const calculateTotalPrice = (): string => {
-    if (!packageData) return "0";
-    
-    const basePrice = parseInt(packageData.price.replace(/[^0-9]/g, ""));
-    const totalPrice = basePrice * form.travelers;
-    
-    return totalPrice.toLocaleString() + "원";
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
