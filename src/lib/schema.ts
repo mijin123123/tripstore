@@ -33,6 +33,7 @@ export const packages = pgTable('packages', {
 
 export const admins = pgTable('admins', {
   email: text('email').primaryKey(),
+  password: text('password').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

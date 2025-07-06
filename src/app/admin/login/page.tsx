@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -17,17 +16,38 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const supabase = createClient();
-      
       console.log('관리자 로그인 시도:', email);
       
-      // 로그인 시도
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // 관리자 로그인 API 호출
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) {
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || '로그인 실패');
+      }
+
+      console.log('관리자 로그인 성공:', result);
+      
+      // 세션 저장 (localStorage 사용)
+      localStorage.setItem('adminUser', JSON.stringify(result.admin));
+      
+      // 대시보드로 이동
+      router.push('/admin/dashboard');
+      
+    } catch (err: any) {
+      console.error('관리자 로그인 오류:', err);
+      setError(err.message || '로그인 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
         console.error('로그인 오류:', error);
         setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
         return;
