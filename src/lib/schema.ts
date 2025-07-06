@@ -30,7 +30,7 @@ export const admins = pgTable('admins', {
 
 export const reservations = pgTable('reservations', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id'), // 외래 키 제약 조건 제거
   packageId: uuid('package_id').references(() => packages.id, { onDelete: 'cascade' }),
   departureDate: text('departure_date').notNull(),
   travelers: integer('travelers').notNull(),
@@ -47,7 +47,7 @@ export const reservations = pgTable('reservations', {
 
 export const reviews = pgTable('reviews', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id'), // 외래 키 제약 조건 제거
   packageId: uuid('package_id').references(() => packages.id, { onDelete: 'cascade' }),
   rating: integer('rating').notNull(),
   comment: text('comment'),
@@ -62,10 +62,4 @@ export const notices = pgTable('notices', {
   isImportant: boolean('is_important').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-});
-
-// Note: The users table is managed by Supabase Auth and is not defined here.
-// We need a placeholder for the foreign key references.
-export const users = pgTable('users', {
-    id: uuid('id').primaryKey(),
 });
