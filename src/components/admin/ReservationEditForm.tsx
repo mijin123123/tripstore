@@ -29,18 +29,34 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
   useEffect(() => {
     const fetchReservation = async () => {
       try {
+        console.log('예약 데이터 조회 시작:', id);
         const response = await fetch(`/api/reservations/${id}`);
         
+        console.log('응답 상태:', response.status, response.statusText);
+        
         if (!response.ok) {
-          throw new Error('예약 데이터를 불러오는데 실패했습니다');
+          const errorText = await response.text();
+          console.error('API 오류 응답:', errorText);
+          throw new Error(`예약 데이터를 불러오는데 실패했습니다: ${response.status}`);
         }
         
         const text = await response.text();
+        console.log('응답 텍스트:', text);
+        
         if (!text) {
           throw new Error('서버에서 빈 응답을 받았습니다');
         }
         
-        const data = JSON.parse(text);
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error('JSON 파싱 오류:', parseError);
+          console.error('받은 텍스트:', text);
+          throw new Error('서버 응답을 파싱할 수 없습니다');
+        }
+        
+        console.log('파싱된 데이터:', data);
         setReservation(data);
         
         setFormData({

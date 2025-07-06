@@ -70,6 +70,11 @@ export async function GET(
 ) {
   try {
     const { id } = params;
+    console.log('예약 조회 요청 ID:', id);
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Reservation ID is required' }, { status: 400 });
+    }
     
     const [reservation] = await db
       .select({
@@ -94,6 +99,8 @@ export async function GET(
       .leftJoin(packages, eq(reservations.packageId, packages.id))
       .where(eq(reservations.id, id))
       .limit(1);
+
+    console.log('조회 결과:', reservation);
 
     if (!reservation) {
       return NextResponse.json({ error: 'Reservation not found' }, { status: 404 });
