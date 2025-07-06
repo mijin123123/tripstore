@@ -5,7 +5,30 @@ import { useSearchParams } from "next/navigation";
 import { Search, Filter, PackageX, Map, Compass } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { packagesData } from "@/data/packagesData";
+
+// 데이터베이스 패키지 타입 정의
+interface Package {
+  id: string;
+  title: string;
+  description: string;
+  destination: string;
+  price: string;
+  discountprice: string | null;
+  duration: number | null;
+  departuredate: string[];
+  images: string[];
+  rating: string | null;
+  reviewcount: number | null;
+  category: string;
+  season: string | null;
+  inclusions: string[] | null;
+  exclusions: string[] | null;
+  isfeatured: boolean | null;
+  isonsale: boolean | null;
+  itinerary: any;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
 
 function PackagesContent() {
 	const searchParams = useSearchParams();
@@ -15,6 +38,29 @@ function PackagesContent() {
 	const [selectedType, setSelectedType] = useState(
 		searchParams.get("type") || "모든 종류"
 	);
+	const [packages, setPackages] = useState<Package[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	// 데이터베이스에서 패키지 목록 가져오기
+	useEffect(() => {
+		async function fetchPackages() {
+			try {
+				const response = await fetch('/api/packages');
+				if (response.ok) {
+					const data = await response.json();
+					setPackages(data);
+				} else {
+					console.error('Failed to fetch packages');
+				}
+			} catch (error) {
+				console.error('Error fetching packages:', error);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchPackages();
+	}, []);
 
 	useEffect(() => {
 		const destination = searchParams.get("destination") || "";
@@ -24,15 +70,15 @@ function PackagesContent() {
 	}, [searchParams]);
 
 	const filteredAndSortedPackages = useMemo(() => {
-		return packagesData.filter((pkg) => {
+		return packages.filter((pkg) => {
 			const matchesSearch = pkg.destination
 				.toLowerCase()
 				.includes(searchTerm.toLowerCase());
 			const matchesType =
-				selectedType === "모든 종류" || pkg.type === selectedType;
+				selectedType === "모든 종류" || pkg.category === selectedType;
 			return matchesSearch && matchesType;
 		});
-	}, [searchTerm, selectedType]);
+	}, [packages, searchTerm, selectedType]);
 
 	return (
 		<div>
@@ -116,74 +162,92 @@ function PackagesContent() {
 					{/* 결과 카운터 */}
 					<div className="mb-6">
 						<h2 className="text-xl font-bold text-gray-800">
-							{filteredAndSortedPackages.length > 0 ? (
+							{loading ? (
+								"여행 상품을 불러오는 중..."
+							) : filteredAndSortedPackages.length > 0 ? (
 								<>발견된 여행 상품 <span className="text-gray-500">{filteredAndSortedPackages.length}개</span></>
 							) : '검색 결과 없음'}
 						</h2>
 					</div>
 					
-					{/* Packages Grid */}
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{filteredAndSortedPackages.length > 0 ? (
-							filteredAndSortedPackages.map((pkg) => (
-								<Link
-									href={`/packages/${pkg.id}`}
-									key={pkg.id}
-									className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group flex flex-col h-full"
-								>
-									<div className="relative h-48 w-full overflow-hidden">
-										<Image
-											src={pkg.image}
-											alt={pkg.name}
-											fill
-											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-											className="object-cover"
-										/>
-										<div className="absolute top-3 left-3">
-											<span className="bg-white py-1 px-2 text-xs font-medium text-gray-800 rounded-sm">
-												{pkg.type}
-											</span>
-										</div>
+					{/* 로딩 상태 */}
+					{loading ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+							{[...Array(6)].map((_, i) => (
+								<div key={i} className="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden animate-pulse">
+									<div className="h-48 bg-gray-200"></div>
+									<div className="p-4">
+										<div className="h-4 bg-gray-200 rounded mb-2"></div>
+										<div className="h-3 bg-gray-200 rounded mb-3"></div>
+										<div className="h-6 bg-gray-200 rounded"></div>
 									</div>
-									<div className="p-4 flex flex-col flex-grow">
-										<h3 className="text-lg font-bold text-gray-800 mb-1">
-											{pkg.name}
-										</h3>
-										<p className="text-gray-600 text-sm mb-3 line-clamp-2">
-											{pkg.description}
-										</p>
-										<div className="flex items-center justify-between mt-auto">
-											<span className="text-lg font-bold text-gray-900">
-												{pkg.price}
-											</span>
-										</div>
-									</div>
-								</Link>
-							))
-						) : (
-							<div className="col-span-1 md:col-span-2 lg:col-span-3">
-								<div className="flex flex-col items-center justify-center text-center py-16 px-6 bg-white border border-gray-100 rounded-lg">
-									<PackageX className="w-16 h-16 text-gray-300 mb-6" />
-									<h3 className="text-2xl font-bold text-gray-800 mb-2">
-										검색 결과가 없습니다
-									</h3>
-									<p className="text-gray-500 max-w-md mb-6">
-										다른 검색어나 필터를 사용해 보세요. 멋진 여행이
-										당신을 기다리고 있을 거예요!
-									</p>
-									<button 
-										onClick={() => {
-											setSearchTerm("");
-											setSelectedType("모든 종류");
-										}}
-										className="px-4 py-2 bg-gray-800 text-white rounded-md font-medium hover:bg-gray-700 transition-colors"
-									>
-										모든 여행 보기
-									</button>
 								</div>
-							</div>
-						)}
-					</div>
+							))}
+						</div>
+					) : (
+						/* Packages Grid */
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+							{filteredAndSortedPackages.length > 0 ? (
+								filteredAndSortedPackages.map((pkg) => (
+									<Link
+										href={`/packages/${pkg.id}`}
+										key={pkg.id}
+										className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group flex flex-col h-full"
+									>
+										<div className="relative h-48 w-full overflow-hidden">
+											<Image
+												src={pkg.images && pkg.images.length > 0 ? pkg.images[0] : '/placeholder.jpg'}
+												alt={pkg.title}
+												fill
+												sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+												className="object-cover"
+											/>
+											<div className="absolute top-3 left-3">
+												<span className="bg-white py-1 px-2 text-xs font-medium text-gray-800 rounded-sm">
+													{pkg.category}
+												</span>
+											</div>
+										</div>
+										<div className="p-4 flex flex-col flex-grow">
+											<h3 className="text-lg font-bold text-gray-800 mb-1">
+												{pkg.title}
+											</h3>
+											<p className="text-gray-600 text-sm mb-3 line-clamp-2">
+												{pkg.description}
+											</p>
+											<div className="flex items-center justify-between mt-auto">
+												<span className="text-lg font-bold text-gray-900">
+													₩{new Intl.NumberFormat('ko-KR').format(Number(pkg.price))}
+												</span>
+											</div>
+										</div>
+									</Link>
+								))
+							) : (
+								<div className="col-span-1 md:col-span-2 lg:col-span-3">
+									<div className="flex flex-col items-center justify-center text-center py-16 px-6 bg-white border border-gray-100 rounded-lg">
+										<PackageX className="w-16 h-16 text-gray-300 mb-6" />
+										<h3 className="text-2xl font-bold text-gray-800 mb-2">
+											검색 결과가 없습니다
+										</h3>
+										<p className="text-gray-500 max-w-md mb-6">
+											다른 검색어나 필터를 사용해 보세요. 멋진 여행이
+											당신을 기다리고 있을 거예요!
+										</p>
+										<button 
+											onClick={() => {
+												setSearchTerm("");
+												setSelectedType("모든 종류");
+											}}
+											className="px-4 py-2 bg-gray-800 text-white rounded-md font-medium hover:bg-gray-700 transition-colors"
+										>
+											모든 여행 보기
+										</button>
+									</div>
+								</div>
+							)}
+						</div>
+					)}
 					<div className="mt-10 text-center text-gray-500 text-sm">
 						<p>목적지를 선택하고 완벽한 여행을 계획해보세요</p>
 						<p>더 많은 상품이 업데이트 됩니다</p>
