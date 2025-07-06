@@ -16,12 +16,12 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
   const [error, setError] = useState('');
   
   const [formData, setFormData] = useState({
-    contact_name: '',
-    contact_email: '',
-    contact_phone: '',
+    contactName: '',
+    contactEmail: '',
+    contactPhone: '',
     travelers: 1,
     status: 'pending',
-    special_requests: '',
+    specialRequests: '',
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,20 +35,25 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
           throw new Error('예약 데이터를 불러오는데 실패했습니다');
         }
         
-        const data = await response.json();
+        const text = await response.text();
+        if (!text) {
+          throw new Error('서버에서 빈 응답을 받았습니다');
+        }
+        
+        const data = JSON.parse(text);
         setReservation(data);
         
         setFormData({
-          contact_name: data.contact_name || '',
-          contact_email: data.contact_email || '',
-          contact_phone: data.contact_phone || '',
+          contactName: data.contactName || '',
+          contactEmail: data.contactEmail || '',
+          contactPhone: data.contactPhone || '',
           travelers: data.travelers || 1,
           status: data.status || 'pending',
-          special_requests: data.special_requests || '',
+          specialRequests: data.specialRequests || '',
         });
       } catch (err) {
         console.error('예약 데이터 불러오기 오류:', err);
-        setError('예약 데이터를 불러오는데 실패했습니다.');
+        setError(err instanceof Error ? err.message : '예약 데이터를 불러오는데 실패했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -79,8 +84,19 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '예약 수정에 실패했습니다.');
+        const text = await response.text();
+        let errorMessage = '예약 수정에 실패했습니다.';
+        
+        if (text) {
+          try {
+            const errorData = JSON.parse(text);
+            errorMessage = errorData.error || errorMessage;
+          } catch {
+            errorMessage = text;
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
       
       router.push(`/admin/reservations/${id}`);
@@ -109,34 +125,34 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div>
-          <label htmlFor="contact_name" className="block text-sm font-medium text-gray-700">이름</label>
+          <label htmlFor="contactName" className="block text-sm font-medium text-gray-700">이름</label>
           <input
             type="text"
-            name="contact_name"
-            id="contact_name"
-            value={formData.contact_name}
+            name="contactName"
+            id="contactName"
+            value={formData.contactName}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
         <div>
-          <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700">이메일</label>
+          <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">이메일</label>
           <input
             type="email"
-            name="contact_email"
-            id="contact_email"
-            value={formData.contact_email}
+            name="contactEmail"
+            id="contactEmail"
+            value={formData.contactEmail}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
         <div>
-          <label htmlFor="contact_phone" className="block text-sm font-medium text-gray-700">연락처</label>
+          <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700">연락처</label>
           <input
             type="text"
-            name="contact_phone"
-            id="contact_phone"
-            value={formData.contact_phone}
+            name="contactPhone"
+            id="contactPhone"
+            value={formData.contactPhone}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
@@ -168,11 +184,11 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
           </select>
         </div>
         <div>
-          <label htmlFor="special_requests" className="block text-sm font-medium text-gray-700">특별 요청사항</label>
+          <label htmlFor="specialRequests" className="block text-sm font-medium text-gray-700">특별 요청사항</label>
           <textarea
-            name="special_requests"
-            id="special_requests"
-            value={formData.special_requests}
+            name="specialRequests"
+            id="specialRequests"
+            value={formData.specialRequests}
             onChange={handleChange}
             rows={4}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"

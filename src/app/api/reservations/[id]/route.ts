@@ -31,6 +31,39 @@ export async function PATCH(
   }
 }
 
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const body = await request.json();
+    
+    const [updatedReservation] = await db
+      .update(reservations)
+      .set({ 
+        contactName: body.contactName || body.contact_name,
+        contactEmail: body.contactEmail || body.contact_email,
+        contactPhone: body.contactPhone || body.contact_phone,
+        travelers: body.travelers,
+        status: body.status,
+        specialRequests: body.specialRequests || body.special_requests,
+        updatedAt: new Date()
+      })
+      .where(eq(reservations.id, id))
+      .returning();
+
+    if (!updatedReservation) {
+      return NextResponse.json({ error: 'Reservation not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedReservation);
+  } catch (error) {
+    console.error('Error updating reservation:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
