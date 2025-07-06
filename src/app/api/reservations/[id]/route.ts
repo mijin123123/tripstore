@@ -1,5 +1,5 @@
 import { db } from '@/lib/neon';
-import { reservations } from '@/lib/schema';
+import { reservations, packages } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
