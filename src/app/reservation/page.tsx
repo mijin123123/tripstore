@@ -236,6 +236,8 @@ function ReservationContent() {
     
     if (validateStep(currentStep)) {
       try {
+        console.log('예약 생성 시작');
+        
         // 예약 데이터 구성
         const reservationData = {
           userId: null, // 현재 로그인 기능이 없으므로 null
@@ -253,6 +255,8 @@ function ReservationContent() {
           updatedAt: new Date(),
         };
 
+        console.log('예약 데이터:', reservationData);
+
         // 예약 생성 API 호출
         const response = await fetch('/api/reservations', {
           method: 'POST',
@@ -262,11 +266,26 @@ function ReservationContent() {
           body: JSON.stringify(reservationData),
         });
 
+        console.log('API 응답 상태:', response.status);
+
         if (!response.ok) {
-          throw new Error('예약 생성에 실패했습니다.');
+          const errorText = await response.text();
+          console.error('API 오류 응답:', errorText);
+          
+          let errorMessage = '예약 생성에 실패했습니다.';
+          
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.error || errorMessage;
+          } catch {
+            errorMessage = errorText || errorMessage;
+          }
+          
+          throw new Error(errorMessage);
         }
 
         const newReservation = await response.json();
+        console.log('예약 생성 완료:', newReservation);
         
         // 예약 완료 처리
         setReservationComplete(true);
@@ -274,7 +293,7 @@ function ReservationContent() {
         
       } catch (error) {
         console.error('예약 생성 오류:', error);
-        alert('예약 생성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        alert(`예약 생성 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
       }
     }
   };

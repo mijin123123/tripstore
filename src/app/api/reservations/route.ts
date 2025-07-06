@@ -38,11 +38,54 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    console.log('예약 생성 요청 시작');
+    
     const body = await request.json();
+    console.log('받은 예약 데이터:', body);
+    
+    // 필수 필드 검증
+    if (!body.packageId) {
+      console.error('패키지 ID가 없습니다');
+      return NextResponse.json({ error: 'Package ID is required' }, { status: 400 });
+    }
+    
+    if (!body.contactName) {
+      console.error('연락처 이름이 없습니다');
+      return NextResponse.json({ error: 'Contact name is required' }, { status: 400 });
+    }
+    
+    if (!body.contactEmail) {
+      console.error('연락처 이메일이 없습니다');
+      return NextResponse.json({ error: 'Contact email is required' }, { status: 400 });
+    }
+    
+    if (!body.departureDate) {
+      console.error('출발일이 없습니다');
+      return NextResponse.json({ error: 'Departure date is required' }, { status: 400 });
+    }
+    
+    // 환경 변수 확인
+    const databaseUrl = process.env.NETLIFY_DATABASE_URL || process.env.NEON_DATABASE_URL;
+    console.log('데이터베이스 URL 존재:', !!databaseUrl);
+    
+    console.log('데이터베이스에 예약 생성 시도...');
+    
     const [newReservation] = await db.insert(reservations).values(body).returning();
+    
+    console.log('예약 생성 완료:', newReservation);
+    
     return NextResponse.json(newReservation, { status: 201 });
   } catch (error) {
     console.error('Error creating reservation:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      cause: error instanceof Error ? error.cause : undefined
+    });
+    
+    return NextResponse.json({ 
+      error: 'Internal Server Error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
