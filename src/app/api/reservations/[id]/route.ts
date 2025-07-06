@@ -75,6 +75,13 @@ export async function GET(
     if (!id) {
       return NextResponse.json({ error: 'Reservation ID is required' }, { status: 400 });
     }
+
+    // 환경 변수 확인
+    const databaseUrl = process.env.NETLIFY_DATABASE_URL || process.env.NEON_DATABASE_URL;
+    console.log('데이터베이스 URL 존재:', !!databaseUrl);
+    
+    // 데이터베이스 연결 테스트
+    console.log('데이터베이스 연결 시도...');
     
     const [reservation] = await db
       .select({
@@ -103,12 +110,22 @@ export async function GET(
     console.log('조회 결과:', reservation);
 
     if (!reservation) {
+      console.log('예약을 찾을 수 없음:', id);
       return NextResponse.json({ error: 'Reservation not found' }, { status: 404 });
     }
 
+    console.log('예약 데이터 반환:', reservation);
     return NextResponse.json(reservation);
   } catch (error) {
     console.error('Error fetching reservation:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      cause: error instanceof Error ? error.cause : undefined
+    });
+    return NextResponse.json({ 
+      error: 'Internal Server Error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
