@@ -168,6 +168,10 @@ export default function PackageForm({ initialData = null }) {
               >
                 <option value="">카테고리 선택</option>
                 <option value="인기 여행지">인기 여행지</option>
+                <option value="휴양">휴양</option>
+                <option value="문화탐방">문화탐방</option>
+                <option value="어드벤처">어드벤처</option>
+                <option value="커플">커플</option>
                 <option value="유럽">유럽</option>
                 <option value="아시아">아시아</option>
                 <option value="미주">미주</option>
