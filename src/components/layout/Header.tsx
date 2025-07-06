@@ -91,7 +91,7 @@ export default function Header() {
           ) : (
             // 로그인되지 않은 상태
             <>
-              <Link href="/simple-login" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
+              <Link href="/login" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
                 로그인
               </Link>
               <Link href="/register" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>

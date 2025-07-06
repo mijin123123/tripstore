@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase-admin';
+import { db } from '@/lib/neon';
+import { users } from '@/lib/schema';
+import { eq } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,75 +32,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const adminClient = createAdminClient();
+    // 이미 존재하는 사용자인지 확인
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
 
-    // Create user using admin client (automatically confirmed)
-    const { data, error } = await adminClient.auth.admin.createUser({
-      email,
-      password,
-      user_metadata: {
-        name: name,
-      },
-      email_confirm: true, // Skip email verification
+    if (existingUser.length > 0) {
+      return NextResponse.json(
+        { error: '이미 등록된 이메일입니다.' },
+        { status: 409 }
+      );
+    }
+
+    // 새 사용자 생성
+    const newUser = await db
+      .insert(users)
+      .values({
+        email,
+        fullName: name,
+      })
+      .returning();
+
+    console.log('새 사용자 등록:', newUser[0]);
+
+    return NextResponse.json({
+      success: true,
+      message: '회원가입이 완료되었습니다.',
+      user: {
+        id: newUser[0].id,
+        email: newUser[0].email,
+        fullName: newUser[0].fullName,
+      }
     });
 
-    if (error) {
-      console.error('Registration error:', error);
-      
-      // Handle specific error cases
-      if (error.message.includes('User already registered') || error.message.includes('already registered')) {
-        return NextResponse.json(
-          { error: '이미 가입된 이메일 주소입니다.' },
-          { status: 409 }
-        );
-      }
-      
-      return NextResponse.json(
-        { error: '회원가입 중 오류가 발생했습니다.' },
-        { status: 500 }
-      );
-    }
-
-    if (!data.user) {
-      return NextResponse.json(
-        { error: '회원가입에 실패했습니다.' },
-        { status: 500 }
-      );
-    }
-
-    // Insert user profile into profiles table
-    const { error: profileError } = await adminClient
-      .from('profiles')
-      .insert([
-        {
-          id: data.user.id,
-          name: name,
-          email: email,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ]);
-
-    if (profileError) {
-      console.error('Profile creation error:', profileError);
-      // Don't return error here as user is already created
-    }
-
-    return NextResponse.json(
-      { 
-        message: '회원가입이 완료되었습니다. 로그인해주세요.',
-        user: {
-          id: data.user.id,
-          email: data.user.email,
-          name: name,
-          confirmed: true,
-        }
-      },
-      { status: 201 }
-    );
-
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('회원가입 오류:', error);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다.' },
       { status: 500 }

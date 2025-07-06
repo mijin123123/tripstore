@@ -28,18 +28,32 @@ export default function LoginPage() {
       
       console.log('로그인 시도:', email);
       
-      // 간단한 로그인 처리
-      login(email);
+      // 사용자 로그인 API 호출
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || '로그인 실패');
+      }
+
+      console.log('로그인 성공:', result);
       
-      console.log('로그인 성공, 메인 페이지로 이동');
+      // 사용자 정보 저장
+      login(result.user.email);
       
-      // 로그인 성공 시 약간의 지연 후 메인 페이지로 이동
-      setTimeout(() => {
-        router.push('/');
-      }, 100);
+      // 마이페이지로 이동
+      router.push('/mypage');
+      
     } catch (err: any) {
-      console.error('로그인 처리 중 오류:', err);
-      setError('로그인에 실패했습니다. 다시 시도해주세요.');
+      console.error('로그인 오류:', err);
+      setError(err.message || '로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -48,33 +62,37 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <LogIn className="h-12 w-12 text-blue-600" />
+        <div>
+          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-600">
+            <LogIn className="h-6 w-6 text-white" />
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">
-            로그인
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            계정에 로그인
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            계정에 로그인하여 여행을 시작하세요
+          <p className="mt-2 text-center text-sm text-gray-600">
+            또는{' '}
+            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              새 계정 만들기
+            </Link>
           </p>
         </div>
-
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email-address" className="sr-only">
-                이메일
+              <label htmlFor="email" className="sr-only">
+                이메일 주소
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
-                  id="email-address"
+                  id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none rounded-t-md relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="이메일 주소"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -86,14 +104,16 @@ export default function LoginPage() {
                 비밀번호
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="appearance-none rounded-b-md relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="비밀번호"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -103,26 +123,37 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="flex items-center space-x-2 p-3 bg-red-100 border border-red-400 rounded-md">
-              <AlertCircle className="h-5 w-5 text-red-600" />
-              <span className="text-sm text-red-700">{error}</span>
+            <div className="flex items-center space-x-2 text-red-600 text-sm">
+              <AlertCircle className="h-4 w-4" />
+              <span>{error}</span>
             </div>
           )}
+
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link href="/reset-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                비밀번호를 잊으셨나요?
+              </Link>
+            </div>
+          </div>
 
           <div>
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               {loading ? '로그인 중...' : '로그인'}
             </button>
           </div>
 
           <div className="text-center">
-            <Link href="/simple-login" className="text-sm text-blue-600 hover:text-blue-500">
-              간편 로그인으로 이동
-            </Link>
+            <p className="text-sm text-gray-600">
+              계정이 없으신가요?{' '}
+              <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+                회원가입
+              </Link>
+            </p>
           </div>
         </form>
       </div>
