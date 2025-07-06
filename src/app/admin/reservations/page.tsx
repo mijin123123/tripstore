@@ -5,10 +5,21 @@ import ReservationList from '@/components/admin/ReservationList';
 
 interface ReservationData {
   id: string;
-  packages: {
-    title: string;
-  };
-  [key: string]: any;
+  userId: string | null;
+  packageId: string | null;
+  departureDate: string;
+  travelers: number;
+  totalPrice: string;
+  status: string;
+  paymentStatus: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  specialRequests: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  packageTitle: string | null;
+  packageDestination: string | null;
 }
 
 export default function ReservationsPage() {
@@ -17,21 +28,30 @@ export default function ReservationsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function fetchReservations() {
-      try {
-        // 예약 데이터는 별도 API 엔드포인트가 필요할 수 있습니다
-        // 우선 빈 배열로 설정하고 나중에 API 엔드포인트를 추가할 수 있습니다
-        setReservations([]);
-      } catch (err) {
-        console.error('예약 데이터 조회 오류:', err);
-        setError('예약 데이터를 불러올 수 없습니다.');
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchReservations();
   }, []);
+
+  const fetchReservations = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/reservations');
+      if (response.ok) {
+        const data = await response.json();
+        setReservations(data);
+      } else {
+        throw new Error('Failed to fetch reservations');
+      }
+    } catch (err) {
+      console.error('예약 데이터 조회 오류:', err);
+      setError('예약 데이터를 불러올 수 없습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = () => {
+    fetchReservations(); // 상태 변경 후 데이터 다시 로드
+  };
 
   if (loading) {
     return <div className="p-6">로딩 중...</div>;
@@ -63,7 +83,7 @@ export default function ReservationsPage() {
             예약 정보가 없습니다.
           </div>
         ) : (
-          <ReservationList reservations={reservations} />
+          <ReservationList reservations={reservations} onStatusChange={handleStatusChange} />
         )}
       </div>
     </div>

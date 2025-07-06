@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Pencil, XCircle, CheckCircle, MoreHorizontal, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation';
 
 // 예약 상태 타입
 type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
@@ -12,23 +11,29 @@ type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 // 예약 타입 정의
 interface Reservation {
   id: string;
-  package_id: string;
-  contact_name: string;
-  contact_email: string;
+  userId: string | null;
+  packageId: string | null;
+  departureDate: string;
   travelers: number;
-  total_price: number;
+  totalPrice: string;
   status: ReservationStatus;
-  packages?: {
-    title: string;
-  };
+  paymentStatus: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  specialRequests: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  packageTitle: string | null;
+  packageDestination: string | null;
 }
 
 interface ReservationListProps {
   reservations: Reservation[];
+  onStatusChange: () => void;
 }
 
-export default function ReservationList({ reservations }: ReservationListProps) {
-  const router = useRouter();
+export default function ReservationList({ reservations, onStatusChange }: ReservationListProps) {
   
   // 숫자를 통화 형식으로 포맷팅
   const formatCurrency = (amount: number) => {
@@ -87,7 +92,7 @@ export default function ReservationList({ reservations }: ReservationListProps) 
         }
         
         alert('예약 상태가 변경되었습니다.');
-        router.refresh();
+        onStatusChange(); // 상태 변경 후 부모 컴포넌트에 알림
       } catch (error) {
         console.error('예약 상태 변경 중 오류:', error);
         alert(error instanceof Error ? error.message : '예약 상태 변경 중 오류가 발생했습니다.');
@@ -104,17 +109,17 @@ export default function ReservationList({ reservations }: ReservationListProps) 
           </div>
           
           <div className="col-span-3 font-medium">
-            {reservation.packages?.title || '패키지 정보 없음'}
+            {reservation.packageTitle || '패키지 정보 없음'}
           </div>
           
           <div className="col-span-2">
-            <div>{reservation.contact_name}</div>
-            <div className="text-xs text-gray-500">{reservation.contact_email}</div>
+            <div>{reservation.contactName}</div>
+            <div className="text-xs text-gray-500">{reservation.contactEmail}</div>
           </div>
           
           <div className="col-span-1">{reservation.travelers}명</div>
           
-          <div className="col-span-1">{formatCurrency(reservation.total_price)}</div>
+          <div className="col-span-1">{formatCurrency(parseInt(reservation.totalPrice))}</div>
           
           <div className="col-span-1">
             {getStatusBadge(reservation.status)}
