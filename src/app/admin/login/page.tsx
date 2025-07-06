@@ -48,32 +48,6 @@ export default function AdminLogin() {
       setLoading(false);
     }
   };
-        console.error('로그인 오류:', error);
-        setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
-        return;
-      }
-
-      console.log('로그인 성공, 관리자 권한 확인 중');
-      
-      // 관리자 이메일 목록 (하드코딩으로 간단하게 처리)
-      const adminEmails = ['sonchanmin89@gmail.com'];
-      
-      if (!adminEmails.includes(email)) {
-        await supabase.auth.signOut();
-        setError('관리자 권한이 없습니다.');
-        return;
-      }
-
-      console.log('관리자 권한 확인 완료, 대시보드로 이동');
-      // 관리자 대시보드로 리디렉션
-      router.push('/admin/dashboard');
-    } catch (error) {
-      console.error('로그인 예외 발생:', error);
-      setError('로그인 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -82,9 +56,6 @@ export default function AdminLogin() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             관리자 로그인
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            TripStore 관리자 시스템
-          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div>
@@ -117,11 +88,9 @@ export default function AdminLogin() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-
           {error && (
             <div className="text-red-600 text-sm text-center">{error}</div>
           )}
-
           <div>
             <button
               type="submit"
