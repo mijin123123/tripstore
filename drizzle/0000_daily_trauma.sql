@@ -1,6 +1,3 @@
--- Current sql file was generated after introspecting the database
--- If you want to run this migration please uncomment this code before executing migrations
-/*
 CREATE TABLE "admins" (
 	"email" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now()
@@ -11,23 +8,6 @@ CREATE TABLE "notices" (
 	"title" text NOT NULL,
 	"content" text NOT NULL,
 	"is_important" boolean DEFAULT false,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
-);
---> statement-breakpoint
-CREATE TABLE "reservations" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid,
-	"package_id" uuid,
-	"departure_date" text NOT NULL,
-	"travelers" integer NOT NULL,
-	"total_price" numeric(10, 2) NOT NULL,
-	"status" text DEFAULT 'pending' NOT NULL,
-	"payment_status" text DEFAULT 'unpaid' NOT NULL,
-	"contact_name" text NOT NULL,
-	"contact_email" text NOT NULL,
-	"contact_phone" text NOT NULL,
-	"special_requests" text,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
 );
@@ -55,6 +35,23 @@ CREATE TABLE "packages" (
 	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE "reservations" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid,
+	"package_id" uuid,
+	"departure_date" text NOT NULL,
+	"travelers" integer NOT NULL,
+	"total_price" numeric(10, 2) NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"payment_status" text DEFAULT 'unpaid' NOT NULL,
+	"contact_name" text NOT NULL,
+	"contact_email" text NOT NULL,
+	"contact_phone" text NOT NULL,
+	"special_requests" text,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE "reviews" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid,
@@ -67,4 +64,3 @@ CREATE TABLE "reviews" (
 --> statement-breakpoint
 ALTER TABLE "reservations" ADD CONSTRAINT "reservations_package_id_packages_id_fk" FOREIGN KEY ("package_id") REFERENCES "public"."packages"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "reviews" ADD CONSTRAINT "reviews_package_id_packages_id_fk" FOREIGN KEY ("package_id") REFERENCES "public"."packages"("id") ON DELETE cascade ON UPDATE no action;
-*/
