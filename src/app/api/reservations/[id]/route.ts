@@ -72,8 +72,26 @@ export async function GET(
     const { id } = params;
     
     const [reservation] = await db
-      .select()
+      .select({
+        id: reservations.id,
+        userId: reservations.userId,
+        packageId: reservations.packageId,
+        departureDate: reservations.departureDate,
+        travelers: reservations.travelers,
+        totalPrice: reservations.totalPrice,
+        status: reservations.status,
+        paymentStatus: reservations.paymentStatus,
+        contactName: reservations.contactName,
+        contactEmail: reservations.contactEmail,
+        contactPhone: reservations.contactPhone,
+        specialRequests: reservations.specialRequests,
+        createdAt: reservations.createdAt,
+        updatedAt: reservations.updatedAt,
+        packageTitle: packages.title,
+        packageDestination: packages.destination,
+      })
       .from(reservations)
+      .leftJoin(packages, eq(reservations.packageId, packages.id))
       .where(eq(reservations.id, id))
       .limit(1);
 
