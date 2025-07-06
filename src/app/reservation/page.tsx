@@ -28,11 +28,19 @@ interface Package {
 // DB에서 패키지 정보 가져오기
 async function getPackageById(id: string) {
   try {
+    console.log('패키지 조회 시작, ID:', id);
     const response = await fetch(`/api/packages/${id}`);
+    console.log('API 응답 상태:', response.status);
+    
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API 오류 응답:', errorText);
       throw new Error('패키지를 찾을 수 없습니다.');
     }
-    return await response.json();
+    
+    const packageData = await response.json();
+    console.log('패키지 조회 성공:', packageData.title);
+    return packageData;
   } catch (error) {
     console.error('패키지 조회 오류:', error);
     return null;
@@ -238,21 +246,32 @@ function ReservationContent() {
       try {
         console.log('예약 생성 시작');
         
+        // 날짜 유효성 검증
+        if (!form.departureDate || isNaN(form.departureDate.getTime())) {
+          alert('유효한 출발일을 선택해주세요.');
+          return;
+        }
+
+        // 패키지 ID 유효성 검증
+        if (!packageData?.id) {
+          alert('패키지 정보가 없습니다.');
+          return;
+        }
+        
         // 예약 데이터 구성
         const reservationData = {
           userId: null, // 현재 로그인 기능이 없으므로 null
           packageId: packageData.id,
-          departureDate: form.departureDate?.toISOString().split('T')[0] || '',
+          departureDate: form.departureDate.toISOString().split('T')[0], // 날짜 유효성 검증 후 사용
           travelers: form.travelers,
-          totalPrice: calculateTotalPrice().replace(/[^\d]/g, ''), // 숫자만 추출
+          totalPrice: parseInt(calculateTotalPrice().replace(/[^\d]/g, '')), // 숫자로 변환
           status: 'pending',
           paymentStatus: 'pending',
           contactName: `${form.lastName} ${form.firstName}`,
           contactEmail: form.email,
           contactPhone: form.phone,
           specialRequests: form.specialRequests || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          // createdAt, updatedAt은 DB에서 자동으로 처리되므로 제거
         };
 
         console.log('예약 데이터:', reservationData);

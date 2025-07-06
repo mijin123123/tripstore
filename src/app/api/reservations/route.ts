@@ -64,13 +64,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Departure date is required' }, { status: 400 });
     }
     
+    // 데이터 타입 변환 및 검증
+    const reservationData = {
+      userId: body.userId || null,
+      packageId: String(body.packageId),
+      departureDate: body.departureDate,
+      travelers: parseInt(body.travelers) || 1,
+      totalPrice: typeof body.totalPrice === 'string' ? parseInt(body.totalPrice) : body.totalPrice,
+      status: body.status || 'pending',
+      paymentStatus: body.paymentStatus || 'pending',
+      contactName: String(body.contactName),
+      contactEmail: String(body.contactEmail),
+      contactPhone: String(body.contactPhone || ''),
+      specialRequests: body.specialRequests || null,
+    };
+    
+    console.log('변환된 예약 데이터:', reservationData);
+    
     // 환경 변수 확인
     const databaseUrl = process.env.NETLIFY_DATABASE_URL || process.env.NEON_DATABASE_URL;
     console.log('데이터베이스 URL 존재:', !!databaseUrl);
     
     console.log('데이터베이스에 예약 생성 시도...');
     
-    const [newReservation] = await db.insert(reservations).values(body).returning();
+    const [newReservation] = await db.insert(reservations).values(reservationData).returning();
     
     console.log('예약 생성 완료:', newReservation);
     
