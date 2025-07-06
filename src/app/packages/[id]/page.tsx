@@ -22,12 +22,29 @@ import {
   Heart,
   ShoppingCart
 } from "lucide-react";
-import { TravelPackage, packagesData } from "@/data/packagesData";
 
-// 클라이언트 컴포넌트에서 직접 패키지 검색 함수 구현
-function getPackageById(id: string | number) {
-  const numId = typeof id === 'string' ? parseInt(id) : id;
-  return packagesData.find(pkg => pkg.id === numId);
+// 데이터베이스 패키지 타입 정의
+interface Package {
+  id: string;
+  title: string;
+  description: string;
+  destination: string;
+  price: string;
+  discountprice: string | null;
+  duration: number | null;
+  departuredate: string[];
+  images: string[];
+  rating: string | null;
+  reviewcount: number | null;
+  category: string;
+  season: string | null;
+  inclusions: string[] | null;
+  exclusions: string[] | null;
+  isfeatured: boolean | null;
+  isonsale: boolean | null;
+  itinerary: any;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
 
 // 패키지 기능 정의
@@ -45,7 +62,7 @@ const packageFeatures = [
 export default function PackageDetail() {
   const params = useParams();
   const router = useRouter();
-  const [packageData, setPackageData] = useState<TravelPackage | null>(null);
+  const [packageData, setPackageData] = useState<Package | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -53,17 +70,29 @@ export default function PackageDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    if (params.id) {
-      const packageId = typeof params.id === "string" ? params.id : params.id[0];
-      const data = getPackageById(packageId);
-      if (data) {
-        setPackageData(data);
-        if (data.departureDate && data.departureDate.length > 0) {
-          setSelectedDate(new Date(data.departureDate[0]));
+    async function fetchPackage() {
+      if (params.id) {
+        try {
+          const packageId = typeof params.id === "string" ? params.id : params.id[0];
+          const response = await fetch(`/api/packages/${packageId}`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            setPackageData(data);
+            if (data.departuredate && data.departuredate.length > 0) {
+              setSelectedDate(new Date(data.departuredate[0]));
+            }
+          } else {
+            console.error('Package not found');
+          }
+        } catch (error) {
+          console.error('Error fetching package:', error);
         }
       }
       setLoading(false);
     }
+
+    fetchPackage();
   }, [params.id]);
 
   if (loading) {
@@ -94,16 +123,16 @@ export default function PackageDetail() {
   }
 
   const handlePrevImage = () => {
-    if (!packageData.gallery) return;
+    if (!packageData.images || packageData.images.length <= 1) return;
     setCurrentImageIndex((prev) => 
-      prev === 0 ? packageData.gallery!.length - 1 : prev - 1
+      prev === 0 ? packageData.images!.length - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
-    if (!packageData.gallery) return;
+    if (!packageData.images || packageData.images.length <= 1) return;
     setCurrentImageIndex((prev) => 
-      prev === packageData.gallery!.length - 1 ? 0 : prev + 1
+      prev === packageData.images!.length - 1 ? 0 : prev + 1
     );
   };
 
@@ -112,8 +141,8 @@ export default function PackageDetail() {
       {/* 헤더 이미지 */}
       <div className="relative h-[50vh] lg:h-[60vh]">
         <Image
-          src={packageData.gallery ? packageData.gallery[currentImageIndex] : packageData.image}
-          alt={packageData.name}
+          src={packageData.images && packageData.images.length > 0 ? packageData.images[currentImageIndex] : '/placeholder.jpg'}
+          alt={packageData.title}
           fill
           className="object-cover"
           priority
@@ -121,9 +150,9 @@ export default function PackageDetail() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10"></div>
         
         {/* 이미지 갤러리 내비게이션 */}
-        {packageData.gallery && packageData.gallery.length > 1 && (
+        {packageData.images && packageData.images.length > 1 && (
           <div className="absolute bottom-6 left-0 right-0 flex justify-center space-x-2">
-            {packageData.gallery.map((_, index) => (
+            {packageData.images.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
@@ -162,7 +191,7 @@ export default function PackageDetail() {
             <div className="w-full md:w-8/12">
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-md">
-                  {packageData.type}
+                  {packageData.category}
                 </span>
                 {packageData.rating && (
                   <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-md">
@@ -172,7 +201,7 @@ export default function PackageDetail() {
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                {packageData.name}
+                {packageData.title}
               </h1>
               <p className="text-lg text-gray-600 mb-6">
                 {packageData.description}
@@ -220,7 +249,7 @@ export default function PackageDetail() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {packageFeatures.map((feature) => {
-                        const value = packageData[feature.key as keyof TravelPackage];
+                        const value = packageData[feature.key as keyof Package];
                         if (!value) return null;
                         
                         return (
@@ -315,9 +344,9 @@ export default function PackageDetail() {
                   <div className="space-y-8">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800 mb-4">포함 사항</h3>
-                      {packageData.includes && packageData.includes.length > 0 ? (
+                      {packageData.inclusions && packageData.inclusions.length > 0 ? (
                         <ul className="space-y-2">
-                          {packageData.includes.map((item, index) => (
+                          {packageData.inclusions.map((item, index) => (
                             <li key={index} className="flex items-start">
                               <div className="flex-shrink-0 mt-1">
                                 <Check className="h-4 w-4 text-green-500" />
@@ -333,9 +362,9 @@ export default function PackageDetail() {
 
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800 mb-4">불포함 사항</h3>
-                      {packageData.excludes && packageData.excludes.length > 0 ? (
+                      {packageData.exclusions && packageData.exclusions.length > 0 ? (
                         <ul className="space-y-2">
-                          {packageData.excludes.map((item, index) => (
+                          {packageData.exclusions.map((item, index) => (
                             <li key={index} className="flex items-start">
                               <div className="flex-shrink-0 mt-1">
                                 <X className="h-4 w-4 text-red-500" />
@@ -357,7 +386,9 @@ export default function PackageDetail() {
             <div className="w-full md:w-4/12 sticky top-24">
               <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-100 p-6">
                 <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">{packageData.price}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                    ₩{new Intl.NumberFormat('ko-KR').format(Number(packageData.price))}
+                  </h3>
                   <p className="text-sm text-gray-500">1인 기준, 세금 포함</p>
                 </div>
 
@@ -380,40 +411,20 @@ export default function PackageDetail() {
                         className="w-full pl-10 py-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 cursor-pointer"
                       >
                         <option value="">출발일을 선택하세요</option>
-                        {(() => {
-                          // 현재 날짜부터 내년까지의 날짜 옵션 생성 (2주 간격으로)
-                          const dates = [];
-                          const now = new Date();
-                          const endDate = new Date(now);
-                          endDate.setFullYear(endDate.getFullYear() + 1); // 내년까지
+                        {packageData.departuredate && packageData.departuredate.map((date, index) => {
+                          const dateObj = new Date(date);
+                          const formattedDate = dateObj.toLocaleDateString('ko-KR', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          });
                           
-                          // 2주 간격으로 날짜 생성
-                          let currentDate = new Date(now);
-                          currentDate.setHours(0, 0, 0, 0);
-                          
-                          while (currentDate <= endDate) {
-                            const dateISO = currentDate.toISOString();
-                            const formattedDate = currentDate.toLocaleDateString('ko-KR', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            });
-                            
-                            dates.push(
-                              <option key={dateISO} value={dateISO}>
-                                {formattedDate}
-                              </option>
-                            );
-                            
-                            // 2주 후 날짜로 이동
-                            const nextDate = new Date(currentDate);
-                            nextDate.setDate(nextDate.getDate() + 14);
-                            currentDate = nextDate;
-                          }
-                          
-                          return dates;
-                        })()
-                        })()
+                          return (
+                            <option key={index} value={dateObj.toISOString()}>
+                              {formattedDate}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
                   </div>
