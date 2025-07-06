@@ -17,30 +17,18 @@ import {
   HelpCircle,
 } from "lucide-react";
 
-import { createClient } from "@/lib/supabase-server";
+import { db } from "@/lib/neon";
+import { packages as packagesSchema } from "@/lib/schema";
 import SearchForm from "@/components/SearchForm";
-import SubscriptionForm from "@/components/SubscriptionForm"; // 구독 폼 컴포넌트 import
+import SubscriptionForm from "@/components/SubscriptionForm";
+import { InferSelectModel } from "drizzle-orm";
 
-// 데이터베이스 타입 정의 (database.types.ts가 없을 경우를 대비)
-// 실제로는 생성된 타입을 사용하는 것이 좋습니다.
-type Package = {
-  id: string;
-  created_at: string;
-  title: string | null;
-  description: string | null;
-  price: number | null;
-  images: string[] | null;
-  season: string | null;
-  isFeatured: boolean | null;
-  rating: number | null;
-  // 필요한 다른 필드들...
-};
-
+type Package = InferSelectModel<typeof packagesSchema>;
 
 // Helper function to format price
-const formatPrice = (price: number | null) => {
+const formatPrice = (price: string | null) => {
   if (price === null) return "가격 문의";
-  return new Intl.NumberFormat("ko-KR").format(price);
+  return new Intl.NumberFormat("ko-KR").format(Number(price));
 };
 
 // 왜 TripStore 선택하는지 데이터
@@ -133,21 +121,17 @@ const faqs = [
 
 
 export default async function Home() {
-  const supabase = createClient();
-  const { data: packages, error } = await supabase
-    .from("packages")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
+  let allPackages: Package[] = [];
+  try {
+    allPackages = await db.select().from(packagesSchema).orderBy(packagesSchema.createdAt);
+  } catch (error) {
     console.error("Error fetching packages:", error);
+    // 오류 발생 시 빈 배열을 사용하거나, 에러 페이지를 보여줄 수 있습니다.
   }
 
-  const allPackages: Package[] = packages || [];
-
-  // 추천 상품: isFeatured가 true인 상품, 없으면 최신 3개
-  const featuredPackages = allPackages.filter(p => p.isFeatured).length > 0 
-    ? allPackages.filter(p => p.isFeatured).slice(0, 3)
+  // 추천 상품: isfeatured가 true인 상품, 없으면 최신 3개
+  const featuredPackages = allPackages.filter(p => p.isfeatured).length > 0 
+    ? allPackages.filter(p => p.isfeatured).slice(0, 3)
     : allPackages.slice(0, 3);
 
   // 시즌별 상품

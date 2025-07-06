@@ -1,20 +1,28 @@
-import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
-import { User, Map, Heart, Settings, LogOut, ChevronRight, Package, AlertTriangle } from 'lucide-react';
+import { User, Map, Heart, Settings, ChevronRight, Package, AlertTriangle } from 'lucide-react';
 import Link from "next/link";
+import { db } from "@/lib/neon";
+import { reservations as reservationsSchema, packages as packagesSchema } from "@/lib/schema";
+import { InferSelectModel, eq } from 'drizzle-orm';
 
-// 데이터 타입을 명시적으로 정의합니다.
-interface PackageInfo {
-  id: string;
-  title: string | null;
-  start_date: string | null;
-}
+// Drizzle의 InferSelectModel을 사용하여 스키마로부터 타입을 추론합니다.
+type ReservationSelect = InferSelectModel<typeof reservationsSchema>;
+type PackageSelect = InferSelectModel<typeof packagesSchema>;
 
-interface Reservation {
-  id: string;
-  status: string | null;
-  packages: PackageInfo | PackageInfo[] | null; // packages는 객체 또는 배열일 수 있습니다.
-}
+// Join 쿼리 결과에 대한 타입을 정의합니다.
+// Drizzle은 join된 테이블의 데이터를 테이블 이름의 키로 갖는 객체로 반환합니다.
+type ReservationWithPackage = {
+  reservations: ReservationSelect;
+  packages: PackageSelect | null;
+};
+
+// 임시 사용자 정보 (인증 기능 구현 전까지 사용)
+// 중요: 이 ID는 실제 데이터베이스의 reservations 테이블에 존재하는 user_id여야 합니다.
+const tempUser = {
+  id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", // Supabase에서 사용하던 유효한 user_id로 교체해야 합니다.
+  fullName: "홍길동 (임시)",
+  email: "temp.user@example.com",
+};
 
 const menuItems = [
   { icon: Map, text: '나의 예약 관리', href: '/mypage' },
@@ -28,6 +36,7 @@ const getStatusStyle = (status: string | null) => {
         case '예약 확정':
             return 'text-green-700 bg-green-100';
         case '결제 대기':
+        case 'pending': // Drizzle 스키마의 기본값
             return 'text-yellow-700 bg-yellow-100';
         case '여행 완료':
             return 'text-gray-700 bg-gray-100';
@@ -40,42 +49,30 @@ const getStatusStyle = (status: string | null) => {
 
 export default async function MyPage() {
     try {
-        const supabase = createClient();
-
-        const { data: { user } } = await supabase.auth.getUser();
+        // TODO: 실제 인증 시스템과 연동 필요
+        const user = tempUser;
 
         if (!user) {
             return redirect('/login');
         }
 
-        // Supabase는 foreign key 관계를 객체로 반환합니다.
-        const { data, error } = await supabase
-            .from('reservations')
-            .select(`
-                id,
-                status,
-                packages (
-                    id,
-                    title,
-                    start_date
-                )
-            `)
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('Error fetching reservations:', error);
-            throw new Error('Failed to fetch reservation data.');
-        }
-        
-        const reservations: Reservation[] = data || [];
+        // Drizzle을 사용하여 예약 정보와 관련 패키지 정보를 join하여 가져옵니다.
+        const reservationsWithPackages: ReservationWithPackage[] = await db
+            .select({
+                reservations: reservationsSchema,
+                packages: packagesSchema
+            })
+            .from(reservationsSchema)
+            .leftJoin(packagesSchema, eq(reservationsSchema.packageId, packagesSchema.id))
+            .where(eq(reservationsSchema.userId, user.id))
+            .orderBy(reservationsSchema.createdAt);
 
         return (
             <div className="bg-gray-50 min-h-screen">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
                     <div className="text-center mb-16">
                         <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">마이페이지</h1>
-                        <p className="mt-4 text-lg leading-8 text-gray-600">{(user.user_metadata?.full_name) || user.email}님의 여행 현황을 한눈에 확인하세요.</p>
+                        <p className="mt-4 text-lg leading-8 text-gray-600">{user.fullName || user.email}님의 여행 현황을 한눈에 확인하세요.</p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -87,7 +84,7 @@ export default async function MyPage() {
                                         <User size={32} className="text-gray-500" />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-gray-800">{(user.user_metadata?.full_name) || '사용자'}</h2>
+                                        <h2 className="text-xl font-bold text-gray-800">{user.fullName || '사용자'}</h2>
                                         <p className="text-sm text-gray-500 truncate">{user.email}</p>
                                     </div>
                                 </div>
@@ -101,15 +98,7 @@ export default async function MyPage() {
                                             <ChevronRight size={16} />
                                         </Link>
                                     ))}
-                                     <form action="/auth/signout" method="post">
-                                        <button type="submit" className="w-full flex items-center justify-between px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-blue-600 transition-colors duration-200 font-medium">
-                                            <div className="flex items-center">
-                                                <LogOut className="h-5 w-5 mr-3" />
-                                                <span>로그아웃</span>
-                                            </div>
-                                            <ChevronRight size={16} />
-                                        </button>
-                                    </form>
+                                     {/* TODO: 인증 구현 후 로그아웃 기능 추가 */}
                                 </nav>
                             </div>
                         </div>
@@ -119,24 +108,21 @@ export default async function MyPage() {
                             <div className="bg-white p-8 rounded-xl shadow-sm">
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6">최근 예약 내역</h2>
                                 <div className="space-y-4">
-                                    {reservations && reservations.length > 0 ? (
-                                        reservations.map((booking) => {
-                                            const packageInfo = Array.isArray(booking.packages) ? booking.packages[0] : booking.packages;
-                                            return (
-                                                <div key={booking.id} className="border border-gray-200 p-5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                                    <div>
-                                                        <h3 className="font-semibold text-lg text-gray-800">{packageInfo?.title || '패키지 정보 없음'}</h3>
-                                                        <p className="text-sm text-gray-500 mt-1">{packageInfo?.start_date ? `${new Date(packageInfo.start_date).toLocaleDateString()} 출발` : '날짜 정보 없음'}</p>
-                                                    </div>
-                                                    <div className="flex items-center space-x-4 flex-shrink-0">
-                                                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusStyle(booking.status)}`}>{booking.status}</span>
-                                                        <Link href={`/mypage/reservations/${booking.id}`} className="text-sm font-medium text-blue-600 hover:underline">
-                                                            상세보기
-                                                        </Link>
-                                                    </div>
+                                    {reservationsWithPackages.length > 0 ? (
+                                        reservationsWithPackages.map((booking) => (
+                                            <div key={booking.reservations.id} className="border border-gray-200 p-5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                                <div>
+                                                    <h3 className="font-semibold text-lg text-gray-800">{booking.packages?.title || '패키지 정보 없음'}</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">{booking.reservations.departureDate ? `${new Date(booking.reservations.departureDate).toLocaleDateString()} 출발` : '날짜 정보 없음'}</p>
                                                 </div>
-                                            );
-                                        })
+                                                <div className="flex items-center space-x-4 flex-shrink-0">
+                                                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusStyle(booking.reservations.status)}`}>{booking.reservations.status}</span>
+                                                    <Link href={`/mypage/reservations/${booking.reservations.id}`} className="text-sm font-medium text-blue-600 hover:underline">
+                                                        상세보기
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        ))
                                     ) : (
                                         <div className="text-center py-12 px-6 border-2 border-dashed border-gray-200 rounded-lg">
                                             <Package className="mx-auto h-12 w-12 text-gray-400" />
