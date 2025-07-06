@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/lib/simple-auth';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
-  const { user, loading, signOut } = useAuth();
+  const { user, isLoading, logout } = useAuth();
 
   const showHeaderBg = !isHome || isScrolled;
 
@@ -40,7 +40,7 @@ export default function Header() {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      logout();
     } catch (error) {
       console.error('로그아웃 오류:', error);
     }
@@ -68,7 +68,7 @@ export default function Header() {
             고객센터
           </Link>
           
-          {loading ? (
+          {isLoading ? (
             <span className={`text-lg font-medium ${showHeaderBg ? 'text-neutral-700' : 'text-white'}`}>
               로딩 중...
             </span>
@@ -85,13 +85,13 @@ export default function Header() {
                 로그아웃
               </button>
               <span className={`text-sm ${showHeaderBg ? 'text-neutral-600' : 'text-white/80'}`}>
-                {user.email}
+                {user.fullName}
               </span>
             </>
           ) : (
             // 로그인되지 않은 상태
             <>
-              <Link href="/login" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
+              <Link href="/simple-login" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
                 로그인
               </Link>
               <Link href="/register" className={`text-lg font-medium transition-colors duration-300 ${showHeaderBg ? 'text-neutral-700 hover:text-brand-blue' : 'text-white hover:text-neutral-200'}`}>
