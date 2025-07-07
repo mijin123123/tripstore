@@ -1,5 +1,12 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
+import { config } from 'dotenv';
+
+// .env 파일을 로드합니다.
+config();
+
+// 하드코딩된 데이터베이스 URL (환경변수가 없는 경우 사용)
+const HARDCODED_NEON_URL = "postgresql://neondb_owner:npg_lu3rwg6HpLGn@ep-noisy-meadow-aex8wbzi-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require";
 
 // 데이터베이스 연결 상태와 디버깅 정보
 let db: ReturnType<typeof drizzle>;
@@ -30,16 +37,18 @@ function connectToDatabase() {
   connectionAttempts++;
   
   try {
-    // DB URL 변수 선택 로직
-    const DATABASE_URL = process.env.NEON_DATABASE_URL || 
-                         process.env.NETLIFY_DATABASE_URL || 
-                         process.env.DATABASE_URL;
+    // 하드코딩된 URL을 마지막 대안으로 사용합니다.
+    let DATABASE_URL = process.env.NEON_DATABASE_URL || 
+                      process.env.NETLIFY_DATABASE_URL || 
+                      process.env.DATABASE_URL ||
+                      HARDCODED_NEON_URL;
 
     // 환경변수 상태 로깅
     const envStatus = {
       NEON_DATABASE_URL: process.env.NEON_DATABASE_URL ? 'SET' : 'NOT SET',
       NETLIFY_DATABASE_URL: process.env.NETLIFY_DATABASE_URL ? 'SET' : 'NOT SET',
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
+      USING_HARDCODED: DATABASE_URL === HARDCODED_NEON_URL ? 'YES' : 'NO'
     };
     console.log(`[시도 ${connectionAttempts}/${MAX_CONNECTION_ATTEMPTS}] 환경변수 상태:`, envStatus);
 

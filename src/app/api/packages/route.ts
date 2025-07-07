@@ -1,3 +1,7 @@
+// 환경 변수를 먼저 로드하기 위해 dotenv 설정
+import { config } from 'dotenv';
+config();
+
 import { db } from '@/lib/neon';
 import { packages } from '@/lib/schema';
 import { NextResponse } from 'next/server';

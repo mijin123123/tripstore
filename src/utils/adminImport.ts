@@ -1,3 +1,7 @@
+// 환경 변수를 먼저 로드하기 위해 dotenv 설정
+import { config } from 'dotenv';
+config();
+
 import { packagesData } from '../data/packagesData';
 
 // API를 통해 패키지 데이터를 가져오는 함수

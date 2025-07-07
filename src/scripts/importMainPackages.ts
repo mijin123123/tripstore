@@ -2,10 +2,26 @@
 import { config } from 'dotenv';
 config();
 
-import { db } from '@/lib/neon';
-import { packages } from '@/lib/schema';
+// 환경변수가 로드된 후에 다른 모듈을 import 합니다
 import { packagesData, TravelPackage } from '../data/packagesData';
 import { v4 as uuidv4 } from 'uuid';
+
+// 환경변수 로그 출력
+console.log('환경변수 확인:', {
+  NEON_DATABASE_URL: process.env.NEON_DATABASE_URL ? '설정됨' : '설정되지 않음',
+  NETLIFY_DATABASE_URL: process.env.NETLIFY_DATABASE_URL ? '설정됨' : '설정되지 않음',
+  DATABASE_URL: process.env.DATABASE_URL ? '설정됨' : '설정되지 않음',
+});
+
+// 환경변수가 없는 경우 추가 처리
+if (!process.env.NEON_DATABASE_URL) {
+  process.env.NEON_DATABASE_URL = "postgresql://neondb_owner:npg_lu3rwg6HpLGn@ep-noisy-meadow-aex8wbzi-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require";
+  console.log('NEON_DATABASE_URL 환경변수를 코드에서 설정했습니다.');
+}
+
+// 이제 DB 모듈을 가져옵니다
+import { db } from '@/lib/neon';
+import { packages } from '@/lib/schema';
 
 console.log('=== 메인 사이트 패키지 데이터 가져오기 스크립트 시작 ===');
 

@@ -194,7 +194,7 @@ export default function PackagesPage() {
         <div className="flex gap-2">
           <Button 
             onClick={() => {
-              if (confirm("메인 사이트의 패키지 데이터를 가져오시겠습니까?")) {
+              if (confirm("메인 사이트의 패키지 데이터를 가져오시겠습니까? 기존 데이터는 모두 삭제됩니다.")) {
                 importMainPackages(true); // 항상 강제 덮어쓰기 옵션 사용
               }
             }}
