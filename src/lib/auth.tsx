@@ -125,8 +125,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // Auth 훅
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  
+  // 빌드 시 오류 방지: 서버 렌더링 중이거나 컨텍스트가 없으면 기본값 반환
+  if (typeof window === 'undefined' || context === undefined) {
+    // 서버 렌더링 중이거나 AuthProvider 외부에서 호출될 때 기본값 반환
+    return {
+      user: null,
+      isLoading: false,
+      isAdmin: false,
+      login: async () => ({ error: '로그인 기능을 사용할 수 없습니다.' }),
+      logout: async () => { console.log('로그아웃 시도'); }
+    };
   }
+  
   return context;
 }

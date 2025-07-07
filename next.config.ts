@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
   },
   
   // 모든 페이지를 서버 사이드 렌더링으로 처리
-  swcMinify: true,
   compiler: {
     styledComponents: true,
   },
@@ -38,15 +37,15 @@ const nextConfig: NextConfig = {
   // 빌드 오류를 무시
   reactStrictMode: false,
   
-  // 빌드 오류를 피하기 위해 관리자 페이지에 대한 정적 생성을 비활성화
+  // Netlify에서 정적 생성 관련 문제 해결을 위한 설정
+  distDir: '.next',
+  
+  // 관리자 페이지를 동적으로 렌더링하도록 설정
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'tripstore.netlify.app'],
-    },
+    }
   },
-  
-  // Netlify에서 정적 생성 관련 문제 해결을 위한 설정
-  distDir: '.next',
   
   // 페이지 생성 방식을 더 명확하게 제어
   generateBuildId: async () => {
