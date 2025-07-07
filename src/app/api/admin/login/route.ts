@@ -24,13 +24,6 @@ export async function POST(request: NextRequest) {
       console.log('✅ 관리자 로그인 성공');
       return NextResponse.json({
         success: true,
-        admin: {
-          id: 'admin-001',
-          email: 'sonchanmin89@gmail.com',
-          fullName: '관리자',
-          createdAt: new Date().toISOString(),
-          role: 'admin'
-        }
       });
     }
 

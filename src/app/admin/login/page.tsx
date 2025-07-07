@@ -47,8 +47,8 @@ export default function AdminLogin() {
 
       console.log('✅ 관리자 로그인 성공:', result);
       
-      // 세션 저장 (localStorage 사용)
-      localStorage.setItem('adminUser', JSON.stringify(result.admin));
+      // 세션 저장 (sessionStorage 사용)
+      sessionStorage.setItem('isAdminAuthenticated', 'true');
       
       // 강제로 페이지 새로고침 후 대시보드로 이동
       console.log('🔄 관리자 대시보드로 이동 중...');
