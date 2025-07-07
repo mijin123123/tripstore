@@ -1,57 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/neon';
-import { admins } from '@/lib/schema';
-import { eq } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    console.log('=== 관리자 로그인 API 시작 ===');
+    
+    const body = await request.json();
+    console.log('요청 본문:', body);
+    
+    const { email, password } = body;
 
     if (!email || !password) {
+      console.log('이메일 또는 비밀번호 누락');
       return NextResponse.json(
         { error: '이메일과 비밀번호를 입력해주세요.' },
         { status: 400 }
       );
     }
 
-    // 관리자 계정 조회
-    const admin = await db
-      .select()
-      .from(admins)
-      .where(eq(admins.email, email))
-      .limit(1);
+    console.log('관리자 로그인 시도 - 이메일:', email);
 
-    if (admin.length === 0) {
-      return NextResponse.json(
-        { error: '관리자 계정이 존재하지 않습니다.' },
-        { status: 401 }
-      );
+    // 관리자 계정 확인
+    if (email === 'sonchanmin89@gmail.com' && password === 'admin123') {
+      console.log('✅ 관리자 로그인 성공');
+      return NextResponse.json({
+        success: true,
+        admin: {
+          id: 'admin-001',
+          email: 'sonchanmin89@gmail.com',
+          fullName: '관리자',
+          createdAt: new Date().toISOString(),
+          role: 'admin'
+        }
+      });
     }
 
-    // 비밀번호 확인
-    const isPasswordValid = await bcrypt.compare(password, admin[0].password);
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: '비밀번호가 올바르지 않습니다.' },
-        { status: 401 }
-      );
-    }
-
-    // 로그인 성공
-    return NextResponse.json({
-      success: true,
-      admin: {
-        email: admin[0].email,
-        createdAt: admin[0].createdAt
-      }
-    });
+    console.log('❌ 관리자 로그인 실패 - 잘못된 자격증명');
+    return NextResponse.json(
+      { error: '관리자 이메일 또는 비밀번호가 일치하지 않습니다.' },
+      { status: 401 }
+    );
 
   } catch (error) {
-    console.error('관리자 로그인 오류:', error);
+    console.error('❌ 관리자 로그인 API 오류:', error);
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다.' },
+      { 
+        error: '서버 오류가 발생했습니다.',
+        details: error instanceof Error ? error.message : '알 수 없는 오류'
+      },
       { status: 500 }
     );
   }

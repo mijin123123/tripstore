@@ -16,7 +16,7 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      console.log('관리자 로그인 시도:', email);
+      console.log('🔄 관리자 로그인 시도:', email);
       
       // 관리자 로그인 API 호출
       const response = await fetch('/api/admin/login', {
@@ -27,23 +27,36 @@ export default function AdminLogin() {
         body: JSON.stringify({ email, password }),
       });
 
-      const result = await response.json();
+      console.log('📡 관리자 API 응답 상태:', response.status);
+      console.log('📡 관리자 API 응답 헤더:', response.headers.get('content-type'));
 
-      if (!response.ok) {
-        throw new Error(result.error || '로그인 실패');
+      // 응답이 JSON인지 확인
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text();
+        console.error('❌ JSON이 아닌 응답:', textResponse);
+        throw new Error('서버에서 올바르지 않은 응답을 받았습니다.');
       }
 
-      console.log('관리자 로그인 성공:', result);
+      const result = await response.json();
+      console.log('📦 관리자 API 응답 데이터:', result);
+
+      if (!response.ok) {
+        throw new Error(result.error || `관리자 로그인 실패 (${response.status})`);
+      }
+
+      console.log('✅ 관리자 로그인 성공:', result);
       
       // 세션 저장 (localStorage 사용)
       localStorage.setItem('adminUser', JSON.stringify(result.admin));
       
-      // 대시보드로 이동
-      router.push('/admin/dashboard');
+      // 강제로 페이지 새로고침 후 대시보드로 이동
+      console.log('🔄 관리자 대시보드로 이동 중...');
+      window.location.href = '/admin/dashboard';
       
     } catch (err: any) {
-      console.error('관리자 로그인 오류:', err);
-      setError(err.message || '로그인 중 오류가 발생했습니다.');
+      console.error('❌ 관리자 로그인 오류:', err);
+      setError(err.message || '관리자 로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
