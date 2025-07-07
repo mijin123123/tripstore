@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
   // 정적 생성 문제 해결을 위한 설정
   output: 'standalone', // 독립 실행형 출력 사용
   
-  // 서버 컴포넌트 설정
+  // 빌드 오류를 피하기 위해 관리자 페이지에 대한 정적 생성을 비활성화
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'tripstore.netlify.app'],
@@ -55,6 +55,6 @@ const nextConfig: NextConfig = {
   
   // 정적 최적화 비활성화
   poweredByHeader: false,
-};
+}
 
 export default nextConfig;

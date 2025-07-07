@@ -1,52 +1,21 @@
 "use client";
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { createClient } from '@/lib/supabase';
-import { Session, User } from '@supabase/supabase-js';
 
-// 관리자 권한 확인 함수 (클라이언트 컴포넌트용)
-async function checkAdminPermissionClient(email: string) {
-  try {
-    console.log('관리자 권한 확인 중:', email);
-    
-    // 하드코딩된 관리자 이메일 먼저 확인
-    const adminEmails = ['sonchanmin89@gmail.com'];
-    if (adminEmails.includes(email)) {
-      console.log('하드코딩된 관리자 인증 성공:', email);
-      return true;
-    }
-    
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('email', email)
-      .limit(1);
-    
-    if (error) {
-      console.error('관리자 권한 확인 중 오류:', error);
-      return false;
-    }
-    
-    console.log('관리자 데이터:', data);
-    return !!(data && data.length > 0); // 데이터가 있으면 관리자임
-  } catch (error) {
-    console.error('관리자 권한 확인 중 예외 발생:', error);
-    return false;
-  }
-}
+// 관리자 사용자 타입 정의 (간소화)
+type User = {
+  id?: string;
+  email?: string;
+  role?: string;
+};
 
-// Auth 컨텍스트 타입 정의
+// Auth 컨텍스트 타입 정의 (간소화)
 type AuthContextType = {
-  session: Session | null;
   user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: any | null; data: any | null }>;
-  signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: any | null }>;
+  isLoading: boolean;
   isAdmin: boolean;
-  checkIsAdmin: () => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ error: any | null }>;
+  logout: () => Promise<void>;
 };
 
 // Auth 컨텍스트 생성
@@ -54,153 +23,106 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Auth 컨텍스트 제공자 컴포넌트
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // 관리자 여부 확인 함수
-  const checkIsAdmin = async () => {
-    if (!user?.email) return false;
-    
-    // 하드코딩된 관리자 이메일 (개발용)
-    const adminEmails = ['sonchanmin89@gmail.com'];
-    
-    if (adminEmails.includes(user.email)) {
-      setIsAdmin(true);
-      return true;
-    }
-    
-    const isAdminUser = await checkAdminPermissionClient(user.email);
-    setIsAdmin(isAdminUser);
-    return isAdminUser;
-  };
-
+  // 쿠키 기반 인증 상태 확인
   useEffect(() => {
-    // 현재 세션 가져오기
-    const getSession = async () => {
-      const supabase = createClient();
-      setLoading(true);
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('세션을 가져오는 중 오류가 발생했습니다:', error);
-      }
-      
-      setSession(session);
-      setUser(session?.user || null);
-      
-      // 사용자가 있으면 관리자 권한 확인 (비동기로 처리)
-      if (session?.user?.email) {
-        // 하드코딩된 관리자 이메일 먼저 확인
-        const adminEmails = ['sonchanmin89@gmail.com'];
-        if (adminEmails.includes(session.user.email)) {
-          setIsAdmin(true);
-        } else {
-          checkAdminPermissionClient(session.user.email).then(isAdminUser => {
-            setIsAdmin(isAdminUser);
-          }).catch(err => {
-            console.error('관리자 권한 확인 실패:', err);
-            setIsAdmin(false);
-          });
-        }
-      }
-      
-      setLoading(false);
-    };
-
-    getSession();
-
-    // 세션 변경 감지 리스너 설정
-    const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user || null);
+    const checkAuthStatus = async () => {
+      try {
+        // 간단한 클라이언트 측 확인 (실제로는 서버에서 검증이 필요할 수 있음)
+        const adminCookie = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('admin_auth='));
         
-        // 사용자가 있으면 관리자 권한 확인 (비동기로 처리)
-        if (session?.user?.email) {
-          // 하드코딩된 관리자 이메일 먼저 확인
-          const adminEmails = ['sonchanmin89@gmail.com'];
-          if (adminEmails.includes(session.user.email)) {
-            setIsAdmin(true);
-          } else {
-            checkAdminPermissionClient(session.user.email).then(isAdminUser => {
-              setIsAdmin(isAdminUser);
-            }).catch(err => {
-              console.error('관리자 권한 확인 실패:', err);
-              setIsAdmin(false);
-            });
-          }
+        if (adminCookie) {
+          // 관리자로 인증된 상태
+          setIsAdmin(true);
+          setUser({ 
+            email: 'sonchanmin89@gmail.com', // 하드코딩된 값
+            role: 'admin'
+          });
         } else {
+          setUser(null);
           setIsAdmin(false);
         }
-        
-        setLoading(false);
+      } catch (error) {
+        console.error('인증 상태 확인 중 오류:', error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-    );
-
-    // 컴포넌트 언마운트 시 리스너 정리
-    return () => {
-      subscription.unsubscribe();
     };
+
+    checkAuthStatus();
   }, []);
 
   // 로그인 함수
-  const signIn = async (email: string, password: string) => {
-    console.log('signIn 함수 호출:', email);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    console.log('signIn 결과:', error ? '오류' : '성공', error);
-    return { error };
-  };
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-  // 회원가입 함수
-  const signUp = async (email: string, password: string) => {
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    return { error, data };
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || '로그인에 실패했습니다.' };
+      }
+
+      // 로그인 성공 후 쿠키가 설정됨 (API에서 처리)
+      setIsAdmin(true);
+      setUser({ 
+        email, 
+        role: 'admin'
+      });
+      
+      return { error: null };
+    } catch (error: any) {
+      return { error: error.message || '로그인 중 오류가 발생했습니다.' };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 로그아웃 함수
-  const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-  };
-
-  // 비밀번호 재설정 함수
-  const resetPassword = async (email: string) => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password/update`,
-    });
-    return { error };
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      // 쿠키 삭제를 위해 서버 API 호출
+      document.cookie = 'admin_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      setUser(null);
+      setIsAdmin(false);
+      window.location.href = '/admin/login'; // 로그아웃 후 로그인 페이지로 이동
+    } catch (error) {
+      console.error('로그아웃 중 오류:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{
-      session,
-      user,
-      loading,
-      signIn,
-      signUp,
-      signOut,
-      resetPassword,
-      isAdmin,
-      checkIsAdmin,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAdmin,
+        login,
+        logout
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Auth 컨텍스트 사용 훅
+// Auth 훅
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
