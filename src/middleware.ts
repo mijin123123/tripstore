@@ -18,11 +18,7 @@ export async function middleware(request: NextRequest) {
   // 관리자 페이지에 대한 접근 처리
   if (request.nextUrl.pathname.startsWith('/admin')) {
     console.log('관리자 페이지 접근 감지, 인증 확인 중');
-
-    // 일시적으로 모든 관리자 페이지 접근을 허용 (디버깅용)
-    return NextResponse.next();
-
-    /*
+    
     // admin_auth 쿠키를 확인하여 인증 여부 검사
     const adminAuth = request.cookies.get('admin_auth');
 
@@ -34,7 +30,6 @@ export async function middleware(request: NextRequest) {
     }
 
     console.log('인증 확인됨, 접근 허용');
-    */
   }
 
   return NextResponse.next({

@@ -10,8 +10,8 @@ interface NoticeData {
   id: string;
   title: string;
   content: string;
-  is_important: boolean;
-  created_at: string;
+  isImportant: boolean;
+  createdAt: string;
   [key: string]: any;
 }
 
@@ -28,7 +28,13 @@ export default function NoticesPage() {
           throw new Error('공지사항 데이터를 불러오는데 실패했습니다.');
         }
         const data = await response.json();
-        setNotices(data);
+        // 필드명 매핑 (API에서 가져온 데이터가 컴포넌트에서 예상하는 형식과 일치하도록)
+        const formattedData = data.map((notice: any) => ({
+          ...notice,
+          is_important: notice.isImportant,
+          created_at: notice.createdAt
+        }));
+        setNotices(formattedData);
       } catch (err) {
         console.error('공지사항 데이터 조회 오류:', err);
         setError('공지사항 데이터를 불러올 수 없습니다.');
