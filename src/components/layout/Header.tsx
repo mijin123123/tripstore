@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/lib/simple-auth';
+import { useAuth } from '@/lib/real-auth';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);

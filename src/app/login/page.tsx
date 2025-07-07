@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/simple-auth';
+import { useAuth } from '@/lib/real-auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -46,10 +46,14 @@ export default function LoginPage() {
       console.log('로그인 성공:', result);
       
       // 사용자 정보 저장
-      login(result.user.email);
+      login(result.user);
       
-      // 마이페이지로 이동
-      router.push('/mypage');
+      // 관리자면 관리자 대시보드로, 일반 사용자면 마이페이지로 이동
+      if (result.user.isAdmin) {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/mypage');
+      }
       
     } catch (err: any) {
       console.error('로그인 오류:', err);

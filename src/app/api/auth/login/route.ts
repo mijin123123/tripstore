@@ -23,6 +23,16 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (user.length > 0) {
+      // 일반 사용자 비밀번호 확인
+      const isPasswordValid = await bcrypt.compare(password, user[0].password);
+      
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { error: '비밀번호가 일치하지 않습니다.' },
+          { status: 401 }
+        );
+      }
+
       // 일반 사용자로 로그인 성공
       return NextResponse.json({
         success: true,
@@ -44,8 +54,16 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (admin.length > 0) {
-      // 관리자 비밀번호 확인 (실제 환경에서는 bcrypt 비교 필요)
-      // 임시로 관리자는 비밀번호 체크 없이 로그인 허용
+      // 관리자 비밀번호 확인
+      const isPasswordValid = await bcrypt.compare(password, admin[0].password);
+      
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { error: '비밀번호가 일치하지 않습니다.' },
+          { status: 401 }
+        );
+      }
+
       return NextResponse.json({
         success: true,
         user: {

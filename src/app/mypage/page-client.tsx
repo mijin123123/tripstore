@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { User, Map, Heart, Settings, ChevronRight, Package, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/simple-auth';
+import { useAuth } from '@/lib/real-auth';
 import { useRouter } from 'next/navigation';
 
 // 임시 예약 데이터

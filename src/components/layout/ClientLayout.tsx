@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthProvider } from "@/lib/simple-auth";
+import { AuthProvider } from "@/lib/real-auth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
