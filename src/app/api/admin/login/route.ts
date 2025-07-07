@@ -23,17 +23,22 @@ export async function POST(request: NextRequest) {
     if (email === 'sonchanmin89@gmail.com' && password === 'admin123') {
       console.log('✅ 관리자 로그인 성공');
       
-      // 쿠키 설정 (2시간 유효)
-      const response = NextResponse.json({ success: true });
+      // 응답 생성
+      const response = NextResponse.json({ 
+        success: true,
+        message: '관리자 로그인 성공'
+      });
+      
+      // 쿠키 설정 (SameSite=Lax, Secure 옵션 제거)
       response.cookies.set({
         name: 'admin_auth',
         value: 'true',
         path: '/',
+        maxAge: 60 * 60 * 24, // 24시간
         httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 2, // 2시간
       });
       
+      console.log('🍪 admin_auth 쿠키 설정 완료');
       return response;
     }
 
