@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import useAdminAuthStore from '@/store/adminAuth';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -9,6 +10,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login } = useAdminAuthStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,8 +49,8 @@ export default function AdminLogin() {
 
       console.log('✅ 관리자 로그인 성공:', result);
       
-      // 세션 저장 (sessionStorage 사용)
-      sessionStorage.setItem('isAdminAuthenticated', 'true');
+      // Zustand 스토어를 통해 로그인 상태 업데이트
+      login();
       
       // 대시보드로 이동
       console.log('🔄 관리자 대시보드로 이동 중...');

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import useAdminAuthStore from '@/store/adminAuth';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 
@@ -12,28 +13,24 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isVerified, setIsVerified] = useState(false);
+  const { isAuthenticated, checkAuth } = useAdminAuthStore();
 
   useEffect(() => {
-    // If we are on the login page, no need to check for auth, just show the page.
-    if (pathname === '/admin/login') {
-      setIsVerified(true);
-      return;
-    }
+    // Initialize auth state from sessionStorage on component mount
+    checkAuth();
+  }, [checkAuth]);
 
-    // For all other admin pages, check for authentication.
-    const adminAuth = sessionStorage.getItem('isAdminAuthenticated');
-    if (adminAuth !== 'true') {
+  useEffect(() => {
+    // If not on the login page and not authenticated, redirect.
+    if (pathname !== '/admin/login' && !isAuthenticated) {
       console.log('❌ [Layout] 인증되지 않음. 로그인 페이지로 리디렉션합니다.');
       router.replace('/admin/login');
-    } else {
-      console.log('✅ [Layout] 인증 확인 완료.');
-      setIsVerified(true);
     }
-  }, [pathname, router]);
+  }, [pathname, isAuthenticated, router]);
 
-  // While verifying, show a loading state.
-  if (!isVerified) {
+  // While waiting for auth state to be determined, show a loading indicator.
+  // This prevents a flash of the login page on refresh for authenticated users.
+  if (pathname !== '/admin/login' && !isAuthenticated) {
     return <div className="flex min-h-screen items-center justify-center">인증 정보를 확인 중입니다...</div>;
   }
 
@@ -42,7 +39,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return <>{children}</>;
   }
 
-  // If verified and not on the login page, render the full admin layout.
+  // If authenticated, render the full admin layout.
   return (
     <div className="flex min-h-screen bg-gray-100">
       <AdminSidebar />
