@@ -50,7 +50,7 @@ export default function AdminLogin() {
       // 세션 저장 (sessionStorage 사용)
       sessionStorage.setItem('isAdminAuthenticated', 'true');
       
-      // 강제로 페이지 새로고침 후 대시보드로 이동
+      // 대시보드로 이동
       console.log('🔄 관리자 대시보드로 이동 중...');
       router.push('/admin/dashboard');
       

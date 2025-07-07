@@ -48,15 +48,15 @@ export default function Dashboard() {
   const router = useRouter();
   
   useEffect(() => {
-    const checkAuth = () => {
+    // sessionStorage is only available in the browser
+    if (typeof window !== 'undefined') {
       const adminAuth = sessionStorage.getItem('isAdminAuthenticated');
-      if (adminAuth !== 'true') {
-        router.replace('/admin/login');
-      } else {
+      if (adminAuth === 'true') {
         setIsAuthenticated(true);
+      } else {
+        router.replace('/admin/login');
       }
-    };
-    checkAuth();
+    }
   }, [router]);
 
   useEffect(() => {
