@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useAdminAuthStore from '@/store/adminAuth';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -10,7 +9,6 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const { login } = useAdminAuthStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +28,7 @@ export default function AdminLogin() {
       });
 
       console.log('📡 관리자 API 응답 상태:', response.status);
-      console.log('📡 관리자 API 응답 헤더:', response.headers.get('content-type'));
-
+      
       // 응답이 JSON인지 확인
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
@@ -49,11 +46,8 @@ export default function AdminLogin() {
 
       console.log('✅ 관리자 로그인 성공:', result);
       
-      // Zustand 스토어를 통해 로그인 상태 업데이트
-      login();
-      
       // 대시보드로 페이지를 완전히 새로고침하며 이동
-      console.log('🔄 관리자 대시보드로 이동 중 (새로고침)...');
+      console.log('🔄 관리자 대시보드로 이동 중...');
       window.location.href = '/admin/dashboard';
       
     } catch (err: any) {

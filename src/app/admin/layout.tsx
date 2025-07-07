@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import useAdminAuthStore from '@/store/adminAuth';
+import { usePathname } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 
@@ -11,48 +9,23 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, checkAuth } = useAdminAuthStore();
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
-  useEffect(() => {
-    checkAuth();
-    setIsAuthChecked(true);
-  }, [checkAuth]);
-
-  useEffect(() => {
-    if (isAuthChecked && !isAuthenticated && pathname !== '/admin/login') {
-      router.replace('/admin/login');
-    }
-  }, [isAuthChecked, isAuthenticated, pathname, router]);
-
-  if (!isAuthChecked) {
-    return <div className="flex min-h-screen items-center justify-center">인증 정보를 확인 중입니다...</div>;
-  }
-
-  if (!isAuthenticated && pathname !== '/admin/login') {
-    // 리디렉션이 진행되는 동안 로딩 상태를 유지합니다.
-    return <div className="flex min-h-screen items-center justify-center">인증 정보를 확인 중입니다...</div>;
-  }
-  
+  // 로그인 페이지인 경우, 관리자 레이아웃 없이 자식 컴포넌트만 렌더링
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
-  if (isAuthenticated) {
-    return (
-      <div className="flex min-h-screen bg-gray-100">
-        <AdminSidebar />
-        <div className="flex-1">
-          <AdminHeader />
-          <main className="p-6">
-            {children}
-          </main>
-        </div>
+  // 그 외 관리자 페이지는 전체 레이아웃과 함께 렌더링
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <AdminSidebar />
+      <div className="flex-1">
+        <AdminHeader />
+        <main className="p-6">
+          {children}
+        </main>
       </div>
-    );
-  }
-
-  return null; 
+    </div>
+  );
 }

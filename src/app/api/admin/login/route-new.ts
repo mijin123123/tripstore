@@ -19,22 +19,19 @@ export async function POST(request: NextRequest) {
 
     console.log('관리자 로그인 시도 - 이메일:', email);
 
-    // 관리자 계정 확인 (단순화된 하드코딩 버전)
+    // 관리자 계정 확인
     if (email === 'sonchanmin89@gmail.com' && password === 'admin123') {
       console.log('✅ 관리자 로그인 성공');
-      
-      // 쿠키 설정 (2시간 유효)
-      const response = NextResponse.json({ success: true });
-      response.cookies.set({
-        name: 'admin_auth',
-        value: 'true',
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 2, // 2시간
+      return NextResponse.json({
+        success: true,
+        admin: {
+          id: 'admin-001',
+          email: 'sonchanmin89@gmail.com',
+          fullName: '관리자',
+          createdAt: new Date().toISOString(),
+          role: 'admin'
+        }
       });
-      
-      return response;
     }
 
     console.log('❌ 관리자 로그인 실패 - 잘못된 자격증명');
