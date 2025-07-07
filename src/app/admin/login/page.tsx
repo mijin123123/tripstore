@@ -52,7 +52,7 @@ export default function AdminLogin() {
       
       // 강제로 페이지 새로고침 후 대시보드로 이동
       console.log('🔄 관리자 대시보드로 이동 중...');
-      window.location.href = '/admin/dashboard';
+      router.push('/admin/dashboard');
       
     } catch (err: any) {
       console.error('❌ 관리자 로그인 오류:', err);

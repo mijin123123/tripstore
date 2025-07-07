@@ -22,9 +22,7 @@ export async function POST(request: NextRequest) {
     // 관리자 계정 확인
     if (email === 'sonchanmin89@gmail.com' && password === 'admin123') {
       console.log('✅ 관리자 로그인 성공');
-      return NextResponse.json({
-        success: true,
-      });
+      return NextResponse.json({ success: true });
     }
 
     console.log('❌ 관리자 로그인 실패 - 잘못된 자격증명');
