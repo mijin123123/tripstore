@@ -151,7 +151,7 @@ const transformPackageData = (pkg: TravelPackage) => {
 
 export async function GET() {
   try {
-    console.log('패키지 데이터 요청을 처리 중...');
+    console.log('=== 패키지 GET API 요청 처리 시작 ===');
     
     // DB 연결 확인
     if (!db) {
@@ -159,19 +159,26 @@ export async function GET() {
       throw new Error('DB 객체가 초기화되지 않았습니다.');
     }
     
-    // 패키지 데이터 가져오기
-    const allPackages = await db.select().from(packages);
+    console.log('DB 연결 확인됨, 패키지 데이터 가져오는 중...');
     
-    console.log(`${allPackages.length}개의 패키지 데이터를 성공적으로 가져왔습니다.`);
+    try {
+      // 패키지 데이터 가져오기
+      const allPackages = await db.select().from(packages);
+      console.log(`${allPackages.length}개의 패키지 데이터를 성공적으로 가져왔습니다.`);
     
     // 개발용: 첫 번째 아이템 구조 검사 (있는 경우)
     if (allPackages.length > 0) {
       console.log('첫 번째 패키지 아이템 구조:', JSON.stringify(allPackages[0]));
+      return NextResponse.json(allPackages);
     } else {
-      console.warn('패키지 데이터가 없습니다.');
+      console.warn('패키지 데이터가 없습니다. 더미 데이터를 반환합니다.');
+      return NextResponse.json(fallbackPackages);
     }
     
-    return NextResponse.json(allPackages);
+    } catch (dbError) {
+      console.error('DB에서 패키지 조회 중 오류:', dbError);
+      throw dbError;  // 상위 catch 블록으로 전달
+    }
   } catch (error) {
     console.error('패키지 데이터 가져오기 실패:', error);
     

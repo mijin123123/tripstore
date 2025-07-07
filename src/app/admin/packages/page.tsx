@@ -216,6 +216,44 @@ export default function PackagesPage() {
           >
             패키지 강제 덮어쓰기
           </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={async () => {
+              if (confirm("경고: 이 작업은 메인 사이트 패키지를 직접 DB에 동기화합니다. 기존 데이터는 모두 삭제됩니다. 계속하시겠습니까?")) {
+                setLoading(true);
+                try {
+                  // 직접 API 호출을 통해 동기화 요청
+                  const response = await fetch('/api/admin/sync-packages', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ force: true }),
+                  });
+                  
+                  if (!response.ok) {
+                    throw new Error(`동기화 실패: ${response.status}`);
+                  }
+                  
+                  const result = await response.json();
+                  alert(`동기화 성공! ${result.count || 0}개의 패키지가 추가되었습니다.`);
+                  
+                  // 페이지 새로고침하여 변경사항 반영
+                  window.location.reload();
+                } catch (error) {
+                  console.error('패키지 동기화 오류:', error);
+                  alert(`패키지 동기화 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+                } finally {
+                  setLoading(false);
+                }
+              }
+            }}
+            disabled={loading}
+            className="bg-blue-50 hover:bg-blue-100"
+          >
+            데이터 직접 동기화
+          </Button>
 
           <Button
             variant="outline"

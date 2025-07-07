@@ -74,9 +74,11 @@ const dummyPackages = [
 
 async function insertDummyPackages() {
   try {
-    console.log('더미 패키지 데이터 삽입 시작...');
+    console.log('=== 더미 패키지 데이터 삽입 스크립트 시작 ===');
+    console.log('DB URL:', process.env.NEON_DATABASE_URL ? '설정됨' : '설정되지 않음');
     
     // 기존 패키지 조회
+    console.log('기존 패키지 조회 중...');
     const existingPackages = await db.select().from(packages);
     console.log(`현재 ${existingPackages.length}개의 패키지가 DB에 등록되어 있습니다.`);
     
