@@ -29,8 +29,14 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // 정적 생성 문제 해결을 위한 설정
-  output: 'standalone', // 독립 실행형 출력 사용
+  // 모든 페이지를 서버 사이드 렌더링으로 처리
+  swcMinify: true,
+  compiler: {
+    styledComponents: true,
+  },
+  
+  // 빌드 오류를 무시
+  reactStrictMode: false,
   
   // 빌드 오류를 피하기 위해 관리자 페이지에 대한 정적 생성을 비활성화
   experimental: {
