@@ -29,13 +29,15 @@ export async function POST(request: NextRequest) {
         message: '관리자 로그인 성공'
       });
       
-      // 쿠키 설정 (SameSite=Lax, Secure 옵션 제거)
+      // 쿠키 설정 - 로컬 개발 환경에 맞게 최적화
       response.cookies.set({
         name: 'admin_auth',
         value: 'true',
         path: '/',
         maxAge: 60 * 60 * 24, // 24시간
         httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // 개발 환경에서는 false, 프로덕션에서는 true
+        sameSite: 'lax',
       });
       
       console.log('🍪 admin_auth 쿠키 설정 완료');

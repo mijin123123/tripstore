@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
@@ -9,6 +9,22 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  
+  // 이미 로그인된 사용자는 대시보드로 리다이렉트 (클라이언트 측)
+  // 보류: 미들웨어에서 처리
+  /*
+  useEffect(() => {
+    // 쿠키 확인
+    const checkAdminAuth = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('admin_auth='));
+      
+    if (checkAdminAuth) {
+      console.log('이미 로그인되어 있습니다. 대시보드로 이동합니다.');
+      router.replace('/admin/dashboard');
+    }
+  }, [router]);
+  */
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

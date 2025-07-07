@@ -1,8 +1,9 @@
 import { packagesData } from '../data/packagesData';
 
 // API를 통해 패키지 데이터를 가져오는 함수
-async function importPackagesToAdmin() {
+async function importPackagesToAdmin(options = { force: false }) {
   console.log('메인 사이트의 패키지 데이터를 관리자 페이지에 등록하는 중...');
+  console.log('옵션:', options);
   
   try {
     console.log(`메인 사이트에서 ${packagesData.length}개의 패키지 데이터 발견`);
@@ -17,6 +18,7 @@ async function importPackagesToAdmin() {
       body: JSON.stringify({
         action: 'import_demo_data',
         packagesData: packagesData,
+        force: options.force // 강제 덮어쓰기 옵션
       }),
     });
     

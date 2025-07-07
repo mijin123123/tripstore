@@ -113,7 +113,7 @@ export default function PackagesPage() {
   }
   
   // 메인 사이트 패키지를 가져오는 함수
-  const importMainPackages = async () => {
+  const importMainPackages = async (force = false) => {
     try {
       setLoading(true);
       setError('');
@@ -121,8 +121,9 @@ export default function PackagesPage() {
       // 동적으로 adminImport 모듈 가져오기
       const { importPackagesToAdmin } = await import('@/utils/adminImport');
       console.log('관리자 페이지에서 패키지 가져오기 시작...');
+      console.log('강제 덮어쓰기 옵션:', force);
       
-      const result = await importPackagesToAdmin();
+      const result = await importPackagesToAdmin({ force });
       console.log('패키지 가져오기 결과:', result);
       
       if (result?.success) {
@@ -134,7 +135,8 @@ export default function PackagesPage() {
           method: 'GET',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
+            'Pragma': 'no-cache',
+            'X-Timestamp': new Date().getTime().toString() // 캐시 방지용 타임스탬프
           }
         });
         
@@ -149,10 +151,30 @@ export default function PackagesPage() {
         
         // 데이터 업데이트
         setPackages(data);
+      } else if (result?.existingCount && result?.existingCount > 0) {
+        // 이미 데이터가 존재하는 경우
+        if (confirm(`이미 ${result.existingCount}개의 패키지가 DB에 존재합니다. 모두 삭제하고 새로 가져오시겠습니까?`)) {
+          // 강제 덮어쓰기 모드로 다시 시도
+          importMainPackages(true);
+          return;
+        } else {
+          alert('가져오기가 취소되었습니다.');
+        }
       } else {
         // 오류 또는 안내 메시지
         const errorMsg = result?.message || result?.error || '패키지를 가져오는데 실패했습니다.';
         console.warn('패키지 가져오기 안내:', errorMsg);
+        
+        // 자세한 오류 정보가 있으면 표시
+        if (result?.details) {
+          console.error('오류 상세:', result.details);
+          setDebugInfo({
+            error: errorMsg,
+            details: result.details,
+            timestamp: new Date().toISOString()
+          });
+        }
+        
         alert(errorMsg);
       }
     } catch (err) {
@@ -172,10 +194,27 @@ export default function PackagesPage() {
         <div className="flex gap-2">
           <Button 
             variant="outline" 
-            onClick={importMainPackages}
+            onClick={() => {
+              if (confirm("메인 사이트의 패키지 데이터를 가져오시겠습니까?")) {
+                importMainPackages(false);
+              }
+            }}
             disabled={loading}
           >
             메인 사이트 패키지 가져오기
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              if (confirm("경고: 이 작업은 기존 패키지 데이터를 모두 삭제하고 새로운 데이터로 덮어씁니다. 계속하시겠습니까?")) {
+                importMainPackages(true); // 강제 덮어쓰기 옵션 활성화
+              }
+            }}
+            disabled={loading}
+            className="bg-red-50 hover:bg-red-100"
+          >
+            패키지 강제 덮어쓰기
           </Button>
 
           <Button

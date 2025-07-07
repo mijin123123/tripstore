@@ -9,13 +9,29 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // 관리자 로그인 페이지는 항상 허용
+  // 관리자 로그인 API는 항상 허용
+  if (request.nextUrl.pathname === '/api/admin/login') {
+    console.log('관리자 로그인 API 접근 허용');
+    return NextResponse.next();
+  }
+  
+  // 관리자 로그인 페이지는 인증된 사용자가 접근할 경우 대시보드로 리다이렉션
   if (request.nextUrl.pathname === '/admin/login') {
-    console.log('관리자 로그인 페이지 접근 허용');
+    console.log('관리자 로그인 페이지 접근, 쿠키 확인');
+    const adminAuth = request.cookies.get('admin_auth');
+    
+    if (adminAuth && adminAuth.value === 'true') {
+      // 이미 인증된 사용자는 대시보드로 리다이렉션
+      console.log('이미 인증된 사용자, 대시보드로 리다이렉션');
+      const dashboardUrl = new URL('/admin/dashboard', request.url);
+      return NextResponse.redirect(dashboardUrl);
+    }
+    
+    console.log('인증되지 않은 사용자, 로그인 페이지 접근 허용');
     return NextResponse.next();
   }
 
-  // 관리자 페이지에 대한 접근 처리
+  // 관리자 페이지에 대한 접근 처리 (로그인 페이지 제외)
   if (request.nextUrl.pathname.startsWith('/admin')) {
     console.log('관리자 페이지 접근 감지, 인증 확인 중');
     

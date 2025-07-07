@@ -122,17 +122,20 @@ const transformPackageData = (pkg: TravelPackage) => {
       }
     : null;
   
+  // itinerary를 JSON 문자열로 직렬화 (jsonb 타입 호환)
+  const itineraryForDB = itinerary ? JSON.stringify(itinerary) : null;
+
   return {
     id: uuidv4(),
     title: pkg.name,
     description: pkg.description,
     destination: pkg.destination,
-    price: price, // 숫자 타입으로 저장
-    discountprice: discountPrice, // 숫자 타입으로 저장
+    price: price.toString(), // decimal 타입에 맞게 문자열로 저장
+    discountprice: discountPrice.toString(), // decimal 타입에 맞게 문자열로 저장
     duration: duration,
     departuredate: pkg.departureDate || [],
     images: images,
-    rating: pkg.rating || 4.5, // 숫자 타입으로 저장
+    rating: pkg.rating?.toString() || '4.5', // decimal 타입에 맞게 문자열로 저장
     reviewcount: Math.floor(Math.random() * 20) + 5,
     category: category,
     season: season,
@@ -140,7 +143,7 @@ const transformPackageData = (pkg: TravelPackage) => {
     exclusions: exclusions,
     isfeatured: Math.random() > 0.5,
     isonsale: Math.random() > 0.7,
-    itinerary: itinerary,
+    itinerary: itineraryForDB, // JSON 문자열로 저장
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -213,13 +216,25 @@ export async function POST(request: Request) {
         const existingPackages = await db.select().from(packages);
         console.log(`기존 패키지 조회 결과: ${existingPackages.length}개 패키지 발견`);
         
-        if (existingPackages.length > 0) {
-          console.log(`중복 방지를 위해 가져오기를 중단합니다. (이미 ${existingPackages.length}개 패키지 존재)`);
+        // 강제 덮어쓰기 옵션 (force=true 파라미터가 있으면 기존 데이터를 삭제)
+        const forceOverwrite = body.force === true;
+        
+        if (existingPackages.length > 0 && !forceOverwrite) {
+          console.log(`기존 패키지가 존재합니다. (${existingPackages.length}개)`);
+          console.log(`가져오기를 계속하려면 force=true 옵션을 사용하세요.`);
           
           return NextResponse.json({
-            message: `이미 ${existingPackages.length}개의 패키지가 DB에 존재합니다. 중복 방지를 위해 가져오기를 중단합니다.`,
-            success: false
+            message: `이미 ${existingPackages.length}개의 패키지가 DB에 존재합니다. 덮어쓰려면 force=true 옵션을 사용하세요.`,
+            success: false,
+            existingCount: existingPackages.length
           });
+        }
+        
+        // 강제 덮어쓰기 옵션이 있고 기존 패키지가 있으면 모두 삭제
+        if (existingPackages.length > 0 && forceOverwrite) {
+          console.log('강제 덮어쓰기 옵션이 활성화되어 기존 패키지를 모두 삭제합니다...');
+          await db.delete(packages);
+          console.log('기존 패키지가 삭제되었습니다.');
         }
         
         // 데이터 변환
