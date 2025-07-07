@@ -15,21 +15,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const adminAuth = sessionStorage.getItem('isAdminAuthenticated');
-      
-      // If not authenticated and not on the login page, redirect.
-      if (adminAuth !== 'true' && pathname !== '/admin/login') {
-        console.log('❌ [Layout] 인증되지 않음. 로그인 페이지로 리디렉션합니다.');
-        router.replace('/admin/login');
-      } else {
-        // Otherwise, verification is successful (either authenticated or on the login page).
-        console.log('✅ [Layout] 인증 확인 완료.');
-        setIsVerified(true);
-      }
-    };
+    // If we are on the login page, no need to check for auth, just show the page.
+    if (pathname === '/admin/login') {
+      setIsVerified(true);
+      return;
+    }
 
-    checkAuth();
+    // For all other admin pages, check for authentication.
+    const adminAuth = sessionStorage.getItem('isAdminAuthenticated');
+    if (adminAuth !== 'true') {
+      console.log('❌ [Layout] 인증되지 않음. 로그인 페이지로 리디렉션합니다.');
+      router.replace('/admin/login');
+    } else {
+      console.log('✅ [Layout] 인증 확인 완료.');
+      setIsVerified(true);
+    }
   }, [pathname, router]);
 
   // While verifying, show a loading state.
