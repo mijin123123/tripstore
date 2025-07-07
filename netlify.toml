@@ -3,6 +3,7 @@
   publish = ".next"
 
 [build.environment]
+  NEON_DATABASE_URL = "postgresql://neondb_owner:npg_lu3rwg6HpLGn@ep-noisy-meadow-aex8wbzi-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require"
   NEXT_PUBLIC_SUPABASE_URL = "https://ewezrjlymdfinpwfruga.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3ZXpyamx5bWRmaW5wd2ZydWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMzI5MTAsImV4cCI6MjA2NjkwODkxMH0.KWLNVNQUSzMa2pNzF-q8BWhZ6jIzavQT4_aWo6LFM90"
   # Next.js에 사전 렌더링을 비활성화하도록 지시하는 환경 변수
