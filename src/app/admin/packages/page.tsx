@@ -44,17 +44,51 @@ export default function PackagesPage() {
     return <div className="p-6 text-red-600">{error}</div>;
   }
   
+  // 메인 사이트 패키지를 가져오는 함수
+  const importMainPackages = async () => {
+    try {
+      setLoading(true);
+      
+      // 동적으로 adminImport 모듈 가져오기
+      const { importPackagesToAdmin } = await import('@/utils/adminImport');
+      await importPackagesToAdmin();
+      
+      // 데이터 다시 로드
+      const response = await fetch('/api/packages');
+      if (!response.ok) {
+        throw new Error('패키지 데이터를 불러오는데 실패했습니다.');
+      }
+      const data = await response.json();
+      setPackages(data);
+    } catch (err) {
+      console.error('패키지 가져오기 오류:', err);
+      alert('패키지를 가져오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">패키지 관리</h1>
         
-        <Link href="/admin/packages/new">
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            <span>새 패키지 추가</span>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={importMainPackages}
+            disabled={loading || packages.length > 0}
+          >
+            메인 사이트 패키지 가져오기
           </Button>
-        </Link>
+          
+          <Link href="/admin/packages/new">
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              <span>새 패키지 추가</span>
+            </Button>
+          </Link>
+        </div>
       </div>
       
       <div className="bg-white rounded-lg shadow">

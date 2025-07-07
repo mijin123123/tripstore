@@ -10,10 +10,20 @@ import { v4 as uuidv4 } from 'uuid';
 
 // 데이터베이스 연결 설정
 const DATABASE_URL = process.env.NEON_DATABASE_URL;
-console.log('DB URL:', DATABASE_URL?.substring(0, 20) + '...');
+console.log('DB URL 사용 가능 여부:', DATABASE_URL ? '사용 가능' : '사용 불가');
 
 if (!DATABASE_URL) {
   throw new Error('데이터베이스 URL이 설정되지 않았습니다.');
+}
+
+console.log('데이터베이스에 연결 시도 중...');
+try {
+  const sql = neon(DATABASE_URL);
+  const db = drizzle(sql);
+  console.log('데이터베이스 연결 성공');
+} catch (error) {
+  console.error('데이터베이스 연결 실패:', error);
+  process.exit(1);
 }
 
 const sql = neon(DATABASE_URL);
