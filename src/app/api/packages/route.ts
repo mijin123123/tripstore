@@ -149,11 +149,36 @@ const transformPackageData = (pkg: TravelPackage) => {
 export async function GET() {
   try {
     console.log('패키지 데이터 요청을 처리 중...');
+    
+    // DB 연결 확인
+    if (!db) {
+      console.error('DB 객체가 초기화되지 않았습니다.');
+      throw new Error('DB 객체가 초기화되지 않았습니다.');
+    }
+    
+    // 패키지 데이터 가져오기
     const allPackages = await db.select().from(packages);
+    
     console.log(`${allPackages.length}개의 패키지 데이터를 성공적으로 가져왔습니다.`);
+    
+    // 개발용: 첫 번째 아이템 구조 검사 (있는 경우)
+    if (allPackages.length > 0) {
+      console.log('첫 번째 패키지 아이템 구조:', JSON.stringify(allPackages[0]));
+    } else {
+      console.warn('패키지 데이터가 없습니다.');
+    }
+    
     return NextResponse.json(allPackages);
   } catch (error) {
     console.error('패키지 데이터 가져오기 실패:', error);
+    
+    // 개발용: 에러 상세 정보 출력
+    console.error('에러 상세 정보:', {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack?.slice(0, 200) // 스택 앞부분만 출력
+    });
+    
     // 데이터베이스 연결 실패 시 더미 데이터 반환
     console.log('더미 패키지 데이터를 대신 반환합니다.');
     return NextResponse.json(fallbackPackages);
