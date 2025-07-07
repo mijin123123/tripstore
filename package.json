@@ -12,7 +12,8 @@
     "import:packages": "tsx src/scripts/importPackages.ts",
     "import:notices": "tsx src/scripts/importNotices.ts",
     "import:reservations": "tsx src/scripts/importReservations.ts",
-    "import:all": "tsx src/scripts/importAllData.ts"
+    "import:all": "tsx src/scripts/importAllData.ts",
+    "import:direct": "tsx src/scripts/directImportPackages.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

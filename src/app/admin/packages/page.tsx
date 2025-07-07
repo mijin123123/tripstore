@@ -19,12 +19,27 @@ export default function PackagesPage() {
   useEffect(() => {
     async function fetchPackages() {
       try {
-        const response = await fetch('/api/packages');
+        console.log('패키지 데이터 요청 시작...');
+        const response = await fetch('/api/packages', {
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
         if (!response.ok) {
-          throw new Error('패키지 데이터를 불러오는데 실패했습니다.');
+          throw new Error(`패키지 데이터를 불러오는데 실패했습니다. 상태 코드: ${response.status}`);
         }
+        
         const data = await response.json();
-        setPackages(data);
+        console.log(`API 응답 데이터: ${data.length}개의 패키지`);
+        
+        if (Array.isArray(data)) {
+          setPackages(data);
+        } else {
+          console.error('예상치 못한 API 응답 형식:', data);
+          setError('API 응답 형식이 올바르지 않습니다.');
+        }
       } catch (err) {
         console.error('패키지 데이터 조회 오류:', err);
         setError('패키지 데이터를 불러올 수 없습니다.');
@@ -102,11 +117,17 @@ export default function PackagesPage() {
           <div className="col-span-2 text-right">작업</div>
         </div>
         
-        <div className="divide-y">
-          {packages.map((pkg) => (
-            <PackageItem key={pkg.id} packageData={pkg} />
-          ))}
-        </div>
+        {packages.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            등록된 패키지가 없습니다. 위의 버튼을 이용해 메인 사이트의 패키지를 가져오거나, 새 패키지를 추가해 주세요.
+          </div>
+        ) : (
+          <div className="divide-y">
+            {packages.map((pkg) => (
+              <PackageItem key={pkg.id} packageData={pkg} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

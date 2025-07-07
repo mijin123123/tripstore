@@ -13,9 +13,10 @@ interface Package {
   id: string;
   title: string;
   destination: string;
-  price: number;
+  price: string | number;
   category: string;
   images: string[];
+  [key: string]: any; // 추가 필드 허용
 }
 
 interface PackageItemProps {
@@ -83,7 +84,7 @@ export default function PackageItem({ packageData }: PackageItemProps) {
       
       <div className="col-span-2 text-gray-600">{packageData.destination}</div>
       
-      <div className="col-span-1">{formatCurrency(packageData.price)}</div>
+      <div className="col-span-1">{formatCurrency(Number(packageData.price) || 0)}</div>
       
       <div className="col-span-1">
         <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100">
