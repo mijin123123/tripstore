@@ -26,7 +26,7 @@ export default function LoginPage() {
       setLoading(true);
       setError(null);
       
-      console.log('로그인 시도:', email);
+      console.log('🔄 로그인 시도:', email);
       
       // 사용자 로그인 API 호출
       const response = await fetch('/api/auth/login', {
@@ -37,13 +37,25 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const result = await response.json();
+      console.log('📡 API 응답 상태:', response.status);
+      console.log('📡 API 응답 헤더:', response.headers.get('content-type'));
 
-      if (!response.ok) {
-        throw new Error(result.error || '로그인 실패');
+      // 응답이 JSON인지 확인
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text();
+        console.error('❌ JSON이 아닌 응답:', textResponse);
+        throw new Error('서버에서 올바르지 않은 응답을 받았습니다.');
       }
 
-      console.log('로그인 성공:', result);
+      const result = await response.json();
+      console.log('📦 API 응답 데이터:', result);
+
+      if (!response.ok) {
+        throw new Error(result.error || `로그인 실패 (${response.status})`);
+      }
+
+      console.log('✅ 로그인 성공:', result);
       
       // 사용자 정보 저장
       login(result.user);
