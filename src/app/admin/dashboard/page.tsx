@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Users, 
@@ -44,24 +43,8 @@ export default function Dashboard() {
     totalRevenue: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
   
   useEffect(() => {
-    // sessionStorage is only available in the browser
-    if (typeof window !== 'undefined') {
-      const adminAuth = sessionStorage.getItem('isAdminAuthenticated');
-      if (adminAuth === 'true') {
-        setIsAuthenticated(true);
-      } else {
-        router.replace('/admin/login');
-      }
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
     const fetchDashboardData = async () => {
       try {
         // API를 통해 데이터 가져오기
@@ -150,16 +133,8 @@ export default function Dashboard() {
     };
 
     fetchDashboardData();
-  }, [isAuthenticated]);
+  }, []);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>인증 정보를 확인 중입니다...</p>
-      </div>
-    );
-  }
-  
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
