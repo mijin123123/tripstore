@@ -52,9 +52,9 @@ export default function AdminLogin() {
       // Zustand 스토어를 통해 로그인 상태 업데이트
       login();
       
-      // 대시보드로 이동
-      console.log('🔄 관리자 대시보드로 이동 중...');
-      router.push('/admin/dashboard');
+      // 대시보드로 페이지를 완전히 새로고침하며 이동
+      console.log('🔄 관리자 대시보드로 이동 중 (새로고침)...');
+      window.location.href = '/admin/dashboard';
       
     } catch (err: any) {
       console.error('❌ 관리자 로그인 오류:', err);
