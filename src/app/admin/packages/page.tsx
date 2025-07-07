@@ -193,28 +193,40 @@ export default function PackagesPage() {
         
         <div className="flex gap-2">
           <Button 
-            variant="outline" 
             onClick={() => {
               if (confirm("메인 사이트의 패키지 데이터를 가져오시겠습니까?")) {
-                importMainPackages(false);
+                importMainPackages(true); // 항상 강제 덮어쓰기 옵션 사용
               }
             }}
             disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             메인 사이트 패키지 가져오기
           </Button>
           
           <Button 
             variant="outline" 
-            onClick={() => {
-              if (confirm("경고: 이 작업은 기존 패키지 데이터를 모두 삭제하고 새로운 데이터로 덮어씁니다. 계속하시겠습니까?")) {
-                importMainPackages(true); // 강제 덮어쓰기 옵션 활성화
+            onClick={async () => {
+              try {
+                // DB 상태 확인
+                const dbResponse = await fetch('/api/debug/db-status');
+                const dbStatus = await dbResponse.json();
+                console.log('DB 상태 확인:', dbStatus);
+                
+                if (!dbStatus.connectionTest?.success) {
+                  alert(`DB 연결 실패: ${dbStatus.connectionTest?.error || '알 수 없는 오류'}`);
+                  return;
+                }
+                
+                alert(`DB 연결 성공! 현재 패키지 수: ${dbStatus.connectionTest?.packageCount || 0}`);
+              } catch (err) {
+                console.error('DB 상태 확인 오류:', err);
+                alert('DB 상태 확인 중 오류가 발생했습니다.');
               }
             }}
             disabled={loading}
-            className="bg-red-50 hover:bg-red-100"
           >
-            패키지 강제 덮어쓰기
+            DB 연결 확인
           </Button>
           
           <Button 

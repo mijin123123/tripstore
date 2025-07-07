@@ -14,6 +14,7 @@
     "import:reservations": "tsx src/scripts/importReservations.ts",
     "import:all": "tsx src/scripts/importAllData.ts",
     "import:direct": "tsx src/scripts/directImportPackages.ts",
+    "import:main": "tsx src/scripts/importMainPackages.ts",
     "sync:packages": "tsx src/scripts/syncMainPackages.ts"
   },
   "dependencies": {

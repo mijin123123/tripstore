@@ -6,19 +6,27 @@ async function importPackagesToAdmin(options = { force: false }) {
   console.log('옵션:', options);
   
   try {
-    console.log(`메인 사이트에서 ${packagesData.length}개의 패키지 데이터 발견`);
+    // 메인 사이트의 패키지 데이터 로그
+    console.log(`메인 사이트에서 ${packagesData.length}개의 패키지 데이터 발견:`);
+    console.log('첫 번째 패키지 예시:', {
+      name: packagesData[0].name,
+      destination: packagesData[0].destination,
+      price: packagesData[0].price
+    });
     
-    // API 요청을 보내 데모 데이터 가져오기
+    // API 요청을 보내 메인 사이트 패키지 데이터 가져오기
     const response = await fetch('/api/packages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'X-Import-Timestamp': new Date().toISOString() // 캐시 방지 타임스탬프
       },
       body: JSON.stringify({
         action: 'import_demo_data',
         packagesData: packagesData,
-        force: options.force // 강제 덮어쓰기 옵션
+        force: options.force, // 강제 덮어쓰기 옵션
+        source: 'main-site' // 소스 표시
       }),
     });
     

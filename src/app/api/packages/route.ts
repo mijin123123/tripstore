@@ -202,6 +202,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('요청 본문 타입:', typeof body);
     console.log('요청 액션:', body.action);
+    console.log('요청 소스:', body.source || 'unknown');
     
     // 특별한 요청 확인: 데모 데이터 삽입
     if (body.action === 'import_demo_data') {
@@ -215,7 +216,19 @@ export async function POST(request: Request) {
         );
       }
       
-      console.log(`${body.packagesData.length}개의 데모 패키지 데이터를 가져옵니다...`);
+      console.log(`${body.packagesData.length}개의 패키지 데이터를 가져옵니다...`);
+      
+      // 첫 번째 패키지 데이터 로그
+      if (body.packagesData.length > 0) {
+        const firstPkg = body.packagesData[0];
+        console.log('첫 번째 패키지 데이터 예시:', {
+          id: firstPkg.id,
+          name: firstPkg.name,
+          destination: firstPkg.destination,
+          price: firstPkg.price,
+          type: firstPkg.type
+        });
+      }
       
       try {
         // 기존 패키지를 조회
