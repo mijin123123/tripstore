@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import useAdminAuthStore from '@/store/adminAuth';
 import AdminSidebar from '@/components/admin/AdminSidebar';
@@ -14,41 +14,45 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, checkAuth } = useAdminAuthStore();
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Initialize auth state from sessionStorage on component mount
     checkAuth();
+    setIsAuthChecked(true);
   }, [checkAuth]);
 
   useEffect(() => {
-    // If not on the login page and not authenticated, redirect.
-    if (pathname !== '/admin/login' && !isAuthenticated) {
-      console.log('❌ [Layout] 인증되지 않음. 로그인 페이지로 리디렉션합니다.');
+    if (isAuthChecked && !isAuthenticated && pathname !== '/admin/login') {
       router.replace('/admin/login');
     }
-  }, [pathname, isAuthenticated, router]);
+  }, [isAuthChecked, isAuthenticated, pathname, router]);
 
-  // While waiting for auth state to be determined, show a loading indicator.
-  // This prevents a flash of the login page on refresh for authenticated users.
-  if (pathname !== '/admin/login' && !isAuthenticated) {
+  if (!isAuthChecked) {
     return <div className="flex min-h-screen items-center justify-center">인증 정보를 확인 중입니다...</div>;
   }
 
-  // If on the login page, just render the page content without the admin sidebar/header.
+  if (!isAuthenticated && pathname !== '/admin/login') {
+    // 리디렉션이 진행되는 동안 로딩 상태를 유지합니다.
+    return <div className="flex min-h-screen items-center justify-center">인증 정보를 확인 중입니다...</div>;
+  }
+  
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
-  // If authenticated, render the full admin layout.
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
-      <div className="flex-1">
-        <AdminHeader />
-        <main className="p-6">
-          {children}
-        </main>
+  if (isAuthenticated) {
+    return (
+      <div className="flex min-h-screen bg-gray-100">
+        <AdminSidebar />
+        <div className="flex-1">
+          <AdminHeader />
+          <main className="p-6">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null; 
 }
