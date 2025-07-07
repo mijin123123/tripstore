@@ -8,9 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "import:packages": "tsx src/scripts/importPackages.ts",
+    "import:notices": "tsx src/scripts/importNotices.ts",
+    "import:reservations": "tsx src/scripts/importReservations.ts",
+    "import:all": "tsx src/scripts/importAllData.ts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
     "@netlify/neon": "^0.1.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/ssr": "^0.3.0",
