@@ -84,7 +84,7 @@ export default function PackageItem({ packageData }: PackageItemProps) {
       
       <div className="col-span-2 text-gray-600">{packageData.destination}</div>
       
-      <div className="col-span-1">{formatCurrency(Number(packageData.price) || 0)}</div>
+      <div className="col-span-1">{formatCurrency(typeof packageData.price === 'string' ? parseFloat(packageData.price) : packageData.price || 0)}</div>
       
       <div className="col-span-1">
         <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100">

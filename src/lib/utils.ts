@@ -10,10 +10,27 @@ export function cn(...inputs: ClassValue[]) {
  * @param amount 포맷팅할 금액
  * @returns 포맷팅된 통화 문자열
  */
-export function formatCurrency(amount: number | string): string {
+export function formatCurrency(amount: number | string | null | undefined): string {
   if (amount === null || amount === undefined) return '₩0';
   
-  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  // 객체인 경우 (Drizzle의 BigInt 타입 등)
+  if (typeof amount === 'object' && amount !== null) {
+    // PostgreSQL의 Decimal 타입이 객체로 반환될 경우 toString을 시도
+    if ('toString' in amount && typeof amount.toString === 'function') {
+      return formatCurrency(amount.toString());
+    }
+    return '₩0';
+  }
+  
+  let numericAmount: number;
+  
+  if (typeof amount === 'string') {
+    // 쉼표와 통화 기호 제거
+    const cleanedString = amount.replace(/[^0-9.-]/g, '');
+    numericAmount = parseFloat(cleanedString);
+  } else {
+    numericAmount = amount;
+  }
   
   if (isNaN(numericAmount)) return '₩0';
   

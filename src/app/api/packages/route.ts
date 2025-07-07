@@ -127,19 +127,19 @@ const transformPackageData = (pkg: TravelPackage) => {
     title: pkg.name,
     description: pkg.description,
     destination: pkg.destination,
-    price: price.toString(),
-    discountprice: discountPrice.toString(),
+    price: price, // 숫자 타입으로 저장
+    discountprice: discountPrice, // 숫자 타입으로 저장
     duration: duration,
     departuredate: pkg.departureDate || [],
     images: images,
-    rating: pkg.rating ? pkg.rating.toString() : "4.5",
-    reviewcount: Math.floor(Math.random() * 20) + 5, // 랜덤 리뷰 수 (5~24)
+    rating: pkg.rating || 4.5, // 숫자 타입으로 저장
+    reviewcount: Math.floor(Math.random() * 20) + 5,
     category: category,
     season: season,
     inclusions: inclusions,
     exclusions: exclusions,
-    isfeatured: Math.random() > 0.5, // 50% 확률로 추천 상품
-    isonsale: Math.random() > 0.7, // 30% 확률로 세일 상품
+    isfeatured: Math.random() > 0.5,
+    isonsale: Math.random() > 0.7,
     itinerary: itinerary,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -187,15 +187,20 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    console.log('패키지 API에 POST 요청 수신');
+    
     const body = await request.json();
+    console.log('요청 본문 타입:', typeof body);
+    console.log('요청 액션:', body.action);
     
     // 특별한 요청 확인: 데모 데이터 삽입
     if (body.action === 'import_demo_data') {
       
       // 패키지 데이터가 요청에 포함되어 있는지 확인
       if (!body.packagesData || !Array.isArray(body.packagesData)) {
+        console.error('요청에 유효한 packagesData 배열이 없습니다');
         return NextResponse.json(
-          { error: '유효한 패키지 데이터가 필요합니다.' }, 
+          { error: '유효한 패키지 데이터가 필요합니다.', success: false }, 
           { status: 400 }
         );
       }
@@ -204,9 +209,13 @@ export async function POST(request: Request) {
       
       try {
         // 기존 패키지를 조회
+        console.log('기존 패키지 조회 중...');
         const existingPackages = await db.select().from(packages);
+        console.log(`기존 패키지 조회 결과: ${existingPackages.length}개 패키지 발견`);
         
         if (existingPackages.length > 0) {
+          console.log(`중복 방지를 위해 가져오기를 중단합니다. (이미 ${existingPackages.length}개 패키지 존재)`);
+          
           return NextResponse.json({
             message: `이미 ${existingPackages.length}개의 패키지가 DB에 존재합니다. 중복 방지를 위해 가져오기를 중단합니다.`,
             success: false
@@ -214,38 +223,75 @@ export async function POST(request: Request) {
         }
         
         // 데이터 변환
+        console.log('패키지 데이터 변환 중...');
         const transformedPackages = body.packagesData.map(transformPackageData);
+        console.log(`${transformedPackages.length}개의 패키지 데이터 변환 완료`);
+        console.log('첫 번째 변환된 패키지 샘플:', JSON.stringify(transformedPackages[0]).substring(0, 200) + '...');
         
         // DB에 삽입
-        const insertedPackages = await db.insert(packages).values(transformedPackages).returning();
-        
-        return NextResponse.json({
-          message: `${insertedPackages.length}개의 패키지를 성공적으로 DB에 등록했습니다.`,
-          success: true,
-          count: insertedPackages.length
-        });
+        console.log('패키지 데이터 DB에 삽입 중...');
+        try {
+          const insertedPackages = await db.insert(packages).values(transformedPackages).returning();
+          console.log(`DB에 ${insertedPackages.length}개의 패키지 삽입 성공`);
+          
+          return NextResponse.json({
+            message: `${insertedPackages.length}개의 패키지를 성공적으로 DB에 등록했습니다.`,
+            success: true,
+            count: insertedPackages.length
+          });
+        } catch (insertError: any) {
+          console.error('DB 삽입 중 오류:', insertError);
+          
+          // 상세 오류 내용 로깅
+          console.error('DB 삽입 오류 상세:', {
+            name: insertError.name,
+            message: insertError.message,
+            code: insertError.code,
+            stack: insertError.stack?.substring(0, 200)
+          });
+          
+          throw insertError; // 상위 catch 블록에서 처리
+        }
         
       } catch (error: any) {
         console.error('패키지 가져오기 중 오류 발생:', error);
         return NextResponse.json(
           { 
             error: '패키지 데이터 가져오기 실패', 
-            details: error.message || '알 수 없는 오류' 
+            details: error.message || '알 수 없는 오류',
+            success: false
           }, 
           { status: 500 }
         );
       }
     } else {
-      // 일반 패키지 생성 로직 (기존 코드)
-      const [newPackage] = await db.insert(packages).values(body).returning();
-      return NextResponse.json(newPackage, { status: 201 });
+      // 일반 패키지 생성 로직
+      console.log('일반 패키지 생성 요청 처리 중...');
+      try {
+        const [newPackage] = await db.insert(packages).values(body).returning();
+        console.log('새 패키지 생성 성공');
+        return NextResponse.json(newPackage, { status: 201 });
+      } catch (createError: any) {
+        console.error('패키지 생성 중 오류:', createError);
+        throw createError; // 상위 catch 블록에서 처리
+      }
     }
   } catch (error: any) {
     console.error('패키지 생성 실패:', error);
+    
+    // 오류 상세 정보 로깅 
+    console.error('오류 상세:', {
+      name: error.name,
+      message: error.message,
+      code: error.code || 'N/A',
+      stack: error.stack?.substring(0, 200) || 'No stack'
+    });
+    
     return NextResponse.json(
       {
         error: '패키지를 생성할 수 없습니다.',
         details: error.message || '알 수 없는 오류',
+        success: false
       },
       { status: 500 }
     );

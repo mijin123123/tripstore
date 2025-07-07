@@ -79,19 +79,19 @@ const transformPackageData = (pkg: TravelPackage) => {
     title: pkg.name,
     description: pkg.description,
     destination: pkg.destination,
-    price: price.toString(),
-    discountprice: discountPrice.toString(),
+    price: price, // 숫자 타입으로 저장
+    discountprice: discountPrice, // 숫자 타입으로 저장
     duration: duration,
     departuredate: pkg.departureDate || [],
     images: images,
-    rating: pkg.rating ? pkg.rating.toString() : "4.5",
-    reviewcount: Math.floor(Math.random() * 20) + 5, // 랜덤 리뷰 수 (5~24)
+    rating: pkg.rating || 4.5, // 숫자 타입으로 저장
+    reviewcount: Math.floor(Math.random() * 20) + 5,
     category: category,
     season: season,
     inclusions: inclusions,
     exclusions: exclusions,
-    isfeatured: Math.random() > 0.5, // 50% 확률로 추천 상품
-    isonsale: Math.random() > 0.7, // 30% 확률로 세일 상품
+    isfeatured: Math.random() > 0.5,
+    isonsale: Math.random() > 0.7,
     itinerary: itinerary,
     createdAt: new Date(),
     updatedAt: new Date(),

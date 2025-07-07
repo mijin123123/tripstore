@@ -116,20 +116,48 @@ export default function PackagesPage() {
   const importMainPackages = async () => {
     try {
       setLoading(true);
+      setError('');
       
       // 동적으로 adminImport 모듈 가져오기
       const { importPackagesToAdmin } = await import('@/utils/adminImport');
-      await importPackagesToAdmin();
+      console.log('관리자 페이지에서 패키지 가져오기 시작...');
       
-      // 데이터 다시 로드
-      const response = await fetch('/api/packages');
-      if (!response.ok) {
-        throw new Error('패키지 데이터를 불러오는데 실패했습니다.');
+      const result = await importPackagesToAdmin();
+      console.log('패키지 가져오기 결과:', result);
+      
+      if (result?.success) {
+        // 성공 알림
+        alert(`성공: ${result.message || '패키지를 성공적으로 가져왔습니다.'}`);
+        
+        // 데이터 다시 로드
+        const response = await fetch('/api/packages', {
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        console.log(`새로운 패키지 데이터 요청 상태: ${response.status}`);
+        
+        if (!response.ok) {
+          throw new Error(`패키지 데이터를 불러오는데 실패했습니다. 상태: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(`가져온 패키지 데이터 개수: ${data.length}`);
+        
+        // 데이터 업데이트
+        setPackages(data);
+      } else {
+        // 오류 또는 안내 메시지
+        const errorMsg = result?.message || result?.error || '패키지를 가져오는데 실패했습니다.';
+        console.warn('패키지 가져오기 안내:', errorMsg);
+        alert(errorMsg);
       }
-      const data = await response.json();
-      setPackages(data);
     } catch (err) {
       console.error('패키지 가져오기 오류:', err);
+      setError(`패키지 가져오기 오류: ${err instanceof Error ? err.message : '알 수 없는 오류'}`);
       alert('패키지를 가져오는데 실패했습니다.');
     } finally {
       setLoading(false);
