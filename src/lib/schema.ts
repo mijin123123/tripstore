@@ -28,8 +28,9 @@ export const packages = pgTable('packages', {
   isfeatured: boolean('isfeatured').default(false),
   isonsale: boolean('isonsale').default(false),
   itinerary: jsonb('itinerary'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  // camelCase 매핑을 snake_case DB 컬럼에 맞춥니다
+  created_at: timestamp('created_at').defaultNow(),
+  updated_at: timestamp('updated_at').defaultNow(),
 });
 
 export const admins = pgTable('admins', {
