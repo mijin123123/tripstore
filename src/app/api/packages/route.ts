@@ -197,13 +197,9 @@ export async function GET() {
       console.log('DB 오류로 더미 데이터 반환.');
       return NextResponse.json(fallbackPackages);
     }
-  } catch (error) {
-    console.error('패키지 데이터 조회 중 오류:', error);
-    console.log('예외 발생으로 더미 데이터 반환.');
-    return NextResponse.json(fallbackPackages);
-    
   } catch (error: any) {
     console.error('패키지 데이터 조회 중 오류:', error);
+    console.log('예외 발생으로 더미 데이터 반환.');
     
     // 개발용: 에러 상세 정보 출력
     console.error('에러 상세:', {
