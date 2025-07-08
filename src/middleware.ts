@@ -42,7 +42,6 @@ export async function middleware(request: NextRequest) {
   // 기본적으로 모든 요청 허용
   return NextResponse.next();
 }
-}
 
 export const config = {
   matcher: [
