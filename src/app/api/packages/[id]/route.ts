@@ -89,29 +89,53 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const { id } = params;
     const body = await request.json();
     
-    console.log('패키지 업데이트 요청 ID:', id);
-    console.log('요청 본문:', JSON.stringify(body).substring(0, 200) + '...');
+    console.log('📋 패키지 업데이트 요청:');
+    console.log('🆔 ID:', id);
+    console.log('📝 요청 본문:', JSON.stringify(body).substring(0, 200) + '...');
     
-    // 데이터 타입 변환 처리
+    if (!id) {
+      console.error('❌ 패키지 ID가 제공되지 않았습니다');
+      return NextResponse.json({ error: 'Package ID is required' }, { status: 400 });
+    }
+    
+    // 데이터 타입 변환 처리 (DB 스키마와 일치하도록)
     const formattedData = {
       ...body,
-      // 숫자 필드 변환
-      price: body.price ? body.price.toString() : undefined, // decimal 타입에 맞게 문자열로 저장
-      discountprice: body.discountprice ? body.discountprice.toString() : undefined,
-      rating: body.rating ? body.rating.toString() : undefined,
+      // ID는 URL 파라미터 사용 (body에서 가져오지 않음)
+      id: undefined, // 명시적으로 제거
+      // 숫자 필드는 문자열로 변환 (decimal 타입)
+      price: typeof body.price === 'number' ? body.price.toString() : (body.price || '0'),
+      discountprice: body.discountprice === null || body.discountprice === undefined 
+        ? null 
+        : (typeof body.discountprice === 'number' ? body.discountprice.toString() : body.discountprice),
+      rating: body.rating === null || body.rating === undefined
+        ? null
+        : (typeof body.rating === 'number' ? body.rating.toString() : body.rating),
+      // 정수 필드 (그대로 유지)
+      duration: typeof body.duration === 'number' ? body.duration : (parseInt(body.duration) || 1),
+      reviewcount: typeof body.reviewcount === 'number' ? body.reviewcount : (parseInt(body.reviewcount) || 0),
       // 배열 필드 확인
       images: Array.isArray(body.images) ? body.images : (body.images ? [body.images] : []),
       inclusions: Array.isArray(body.inclusions) ? body.inclusions : [],
       exclusions: Array.isArray(body.exclusions) ? body.exclusions : [],
+      // 불리언 필드 확인
+      isfeatured: !!body.isfeatured,
+      isonsale: !!body.isonsale,
       // 날짜 필드 확인
       updated_at: new Date()
     };
     
-    console.log('변환된 데이터:', JSON.stringify(formattedData).substring(0, 200) + '...');
+    console.log('🔄 변환된 데이터:');
+    console.log(JSON.stringify(formattedData).substring(0, 200) + '...');
+    console.log('💾 DB에 저장할 주요 필드:');
+    console.log(`- title: ${formattedData.title}`);
+    console.log(`- price: ${formattedData.price} (타입: ${typeof formattedData.price})`);
+    console.log(`- duration: ${formattedData.duration} (타입: ${typeof formattedData.duration})`);
+    console.log(`- images: ${JSON.stringify(formattedData.images)}`);
     
     // 더미 데이터 처리 (pkg-로 시작하는 ID는 더미 데이터로 간주)
     if (id.startsWith('pkg-')) {
-      console.log('더미 데이터 패키지 업데이트 요청:', id);
+      console.log('🔄 더미 데이터 패키지 업데이트 요청:', id);
       
       // 더미 데이터는 업데이트 성공으로 가정하고 응답
       const updatedPackage = {
@@ -123,22 +147,58 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       return NextResponse.json(updatedPackage);
     }
     
-    // 실제 DB 업데이트
-    const [updatedPackage] = await db
-      .update(packages)
-      .set(formattedData)
-      .where(eq(packages.id, id))
-      .returning();
+    console.log('🔄 실제 DB 업데이트 시도...');
+    
+    try {
+      // 실제 DB 업데이트      const [updatedPackage] = await db
+        .update(packages)
+        .set(formattedData)
+        .where(eq(packages.id, id))
+        .returning();
 
-    if (!updatedPackage) {
-      return NextResponse.json({ error: 'Package not found or no permission to update' }, { status: 404 });
+      console.log('🔄 DB 업데이트 결과:', updatedPackage ? '성공' : '실패');
+      
+      if (!updatedPackage) {
+        console.log('❌ 패키지를 찾을 수 없거나 업데이트 권한이 없습니다.');
+        return NextResponse.json({ error: 'Package not found or no permission to update' }, { status: 404 });
+      }
+
+      console.log('✅ 패키지 업데이트 성공:', updatedPackage.id);
+      return NextResponse.json(updatedPackage);
+    } catch (dbError) {
+      console.error('❌ DB 업데이트 오류:', dbError);
+      
+      // 상세 오류 정보 출력
+      if (dbError.code) {
+        console.error('DB 오류 코드:', dbError.code);
+        console.error('DB 오류 메시지:', dbError.message);
+        
+        if (dbError.code === '22P02') {
+          return NextResponse.json({ 
+            error: '올바르지 않은 데이터 형식입니다. 입력값을 확인해주세요.', 
+            details: dbError.message 
+          }, { status: 400 });
+        }
+      }
+      
+      throw dbError; // 상위 catch 블록에서 처리
     }
-
-    console.log('패키지 업데이트 성공:', updatedPackage.id);
-    return NextResponse.json(updatedPackage);
   } catch (error) {
-    console.error('Error updating package:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('❌ 패키지 업데이트 중 오류 발생:', error);
+    
+    // 오류 상세 정보 로깅
+    console.error('오류 상세 정보:', {
+      name: error?.name,
+      message: error?.message,
+      code: error?.code || 'unknown',
+      stack: error?.stack?.substring(0, 200)
+    });
+    
+    return NextResponse.json({ 
+      error: '패키지 업데이트 중 오류가 발생했습니다.',
+      message: error?.message || '알 수 없는 오류',
+      code: error?.code
+    }, { status: 500 });
   }
 }
 

@@ -46,23 +46,41 @@ export default function PackageForm({ initialData = null }) {
       console.log('🆔 initialData.id:', initialData?.id);
       
       // 데이터 형식 변환
+      // ID 처리를 확실히 합니다
+      if (isEditing && !initialData?.id) {
+        throw new Error('패키지 ID가 누락되었습니다. 관리자에게 문의하세요.');
+      }
+      
+      // 데이터 형식 변환
       const packageData = {
         ...formData,
+        // 수정 시 ID를 명시적으로 포함
+        ...(isEditing ? { id: initialData.id } : {}),
+        // 숫자 필드 변환
         price: parseFloat(formData.price) || 0,
-        discountprice: formData.discountprice ? parseFloat(formData.discountprice) : undefined,
+        discountprice: formData.discountprice ? parseFloat(formData.discountprice) : null,
         duration: parseInt(formData.duration) || 1,
+        // 배열 필드 변환
         departuredate: formData.departuredate.split(',').map(date => date.trim()),
         inclusions: formData.inclusions.split('\n').filter(item => item.trim()),
         exclusions: formData.exclusions.split('\n').filter(item => item.trim()),
-        images: [formData.images],
-        rating: formData.rating ? parseFloat(formData.rating) : undefined,
-        reviewcount: formData.reviewcount ? parseInt(formData.reviewcount) : undefined
+        images: formData.images ? [formData.images] : [],
+        // 추가 필드 변환
+        rating: formData.rating ? parseFloat(formData.rating) : null,
+        reviewcount: formData.reviewcount ? parseInt(formData.reviewcount) : 0,
+        // 상태 필드 정확하게 설정
+        isfeatured: !!formData.isfeatured,
+        isonsale: !!formData.isonsale,
+        // 타임스탬프 업데이트
+        updated_at: new Date()
       };
 
       console.log('📦 변환된 패키지 데이터:', packageData);
 
-      const url = `/api/packages${isEditing ? `/${initialData.id}` : ''}`;
+      const url = `/api/packages${isEditing && initialData?.id ? `/${initialData.id}` : ''}`;
       const method = isEditing ? 'PUT' : 'POST';
+      
+      console.log('🔍 패키지 ID:', initialData?.id);
       
       console.log('🌐 API 요청:', method, url);
 
