@@ -35,22 +35,39 @@ async function createAdminWithPassword() {
     console.error('관리자 계정 생성 중 오류:', error);
     
     // 이미 존재하는 경우 비밀번호 업데이트
-    if (error.message?.includes('unique constraint')) {
+    if (error.message?.includes('unique constraint') || error.cause?.code === '23505') {
       console.log('이미 존재하는 관리자 계정입니다. 비밀번호를 업데이트합니다.');
       
       const password = 'aszx1212';
       const hashedPassword = await bcrypt.hash(password, 12);
       
-      const updatedAdmin = await db
-        .update(admins)
-        .set({ password: hashedPassword })
-        .where(eq(admins.email, 'sonchanmin89@gmail.com'))
-        .returning();
+      console.log('비밀번호 해시화 완료');
+      console.log('기존 관리자 계정 비밀번호 업데이트 중...');
       
-      console.log('비밀번호 업데이트 완료:', {
-        email: updatedAdmin[0].email,
-        updatedAt: new Date()
-      });
+      try {
+        const updatedAdmin = await db
+          .update(admins)
+          .set({ password: hashedPassword })
+          .where(eq(admins.email, 'sonchanmin89@gmail.com'))
+          .returning();
+        
+        console.log('비밀번호 업데이트 완료:', {
+          email: updatedAdmin[0]?.email || 'sonchanmin89@gmail.com',
+          updatedAt: new Date()
+        });
+        
+        // 비밀번호 확인 테스트
+        const checkAdmin = await db.select().from(admins).where(eq(admins.email, 'sonchanmin89@gmail.com')).limit(1);
+        if (checkAdmin.length > 0) {
+          const isPasswordCorrect = await bcrypt.compare(password, checkAdmin[0].password);
+          console.log('업데이트된 비밀번호 확인 테스트:', isPasswordCorrect ? '성공' : '실패');
+        }
+      } catch (updateError) {
+        console.error('비밀번호 업데이트 중 오류:', updateError);
+        throw updateError;
+      }
+    } else {
+      throw error;
     }
   }
 }

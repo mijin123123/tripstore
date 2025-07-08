@@ -37,11 +37,19 @@ export async function middleware(request: NextRequest) {
     
     // admin_auth 쿠키를 확인하여 인증 여부 검사
     const adminAuth = request.cookies.get('admin_auth');
+    console.log('쿠키 확인 결과:', adminAuth ? `쿠키 존재 (값: ${adminAuth.value})` : '쿠키 없음');
 
     if (!adminAuth || adminAuth.value !== 'true') {
       // 인증되지 않은 경우, 로그인 페이지로 리디렉션
       console.log('인증되지 않음, 로그인 페이지로 리디렉션');
       const loginUrl = new URL('/admin/login', request.url);
+      
+      // 쿠키 디버깅 로그
+      console.log('모든 쿠키:');
+      request.cookies.getAll().forEach((cookie, i) => {
+        console.log(`  [${i}] ${cookie.name}: ${cookie.value.substring(0, 20)}...`);
+      });
+      
       return NextResponse.redirect(loginUrl);
     }
 

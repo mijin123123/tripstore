@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/neon';
+import { admins } from '@/lib/schema';
+import { eq } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,10 +22,66 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('관리자 로그인 시도 - 이메일:', email);
-
-    // 관리자 계정 확인 (단순화된 하드코딩 버전)
-    if (email === 'sonchanmin89@gmail.com' && password === 'admin123') {
-      console.log('✅ 관리자 로그인 성공');
+    
+    // DB에서 관리자 계정 조회
+    console.log('DB에서 관리자 계정 조회 중...');
+    const admin = await db.select().from(admins).where(eq(admins.email, email)).limit(1);
+    
+    console.log('관리자 계정 조회 결과:', admin.length > 0 ? '계정 발견' : '계정 없음');
+    
+    // 관리자 계정이 없는 경우
+    if (!admin.length) {
+      console.log('❌ 관리자 계정이 존재하지 않음');
+      return NextResponse.json(
+        { error: '관리자 이메일 또는 비밀번호가 일치하지 않습니다.' },
+        { status: 401 }
+      );
+    }
+    
+    const adminUser = admin[0];
+    
+    // 비밀번호가 저장되어 있지 않은 경우 (migration 중 또는 레거시 계정)
+    if (!adminUser.password) {
+      console.log('⚠️ 관리자 계정에 비밀번호가 설정되어 있지 않음, 하드코딩된 비밀번호 확인');
+      
+      // 임시 하드코딩 비밀번호 확인 (마이그레이션 기간 동안만 사용)
+      if (email === 'sonchanmin89@gmail.com' && password === 'aszx1212') {
+        console.log('✅ 하드코딩된 비밀번호로 로그인 성공');
+        
+        // 응답 생성
+        const response = NextResponse.json({ 
+          success: true,
+          message: '관리자 로그인 성공 (임시 비밀번호)'
+        });
+        
+        // 쿠키 설정 - 강화된 보안
+        response.cookies.set({
+          name: 'admin_auth',
+          value: 'true',
+          path: '/',
+          maxAge: 60 * 60 * 24, // 24시간
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production', // 개발 환경에서는 false, 프로덕션에서는 true
+          sameSite: 'lax',
+        });
+        
+        console.log('🍪 admin_auth 쿠키 설정 완료');
+        return response;
+      }
+      
+      console.log('❌ 임시 비밀번호 확인 실패');
+      return NextResponse.json(
+        { error: '관리자 이메일 또는 비밀번호가 일치하지 않습니다.' },
+        { status: 401 }
+      );
+    }
+    
+    // 저장된 비밀번호와 비교
+    console.log('💡 비밀번호 확인 중...');
+    const isPasswordValid = await bcrypt.compare(password, adminUser.password);
+    
+    if (isPasswordValid) {
+      console.log('✅ 관리자 로그인 성공 (비밀번호 일치)');
       
       // 응답 생성
       const response = NextResponse.json({ 
@@ -29,7 +89,7 @@ export async function POST(request: NextRequest) {
         message: '관리자 로그인 성공'
       });
       
-      // 쿠키 설정 - 로컬 개발 환경에 맞게 최적화
+      // 쿠키 설정 - 강화된 보안
       response.cookies.set({
         name: 'admin_auth',
         value: 'true',
