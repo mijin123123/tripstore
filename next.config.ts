@@ -40,6 +40,24 @@ const nextConfig: NextConfig = {
   // Netlify에서 정적 생성 관련 문제 해결을 위한 설정
   distDir: '.next',
   
+  // 클라이언트 측에서 'pg' 같은 서버 전용 모듈을 사용할 때 에러 방지
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // 클라이언트 번들에서 Node.js 모듈을 빈 객체로 대체
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        dns: false,
+        pg: false,
+        'pg-connection-string': false,
+        'pg-native': false,
+      };
+    }
+    return config;
+  },
+  
   // 관리자 페이지를 동적으로 렌더링하도록 설정
   experimental: {
     serverActions: {
