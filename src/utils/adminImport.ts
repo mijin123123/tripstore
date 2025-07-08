@@ -19,11 +19,18 @@ async function importPackagesToAdmin(options = { force: false }) {
     });
     
     // API 요청을 보내 메인 사이트 패키지 데이터 가져오기
+    console.log('API 요청 준비 중...');
+    console.log('요청 옵션:', {
+      force: options.force,
+      packagesCount: packagesData.length
+    });
+    
     const response = await fetch('/api/packages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
         'X-Import-Timestamp': new Date().toISOString() // 캐시 방지 타임스탬프
       },
       body: JSON.stringify({
@@ -32,6 +39,8 @@ async function importPackagesToAdmin(options = { force: false }) {
         force: options.force, // 강제 덮어쓰기 옵션
         source: 'main-site' // 소스 표시
       }),
+      cache: 'no-store',
+      next: { revalidate: 0 } // 캐시 방지
     });
     
     console.log(`API 응답 상태: ${response.status} ${response.statusText}`);

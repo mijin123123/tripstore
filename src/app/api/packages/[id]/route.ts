@@ -150,7 +150,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     console.log('🔄 실제 DB 업데이트 시도...');
     
     try {
-      // 실제 DB 업데이트      const [updatedPackage] = await db
+      // 실제 DB 업데이트
+      const [updatedPackage] = await db
         .update(packages)
         .set(formattedData)
         .where(eq(packages.id, id))

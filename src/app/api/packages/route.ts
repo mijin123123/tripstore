@@ -158,65 +158,49 @@ export async function GET() {
   console.log('=== 패키지 GET API 요청 처리 시작 ===');
   
   try {
-    // 방법 1: Drizzle ORM 사용
-    try {
-      console.log('1. Drizzle ORM을 사용하여 데이터 조회 중...');
-      const allPackages = await db.select().from(packages);
-      console.log(`ORM으로 ${allPackages.length}개의 패키지 데이터를 가져왔습니다.`);
-      
-      if (allPackages && allPackages.length > 0) {
-        // 성공 로그
-        console.log('첫 번째 패키지:', {
-          id: allPackages[0].id,
-          title: allPackages[0].title,
-        });
-        console.log('ORM을 통해 DB 데이터를 반환합니다.');
-        return NextResponse.json(allPackages);
-      }
-      console.log('ORM으로 데이터를 가져왔으나 결과가 없습니다. 다른 방법 시도...');
-    } catch (ormError) {
-      console.error('ORM 조회 오류:', ormError);
-      // 계속 진행하여 다음 방법 시도
+    // 가능한 한 단순한 접근 방식으로 진행
+    console.log('직접 PostgreSQL 연결 시도 중...');
+    const DATABASE_URL = process.env.NEON_DATABASE_URL;
+    
+    if (!DATABASE_URL) {
+      console.error('NEON_DATABASE_URL 환경 변수가 설정되지 않았습니다.');
+      // 더미 데이터로 폴백
+      return NextResponse.json(fallbackPackages);
     }
     
-    // 방법 2: 직접 pg 연결
+    const pool = new Pool({
+      connectionString: DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+    
     try {
-      console.log('2. 직접 PostgreSQL 연결 시도 중...');
-      const DATABASE_URL = process.env.NEON_DATABASE_URL || 
-                         'postgresql://neondb_owner:npg_lu3rwg6HpLGn@ep-noisy-meadow-aex8wbzi-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
-      
-      const pool = new Pool({
-        connectionString: DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false
-        }
-      });
-      
+      // 간단한 쿼리로 테스트
       const result = await pool.query('SELECT * FROM packages');
-      await pool.end(); // 연결 종료
+      await pool.end();
       
-      console.log(`직접 PostgreSQL 연결로 ${result.rows.length}개의 패키지 데이터를 가져왔습니다.`);
+      console.log(`PostgreSQL 연결로 ${result.rows.length}개의 패키지 데이터를 가져왔습니다.`);
       
       if (result.rows && result.rows.length > 0) {
-        console.log('직접 PostgreSQL 쿼리로 데이터를 반환합니다.');
+        console.log('첫 번째 패키지:', {
+          id: result.rows[0].id,
+          title: result.rows[0].title
+        });
         return NextResponse.json(result.rows);
+      } else {
+        console.log('패키지 데이터가 없습니다. 더미 데이터 반환.');
+        return NextResponse.json(fallbackPackages);
       }
-      
-      console.log('직접 PostgreSQL 연결로도 데이터를 찾을 수 없습니다.');
-    } catch (pgError) {
-      console.error('PostgreSQL 직접 연결 오류:', pgError);
-      // 계속 진행하여 더미 데이터 반환
+    } catch (dbError) {
+      console.error('DB 오류:', dbError);
+      console.log('DB 오류로 더미 데이터 반환.');
+      return NextResponse.json(fallbackPackages);
     }
-    
-    // 모든 방법이 실패한 경우 더미 데이터 반환
-    console.warn('데이터베이스에서 패키지를 찾을 수 없습니다. 더미 데이터를 반환합니다.');
-    return NextResponse.json(fallbackPackages.map(pkg => ({
-      ...pkg,
-      _debug: {
-        source: 'fallback',
-        reason: '데이터베이스에서 패키지를 찾을 수 없음'
-      }
-    })));
+  } catch (error) {
+    console.error('패키지 데이터 조회 중 오류:', error);
+    console.log('예외 발생으로 더미 데이터 반환.');
+    return NextResponse.json(fallbackPackages);
     
   } catch (error: any) {
     console.error('패키지 데이터 조회 중 오류:', error);

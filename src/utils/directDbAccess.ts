@@ -24,10 +24,15 @@ export async function fetchPackagesDirectly(): Promise<PackageResult> {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
-      }
+      },
+      next: { revalidate: 0 } // 캐시 방지
     });
     
+    // 응답 코드 로깅
+    console.log(`API 응답 상태 코드: ${response.status} ${response.statusText}`);
+    
     if (!response.ok) {
+      console.error(`API 응답 오류: ${response.status} ${response.statusText}`);
       throw new Error(`API 오류: ${response.status} ${response.statusText}`);
     }
     
@@ -43,9 +48,24 @@ export async function fetchPackagesDirectly(): Promise<PackageResult> {
       throw new Error('API 응답을 JSON으로 파싱할 수 없습니다');
     }
     
-    if (!Array.isArray(data)) {
+    // 데이터 형식 검사 및 변환
+    if (Array.isArray(data)) {
+      console.log(`API가 ${data.length}개의 패키지 배열을 반환했습니다`);
+    } else if (data && typeof data === 'object') {
+      console.log('API가 객체를 반환했습니다. 배열로 변환 시도...');
+      
+      // 객체가 배열 형태의 속성을 가지고 있는지 확인
+      const arrayProperty = Object.values(data).find(val => Array.isArray(val));
+      if (arrayProperty && Array.isArray(arrayProperty)) {
+        data = arrayProperty;
+        console.log(`객체에서 ${data.length}개의 패키지 배열을 추출했습니다`);
+      } else {
+        console.log('객체를 배열로 변환할 수 없습니다. 빈 배열을 반환합니다.');
+        data = [];
+      }
+    } else {
       console.error('예상하지 않은 데이터 형식:', typeof data);
-      throw new Error('API가 배열 형태의 패키지 데이터를 반환하지 않았습니다');
+      throw new Error('API가 유효한 패키지 데이터를 반환하지 않았습니다');
     }
     
     console.log(`API에서 ${data.length}개의 패키지 데이터를 가져왔습니다.`);
