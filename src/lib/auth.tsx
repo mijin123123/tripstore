@@ -95,13 +95,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setIsLoading(true);
     try {
-      // 쿠키 삭제를 위해 서버 API 호출
-      document.cookie = 'admin_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      console.log('로그아웃 API 호출 중...');
+      
+      // 로그아웃 API 호출 (HttpOnly 쿠키를 서버에서 삭제하기 위함)
+      const response = await fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // 필요한 경우 CSRF 토큰이나 기타 데이터를 포함
+        body: JSON.stringify({ 
+          timestamp: new Date().toISOString() 
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '로그아웃 처리 중 오류가 발생했습니다');
+      }
+      
+      console.log('로그아웃 API 응답:', response.status);
+      
+      // 클라이언트 측 상태 초기화
       setUser(null);
       setIsAdmin(false);
-      window.location.href = '/admin/login'; // 로그아웃 후 로그인 페이지로 이동
+      
+      // 추가로 클라이언트 측 쿠키도 삭제 (이중 안전장치)
+      document.cookie = 'admin_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      
+      console.log('로그아웃 성공, 로그인 페이지로 리다이렉트');
+      
+      // 페이지를 완전히 새로고침하면서 로그인 페이지로 이동
+      window.location.href = '/admin/login';
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
+      alert('로그아웃 처리 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
