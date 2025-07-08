@@ -89,13 +89,33 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const { id } = params;
     const body = await request.json();
     
+    console.log('패키지 업데이트 요청 ID:', id);
+    console.log('요청 본문:', JSON.stringify(body).substring(0, 200) + '...');
+    
+    // 데이터 타입 변환 처리
+    const formattedData = {
+      ...body,
+      // 숫자 필드 변환
+      price: body.price ? body.price.toString() : undefined, // decimal 타입에 맞게 문자열로 저장
+      discountprice: body.discountprice ? body.discountprice.toString() : undefined,
+      rating: body.rating ? body.rating.toString() : undefined,
+      // 배열 필드 확인
+      images: Array.isArray(body.images) ? body.images : (body.images ? [body.images] : []),
+      inclusions: Array.isArray(body.inclusions) ? body.inclusions : [],
+      exclusions: Array.isArray(body.exclusions) ? body.exclusions : [],
+      // 날짜 필드 확인
+      updated_at: new Date()
+    };
+    
+    console.log('변환된 데이터:', JSON.stringify(formattedData).substring(0, 200) + '...');
+    
     // 더미 데이터 처리 (pkg-로 시작하는 ID는 더미 데이터로 간주)
     if (id.startsWith('pkg-')) {
       console.log('더미 데이터 패키지 업데이트 요청:', id);
       
       // 더미 데이터는 업데이트 성공으로 가정하고 응답
       const updatedPackage = {
-        ...body,
+        ...formattedData,
         id: id,
         updated_at: new Date().toISOString()
       };
@@ -106,7 +126,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     // 실제 DB 업데이트
     const [updatedPackage] = await db
       .update(packages)
-      .set(body)
+      .set(formattedData)
       .where(eq(packages.id, id))
       .returning();
 
@@ -114,6 +134,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Package not found or no permission to update' }, { status: 404 });
     }
 
+    console.log('패키지 업데이트 성공:', updatedPackage.id);
     return NextResponse.json(updatedPackage);
   } catch (error) {
     console.error('Error updating package:', error);

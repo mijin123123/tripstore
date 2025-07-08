@@ -48,12 +48,15 @@ export default function PackageForm({ initialData = null }) {
       // 데이터 형식 변환
       const packageData = {
         ...formData,
-        price: parseFloat(formData.price),
-        duration: parseInt(formData.duration),
+        price: parseFloat(formData.price) || 0,
+        discountprice: formData.discountprice ? parseFloat(formData.discountprice) : undefined,
+        duration: parseInt(formData.duration) || 1,
         departuredate: formData.departuredate.split(',').map(date => date.trim()),
         inclusions: formData.inclusions.split('\n').filter(item => item.trim()),
         exclusions: formData.exclusions.split('\n').filter(item => item.trim()),
         images: [formData.images],
+        rating: formData.rating ? parseFloat(formData.rating) : undefined,
+        reviewcount: formData.reviewcount ? parseInt(formData.reviewcount) : undefined
       };
 
       console.log('📦 변환된 패키지 데이터:', packageData);
