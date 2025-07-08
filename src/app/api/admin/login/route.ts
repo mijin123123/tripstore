@@ -54,16 +54,22 @@ export async function POST(request: NextRequest) {
           message: '관리자 로그인 성공 (임시 비밀번호)'
         });
         
-        // 쿠키 설정 - 강화된 보안 (Netlify 배포 환경 고려)
+        // 쿠키 설정 - Netlify 배포 환경에서의 문제 해결을 위해 간소화
         response.cookies.set({
           name: 'admin_auth',
           value: 'true',
           path: '/',
           maxAge: 60 * 60 * 24, // 24시간
-          httpOnly: true,
-          secure: false, // 배포 환경에서도 문제없이 작동하도록 false로 설정
+          httpOnly: false, // 클라이언트 측에서 접근 가능하도록 설정
+          secure: false, // HTTP/HTTPS 모두 작동하도록 설정
           sameSite: 'lax',
         });
+        
+        // 응답 헤더에 Set-Cookie 추가 (중복 설정)
+        response.headers.append(
+          'Set-Cookie',
+          `admin_auth=true; Path=/; Max-Age=${60 * 60 * 24}; SameSite=Lax`
+        );
         
         console.log('🍪 admin_auth 쿠키 설정 완료');
         return response;

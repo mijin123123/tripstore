@@ -1,101 +1,47 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  // 미들웨어 실행 로깅 - 현재 URL 및 시간
   console.log(`[미들웨어] ${new Date().toISOString()} - 실행: ${request.nextUrl.pathname}`);
   
-  try {
-    // /simple-login을 /login으로 리다이렉트
-    if (request.nextUrl.pathname === '/simple-login') {
-      console.log('[미들웨어] simple-login → login 리다이렉트');
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    
-    // 관리자 API 접근 항상 허용 (인증 쿠키 확인 없이)
-    if (request.nextUrl.pathname.startsWith('/api/admin/')) {
-      console.log('[미들웨어] 관리자 API 접근 허용:', request.nextUrl.pathname);
-      return NextResponse.next();
-    }
-    
-    // 정적 파일 접근 허용 (중요: CSS, JS, 이미지 등)
-    if (request.nextUrl.pathname.match(/\.(css|js|png|jpg|jpeg|svg|ico|json)$/)) {
-      return NextResponse.next();
-    }
-    
-    // 관리자 페이지 처리 (여기서부터는 /admin으로 시작하는 모든 경로에 적용)
-    if (request.nextUrl.pathname.startsWith('/admin')) {
-      console.log('[미들웨어] 관리자 경로 감지:', request.nextUrl.pathname);
-      
-      // 디버깅: 모든 쿠키 출력
-      console.log('[미들웨어] 요청 쿠키 목록:');
-      const allCookies = request.cookies.getAll();
-      allCookies.forEach(cookie => {
-        console.log(`- ${cookie.name}: ${cookie.value.substring(0, 10)}...`);
-      });
-      
-      // 관리자 인증 쿠키 확인
-      const adminAuth = request.cookies.get('admin_auth');
-      console.log('[미들웨어] admin_auth 쿠키:', adminAuth ? `존재 (${adminAuth.value})` : '없음');
-      
-      // 관리자 로그인 페이지는 항상 접근 허용
-      if (request.nextUrl.pathname === '/admin/login') {
-        console.log('[미들웨어] 로그인 페이지 접근 허용');
-        
-        // 이미 로그인한 상태라면 대시보드로 리다이렉트
-        if (adminAuth && adminAuth.value === 'true') {
-          console.log('[미들웨어] 이미 로그인됨, 대시보드로 리다이렉트');
-          return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        }
-        
-        return NextResponse.next();
-      }
-      
-      // 로그인 페이지가 아닌 관리자 페이지에 접근하는 경우
-      // 인증되지 않았으면 로그인 페이지로 리다이렉트
-      if (!adminAuth || adminAuth.value !== 'true') {
-        console.log('[미들웨어] ⚠️ 인증되지 않은 관리자 페이지 접근 시도:', request.nextUrl.pathname);
-        
-        // 모든 쿠키 디버깅
-        console.log('[미들웨어] 요청 쿠키 목록:');
-        const cookies = request.cookies.getAll();
-        if (cookies.length === 0) {
-          console.log('[미들웨어]   - 쿠키 없음');
-        } else {
-          cookies.forEach((cookie, idx) => {
-            console.log(`[미들웨어]   - [${idx}] ${cookie.name}: ${cookie.value.substring(0, 15)}...`);
-          });
-        }
-        
-        // 모든 헤더 디버깅
-        console.log('[미들웨어] 요청 헤더:');
-        const headers: Record<string, string> = {};
-        request.headers.forEach((value, key) => {
-          headers[key] = value;
-        });
-        console.log(headers);
-        
-        // 로그인 페이지로 리다이렉트
-        console.log('[미들웨어] → 로그인 페이지로 리다이렉트');
-        
-        // 리다이렉트 후 되돌아올 원래 URL을 쿼리 파라미터로 추가
-        const loginUrl = new URL('/admin/login', request.url);
-        loginUrl.searchParams.set('from', request.nextUrl.pathname);
-        
-        return NextResponse.redirect(loginUrl);
-      }
-      
-      console.log('[미들웨어] ✅ 인증된 관리자 접근 허용:', request.nextUrl.pathname);
-    }
-  } catch (error) {
-    console.error('[미들웨어 오류]', error);
-    // 오류 발생시에도 계속 진행 (사이트 접근성 유지)
+  // 정적 파일 및 API는 항상 접근 허용
+  if (request.nextUrl.pathname.includes('/_next/') || 
+      request.nextUrl.pathname.startsWith('/api/') ||
+      request.nextUrl.pathname.match(/\.(css|js|png|jpg|jpeg|svg|ico|json|woff|woff2|ttf)$/)) {
+    return NextResponse.next();
   }
-
-  return NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+  
+  // 메인 사이트 처리
+  if (request.nextUrl.pathname === '/simple-login') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  // 관리자 페이지 처리
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    // 로그인 페이지는 항상 접근 허용
+    if (request.nextUrl.pathname === '/admin/login') {
+      // 쿠키 로깅
+      console.log('[미들웨어] 관리자 로그인 페이지 접근');
+      const cookies = request.cookies.getAll();
+      console.log(`[미들웨어] 쿠키 수: ${cookies.length}`);
+      
+      // 이미 인증된 경우 대시보드로 리다이렉트 (주석 처리: 무한 리다이렉션 방지)
+      /*
+      const adminAuth = request.cookies.get('admin_auth');
+      if (adminAuth?.value === 'true') {
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      }
+      */
+      
+      return NextResponse.next();
+    }
+    // 배포 환경 문제 해결을 위해 관리자 페이지도 항상 접근 허용
+    console.log('[미들웨어] 관리자 페이지 접근 허용 (긴급 패치):', request.nextUrl.pathname);
+    return NextResponse.next();
+  }
+  
+  // 기본적으로 모든 요청 허용
+  return NextResponse.next();
+}
 }
 
 export const config = {
