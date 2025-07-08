@@ -21,6 +21,27 @@ export default function PackagesPage() {
     async function fetchPackages() {
       try {
         console.log('패키지 데이터 요청 시작...');
+        
+        // 방법 1: 직접 DB 접근 (API 우회)
+        try {
+          console.log('직접 DB 접근 시도 중...');
+          const { fetchPackagesDirectly } = await import('@/utils/directDbAccess');
+          const result = await fetchPackagesDirectly();
+          
+          if (result.success) {
+            console.log(`직접 DB에서 ${result.count}개의 패키지 가져옴`);
+            setPackages(result.packages);
+            setLoading(false);
+            return;
+          } else {
+            console.error('직접 DB 접근 실패:', result.error);
+          }
+        } catch (directErr) {
+          console.error('직접 DB 접근 오류:', directErr);
+        }
+        
+        // 방법 2: API 사용 (기존 방식)
+        console.log('API를 통한 데이터 요청으로 대체...');
         const response = await fetch('/api/packages', {
           method: 'GET',
           headers: {

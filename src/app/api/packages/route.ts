@@ -163,32 +163,40 @@ export async function GET() {
       throw new Error('DB 객체가 초기화되지 않았습니다.');
     }
     
-    console.log('DB 연결 확인됨, 패키지 데이터 가져오는 중...');
+    // 직접 DB 연결로 테스트
+    const pg = await import('pg');
+    const { Pool } = pg.default;
     
-    // SQL 직접 실행을 통한 디버깅
+    console.log('직접 PG 연결 시도 중...');
+    const DATABASE_URL = process.env.NEON_DATABASE_URL || 
+                         'postgresql://neondb_owner:npg_lu3rwg6HpLGn@ep-noisy-meadow-aex8wbzi-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
+    
+    const pool = new Pool({
+      connectionString: DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+    
     try {
-      // 방법 1: drizzle ORM 사용
-      const allPackages = await db.select().from(packages);
-      console.log(`[ORM 방식] DB에서 ${allPackages.length}개의 패키지 데이터를 가져왔습니다.`);
+      const client = await pool.connect();
+      console.log('PG 연결 성공!');
       
-      // 방법 2: 로우 쿼리 직접 실행
-      // @ts-ignore - sql 함수가 없을 수 있지만 디버깅을 위해 시도
-      if (db.execute) {
-        try {
-          const rawResult = await db.execute('SELECT COUNT(*) FROM packages');
-          console.log('[RAW SQL] 패키지 수 조회 결과:', rawResult);
-        } catch (sqlError) {
-          console.error('[RAW SQL] 직접 SQL 실행 오류:', sqlError);
-        }
+      const result = await client.query('SELECT * FROM packages');
+      console.log(`직접 쿼리로 ${result.rows.length}개의 패키지를 찾았습니다.`);
+      
+      if (result.rows.length > 0) {
+        console.log('실제 DB 데이터를 반환합니다.');
+        client.release();
+        await pool.end();
+        return NextResponse.json(result.rows);
       }
       
-      // 방법 3: 스키마를 무시하고 네이티브 쿼리 (제작사/테이블 이름만 사용)
-      try {
-        const rawPackages = await db.query.packages.findMany();
-        console.log(`[네이티브 쿼리] ${rawPackages?.length || 0}개의 패키지 찾음`);
-      } catch (nativeError) {
-        console.error('[네이티브 쿼리] 오류:', nativeError);
-      }
+      client.release();
+      await pool.end();
+    } catch (pgError) {
+      console.error('PG 직접 연결 오류:', pgError?.message);
+    }
       
       // 패키지 ID 목록 출력
       if (allPackages.length > 0) {
