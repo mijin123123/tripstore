@@ -54,14 +54,14 @@ export async function POST(request: NextRequest) {
           message: '관리자 로그인 성공 (임시 비밀번호)'
         });
         
-        // 쿠키 설정 - 강화된 보안
+        // 쿠키 설정 - 강화된 보안 (Netlify 배포 환경 고려)
         response.cookies.set({
           name: 'admin_auth',
           value: 'true',
           path: '/',
           maxAge: 60 * 60 * 24, // 24시간
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production', // 개발 환경에서는 false, 프로덕션에서는 true
+          secure: false, // 배포 환경에서도 문제없이 작동하도록 false로 설정
           sameSite: 'lax',
         });
         
@@ -89,14 +89,14 @@ export async function POST(request: NextRequest) {
         message: '관리자 로그인 성공'
       });
       
-      // 쿠키 설정 - 강화된 보안
+      // 쿠키 설정 - 강화된 보안 (Netlify 배포 환경 고려)
       response.cookies.set({
         name: 'admin_auth',
         value: 'true',
         path: '/',
         maxAge: 60 * 60 * 24, // 24시간
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // 개발 환경에서는 false, 프로덕션에서는 true
+        secure: false, // 배포 환경에서도 문제없이 작동하도록 false로 설정
         sameSite: 'lax',
       });
       

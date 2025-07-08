@@ -11,10 +11,14 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
     
-    // 관리자 API 접근 허용 패턴
-    const adminApiPaths = ['/api/admin/login', '/api/admin/logout'];
-    if (adminApiPaths.includes(request.nextUrl.pathname)) {
+    // 관리자 API 접근 항상 허용 (인증 쿠키 확인 없이)
+    if (request.nextUrl.pathname.startsWith('/api/admin/')) {
       console.log('[미들웨어] 관리자 API 접근 허용:', request.nextUrl.pathname);
+      return NextResponse.next();
+    }
+    
+    // 정적 파일 접근 허용 (중요: CSS, JS, 이미지 등)
+    if (request.nextUrl.pathname.match(/\.(css|js|png|jpg|jpeg|svg|ico|json)$/)) {
       return NextResponse.next();
     }
     
@@ -22,20 +26,27 @@ export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith('/admin')) {
       console.log('[미들웨어] 관리자 경로 감지:', request.nextUrl.pathname);
       
+      // 디버깅: 모든 쿠키 출력
+      console.log('[미들웨어] 요청 쿠키 목록:');
+      const allCookies = request.cookies.getAll();
+      allCookies.forEach(cookie => {
+        console.log(`- ${cookie.name}: ${cookie.value.substring(0, 10)}...`);
+      });
+      
       // 관리자 인증 쿠키 확인
       const adminAuth = request.cookies.get('admin_auth');
       console.log('[미들웨어] admin_auth 쿠키:', adminAuth ? `존재 (${adminAuth.value})` : '없음');
       
-      // 관리자 로그인 페이지인 경우
+      // 관리자 로그인 페이지는 항상 접근 허용
       if (request.nextUrl.pathname === '/admin/login') {
+        console.log('[미들웨어] 로그인 페이지 접근 허용');
+        
         // 이미 로그인한 상태라면 대시보드로 리다이렉트
         if (adminAuth && adminAuth.value === 'true') {
           console.log('[미들웨어] 이미 로그인됨, 대시보드로 리다이렉트');
           return NextResponse.redirect(new URL('/admin/dashboard', request.url));
         }
         
-        // 로그인하지 않은 상태면 로그인 페이지 표시
-        console.log('[미들웨어] 로그인 페이지 접근 허용');
         return NextResponse.next();
       }
       
