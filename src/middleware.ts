@@ -90,7 +90,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // 관리자 페이지 및 API 경로 지정
-    '/admin/:path*',  // 모든 관리자 페이지에 적용
+    '/admin/:path*',  // 모든 관리자 페이지에 적용 
     '/api/admin/:path*', // 관리자 API에 적용
     '/simple-login', // simple-login 리다이렉트용
   ],
