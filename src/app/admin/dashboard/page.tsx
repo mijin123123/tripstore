@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import AdminProtection from '@/components/AdminProtection';
+import AdminLogout from '@/components/AdminLogout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Users, 
@@ -131,26 +133,31 @@ export default function Dashboard() {
         setIsLoading(false);
       }
     };
-
+    
     fetchDashboardData();
   }, []);
-
+  
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-        <p className="text-gray-600">관리자 대시보드 로딩 중...</p>
-      </div>
+      <AdminProtection>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </AdminProtection>
     );
   }
   
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <AdminProtection>
+      <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">분석 대시보드</h1>
-          <p className="text-gray-600 mt-2">비즈니스 성과와 주요 지표를 한눈에 확인하세요</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">관리자 대시보드</h1>
+            <p className="text-gray-600 mt-2">비즈니스 성과와 주요 지표를 한눈에 확인하세요</p>
+          </div>
+          <AdminLogout />
         </div>
 
         {/* Main Stats Grid */}
@@ -334,6 +341,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </AdminProtection>
   );
 }

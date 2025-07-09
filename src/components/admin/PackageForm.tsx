@@ -46,41 +46,20 @@ export default function PackageForm({ initialData = null }) {
       console.log('🆔 initialData.id:', initialData?.id);
       
       // 데이터 형식 변환
-      // ID 처리를 확실히 합니다
-      if (isEditing && !initialData?.id) {
-        throw new Error('패키지 ID가 누락되었습니다. 관리자에게 문의하세요.');
-      }
-      
-      // 데이터 형식 변환
       const packageData = {
         ...formData,
-        // 수정 시 ID를 명시적으로 포함
-        ...(isEditing ? { id: initialData.id } : {}),
-        // 숫자 필드 변환
-        price: parseFloat(formData.price) || 0,
-        discountprice: formData.discountprice ? parseFloat(formData.discountprice) : null,
-        duration: parseInt(formData.duration) || 1,
-        // 배열 필드 변환
+        price: parseFloat(formData.price),
+        duration: parseInt(formData.duration),
         departuredate: formData.departuredate.split(',').map(date => date.trim()),
         inclusions: formData.inclusions.split('\n').filter(item => item.trim()),
         exclusions: formData.exclusions.split('\n').filter(item => item.trim()),
-        images: formData.images ? [formData.images] : [],
-        // 추가 필드 변환
-        rating: formData.rating ? parseFloat(formData.rating) : null,
-        reviewcount: formData.reviewcount ? parseInt(formData.reviewcount) : 0,
-        // 상태 필드 정확하게 설정
-        isfeatured: !!formData.isfeatured,
-        isonsale: !!formData.isonsale,
-        // 타임스탬프 업데이트
-        updated_at: new Date()
+        images: [formData.images],
       };
 
       console.log('📦 변환된 패키지 데이터:', packageData);
 
-      const url = `/api/packages${isEditing && initialData?.id ? `/${initialData.id}` : ''}`;
+      const url = `/api/packages${isEditing ? `/${initialData.id}` : ''}`;
       const method = isEditing ? 'PUT' : 'POST';
-      
-      console.log('🔍 패키지 ID:', initialData?.id);
       
       console.log('🌐 API 요청:', method, url);
 
@@ -189,15 +168,16 @@ export default function PackageForm({ initialData = null }) {
               >
                 <option value="">카테고리 선택</option>
                 <option value="인기 여행지">인기 여행지</option>
-                <option value="휴양">휴양</option>
+                <option value="유럽">유럽</option>
                 <option value="문화탐방">문화탐방</option>
                 <option value="어드벤처">어드벤처</option>
-                <option value="커플">커플</option>
-                <option value="유럽">유럽</option>
+                <option value="키즈">키즈</option>
+                <option value="휴양">휴양</option>
                 <option value="아시아">아시아</option>
                 <option value="미주">미주</option>
                 <option value="오세아니아">오세아니아</option>
                 <option value="아프리카">아프리카</option>
+                <option value="국내숙소">국내숙소</option>
               </select>
             </div>
             

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/real-auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,9 +25,8 @@ export default function LoginPage() {
       setLoading(true);
       setError(null);
       
-      console.log('🔄 로그인 시도:', email);
+      console.log('로그인 시도:', email);
       
-      // 사용자 로그인 API 호출
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -37,141 +35,150 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('📡 API 응답 상태:', response.status);
-      console.log('📡 API 응답 헤더:', response.headers.get('content-type'));
-
-      // 응답이 JSON인지 확인
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text();
-        console.error('❌ JSON이 아닌 응답:', textResponse);
-        throw new Error('서버에서 올바르지 않은 응답을 받았습니다.');
-      }
-
-      const result = await response.json();
-      console.log('📦 API 응답 데이터:', result);
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || `로그인 실패 (${response.status})`);
+        throw new Error(data.error || '로그인에 실패했습니다.');
       }
 
-      console.log('✅ 로그인 성공:', result);
+      console.log('로그인 성공:', data.user);
       
-      // 사용자 정보 저장
-      login(result.user);
+      // 사용자 정보를 localStorage에 저장
+      localStorage.setItem('tripstore-user', JSON.stringify(data.user));
       
-      // 관리자면 관리자 대시보드로, 일반 사용자면 마이페이지로 이동
-      if (result.user.isAdmin) {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/mypage');
-      }
+      // 헤더 컴포넌트에 변경사항 알리기
+      window.dispatchEvent(new Event('userChanged'));
       
+      // 로그인 성공 시 메인 페이지로 이동
+      setTimeout(() => {
+        router.push('/');
+        router.refresh(); // 페이지 새로고침하여 인증 상태 반영
+      }, 100);
     } catch (err: any) {
-      console.error('로그인 오류:', err);
-      setError(err.message || '로그인 중 오류가 발생했습니다.');
+      console.error('로그인 처리 중 오류:', err);
+      setError(err.message || '로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-600">
-            <LogIn className="h-6 w-6 text-white" />
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left side - Image */}
+      <div className="hidden md:block md:w-1/2 relative">
+        <Image 
+          src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop"
+          alt="여행 이미지"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/70 to-indigo-500/50 mix-blend-multiply"></div>
+        <div className="absolute inset-0 flex items-center justify-center p-12">
+          <div className="text-white max-w-lg">
+            <h2 className="text-4xl font-bold mb-6">새로운 모험이 여러분을 기다립니다</h2>
+            <p className="text-xl">로그인하고 잊지 못할 여행을 계획해보세요. TripStore와 함께라면 언제 어디서든 특별한 경험이 가능합니다.</p>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            계정에 로그인
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            또는{' '}
-            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              새 계정 만들기
-            </Link>
-          </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">
+      </div>
+      
+      {/* Right side - Login form */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gradient-to-b from-white to-neutral-50">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-extrabold mb-3 text-neutral-800 tracking-tight">로그인</h1>
+            <p className="text-lg text-neutral-600">TripStore에 오신 것을 환영합니다.</p>
+          </div>
+          
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+              <AlertCircle className="text-red-500 w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-md">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-neutral-700" htmlFor="email">
                 이메일 주소
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
                 <input
+                  className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                   id="email"
-                  name="email"
                   type="email"
-                  autoComplete="email"
+                  placeholder="you@example.com"
                   required
-                  className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="이메일 주소"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-neutral-700" htmlFor="password">
                 비밀번호
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
                 <input
+                  className="pl-12 block w-full px-4 py-3.5 text-neutral-900 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                   id="password"
-                  name="password"
                   type="password"
-                  autoComplete="current-password"
+                  placeholder="••••••••"
                   required
-                  className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="비밀번호"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
-          </div>
-
-          {error && (
-            <div className="flex items-center space-x-2 text-red-600 text-sm">
-              <AlertCircle className="h-4 w-4" />
-              <span>{error}</span>
+            
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center">
+                <input id="remember-me" name="remember-me" type="checkbox" className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-neutral-300 rounded" />
+                <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-neutral-700">로그인 정보 저장</label>
+              </div>
+              <div className="text-sm">
+                <Link href="/reset-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                  비밀번호를 잊으셨나요?
+                </Link>
+              </div>
             </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link href="/reset-password" className="font-medium text-indigo-600 hover:text-indigo-500">
-                비밀번호를 잊으셨나요?
-              </Link>
+            
+            <div className="pt-4">
+              <button
+                className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    로그인 중...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <LogIn className="mr-2 h-5 w-5" />
+                    로그인
+                  </span>
+                )}
+              </button>
             </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              {loading ? '로그인 중...' : '로그인'}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              계정이 없으신가요?{' '}
-              <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-                회원가입
+          </form>
+          
+          <div className="mt-10 pt-6 border-t border-neutral-200">
+            <p className="text-center text-neutral-600">
+              아직 회원이 아니신가요?{' '}
+              <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
+                회원가입 하러 가기
               </Link>
             </p>
           </div>
-        </form>
+          
+          <div className="text-center mt-6 text-neutral-500 text-sm">
+            <Link href="/" className="hover:text-blue-600 transition-colors">← 홈으로 돌아가기</Link>
+          </div>
+        </div>
       </div>
     </div>
   );

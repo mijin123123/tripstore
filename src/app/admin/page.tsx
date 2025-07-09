@@ -1,5 +1,7 @@
 'use client';
 
+import AdminProtection from '@/components/AdminProtection';
+import AdminLogout from '@/components/AdminLogout';
 import { 
   ChevronRight, 
   Package, 
@@ -103,13 +105,17 @@ export default function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">관리자 대시보드</h1>
-          <p className="text-gray-600">TripStore 관리 시스템에 오신 것을 환영합니다</p>
-        </div>
+    <AdminProtection>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">관리자 대시보드</h1>
+              <p className="text-gray-600">TripStore 관리 시스템에 오신 것을 환영합니다</p>
+            </div>
+            <AdminLogout />
+          </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -238,7 +244,8 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </AdminProtection>
   );
 }

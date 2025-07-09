@@ -1,31 +1,43 @@
 import { createClient } from '@/lib/supabase-server';
 
-// 관리자 권한 확인 함수 (서버 사이드용)
+/**
+ * 관리자 계정 정보
+ */
+const ADMIN_CREDENTIALS = {
+  email: 'sonchanmin89@gmail.com',
+  password: 'aszx1212'
+};
+
+/**
+ * 이메일과 비밀번호로 관리자 인증을 확인합니다 (서버 사이드)
+ * @param email - 이메일
+ * @param password - 비밀번호
+ * @returns 관리자 인증 성공 여부
+ */
+export function verifyAdminCredentialsServer(email: string, password: string): boolean {
+  return email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password;
+}
+
+/**
+ * 세션에서 관리자 인증 상태를 확인합니다 (서버 사이드)
+ * @param sessionEmail - 세션에 저장된 이메일
+ * @returns 관리자 권한 여부
+ */
+export function isAdminUserServer(sessionEmail: string): boolean {
+  return sessionEmail === ADMIN_CREDENTIALS.email;
+}
+
+// 관리자 권한 확인 함수 (서버 사이드용) - 기존 호환성 유지
 export async function checkAdminPermissionServer(email: string) {
   try {
-    // 하드코딩된 관리자 이메일 (개발용)
-    const adminEmails = ['sonchanmin89@gmail.com'];
-    
-    if (adminEmails.includes(email)) {
-      console.log('하드코딩된 관리자 인증 성공:', email);
+    // 특정 이메일로만 관리자 권한 제한
+    if (email === ADMIN_CREDENTIALS.email) {
+      console.log('관리자 인증 성공:', email);
       return true;
     }
     
-    // 데이터베이스에서 확인 (백업용)
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('email', email)
-      .limit(1);
-    
-    if (error) {
-      console.error('관리자 권한 확인 중 오류:', error);
-      return false;
-    }
-    
-    console.log('데이터베이스 관리자 확인 결과:', data);
-    return !!(data && data.length > 0); // 데이터가 있으면 관리자임
+    console.log('관리자 권한 없음:', email);
+    return false;
   } catch (error) {
     console.error('관리자 권한 확인 중 예외 발생:', error);
     return false;

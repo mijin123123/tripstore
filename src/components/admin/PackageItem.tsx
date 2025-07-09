@@ -13,10 +13,10 @@ interface Package {
   id: string;
   title: string;
   destination: string;
-  price: string | number;
+  price: number;
   category: string;
-  images: string[];
-  [key: string]: any; // 추가 필드 허용
+  image_url?: string;
+  images?: string[];
 }
 
 interface PackageItemProps {
@@ -64,11 +64,11 @@ export default function PackageItem({ packageData }: PackageItemProps) {
       </div>
       
       <div className="col-span-2">
-        {packageData.images && packageData.images.length > 0 ? (
+        {(packageData.images && packageData.images.length > 0) || packageData.image_url ? (
           <div className="relative h-16 w-24 rounded overflow-hidden">
             <Image 
-              src={packageData.images[0]} 
-              alt={packageData.title}
+              src={packageData.images?.[0] || packageData.image_url || ''} 
+              alt={packageData.title || '패키지 이미지'}
               fill
               style={{ objectFit: 'cover' }}
             />
@@ -80,15 +80,15 @@ export default function PackageItem({ packageData }: PackageItemProps) {
         )}
       </div>
       
-      <div className="col-span-3 font-medium">{packageData.title}</div>
+      <div className="col-span-3 font-medium">{packageData.title || 'N/A'}</div>
       
-      <div className="col-span-2 text-gray-600">{packageData.destination}</div>
+      <div className="col-span-2 text-gray-600">{packageData.destination || 'N/A'}</div>
       
-      <div className="col-span-1">{formatCurrency(typeof packageData.price === 'string' ? parseFloat(packageData.price) : packageData.price || 0)}</div>
+      <div className="col-span-1">{formatCurrency(packageData.price || 0)}</div>
       
       <div className="col-span-1">
         <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100">
-          {packageData.category}
+          {packageData.category || 'N/A'}
         </span>
       </div>
       

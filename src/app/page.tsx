@@ -1,37 +1,72 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Star,
-  Award,
-  ThumbsUp,
-  ShieldCheck,
-  Calendar,
-  Globe,
-  Users,
-  Mail,
-  ArrowRight,
-  Send,
-  Plane,
-  Briefcase,
-  Camera,
-  HelpCircle,
+import { 
+	MapPin, 
+	Search, 
+	Star, 
+	Award, 
+	ThumbsUp, 
+	ShieldCheck,
+	Percent,
+	Calendar,
+	Globe,
+	Users,
+	Mail,
+	ArrowRight,
+	Send,
+	Plane,
+	Briefcase,
+	Camera,
+	HelpCircle
 } from "lucide-react";
+import { packagesData } from "@/data/packagesData";
+import { formatPrice } from "@/utils/formatPrice";
 
-import { db } from "@/lib/neon";
-import { packages as packagesSchema } from "@/lib/schema";
-import SearchForm from "@/components/SearchForm";
-import SubscriptionForm from "@/components/SubscriptionForm";
-import { InferSelectModel } from "drizzle-orm";
+// 인기 여행지 데이터 (정적 데이터 유지)
+const popularDestinations = [
+	{
+		name: "파리",
+		country: "프랑스",
+		image: "https://images.unsplash.com/photo-1499856871958-5b9357976b82?q=80&w=1740",
+		count: 28
+	},
+	{
+		name: "도쿄",
+		country: "일본",
+		image: "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=1636",
+		count: 24
+	},
+	{
+		name: "뉴욕",
+		country: "미국",
+		image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=1740",
+		count: 32
+	},
+	{
+		name: "바르셀로나",
+		country: "스페인",
+		image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?q=80&w=1740",
+		count: 18
+	},
+	{
+		name: "발리",
+		country: "인도네시아",
+		image: "https://images.unsplash.com/photo-1539367628448-4bc5c9d171c8?q=80&w=1735",
+		count: 22
+	},
+	{
+		name: "서울",
+		country: "한국",
+		image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=1740",
+		count: 26
+	}
+];
 
-type Package = InferSelectModel<typeof packagesSchema>;
-
-// Helper function to format price
-const formatPrice = (price: string | null) => {
-  if (price === null) return "가격 문의";
-  return new Intl.NumberFormat("ko-KR").format(Number(price));
-};
-
-// 왜 TripStore 선택하는지 데이터
+// 왜 TripStore 선택하는지 데이터 (정적 데이터 유지)
 const whyChooseUs = [
 	{
 		title: "프리미엄 서비스",
@@ -44,6 +79,7 @@ const whyChooseUs = [
 		icon: ThumbsUp
 	},
 	{
+		title: "안전한 여행 보장",
 		title: "안전한 여행 보장",
 		description: "24시간 현지 긴급 지원 서비스와 여행 보험으로 안전한 여행을 보장합니다.",
 		icon: ShieldCheck
@@ -119,38 +155,128 @@ const faqs = [
 	}
 ];
 
+export default function Home() {
+	const router = useRouter();
+	const [destination, setDestination] = useState("");
+	const [tripType, setTripType] = useState("모든 종류");
+	const [email, setEmail] = useState("");
+	const [isSubscribed, setIsSubscribed] = useState(false);
+	
+	// 동적 데이터 상태
+	const [featuredPackages, setFeaturedPackages] = useState([]);
+	const [specialOffers, setSpecialOffers] = useState([]);
+	const [seasonalPackages, setSeasonalPackages] = useState([]);
+	const [loading, setLoading] = useState(true);
 
-export default async function Home() {
-  let allPackages: Package[] = [];
-  try {
-    allPackages = await db.select().from(packagesSchema).orderBy(packagesSchema.createdAt);
-  } catch (error) {
-    console.error("Error fetching packages:", error);
-    // 오류 발생 시 빈 배열을 사용하거나, 에러 페이지를 보여줄 수 있습니다.
-  }
+	// DB에서 패키지 데이터 가져오기
+	useEffect(() => {
+		const fetchPackages = async () => {
+			try {
+				setLoading(true);
+				const response = await fetch('/api/packages');
+				const data = await response.json();
+				
+				if (response.ok && data.packages) {
+					const packages = data.packages;
+					
+					// 추천 패키지 (isfeatured = true)
+					const featured = packages
+						.filter(pkg => pkg.isfeatured)
+						.slice(0, 3)
+						.map(pkg => ({
+							id: pkg.id,
+							name: pkg.title,
+							description: pkg.description,
+							price: pkg.discountprice ? pkg.discountprice.toLocaleString() : pkg.price.toLocaleString(),
+							rating: pkg.rating?.toString() || "4.5",
+							image: pkg.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1740"
+						}));
+					
+					// 특별 할인 상품 (isonsale = true)
+					const offers = packages
+						.filter(pkg => pkg.isonsale && pkg.discountprice)
+						.slice(0, 3)
+						.map(pkg => {
+							const discountRate = Math.round(((pkg.price - pkg.discountprice) / pkg.price) * 100);
+							return {
+								id: pkg.id,
+								name: pkg.title,
+								description: pkg.description,
+								regularPrice: pkg.price.toLocaleString(),
+								discountPrice: pkg.discountprice.toLocaleString(),
+								discountRate: discountRate,
+								endDate: "2025년 12월 31일", // 임시 마감일
+								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1561424111-c47df0f91351?q=80&w=1726"
+							};
+						});
+					
+					// 시즌별 추천 패키지
+					const summer = packages.filter(pkg => pkg.season === '여름').slice(0, 2);
+					const autumn = packages.filter(pkg => pkg.season === '가을').slice(0, 2);
+					const winter = packages.filter(pkg => pkg.season === '겨울').slice(0, 2);
+					
+					const seasonal = [
+						{
+							title: "여름 추천 여행",
+							packages: summer.map(pkg => ({
+								id: pkg.id,
+								name: pkg.title,
+								price: (pkg.discountprice || pkg.price).toLocaleString(),
+								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1365"
+							}))
+						},
+						{
+							title: "가을 추천 여행",
+							packages: autumn.map(pkg => ({
+								id: pkg.id,
+								name: pkg.title,
+								price: (pkg.discountprice || pkg.price).toLocaleString(),
+								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=1740"
+							}))
+						},
+						{
+							title: "겨울 추천 여행",
+							packages: winter.map(pkg => ({
+								id: pkg.id,
+								name: pkg.title,
+								price: (pkg.discountprice || pkg.price).toLocaleString(),
+								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1551867633-194f125bddfa?q=80&w=1740"
+							}))
+						}
+					].filter(season => season.packages.length > 0);
+					
+					setFeaturedPackages(featured);
+					setSpecialOffers(offers);
+					setSeasonalPackages(seasonal);
+				}
+			} catch (error) {
+				console.error('패키지 데이터 로딩 실패:', error);
+			} finally {
+				setLoading(false);
+			}
+		};
 
-  // 추천 상품: isfeatured가 true인 상품, 없으면 최신 3개
-  const featuredPackages = allPackages.filter(p => p.isfeatured).length > 0 
-    ? allPackages.filter(p => p.isfeatured).slice(0, 3)
-    : allPackages.slice(0, 3);
+		fetchPackages();
+	}, []);
 
-  // 시즌별 상품
-  const seasonalPackagesData = allPackages.reduce((acc, pkg) => {
-    if (pkg.season) {
-      if (!acc[pkg.season]) {
-        acc[pkg.season] = {
-          title: `${pkg.season} 추천 여행`,
-          packages: [],
-        };
-      }
-      acc[pkg.season].packages.push(pkg);
-    }
-    return acc;
-  }, {} as Record<string, { title: string; packages: Package[] }>);
+	const handleSearch = (e) => {
+		e.preventDefault();
+		if (destination) {
+			router.push(`/packages?destination=${encodeURIComponent(destination)}&type=${encodeURIComponent(tripType)}`);
+		}
+	};
 
-  const seasonalPackages = Object.values(seasonalPackagesData);
+	const handleSubscribe = (e) => {
+		e.preventDefault();
+		// 이메일 유효성 검사
+		if (email && /^\S+@\S+\.\S+$/.test(email)) {
+			// 실제 구현에서는 API 호출로 대체
+			setIsSubscribed(true);
+			setEmail("");
+		}
+	};
 
-  return (
+	return (
 		<main>
 			{/* Hero Section */}
 			<section className="relative h-[650px] flex items-center justify-center text-white">
@@ -194,9 +320,121 @@ export default async function Home() {
 			{/* Search Form Section */}
 			<section className="mt-12 relative z-20">
 				<div className="container mx-auto px-4">
-          <SearchForm />
-        </div>
-      </section>
+					<form
+						onSubmit={handleSearch}
+						className="bg-white p-8 rounded-2xl shadow-soft-2xl max-w-4xl mx-auto border border-neutral-100 animate-scale-in"
+					>
+						<h2 className="text-xl font-bold text-center mb-6 text-neutral-800">어디로 떠나고 싶으신가요?</h2>
+						<div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+							<div className="md:col-span-5">
+								<label
+									htmlFor="destination"
+									className="block text-sm font-bold text-neutral-800 mb-2"
+								>
+									여행지
+								</label>
+								<div className="relative">
+									<MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-500" />
+									<input
+										type="text"
+										id="destination"
+										className="pl-10 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-neutral-300 rounded-lg p-3.5 transition text-neutral-800 font-medium placeholder-neutral-500 hover:border-blue-300"
+										placeholder="도시나 국가를 입력하세요"
+										value={destination}
+										onChange={(e) => setDestination(e.target.value)}
+									/>
+								</div>
+							</div>
+							<div className="md:col-span-4">
+								<label
+									htmlFor="trip-type"
+									className="block text-sm font-bold text-neutral-800 mb-2"
+								>
+									여행 종류
+								</label>
+								<div className="relative">
+									<Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-500" />
+									<select
+										id="trip-type"
+										className="pl-10 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-neutral-300 rounded-lg p-3.5 transition text-neutral-800 font-medium cursor-pointer hover:border-blue-300"
+										value={tripType}
+										onChange={(e) => setTripType(e.target.value)}
+									>
+										<option value="모든 종류">모든 종류</option>
+										<option value="휴양">휴양</option>
+										<option value="관광">관광</option>
+										<option value="어드벤처">어드벤처</option>
+										<option value="커플">커플</option>
+									</select>
+								</div>
+							</div>
+							<div className="md:col-span-3">
+								<button
+									type="submit"
+									className="bg-[var(--brand-blue)] text-white px-6 py-3.5 rounded-lg font-bold hover:opacity-90 transition-all duration-300 w-full flex items-center justify-center shadow-md hover:shadow-lg"
+								>
+									<Search className="h-5 w-5 mr-2 text-white" />
+									검색
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</section>
+
+			{/* 인기 여행지 섹션 */}
+			<section className="py-24 bg-white">
+				<div className="container mx-auto px-4">
+					<div className="text-center mb-16">
+						<span className="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">인기 여행지</span>
+						<h2 className="text-4xl font-extrabold text-neutral-800 tracking-tight mb-4">
+							최고 인기 여행지
+						</h2>
+						<p className="mt-3 text-lg text-neutral-600 max-w-2xl mx-auto">
+							전세계 여행자들이 가장 많이 찾는 인기 도시들을 소개합니다.
+						</p>
+						<div className="w-20 h-1.5 bg-blue-500 mx-auto mt-6 rounded-full"></div>
+					</div>
+					
+					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
+						{popularDestinations.map((destination, index) => (
+							<Link href={`/packages?destination=${destination.name}`} key={destination.name} className="group">
+								<div 
+									className="relative h-64 rounded-2xl overflow-hidden shadow-md transform transition-all duration-500 hover-lift"
+									style={{ animationDelay: `${index * 100}ms` }}
+								>
+									<Image
+										src={destination.image}
+										alt={destination.name}
+										fill
+										className="object-cover transition-transform duration-700 group-hover:scale-110"
+										style={{ objectFit: "cover" }}
+									/>
+									<div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/60 to-transparent group-hover:from-blue-900/80 transition-all duration-300">
+										<div className="absolute bottom-0 p-5 w-full transform transition-transform duration-300 group-hover:translate-y-0 translate-y-2">
+											<h3 className="text-xl font-bold text-white mb-1">
+												{destination.name}
+											</h3>
+											<p className="text-white/90 text-sm mb-2 opacity-90">
+												{destination.country}
+											</p>
+											<div className="flex items-center space-x-1">
+												<div className="mt-1 inline-flex items-center text-white/90 text-sm bg-white/20 px-2.5 py-1 rounded-full">
+													<Globe className="h-3.5 w-3.5 mr-1.5" />
+													{destination.count}개의 패키지
+												</div>
+												<div className="w-6 h-6 flex items-center justify-center rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+													<ArrowRight className="h-3.5 w-3.5 text-white" />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</Link>
+						))}
+					</div>
+				</div>
+			</section>
 
 			{/* Featured Packages Section */}
 			<section className="py-28 bg-neutral-50 relative">
@@ -219,45 +457,62 @@ export default async function Home() {
 					</div>
 					
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-						{featuredPackages.map((pkg, index) => (
-							<Link href={`/packages/${pkg.id}`} key={pkg.id} className="flex">
-								<div 
-									className="bg-white rounded-2xl shadow-lifted overflow-hidden transform transition-all duration-500 cursor-pointer hover:shadow-glow group flex flex-col w-full"
-									style={{ animationDelay: `${index * 150}ms` }}
-								>
-									<div className="relative h-72 overflow-hidden">
-										<div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/20 to-transparent z-10"></div>
-										<Image
-											src={pkg.images?.[0] || '/placeholder.jpg'}
-											alt={pkg.title || 'Package image'}
-											fill
-											className="object-cover transition-transform duration-700 group-hover:scale-110"
-											style={{ objectFit: "cover" }}
-										/>
-										<div className="absolute top-4 right-4 z-20 bg-white/80 backdrop-blur-md text-neutral-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-subtle">
-											<Star className="h-4 w-4 text-yellow-500 mr-1.5" fill="currentColor" />
-											{pkg.rating}
-										</div>
-									</div>
-									<div className="p-7 flex flex-col flex-grow">
-										<h3 className="font-bold text-2xl mb-2 text-neutral-900 group-hover:text-blue-600 transition-colors">
-											{pkg.title}
-										</h3>
-										<p className="text-neutral-600 mb-5">
-											{pkg.description}
-										</p>
-										<div className="flex justify-between items-center mt-auto">
-											<div className="text-right font-extrabold text-2xl text-blue-600">
-												₩{formatPrice(pkg.price)}
-											</div>
-											<span className="inline-flex items-center text-sm font-semibold text-blue-700 group-hover:translate-x-1 transition-transform">
-												자세히 보기 <ArrowRight className="ml-1.5 h-4 w-4" />
-											</span>
+						{loading ? (
+							// 로딩 스켈레톤
+							[...Array(3)].map((_, index) => (
+								<div key={index} className="bg-white rounded-2xl shadow-lifted overflow-hidden animate-pulse">
+									<div className="h-72 bg-neutral-200"></div>
+									<div className="p-7">
+										<div className="h-6 bg-neutral-200 rounded mb-2"></div>
+										<div className="h-4 bg-neutral-200 rounded mb-5"></div>
+										<div className="flex justify-between items-center">
+											<div className="h-6 bg-neutral-200 rounded w-24"></div>
+											<div className="h-4 bg-neutral-200 rounded w-20"></div>
 										</div>
 									</div>
 								</div>
-							</Link>
-						))}
+							))
+						) : (
+							featuredPackages.map((pkg, index) => (
+								<Link href={`/packages/${pkg.id}`} key={pkg.id}>
+									<div 
+										className="bg-white rounded-2xl shadow-lifted overflow-hidden transform transition-all duration-500 cursor-pointer hover:shadow-glow group"
+										style={{ animationDelay: `${index * 150}ms` }}
+									>
+										<div className="relative h-72 overflow-hidden">
+											<div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/20 to-transparent z-10"></div>
+											<Image
+												src={pkg.image}
+												alt={pkg.name}
+												fill
+												className="object-cover transition-transform duration-700 group-hover:scale-110"
+												style={{ objectFit: "cover" }}
+											/>
+											<div className="absolute top-4 right-4 z-20 bg-white/80 backdrop-blur-md text-neutral-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-subtle">
+												<Star className="h-4 w-4 text-yellow-500 mr-1.5" fill="currentColor" />
+												{pkg.rating}
+											</div>
+										</div>
+										<div className="p-7">
+											<h3 className="font-bold text-2xl mb-2 text-neutral-900 group-hover:text-blue-600 transition-colors">
+												{pkg.name}
+											</h3>
+											<p className="text-neutral-600 mb-5 line-clamp-2">
+												{pkg.description}
+											</p>
+											<div className="flex justify-between items-center">
+												<div className="text-right font-extrabold text-2xl text-blue-600">
+													{formatPrice(pkg.price)}
+												</div>
+												<span className="inline-flex items-center text-sm font-semibold text-blue-700 group-hover:translate-x-1 transition-transform">
+													자세히 보기 <ArrowRight className="ml-1.5 h-4 w-4" />
+												</span>
+											</div>
+										</div>
+									</div>
+								</Link>
+							))
+						)}
 					</div>
 					
 					<div className="text-center mt-14">
@@ -265,6 +520,108 @@ export default async function Home() {
 							모든 패키지 보기
 							<ArrowRight className="ml-2 h-4 w-4" />
 						</Link>
+					</div>
+				</div>
+			</section>
+
+			{/* 특별 할인 섹션 */}
+			<section className="py-24 bg-white relative overflow-hidden">
+				<div className="absolute -right-32 -top-32 w-96 h-96 rounded-full bg-red-500/10 blur-3xl"></div>
+				<div className="absolute -left-32 top-40 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl"></div>
+				
+				<div className="container mx-auto px-4 relative z-10">
+					<div className="flex flex-col md:flex-row md:items-center justify-between mb-16">
+						<div>
+							<span className="bg-red-100 text-red-700 text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">한정 특가</span>
+							<h2 className="text-4xl font-extrabold text-neutral-800 tracking-tight mb-3">
+								특별 할인 이벤트
+							</h2>
+							<p className="text-lg text-neutral-600 max-w-2xl">
+								TripStore 그랜드 오픈 기념, 특별 할인가로 상품을 만나보세요.
+							</p>
+							<div className="w-20 h-1.5 bg-red-500 mt-6 rounded-full md:hidden"></div>
+						</div>
+						<div className="mt-6 md:mt-0 flex items-center text-sm font-bold text-red-600 bg-red-50 px-4 py-2 rounded-full shadow-sm">
+							<Calendar className="h-4 w-4 mr-1.5" />
+							<span>~2025년 7월 15일까지</span>
+						</div>
+					</div>
+					
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+						{loading ? (
+							// 로딩 스켈레톤
+							[...Array(3)].map((_, index) => (
+								<div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse h-full flex flex-col">
+									<div className="h-48 bg-neutral-200"></div>
+									<div className="p-5 flex-grow flex flex-col">
+										<div className="h-5 bg-neutral-200 rounded mb-2"></div>
+										<div className="h-4 bg-neutral-200 rounded mb-3"></div>
+										<div className="mb-3 flex items-end space-x-2">
+											<div className="h-4 bg-neutral-200 rounded w-16"></div>
+											<div className="h-5 bg-neutral-200 rounded w-20"></div>
+										</div>
+										<div className="flex justify-between items-center mt-auto">
+											<div className="h-4 bg-neutral-200 rounded w-20"></div>
+											<div className="h-6 bg-neutral-200 rounded w-24"></div>
+										</div>
+									</div>
+								</div>
+							))
+						) : specialOffers.length > 0 ? (
+							specialOffers.map((offer, index) => (
+								<Link href={`/packages/${offer.id}`} key={offer.id}>
+									<div 
+										className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group hover-lift h-full flex flex-col"
+										style={{ animationDelay: `${index * 150}ms` }}
+									>
+										<div className="relative flex-shrink-0">
+											<Image
+												src={offer.image}
+												alt={offer.name}
+												width={400}
+												height={200}
+												className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-105"
+												style={{ objectFit: "cover" }}
+											/>
+											<div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/30 to-transparent"></div>
+											<div className="absolute top-3 right-3 bg-red-600 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center shadow-sm">
+												<Percent className="h-3 w-3 mr-1" />
+												{offer.discountRate}% 할인
+											</div>
+										</div>
+										<div className="p-5 flex-grow flex flex-col">
+											<h3 className="font-bold text-lg mb-2 text-neutral-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+												{offer.name}
+											</h3>
+											<p className="text-neutral-600 mb-3 text-sm line-clamp-2 flex-grow">
+												{offer.description}
+											</p>
+											<div className="mb-3 flex items-end space-x-2">
+												<span className="text-gray-400 line-through text-xs">
+													₩{offer.regularPrice}
+												</span>
+												<span className="font-bold text-lg text-red-600">
+													₩{offer.discountPrice}
+												</span>
+											</div>
+											<div className="flex justify-between items-center mt-auto">
+												<span className="text-xs px-2 py-1 bg-red-50 text-red-600 rounded-full">
+													{offer.endDate}까지
+												</span>
+												<button className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center">
+													지금 예약하기
+													<ArrowRight className="ml-1 h-3 w-3" />
+												</button>
+											</div>
+										</div>
+									</div>
+								</Link>
+							))
+						) : (
+							<div className="col-span-3 text-center py-8 text-neutral-500">
+								현재 특별 할인 상품이 없습니다.
+							</div>
+						)}
 					</div>
 				</div>
 			</section>
@@ -282,51 +639,84 @@ export default async function Home() {
 					</div>
 					
 					<div className="space-y-12">
-						{seasonalPackages.map((season, index) => (
-							<div key={season.title}>
-								<div className="flex items-center mb-6">
-									<h3 className="text-2xl font-bold text-neutral-800">{season.title}</h3>
-									<div className={`ml-4 h-1 flex-grow ${
-										index % 3 === 0 ? "bg-blue-500" : 
-										index % 3 === 1 ? "bg-amber-500" : "bg-teal-500"
-									} rounded-full`}></div>
-								</div>
-								
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-									{season.packages.map((pkg: Package) => (
-										<Link href={`/packages/${pkg.id}`} key={pkg.id} className="flex">
-											<div className="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group flex flex-col w-full">
-												<div className="relative h-48">
-													<Image
-														src={pkg.images?.[0] || '/placeholder.jpg'}
-														alt={pkg.title || 'Package image'}
-														fill
-														className="object-cover"
-														style={{ objectFit: "cover" }}
-													/>
-												</div>
-												<div className="p-5 flex flex-col flex-grow">
-													<h4 className="font-bold text-lg text-neutral-800 truncate group-hover:text-blue-600 transition-colors">
-														{pkg.title}
-													</h4>
-													<p className="text-sm text-neutral-500 mt-1 mb-3 flex-grow">
-														{pkg.description}
-													</p>
-													<div className="flex justify-between items-center mt-auto">
-														<div className="font-bold text-lg text-blue-600">
-															₩{formatPrice(pkg.price)}
-														</div>
-														<span className="text-xs text-neutral-500 flex items-center">
-															<Star className="h-3 w-3 text-yellow-400 mr-1" fill="currentColor" /> {pkg.rating}
-														</span>
+						{loading ? (
+							// 로딩 스켈레톤
+							[...Array(3)].map((_, index) => (
+								<div key={index}>
+									<div className="flex items-center mb-6">
+										<div className="h-6 bg-neutral-200 rounded w-40"></div>
+										<div className="ml-4 h-1 flex-grow bg-neutral-200 rounded-full"></div>
+									</div>
+									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+										{[...Array(2)].map((_, pkgIndex) => (
+											<div key={pkgIndex} className="bg-white rounded-xl overflow-hidden shadow-md animate-pulse h-full flex flex-col">
+												<div className="h-36 bg-neutral-200"></div>
+												<div className="p-4 flex flex-col justify-between flex-grow">
+													<div className="flex-grow">
+														<div className="h-4 bg-neutral-200 rounded mb-2"></div>
+														<div className="h-5 bg-neutral-200 rounded w-24 mb-3"></div>
+													</div>
+													<div className="flex justify-end mt-auto">
+														<div className="h-6 bg-neutral-200 rounded w-20"></div>
 													</div>
 												</div>
 											</div>
-										</Link>
-									))}
+										))}
+									</div>
 								</div>
+							))
+						) : seasonalPackages.length > 0 ? (
+							seasonalPackages.map((season, index) => (
+								<div key={season.title}>
+									<div className="flex items-center mb-6">
+										<h3 className="text-2xl font-bold text-neutral-800">{season.title}</h3>
+										<div className={`ml-4 h-1 flex-grow ${
+											index % 3 === 0 ? "bg-blue-500" : 
+											index % 3 === 1 ? "bg-amber-500" : "bg-teal-500"
+										} rounded-full`}></div>
+									</div>
+									
+									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+										{season.packages.map(pkg => (
+											<Link href={`/packages/${pkg.id}`} key={pkg.id}>
+												<div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all group h-full flex flex-col">
+													<div className="relative flex-shrink-0">
+														<Image
+															src={pkg.image}
+															alt={pkg.name}
+															width={350}
+															height={160}
+															className="w-full h-36 object-cover transition-transform duration-500 group-hover:scale-105"
+															style={{ objectFit: "cover" }}
+														/>
+													</div>
+													<div className="p-4 flex flex-col justify-between flex-grow">
+														<div className="flex-grow">
+															<h4 className="font-bold text-base text-neutral-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+																{pkg.name}
+															</h4>
+															<div className="font-bold text-lg text-blue-600 mb-3">
+																{formatPrice(pkg.price)}
+															</div>
+														</div>
+														<div className="flex justify-end mt-auto">
+															<button className="text-xs font-medium text-blue-600 flex items-center group-hover:text-blue-800 transition-colors bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md">
+																자세히 보기
+																<ArrowRight className="h-3 w-3 ml-1" />
+															</button>
+														</div>
+													</div>
+												</div>
+											</Link>
+										))}
+									</div>
+								</div>
+							))
+						) : (
+							<div className="text-center py-8 text-neutral-500">
+								현재 시즌별 추천 패키지가 없습니다.
 							</div>
-						))}
+						)}
 					</div>
 				</div>
 			</section>
@@ -336,122 +726,215 @@ export default async function Home() {
 				<div className="container mx-auto px-4">
 					<div className="text-center mb-16">
 						<h2 className="text-4xl font-extrabold text-neutral-800 tracking-tight">
-							왜 TripStore를 선택해야 할까요?
+							왜 TripStore와 함께해야 할까요?
 						</h2>
-						<p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-							최고의 여행 경험을 위한 TripStore의 약속
+						<p className="mt-4 text-lg text-neutral-600 max-w-3xl mx-auto">
+							단순한 여행이 아닌, 평생 기억에 남을 특별한 경험을 선사합니다.
 						</p>
-						<div className="w-20 h-1.5 bg-blue-500 mx-auto mt-6 rounded-full"></div>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-						{whyChooseUs.map((item, index) => (
-							<div key={index} className="p-8 bg-neutral-50 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-								<div className="inline-block p-4 bg-blue-100 text-blue-600 rounded-full mb-5">
-									<item.icon className="h-8 w-8" />
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+						{whyChooseUs.map((feature) => (
+							<div
+								key={feature.title}
+								className="flex flex-col items-center p-8 rounded-2xl hover:bg-neutral-50 transition-all duration-300"
+							>
+								<div className="bg-blue-100 p-5 rounded-full mb-6 shadow-md">
+									<feature.icon className="h-8 w-8 text-blue-600" />
 								</div>
-								<h3 className="text-xl font-bold text-neutral-800 mb-3">{item.title}</h3>
-								<p className="text-neutral-600">{item.description}</p>
+								<h3 className="text-xl font-bold text-neutral-900 mb-2">
+									{feature.title}
+								</h3>
+								<p className="text-neutral-600">
+									{feature.description}
+								</p>
 							</div>
 						))}
 					</div>
 				</div>
 			</section>
 
-			{/* Customer Reviews Section */}
-			<section className="py-24 bg-neutral-50">
+			{/* 고객 후기 섹션 */}
+			<section className="py-20 bg-neutral-50">
 				<div className="container mx-auto px-4">
-					<div className="text-center mb-16">
+					<div className="text-center mb-12">
 						<h2 className="text-4xl font-extrabold text-neutral-800 tracking-tight">
-							생생한 고객 후기
+							고객 후기
 						</h2>
 						<p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-							TripStore와 함께한 고객님들의 소중한 경험을 확인해보세요.
+							TripStore와 함께한 고객들의 생생한 여행 후기를 확인하세요.
 						</p>
-						<div className="w-20 h-1.5 bg-blue-500 mx-auto mt-6 rounded-full"></div>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						{customerReviews.map((review, index) => (
-							<div key={index} className="bg-white p-8 rounded-2xl shadow-lg flex flex-col">
+					
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+						{customerReviews.map((review) => (
+							<div key={review.name} className="bg-white rounded-xl p-6 shadow-lifted">
 								<div className="flex items-center mb-4">
-									<div className="flex text-yellow-400">
-										{[...Array(review.rating)].map((_, i) => (
-											<Star key={i} className="h-5 w-5" fill="currentColor" />
-										))}
-										{[...Array(5 - review.rating)].map((_, i) => (
-											<Star key={i} className="h-5 w-5 text-neutral-300" />
-										))}
+									<div className="bg-blue-100 p-3 rounded-full flex items-center justify-center">
+										<Star className="h-5 w-5 text-blue-600" />
+									</div>
+									<div className="ml-4">
+										<h3 className="font-bold text-lg text-neutral-900">{review.name}</h3>
+										<p className="text-sm text-neutral-500">{review.date}</p>
 									</div>
 								</div>
-								<p className="text-neutral-600 mb-5 flex-grow">"{review.comment}"</p>
-								<div className="mt-auto pt-4 border-t border-neutral-100">
-									<p className="font-bold text-neutral-800">{review.name}</p>
-									<p className="text-sm text-neutral-500">{review.package}</p>
+								
+								<div className="mb-4">
+									<div className="flex items-center mb-1">
+										{[...Array(5)].map((_, i) => (
+											<Star 
+												key={i} 
+												className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+												fill={i < review.rating ? 'currentColor' : 'none'} 
+											/>
+										))}
+									</div>
+									<p className="text-sm font-medium text-blue-600">{review.package}</p>
+								</div>
+								
+								<p className="text-neutral-600 line-clamp-3">{review.comment}</p>
+								
+								<div className="mt-4 text-right">
+									<button className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+										후기 더 보기
+									</button>
 								</div>
 							</div>
 						))}
 					</div>
+					
+					<div className="mt-10 text-center">
+						<Link href="/reviews" className="inline-flex items-center font-bold text-blue-600 hover:text-blue-800">
+							모든 후기 보기
+							<ArrowRight className="ml-2 h-4 w-4" />
+						</Link>
+					</div>
 				</div>
 			</section>
 
-			{/* Travel Tips Section */}
-			<section className="py-24 bg-white">
+			{/* 여행 준비 팁 섹션 */}
+			<section className="py-20 bg-white">
 				<div className="container mx-auto px-4">
-					<div className="text-center mb-16">
+					<div className="text-center mb-12">
 						<h2 className="text-4xl font-extrabold text-neutral-800 tracking-tight">
-							슬기로운 여행 팁
+							현명한 여행을 위한 팁
 						</h2>
 						<p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-							여행 전문가가 알려주는 유용한 정보로 여행을 더 완벽하게 준비하세요.
+							완벽한 여행을 위한 TripStore의 전문가 팁을 확인하세요.
 						</p>
-						<div className="w-20 h-1.5 bg-blue-500 mx-auto mt-6 rounded-full"></div>
 					</div>
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-						{travelTips.map((tip, index) => (
-							<div key={index} className="bg-neutral-50 p-6 rounded-xl text-center hover:bg-blue-50 transition-colors">
-								<div className="inline-block p-3 bg-white text-blue-600 rounded-full mb-4 shadow-sm">
-									<tip.icon className="h-7 w-7" />
+					
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+						{travelTips.map((tip) => (
+							<div key={tip.title} className="bg-neutral-50 rounded-xl p-6 hover:shadow-md transition-all duration-300">
+								<div className="bg-blue-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+									<tip.icon className="h-7 w-7 text-blue-600" />
 								</div>
-								<h3 className="font-bold text-lg text-neutral-800 mb-2">{tip.title}</h3>
-								<p className="text-sm text-neutral-600">{tip.description}</p>
+								<h3 className="font-bold text-xl mb-2 text-neutral-800">{tip.title}</h3>
+								<p className="text-neutral-600">{tip.description}</p>
 							</div>
 						))}
 					</div>
 				</div>
 			</section>
 
-			{/* FAQ Section */}
-			<section className="py-24 bg-neutral-50">
+			{/* FAQ 섹션 */}
+			<section className="py-20 bg-neutral-50">
 				<div className="container mx-auto px-4">
-					<div className="text-center mb-16">
+					<div className="text-center mb-12">
 						<h2 className="text-4xl font-extrabold text-neutral-800 tracking-tight">
 							자주 묻는 질문
 						</h2>
 						<p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-							궁금한 점이 있으신가요? 먼저 확인해보세요.
+							여행 상품 예약 전 궁금하신 내용을 확인하세요.
 						</p>
-						<div className="w-20 h-1.5 bg-blue-500 mx-auto mt-6 rounded-full"></div>
 					</div>
-					<div className="max-w-3xl mx-auto">
-						<div className="space-y-4">
-							{faqs.map((faq, index) => (
-								<details key={index} className="group bg-white p-6 rounded-lg shadow-sm cursor-pointer">
-									<summary className="flex justify-between items-center font-semibold text-lg text-neutral-800">
-										{faq.question}
-										<HelpCircle className="h-5 w-5 text-neutral-400 group-open:rotate-180 transition-transform" />
-									</summary>
-									<p className="mt-4 text-neutral-600">
-										{faq.answer}
-									</p>
-								</details>
-							))}
-						</div>
+					
+					<div className="max-w-3xl mx-auto divide-y divide-neutral-200">
+						{faqs.map((faq, index) => (
+							<div key={index} className="py-6">
+								<div className="flex items-start">
+									<div className="bg-blue-100 p-2 rounded-full flex-shrink-0 mr-4">
+										<HelpCircle className="h-5 w-5 text-blue-600" />
+									</div>
+									<div>
+										<h3 className="font-bold text-lg text-neutral-800 mb-2">{faq.question}</h3>
+										<p className="text-neutral-600">{faq.answer}</p>
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+					
+					<div className="text-center mt-8">
+						<Link href="/notice" className="inline-flex items-center font-bold text-blue-600 hover:text-blue-800 transition-colors">
+							더 많은 질문 보기
+							<ArrowRight className="ml-2 h-4 w-4" />
+						</Link>
 					</div>
 				</div>
 			</section>
 
-			{/* Subscription Section */}
-			<SubscriptionForm />
 
+
+			{/* 뉴스레터 구독 섹션 */}
+			<section className="py-20 bg-[var(--brand-blue)] text-white relative overflow-hidden">
+				<div className="absolute inset-0">
+					<div className="absolute top-0 left-0 w-full h-full opacity-10">
+						<div className="absolute top-10 right-10 w-72 h-72 rounded-full border-8 border-white/20"></div>
+						<div className="absolute bottom-10 left-10 w-64 h-64 rounded-full border-8 border-white/20"></div>
+						<div className="absolute top-1/3 left-1/4 w-20 h-20 rounded-full border-4 border-white/20"></div>
+						<div className="absolute bottom-1/3 right-1/4 w-16 h-16 rounded-full border-4 border-white/20"></div>
+						<div className="absolute top-3/4 left-1/3 w-12 h-12 rounded-full bg-white/10"></div>
+						<div className="absolute bottom-2/3 right-1/3 w-24 h-24 rounded-full bg-white/10"></div>
+					</div>
+				</div>
+				
+				<div className="container mx-auto px-4 relative z-10">
+					<div className="max-w-4xl mx-auto text-center">
+						<h2 className="text-4xl font-extrabold mb-6 tracking-tight">여행 정보와 특별 할인 소식 받기</h2>
+						<p className="text-blue-100 text-lg mb-10 max-w-2xl mx-auto">
+							새로운 여행지, 특별 할인 정보, 여행 팁을 가장 먼저 받아보세요.
+							뉴스레터 구독자에게는 첫 예약 시 10% 추가 할인 혜택을 드립니다.
+						</p>
+						
+						{isSubscribed ? (
+							<div className="bg-white/10 backdrop-blur-sm p-8 rounded-xl inline-block animate-fade-in shadow-lg">
+								<div className="flex items-center justify-center">
+									<div className="bg-green-500/20 p-4 rounded-full mr-5">
+										<Send className="h-8 w-8 text-green-400" />
+									</div>
+									<div className="text-left">
+										<h3 className="font-bold text-2xl mb-2">구독해주셔서 감사합니다!</h3>
+										<p className="text-blue-100">곧 특별한 여행 소식을 보내드리겠습니다.</p>
+									</div>
+								</div>
+							</div>
+						) : (
+							<form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+								<input
+									type="email"
+									placeholder="이메일 주소 입력"
+									className="flex-grow bg-white/10 backdrop-blur-sm border border-blue-400 text-white rounded-lg px-5 py-4 placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									required
+								/>
+								<button
+									type="submit"
+									className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-lg font-bold transition-colors flex-shrink-0 hover:shadow-lg"
+								>
+									구독하기
+								</button>
+							</form>
+						)}
+						
+						<p className="text-xs text-blue-200 mt-5 max-w-lg mx-auto">
+							구독은 언제든지 취소할 수 있으며, 개인정보는 뉴스레터 발송 목적으로만 사용됩니다.
+							할인 혜택은 신규 고객에게만 적용됩니다.
+						</p>
+					</div>
+				</div>
+			</section>
 		</main>
-  );
+	);
 }
