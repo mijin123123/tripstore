@@ -42,6 +42,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/line-clamp'),
+    // @tailwindcss/line-clamp는 Tailwind CSS v3.3부터 기본 포함되므로 제거
   ],
 };

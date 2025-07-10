@@ -174,76 +174,57 @@ export default function Home() {
 			try {
 				setLoading(true);
 				const response = await fetch('/api/packages');
+				
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				
 				const data = await response.json();
 				
-				if (response.ok && data.packages) {
-					const packages = data.packages;
-					
-					// 추천 패키지 (isfeatured = true)
+				// API가 직접 배열을 반환하는지 또는 객체로 감싸져 있는지 확인
+				const packages = Array.isArray(data) ? data : (data.packages || []);
+				
+				if (packages.length > 0) {
+					// 추천 패키지 (처음 3개 사용)
 					const featured = packages
-						.filter(pkg => pkg.isfeatured)
 						.slice(0, 3)
 						.map(pkg => ({
 							id: pkg.id,
 							name: pkg.title,
 							description: pkg.description,
-							price: pkg.discountprice ? pkg.discountprice.toLocaleString() : pkg.price.toLocaleString(),
-							rating: pkg.rating?.toString() || "4.5",
-							image: pkg.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1740"
+							price: pkg.price?.toLocaleString() || "0",
+							rating: "4.5", // 기본값
+							image: pkg.image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1740"
 						}));
 					
-					// 특별 할인 상품 (isonsale = true)
+					// 특별 할인 상품 (다음 3개 사용)
 					const offers = packages
-						.filter(pkg => pkg.isonsale && pkg.discountprice)
-						.slice(0, 3)
-						.map(pkg => {
-							const discountRate = Math.round(((pkg.price - pkg.discountprice) / pkg.price) * 100);
-							return {
-								id: pkg.id,
-								name: pkg.title,
-								description: pkg.description,
-								regularPrice: pkg.price.toLocaleString(),
-								discountPrice: pkg.discountprice.toLocaleString(),
-								discountRate: discountRate,
-								endDate: "2025년 12월 31일", // 임시 마감일
-								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1561424111-c47df0f91351?q=80&w=1726"
-							};
-						});
+						.slice(3, 6)
+						.map(pkg => ({
+							id: pkg.id,
+							name: pkg.title,
+							description: pkg.description,
+							regularPrice: pkg.price?.toLocaleString() || "0",
+							discountPrice: Math.round(pkg.price * 0.8)?.toLocaleString() || "0", // 20% 할인 가정
+							discountRate: 20, // 고정 할인율
+							endDate: "2025년 12월 31일",
+							image: pkg.image_url || "https://images.unsplash.com/photo-1561424111-c47df0f91351?q=80&w=1726"
+						}));
 					
-					// 시즌별 추천 패키지
-					const summer = packages.filter(pkg => pkg.season === '여름').slice(0, 2);
-					const autumn = packages.filter(pkg => pkg.season === '가을').slice(0, 2);
-					const winter = packages.filter(pkg => pkg.season === '겨울').slice(0, 2);
-					
-					const seasonal = [
-						{
-							title: "여름 추천 여행",
-							packages: summer.map(pkg => ({
+					// 시즌별 추천 패키지 (카테고리별로 분류) - 해외여행 카테고리
+					const categories = ['문화/예술', '문화체험', '도시탐방', '건축/예술', '역사문화', '휴양/힐링'];
+					const seasonal = categories.map((category: string) => {
+						const categoryPackages = packages.filter((pkg: any) => pkg.category === category).slice(0, 2);
+						return {
+							title: `${category} 여행`,
+							packages: categoryPackages.map((pkg: any) => ({
 								id: pkg.id,
 								name: pkg.title,
-								price: (pkg.discountprice || pkg.price).toLocaleString(),
-								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1365"
+								price: pkg.price?.toLocaleString() || "0",
+								image: pkg.image_url || "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1365"
 							}))
-						},
-						{
-							title: "가을 추천 여행",
-							packages: autumn.map(pkg => ({
-								id: pkg.id,
-								name: pkg.title,
-								price: (pkg.discountprice || pkg.price).toLocaleString(),
-								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=1740"
-							}))
-						},
-						{
-							title: "겨울 추천 여행",
-							packages: winter.map(pkg => ({
-								id: pkg.id,
-								name: pkg.title,
-								price: (pkg.discountprice || pkg.price).toLocaleString(),
-								image: pkg.images?.[0] || "https://images.unsplash.com/photo-1551867633-194f125bddfa?q=80&w=1740"
-							}))
-						}
-					].filter(season => season.packages.length > 0);
+						};
+					}).filter((season: any) => season.packages.length > 0);
 					
 					setFeaturedPackages(featured);
 					setSpecialOffers(offers);
