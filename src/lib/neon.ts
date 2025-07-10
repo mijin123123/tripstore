@@ -11,6 +11,10 @@ export function connectToDatabase() {
 
   const client = neon(process.env.NEON_DATABASE_URL);
   return drizzle(client, { schema });
+}
+
+// 데이터베이스 인스턴스 export (호환성을 위해)
+export const db = connectToDatabase();
 
 // 데이터베이스 상태 확인 함수
 export async function getDatabaseStatus() {
@@ -37,4 +41,5 @@ export async function getDatabaseStatus() {
   }
 }
 
-// 여기서 필요한 함수만 export
+// 호환성을 위한 별칭
+export const checkConnection = getDatabaseStatus;
