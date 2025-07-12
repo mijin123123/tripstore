@@ -47,8 +47,7 @@ async function connectMongoDB() {
       maxPoolSize: 5, // 서버리스 환경에 맞게 연결 풀 크기 축소
       retryWrites: true,
       connectTimeoutMS: 5000, // 연결 타임아웃 추가
-      keepAlive: true, // 연결 유지
-      autoIndex: false, // 서버리스 환경에서는 인덱싱 비활성화
+      autoIndex: false // 서버리스 환경에서는 인덱싱 비활성화
     };
 
     cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {
