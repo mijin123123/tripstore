@@ -1,0 +1,2 @@
+-- RLS 다시 활성화
+ALTER TABLE packages ENABLE ROW LEVEL SECURITY;

@@ -72,6 +72,10 @@ async function connectToSupabase(retries = 5) { // 재시도 횟수 증가
 export async function GET() {
   try {
     console.log('🌟 === API: 패키지 목록 조회 요청 받음 ===');
+    console.log('🔧 환경변수 상태:');
+    console.log('- NEXT_PUBLIC_SUPABASE_URL:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('- NEXT_PUBLIC_SUPABASE_ANON_KEY:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    console.log('- NODE_ENV:', process.env.NODE_ENV);
     
     // Supabase 우선 연결 시도 (재시도 포함)
     try {
@@ -97,6 +101,7 @@ export async function GET() {
         });
       } else {
         console.log('⚠️ Supabase에서 데이터가 없음 - Mock 데이터로 fallback');
+        console.log(`📦 Mock 데이터 개수: ${mockPackages.length}개`);
         return NextResponse.json(mockPackages, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -107,6 +112,11 @@ export async function GET() {
     } catch (supabaseError) {
       console.error('❌ Supabase 연결 최종 실패:', supabaseError);
       console.log(`📦 Fallback: Mock 데이터 ${mockPackages.length}개 반환`);
+      console.log('📦 Mock 데이터 샘플:', {
+        id: mockPackages[0]?.id,
+        title: mockPackages[0]?.title,
+        total: mockPackages.length
+      });
       
       return NextResponse.json(mockPackages, {
         headers: {
@@ -120,6 +130,7 @@ export async function GET() {
     console.error('💥 API 전체 오류:', error);
     // 에러가 발생해도 Mock 데이터를 반환하여 사이트가 동작하도록 함
     console.log('🆘 최종 fallback: Mock 데이터 사용');
+    console.log(`📦 최종 Mock 데이터 개수: ${mockPackages.length}개`);
     return NextResponse.json(mockPackages, {
       status: 200,
       headers: {
