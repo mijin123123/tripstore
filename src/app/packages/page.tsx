@@ -5,12 +5,75 @@ import Link from "next/link";
 import { formatPrice } from "@/utils/formatPrice";
 import connectMongoDB from '@/lib/mongodb';
 import Package from '@/models/Package';
+import fallbackPackages from '@/lib/fallback-data';
 
-// 서버에서 패키지 데이터 가져오기
+// 서버에서 패키지 데이터 가져오기 (Netlify 최적화)
 async function getPackages() {
+	console.log('🔍 패키지 페이지: 데이터 로딩 시작');
+	
+	// 서버리스 환경 체크 (Netlify)
+	const isNetlify = process.env.NETLIFY === 'true';
+	const isDev = process.env.NODE_ENV === 'development';
+	
+	console.log(`📊 환경: ${isNetlify ? 'Netlify' : '일반'}, ${isDev ? '개발' : '프로덕션'}`);
+	
 	try {
+		// Netlify에서는 API로 데이터 가져오기 (기본 10초 타임아웃 우회)
+		if (isNetlify && !isDev) {
+			console.log('📱 Netlify 환경 감지: 내부 API 사용');
+			
+			// API 호출 전 폴백 데이터 준비
+			const fallbackData = fallbackPackages;
+			
+			try {
+				// 5초 타임아웃으로 패키지 데이터 요청
+				const timeoutPromise = new Promise((_, reject) => 
+					setTimeout(() => reject(new Error('API 타임아웃 (5초)')), 5000)
+				);
+				
+				const apiResponse = await Promise.race([
+					fetch('/api/packages', { 
+						cache: 'no-store',
+						headers: { 'x-internal': 'true' }
+					}),
+					timeoutPromise
+				]);
+				
+				if (apiResponse.ok) {
+					const data = await apiResponse.json();
+					console.log(`✅ API 응답 성공: ${data.length}개 패키지`);
+					
+					// API 응답 데이터 포맷팅
+					return data.map((pkg: any) => ({
+						id: pkg.id || pkg._id?.toString(),
+						destination: pkg.destination || pkg.title,
+						type: pkg.category || "해외여행",
+						title: pkg.title,
+						description: pkg.description,
+						price: pkg.price,
+						duration: `${pkg.duration || 7}일`,
+						image: pkg.image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1740",
+						rating: 4.5,
+						reviews: 128,
+						name: pkg.title
+					}));
+				} else {
+					console.log(`⚠️ API 응답 실패: ${apiResponse.status}, 폴백 데이터 사용`);
+					return fallbackData;
+				}
+			} catch (apiError) {
+				console.error('🚨 API 호출 오류:', apiError);
+				console.log('⚠️ 폴백 데이터로 전환:', fallbackData.length);
+				return fallbackData;
+			}
+		}
+		
+		// 로컬 환경에서는 직접 MongoDB 연결
+		console.log('🔌 MongoDB 직접 연결 시도');
 		await connectMongoDB();
 		const packages = await Package.find({}).sort({ createdAt: -1 }).lean();
+		
+		console.log(`✅ MongoDB 데이터 로드 성공: ${packages.length}개`);
 		
 		// 직렬화 가능한 형태로 변환
 		return packages.map((pkg: any) => ({
@@ -27,8 +90,9 @@ async function getPackages() {
 			name: pkg.title
 		}));
 	} catch (error) {
-		console.error('패키지 데이터 로딩 실패:', error);
-		return [];
+		console.error('❌ 패키지 데이터 로딩 실패:', error);
+		console.log('⚠️ 폴백 데이터 사용:', fallbackPackages.length);
+		return fallbackPackages;
 	}
 }
 

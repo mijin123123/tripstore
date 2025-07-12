@@ -29,3 +29,13 @@
 
 [functions]
   included_files = ["!node_modules/@next/swc-*/**, !.next/cache/**"]
+  node_bundler = "esbuild"
+  
+  # 함수 타임아웃 설정 (최대 10초, Netlify 한계값)
+  [functions.config]
+    timeout_seconds = 10
+
+  # 몽고DB 연결 함수 최적화
+  [functions."api/packages"]
+    node_bundler = "esbuild"
+    included_files = ["src/lib/fallback-data.ts", "src/lib/mock-data.ts"]

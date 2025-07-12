@@ -42,16 +42,19 @@ async function connectMongoDB() {
     
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000, // 10초 타임아웃
-      socketTimeoutMS: 45000, // 45초 소켓 타임아웃
-      maxPoolSize: 10, // 최대 연결 풀 크기
+      serverSelectionTimeoutMS: 5000, // 5초 타임아웃 (Netlify 서버리스 함수 제한 시간 고려)
+      socketTimeoutMS: 8000, // 8초 소켓 타임아웃 (Netlify 10초 제한보다 짧게)
+      maxPoolSize: 5, // 서버리스 환경에 맞게 연결 풀 크기 축소
       retryWrites: true,
+      connectTimeoutMS: 5000, // 연결 타임아웃 추가
+      keepAlive: true, // 연결 유지
+      autoIndex: false, // 서버리스 환경에서는 인덱싱 비활성화
     };
 
-    cached.promise = mongoose.connect(mongoUri, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {
       console.log('✅ MongoDB 연결 성공');
-      console.log('📊 연결 상태:', mongoose.connection.readyState);
-      return mongoose;
+      console.log('📊 연결 상태:', mongooseInstance.connection.readyState);
+      return mongooseInstance;
     }).catch((error) => {
       console.error('❌ MongoDB 연결 실패:', error.message);
       console.error('🔍 연결 문자열 확인:', mongoUri ? '설정됨' : '누락됨');

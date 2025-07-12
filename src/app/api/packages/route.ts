@@ -8,39 +8,54 @@ export const runtime = 'nodejs';
 
 export const dynamic = 'force-dynamic';
 
-// MongoDB 연결 및 패키지 조회 함수
-async function getPackagesFromMongoDB(retries = 3) {
+// MongoDB 연결 및 패키지 조회 함수 (Netlify 서버리스 환경 최적화)
+async function getPackagesFromMongoDB(retries = 2) {
+  // 빠른 타임아웃으로 MongoDB 연결 요청
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('MongoDB 연결 타임아웃 (8초)')), 8000);
+  });
+  
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`� MongoDB 연결 시도 ${attempt}/${retries}...`);
+      console.log(`📡 MongoDB 연결 시도 ${attempt}/${retries} (Netlify 최적화)...`);
       
-      await connectMongoDB();
+      // 경쟁 조건: MongoDB 연결이 먼저 성공하면 해당 결과 반환, 타임아웃되면 에러 발생
+      const mongooseConn = await Promise.race([
+        connectMongoDB(),
+        timeoutPromise
+      ]);
       
+      // 기본 정렬과 필드 제한으로 쿼리 최적화
       const packages = await Package.find({})
+        .select('title description destination price duration category image_url featured available createdAt updatedAt')
         .sort({ createdAt: -1 })
+        .limit(100) // 결과 제한으로 응답 크기 축소
         .lean(); // 성능 최적화를 위해 lean() 사용
       
-      console.log(`✅ MongoDB 연결 성공! ${packages?.length || 0}개 패키지 조회`);
+      console.log(`✅ MongoDB 연결 성공! ${packages?.length || 0}개 패키지 조회 (제한: 100)`);
       return packages || [];
       
     } catch (error) {
       console.error(`❌ MongoDB 연결 시도 ${attempt} 실패:`, error);
       if (attempt === retries) throw error;
-      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      // 재시도 간격을 짧게 조정 (서버리스 함수 타임아웃 고려)
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 }
 
 export async function GET() {
   try {
-    console.log('🌟 === API: 패키지 목록 조회 요청 받음 (MongoDB v3.1) ===');
+    console.log('🌟 === API: 패키지 목록 조회 요청 받음 (MongoDB v3.2 Netlify 최적화) ===');
     console.log('🔧 환경변수 상태:');
     
     const mongoUri = process.env.MONGODB_URI;
     const nodeEnv = process.env.NODE_ENV;
+    const isNetlify = process.env.NETLIFY === 'true';
     
     console.log('- MONGODB_URI:', !!mongoUri, mongoUri ? `(${mongoUri.substring(0, 20)}...)` : '');
     console.log('- NODE_ENV:', nodeEnv);
+    console.log('- NETLIFY:', isNetlify);
     console.log('- Mock 데이터 길이:', mockPackages.length);
     
     // 환경변수 체크 먼저 수행
