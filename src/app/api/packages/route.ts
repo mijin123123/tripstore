@@ -96,8 +96,12 @@ export async function GET() {
         
         return NextResponse.json(packages, {
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Content-Type': 'application/json'
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Content-Type': 'application/json',
+            'X-Package-Count': packages.length.toString(),
+            'X-Data-Source': 'supabase'
           }
         });
       } else {
@@ -105,8 +109,12 @@ export async function GET() {
         console.log(`📦 Mock 데이터 개수: ${mockPackages.length}개`);
         return NextResponse.json(mockPackages, {
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Content-Type': 'application/json'
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            'Pragma': 'no-cache', 
+            'Expires': '0',
+            'Content-Type': 'application/json',
+            'X-Package-Count': mockPackages.length.toString(),
+            'X-Data-Source': 'mock-fallback'
           }
         });
       }
@@ -121,8 +129,12 @@ export async function GET() {
       
       return NextResponse.json(mockPackages, {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Content-Type': 'application/json'
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'Content-Type': 'application/json',
+          'X-Package-Count': mockPackages.length.toString(),
+          'X-Data-Source': 'mock-error-fallback'
         }
       });
     }
@@ -135,8 +147,12 @@ export async function GET() {
     return NextResponse.json(mockPackages, {
       status: 200,
       headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json'
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Content-Type': 'application/json',
+        'X-Package-Count': mockPackages.length.toString(),
+        'X-Data-Source': 'mock-final-fallback'
       }
     });
   }

@@ -3,9 +3,8 @@
   publish = ".next"
 
 [build.environment]
-  NEON_DATABASE_URL = "postgresql://neondb_owner:npg_lu3rwg6HpLGn@ep-noisy-meadow-aex8wbzi-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require"
-  NEXT_PUBLIC_SUPABASE_URL = "https://ewezrjlymdfinpwfruga.supabase.co"
-  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3ZXpyamx5bWRmaW5wd2ZydWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMzI5MTAsImV4cCI6MjA2NjkwODkxMH0.KWLNVNQUSzMa2pNzF-q8BWhZ6jIzavQT4_aWo6LFM90"
+  NEXT_PUBLIC_SUPABASE_URL = "https://qgegpackzjjyceraqrny.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZWdwYWNrempqeWNlcmFxcm55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjUwMDMsImV4cCI6MjA2NzY0MTAwM30.MFLBWRg0i-rh2yfUdl51wsnvGGqBLOWUjsIks73vtO0"
   # Next.js에 사전 렌더링을 비활성화하도록 지시하는 환경 변수
   NEXT_DISABLE_PRERENDER = "true"
   NEXT_TELEMETRY_DISABLED = "1"
@@ -14,6 +13,14 @@
 # 넷리파이에서 Next.js 사이트를 올바르게 배포하기 위한 플러그인
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# API 엔드포인트 캐시 무효화
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
+    Pragma = "no-cache"
+    Expires = "0"
 
 [functions]
   included_files = ["!node_modules/@next/swc-*/**, !.next/cache/**"]
