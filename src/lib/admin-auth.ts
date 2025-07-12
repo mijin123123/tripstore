@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from '@/lib/supabase';
+import { isAdmin } from '@/lib/auth';
 
 /**
  * 관리자 계정 정보
@@ -40,8 +40,14 @@ export function createAdminSession() {
   };
 }
 
-// 기존 함수 (호환성 유지)
+// MongoDB와 통합된 관리자 권한 확인 함수
 export async function checkAdminPermission(email: string) {
   // 특정 이메일로만 관리자 권한 제한
-  return isAdminUser(email);
+  const isLocalAdmin = isAdminUser(email);
+  
+  // MongoDB에서 관리자 권한 확인
+  const isMongoAdmin = await isAdmin(email);
+  
+  // 둘 중 하나라도 관리자이면 관리자로 인정
+  return isLocalAdmin || isMongoAdmin;
 }
