@@ -1,20 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import AdminProtection from '@/components/AdminProtection';
-import AdminLogout from '@/components/AdminLogout';
 import PackageItem from "@/components/admin/PackageItem";
 import { Button } from "@/components/ui/button";
 import { Plus, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import DbStatusCard from "@/components/admin/DbStatusCard";
 
 interface PackageData {
   id: string;
-  title: string;
-  destination: string;
-  price: number;
-  category: string;
-  images?: string[];
   [key: string]: any;
 }
 
@@ -33,17 +28,12 @@ export default function PackagesPage() {
         // 직접 DB 접근 코드 제거 (보안 및 환경 제약으로 인해)
         
         // 방법 1: 내장 데이터 사용 (API가 실패할 경우 대비)
-        const fallbackData: PackageData[] = (await import('@/data/packagesData')).packagesData.map((p, index) => {
-          const pkg: PackageData = {
-            id: String(index + 1).padStart(8, '0'),
-            title: p.name || 'N/A',
-            destination: p.destination || 'N/A',
-            price: typeof p.price === 'string' ? parseInt(p.price.replace(/[^\d]/g, '')) || 0 : 0,
-            category: p.type || 'N/A',
-            images: p.image ? [p.image] : []
-          };
-          return pkg;
-        });
+        const fallbackData = (await import('@/data/packagesData')).packagesData.map(p => ({
+          ...p,
+          id: p.id || crypto.randomUUID(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }));
         
         // 방법 2: API 사용 (최적화 버전)
         try {
@@ -62,19 +52,11 @@ export default function PackagesPage() {
             throw new Error(`패키지 데이터를 불러오는데 실패했습니다. 상태 코드: ${response.status}`);
           }
           
-          const data = await response.json();
-          console.log('API 응답 데이터:', data);
-          
           // 응답 데이터 파싱
           // API에서 성공적으로 데이터를 가져온 경우
           if (Array.isArray(data)) {
             console.log(`데이터 배열 길이: ${data.length}개의 패키지`);
-            // ID가 없는 경우 임시 ID 생성
-            const packagesWithId = data.map(pkg => ({
-              ...pkg,
-              id: pkg.id || String(Math.random()).substring(2, 10)
-            }));
-            setPackages(packagesWithId);
+            setPackages(data);
           } else {
             console.error('예상치 못한 API 응답 형식:', data);
             setError('API 응답 형식이 올바르지 않습니다.');
@@ -255,13 +237,12 @@ export default function PackagesPage() {
               if (confirm("경고: 이 작업은 메인 사이트 패키지를 직접 DB에 동기화합니다. 기존 데이터는 모두 삭제됩니다. 계속하시겠습니까?")) {
                 setLoading(true);
                 try {
-                  // 직접 API 호출을 통해 동기화 요청
-                  const response = await fetch('/api/admin/sync-packages', {
-                    method: 'POST',
+                  // 패키지 목록 새로고침을 통해 동기화
+                  const response = await fetch('/api/packages', {
+                    method: 'GET',
                     headers: {
-                      'Content-Type': 'application/json',
+                      'Cache-Control': 'no-cache',
                     },
-                    body: JSON.stringify({ force: true }),
                   });
                   
                   if (!response.ok) {
