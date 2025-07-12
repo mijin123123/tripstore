@@ -21,22 +21,38 @@ interface Package {
 }
 
 export default function PackagesClient({ initialPackages }: { initialPackages: Package[] }) {
+  // 상태 관리
   const [packages, setPackages] = useState<Package[]>(initialPackages);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // 컴포넌트 마운트 시 API에서 최신 패키지 데이터 가져오기
   useEffect(() => {
-    async function fetchPackages() {
+    // 이미 충분한 패키지가 있으면 API 요청을 하지 않음
+    if (initialPackages.length >= 10) {
+      console.log('✅ 이미 충분한 초기 데이터가 있습니다 - API 호출 건너뜀');
+      return;
+    }
+    
+    // 패키지 데이터 가져오기
+    const fetchPackages = async () => {
       try {
         setLoading(true);
         setError(null);
+        console.log('🔄 클라이언트 컴포넌트에서 패키지 데이터 요청 중...');
         
-        // API에서 패키지 데이터 가져오기
+        // 3초 타임아웃으로 API 요청 설정
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        // API 호출 시도
         const response = await fetch('/api/packages', { 
           cache: 'no-store',
-          headers: { 'x-client-fetch': 'true' }
+          headers: { 'x-client-fetch': 'true' },
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
           throw new Error(`API 응답 오류: ${response.status}`);
@@ -46,6 +62,8 @@ export default function PackagesClient({ initialPackages }: { initialPackages: P
         
         // 데이터 형식 검증
         if (Array.isArray(data) && data.length > 0) {
+          console.log(`✅ API에서 ${data.length}개 패키지 로드됨`);
+          
           // API 응답 데이터 포맷팅
           const formattedPackages = data.map((pkg: any) => ({
             id: pkg.id || pkg._id?.toString() || '',
@@ -73,14 +91,9 @@ export default function PackagesClient({ initialPackages }: { initialPackages: P
       } finally {
         setLoading(false);
       }
-    }
+    };
     
-    // 이미 초기 데이터가 충분히 있다면 추가 요청을 건너뜀
-    if (initialPackages.length > 10) {
-      console.log('✅ 이미 충분한 초기 데이터가 있습니다');
-      return;
-    }
-    
+    // 데이터 가져오기 실행
     fetchPackages();
   }, [initialPackages]);
   
