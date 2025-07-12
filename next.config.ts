@@ -53,8 +53,8 @@ const nextConfig: NextConfig = {
   // 파일 확장자 지정
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   
-  // 트랜스파일 패키지
-  transpilePackages: ['@supabase/ssr'],
+  // MongoDB 관련 트랜스파일 패키지 (필요시)
+  // transpilePackages: ['mongoose'],
   
   // 정적 최적화 비활성화
   poweredByHeader: false,

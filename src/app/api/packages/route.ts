@@ -1,69 +1,28 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import connectMongoDB from '@/lib/mongodb';
+import Package from '@/models/Package';
 import { mockPackages } from '@/lib/mock-data';
 
 export const dynamic = 'force-dynamic';
 
-// Supabase 연결 재시도 함수 (더 강화된 버전)
-async function connectToSupabase(retries = 5) { // 재시도 횟수 증가
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase 환경변수가 설정되지 않았습니다.');
-  }
-
-  console.log('🔗 Supabase 연결 정보:');
-  console.log('URL:', supabaseUrl);
-  console.log('KEY 존재:', !!supabaseKey);
-
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      persistSession: false
-    },
-    db: {
-      schema: 'public'
-    },
-    global: {
-      headers: {
-        'cache-control': 'no-cache'
-      }
-    }
-  });
-
+// MongoDB 연결 및 패키지 조회 함수
+async function getPackagesFromMongoDB(retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`🚀 Supabase 연결 시도 ${attempt}/${retries}...`);
+      console.log(`� MongoDB 연결 시도 ${attempt}/${retries}...`);
       
-      // 연결 테스트를 위한 간단한 쿼리 먼저 실행
-      const { error: pingError } = await supabase
-        .from('packages')
-        .select('count', { count: 'exact', head: true });
-        
-      if (pingError && attempt < retries) {
-        console.warn(`⚠️ 시도 ${attempt} 핑 실패:`, pingError);
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-        continue;
-      }
+      await connectMongoDB();
       
-      const { data, error } = await supabase
-        .from('packages')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error(`❌ 시도 ${attempt} 실패:`, error);
-        if (attempt === retries) throw error;
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // 지수백오프
-        continue;
-      }
-
-      console.log(`✅ Supabase 연결 성공! ${data?.length || 0}개 패키지 조회`);
-      console.log(`📊 전체 패키지: ${data?.length}개 (DB에서 직접 조회)`);
-      return data || [];
-    } catch (err) {
-      console.error(`💥 시도 ${attempt} 오류:`, err);
-      if (attempt === retries) throw err;
+      const packages = await Package.find({})
+        .sort({ createdAt: -1 })
+        .lean(); // 성능 최적화를 위해 lean() 사용
+      
+      console.log(`✅ MongoDB 연결 성공! ${packages?.length || 0}개 패키지 조회`);
+      return packages || [];
+      
+    } catch (error) {
+      console.error(`❌ MongoDB 연결 시도 ${attempt} 실패:`, error);
+      if (attempt === retries) throw error;
       await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
     }
   }
@@ -71,41 +30,57 @@ async function connectToSupabase(retries = 5) { // 재시도 횟수 증가
 
 export async function GET() {
   try {
-    console.log('🌟 === API: 패키지 목록 조회 요청 받음 (v2.0) ===');
+    console.log('🌟 === API: 패키지 목록 조회 요청 받음 (MongoDB v3.0) ===');
     console.log('🔧 환경변수 상태:');
-    console.log('- NEXT_PUBLIC_SUPABASE_URL:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('- NEXT_PUBLIC_SUPABASE_ANON_KEY:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    console.log('- MONGODB_URI:', !!process.env.MONGODB_URI);
     console.log('- NODE_ENV:', process.env.NODE_ENV);
     console.log('- Mock 데이터 길이:', mockPackages.length);
     
-    // Supabase 우선 연결 시도 (재시도 포함)
+    // MongoDB 우선 연결 시도
     try {
-      const packages = await connectToSupabase(5); // 5번 재시도
+      const packages = await getPackagesFromMongoDB(3);
       
       if (packages && packages.length > 0) {
-        console.log(`🎉 SUCCESS: ${packages.length}개의 패키지 반환 (Supabase DB)`);
+        console.log(`🎉 SUCCESS: ${packages.length}개의 패키지 반환 (MongoDB)`);
         console.log(`📈 API 응답 크기: ${JSON.stringify(packages).length} bytes`);
+        
+        // MongoDB 데이터를 프론트엔드 형식으로 변환
+        const formattedPackages = packages.map(pkg => ({
+          id: pkg._id?.toString(), // MongoDB _id를 문자열로 변환
+          _id: pkg._id?.toString(), // 호환성을 위해 _id도 포함
+          title: pkg.title,
+          description: pkg.description,
+          destination: pkg.destination,
+          price: pkg.price,
+          duration: pkg.duration,
+          category: pkg.category,
+          image_url: pkg.image_url,
+          featured: pkg.featured,
+          available: pkg.available,
+          createdAt: pkg.createdAt,
+          updatedAt: pkg.updatedAt
+        }));
         
         // 패키지 데이터 샘플 로깅
         console.log('📦 첫 번째 패키지 샘플:', {
-          id: packages[0]?.id,
-          title: packages[0]?.title,
-          category: packages[0]?.category,
-          price: packages[0]?.price
+          id: formattedPackages[0]?.id,
+          title: formattedPackages[0]?.title,
+          category: formattedPackages[0]?.category,
+          price: formattedPackages[0]?.price
         });
         
-        return NextResponse.json(packages, {
+        return NextResponse.json(formattedPackages, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
             'Pragma': 'no-cache',
             'Expires': '0',
             'Content-Type': 'application/json',
-            'X-Package-Count': packages.length.toString(),
-            'X-Data-Source': 'supabase'
+            'X-Package-Count': formattedPackages.length.toString(),
+            'X-Data-Source': 'mongodb'
           }
         });
       } else {
-        console.log('⚠️ Supabase에서 데이터가 없음 - Mock 데이터로 fallback');
+        console.log('⚠️ MongoDB에서 데이터가 없음 - Mock 데이터로 fallback');
         console.log(`📦 Mock 데이터 개수: ${mockPackages.length}개`);
         return NextResponse.json(mockPackages, {
           headers: {
@@ -118,8 +93,8 @@ export async function GET() {
           }
         });
       }
-    } catch (supabaseError) {
-      console.error('❌ Supabase 연결 최종 실패:', supabaseError);
+    } catch (mongoError) {
+      console.error('❌ MongoDB 연결 최종 실패:', mongoError);
       console.log(`📦 Fallback: Mock 데이터 ${mockPackages.length}개 반환`);
       console.log('📦 Mock 데이터 샘플:', {
         id: mockPackages[0]?.id,
@@ -162,39 +137,30 @@ export async function POST(request: Request) {
   try {
     const packageData = await request.json();
     
-    // 서버사이드에서 직접 Supabase 클라이언트 생성
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    console.log('📝 새 패키지 생성 요청:', packageData.title);
     
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: 'Database not available' },
-        { status: 503 }
-      );
-    }
+    // MongoDB 연결 및 데이터 생성
+    await connectMongoDB();
     
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const newPackage = await Package.create(packageData);
     
-    const { data, error } = await supabase
-      .from('packages')
-      .insert([packageData])
-      .select()
-      .single();
+    console.log('✅ 새 패키지 생성 성공:', newPackage._id);
     
-    if (error) {
-      console.error('패키지 생성 오류:', error);
-      return NextResponse.json(
-        { error: 'Failed to create package' },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json(newPackage, { status: 201 });
     
-    return NextResponse.json(data, { status: 201 });
   } catch (error) {
-    console.error('POST 요청 오류:', error);
+    console.error('❌ 패키지 생성 오류:', error);
+    
+    if (error.name === 'ValidationError') {
+      return NextResponse.json(
+        { error: 'Invalid package data', details: error.message },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Invalid request' },
-      { status: 400 }
+      { error: 'Failed to create package' },
+      { status: 500 }
     );
   }
 }

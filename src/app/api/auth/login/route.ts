@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Pool } from '@neondatabase/serverless';
+import connectMongoDB from '@/lib/mongodb';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+
+// User 모델 정의 (임시)
+const UserSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  name: { type: String },
+  created_at: { type: Date, default: Date.now }
+});
+
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,10 +37,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 환경 변수 확인
-    if (!process.env.NEON_DATABASE_URL) {
-      console.error('NEON_DATABASE_URL 환경 변수가 설정되지 않았습니다.');
+    if (!process.env.MONGODB_URI) {
+      console.error('MONGODB_URI 환경 변수가 설정되지 않았습니다.');
       return NextResponse.json(
-        { error: '데이터베이스 연결 설정이 없습니다.' },
+        { error: '데이터베이스 연결 오류가 발생했습니다.' },
         { status: 500 }
       );
     }
@@ -36,42 +48,30 @@ export async function POST(request: NextRequest) {
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET 환경 변수가 설정되지 않았습니다.');
       return NextResponse.json(
-        { error: '서버 설정 오류입니다.' },
+        { error: '서버 설정 오류가 발생했습니다.' },
         { status: 500 }
       );
     }
 
-    const pool = new Pool({ connectionString: process.env.NEON_DATABASE_URL });
+    // MongoDB 연결
+    await connectMongoDB();
 
-    // 사용자 조회 (full_name 컬럼 사용)
-    const result = await pool.query(
-      'SELECT id, full_name, email, password_hash FROM users WHERE email = $1',
-      [email]
-    );
+    // 사용자 조회
+    const user = await User.findOne({ email: email.toLowerCase() });
 
-    if (result.rows.length === 0) {
+    if (!user) {
       return NextResponse.json(
-        { error: '이메일 또는 비밀번호가 올바르지 않습니다.' },
-        { status: 401 }
-      );
-    }
-
-    const user = result.rows[0];
-
-    // password_hash가 없는 기존 사용자의 경우
-    if (!user.password_hash) {
-      return NextResponse.json(
-        { error: '비밀번호가 설정되지 않은 계정입니다. 관리자에게 문의하세요.' },
+        { error: '존재하지 않는 사용자입니다.' },
         { status: 401 }
       );
     }
 
     // 비밀번호 확인
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    const isValidPassword = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid) {
+    if (!isValidPassword) {
       return NextResponse.json(
-        { error: '이메일 또는 비밀번호가 올바르지 않습니다.' },
+        { error: '비밀번호가 일치하지 않습니다.' },
         { status: 401 }
       );
     }
@@ -79,42 +79,36 @@ export async function POST(request: NextRequest) {
     // JWT 토큰 생성
     const token = jwt.sign(
       { 
-        userId: user.id, 
-        email: user.email, 
-        name: user.full_name 
+        userId: user._id,
+        email: user.email,
+        role: user.role 
       },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    console.log('사용자 로그인 성공:', { id: user.id, email: user.email });
-
-    // 쿠키에 토큰 설정
-    const response = NextResponse.json(
-      { 
-        message: '로그인 성공',
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.full_name,
-        }
-      },
-      { status: 200 }
-    );
-
-    response.cookies.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/'
+    // 성공 응답
+    return NextResponse.json({
+      message: '로그인에 성공했습니다.',
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
     });
 
-    return response;
-
-  } catch (error: any) {
-    console.error('로그인 중 오류:', error);
+  } catch (error) {
+    console.error('로그인 처리 중 오류:', error);
     
+    if (error instanceof mongoose.Error) {
+      return NextResponse.json(
+        { error: '데이터베이스 연결 오류가 발생했습니다.' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다.' },
       { status: 500 }

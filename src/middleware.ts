@@ -1,5 +1,5 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -8,37 +8,38 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // 관리자 경로는 클라이언트 사이드에서 보호하도록 함
-  // 미들웨어에서는 무한 리다이렉트를 방지하기 위해 보호 비활성화
-  
-  // Supabase 환경 변수 확인
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase 환경 변수가 설정되지 않았습니다. 인증 기능이 비활성화됩니다.');
-    return response;
-  }
-  
-  const supabase = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          response.cookies.set({ name, value: '', ...options });
-        },
-      },
-    }
-  );
+  // 관리자 경로 보호
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    try {
+      // JWT 토큰 확인
+      const token = request.cookies.get('auth-token')?.value || 
+                   request.headers.get('authorization')?.replace('Bearer ', '');
 
-  await supabase.auth.getUser();
+      if (!token) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+
+      if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET 환경 변수가 설정되지 않았습니다.');
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+
+      // JWT 토큰 검증
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+      
+      // 관리자 권한 확인
+      if (decoded.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      // 인증 성공 시 계속 진행
+      return response;
+
+    } catch (error) {
+      console.error('JWT 토큰 검증 실패:', error);
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
 
   return response;
 }

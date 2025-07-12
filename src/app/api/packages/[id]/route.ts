@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { Pool } from '@neondatabase/serverless';
+import connectMongoDB from '@/lib/mongodb';
+import Package from '@/models/Package';
+import mongoose from 'mongoose';
 
 // 특정 패키지 조회 API
 export async function GET(

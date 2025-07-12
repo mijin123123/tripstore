@@ -319,7 +319,7 @@ export default function PackagesPage() {
         ) : (
           <div className="divide-y">
             {packages.map((pkg) => (
-              <PackageItem key={pkg.id} packageData={pkg} />
+              <PackageItem key={pkg._id || pkg.id || crypto.randomUUID()} packageData={pkg} />
             ))}
           </div>
         )}

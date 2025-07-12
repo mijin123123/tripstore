@@ -204,7 +204,7 @@ export default function Home() {
 					const featured = packages
 						.slice(0, 6)
 						.map(pkg => ({
-							id: pkg.id,
+							id: pkg._id || pkg.id, // MongoDB의 _id 필드 우선 사용
 							name: pkg.title,
 							description: pkg.description,
 							price: pkg.price?.toLocaleString() || "0",
@@ -216,7 +216,7 @@ export default function Home() {
 					const offers = packages
 						.slice(6, 12)
 						.map(pkg => ({
-							id: pkg.id,
+							id: pkg._id || pkg.id, // MongoDB의 _id 필드 우선 사용
 							name: pkg.title,
 							description: pkg.description,
 							regularPrice: pkg.price?.toLocaleString() || "0",
@@ -233,7 +233,7 @@ export default function Home() {
 						return {
 							title: `${category} 여행`,
 							packages: categoryPackages.map((pkg: any) => ({
-								id: pkg.id,
+								id: pkg._id || pkg.id, // MongoDB의 _id 필드 우선 사용
 								name: pkg.title,
 								price: pkg.price?.toLocaleString() || "0",
 								image: pkg.image_url || "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1365"

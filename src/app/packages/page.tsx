@@ -34,7 +34,7 @@ function PackagesContent() {
 				
 				// DB 데이터를 packagesData 형식으로 변환
 				const formattedPackages = packagesArray.map((pkg: any) => ({
-					id: pkg.id,
+					id: pkg._id || pkg.id, // MongoDB의 _id 필드 우선 사용
 					destination: pkg.destination || pkg.title, // destination 필드가 없으면 title 사용
 					type: pkg.category || "해외여행", // category를 type으로 매핑
 					title: pkg.title,

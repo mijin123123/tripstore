@@ -3,10 +3,13 @@
   publish = ".next"
 
 [build.environment]
-  NEXT_PUBLIC_SUPABASE_URL = "https://qgegpackzjjyceraqrny.supabase.co"
-  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZWdwYWNrempqeWNlcmFxcm55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjUwMDMsImV4cCI6MjA2NzY0MTAwM30.MFLBWRg0i-rh2yfUdl51wsnvGGqBLOWUjsIks73vtO0"
-  # Neon Database URL (빌드 호환성을 위해 임시 추가)
-  NEON_DATABASE_URL = "postgresql://neondb_owner:dummy@ep-dummy.neon.tech/dummy"
+  # MongoDB 환경변수 (실제 값은 Netlify 환경변수에서 설정)
+  MONGODB_URI = ""
+  # 기존 Supabase 환경변수는 사용 중지
+  # NEXT_PUBLIC_SUPABASE_URL = "https://qgegpackzjjyceraqrny.supabase.co"
+  # NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZWdwYWNrempqeWNlcmFxcm55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjUwMDMsImV4cCI6MjA2NzY0MTAwM30.MFLBWRg0i-rh2yfUdl51wsnvGGqBLOWUjsIks73vtO0"
+  # 기존 Neon Database URL (사용 중지)
+  # NEON_DATABASE_URL = "postgresql://neondb_owner:dummy@ep-dummy.neon.tech/dummy"
   # Next.js에 사전 렌더링을 비활성화하도록 지시하는 환경 변수
   NEXT_DISABLE_PRERENDER = "true"
   NEXT_TELEMETRY_DISABLED = "1"
