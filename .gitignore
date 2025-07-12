@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# test files and temporary scripts
+test-*.js
+check-*.js
+add-*.js
+diagnose-*.js
+import-*.js
+migrate-*.js
+simple-*.js
+mini-*.js
+file-*.js
+final-*.js
+emergency-*.js
+api-*.js
