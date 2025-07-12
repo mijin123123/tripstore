@@ -33,13 +33,36 @@ async function getPackagesFromMongoDB(retries = 3) {
 
 export async function GET() {
   try {
-    console.log('🌟 === API: 패키지 목록 조회 요청 받음 (MongoDB v3.0) ===');
+    console.log('🌟 === API: 패키지 목록 조회 요청 받음 (MongoDB v3.1) ===');
     console.log('🔧 환경변수 상태:');
-    console.log('- MONGODB_URI:', !!process.env.MONGODB_URI);
-    console.log('- NODE_ENV:', process.env.NODE_ENV);
+    
+    const mongoUri = process.env.MONGODB_URI;
+    const nodeEnv = process.env.NODE_ENV;
+    
+    console.log('- MONGODB_URI:', !!mongoUri, mongoUri ? `(${mongoUri.substring(0, 20)}...)` : '');
+    console.log('- NODE_ENV:', nodeEnv);
     console.log('- Mock 데이터 길이:', mockPackages.length);
     
-    // MongoDB 우선 연결 시도
+    // 환경변수 체크 먼저 수행
+    if (!mongoUri) {
+      console.error('❌ MONGODB_URI 환경변수가 설정되지 않았습니다!');
+      console.error('🔍 사용 가능한 환경변수:', Object.keys(process.env).filter(key => key.includes('MONGO')));
+      
+      // MongoDB URI가 없으면 바로 Mock 데이터 반환
+      console.log('🔄 환경변수 없음 - Mock 데이터로 대체');
+      return NextResponse.json(mockPackages, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache', 
+          'Expires': '0',
+          'Content-Type': 'application/json',
+          'X-Package-Count': mockPackages.length.toString(),
+          'X-Data-Source': 'mock-no-env'
+        }
+      });
+    }
+    
+    // MongoDB 연결 시도
     try {
       const packages = await getPackagesFromMongoDB(3);
       
@@ -98,6 +121,7 @@ export async function GET() {
       }
     } catch (mongoError) {
       console.error('❌ MongoDB 연결 최종 실패:', mongoError);
+      console.error('🔍 오류 상세:', mongoError instanceof Error ? mongoError.message : mongoError);
       console.log(`📦 Fallback: Mock 데이터 ${mockPackages.length}개 반환`);
       console.log('📦 Mock 데이터 샘플:', {
         id: mockPackages[0]?.id,
