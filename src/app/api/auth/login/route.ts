@@ -4,6 +4,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
+// Node.js Runtime 명시 (JWT 호환성을 위해)
+export const runtime = 'nodejs';
+
 // User 모델 정의 (임시)
 const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
@@ -36,8 +39,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 환경 변수 확인
-    if (!process.env.MONGODB_URI) {
+    // 런타임 환경 변수 확인
+    const mongoUri = process.env.MONGODB_URI;
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!mongoUri) {
       console.error('MONGODB_URI 환경 변수가 설정되지 않았습니다.');
       return NextResponse.json(
         { error: '데이터베이스 연결 오류가 발생했습니다.' },
@@ -45,7 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.JWT_SECRET) {
+    if (!jwtSecret) {
       console.error('JWT_SECRET 환경 변수가 설정되지 않았습니다.');
       return NextResponse.json(
         { error: '서버 설정 오류가 발생했습니다.' },

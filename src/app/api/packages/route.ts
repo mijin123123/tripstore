@@ -1,7 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDB from '@/lib/mongodb';
 import Package from '@/models/Package';
 import { mockPackages } from '@/lib/mock-data';
+
+// Node.js Runtime 명시 (MongoDB 연결을 위해)
+export const runtime = 'nodejs';
 
 export const dynamic = 'force-dynamic';
 

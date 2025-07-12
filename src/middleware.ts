@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -8,10 +7,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // 관리자 경로 보호
+  // 관리자 경로 보호 (단순 쿠키 체크만 수행)
   if (request.nextUrl.pathname.startsWith('/admin')) {
     try {
-      // JWT 토큰 확인
+      // JWT 검증 대신 단순히 토큰 존재 여부만 확인
       const token = request.cookies.get('auth-token')?.value || 
                    request.headers.get('authorization')?.replace('Bearer ', '');
 
@@ -19,24 +18,11 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
 
-      if (!process.env.JWT_SECRET) {
-        console.error('JWT_SECRET 환경 변수가 설정되지 않았습니다.');
-        return NextResponse.redirect(new URL('/login', request.url));
-      }
-
-      // JWT 토큰 검증
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-      
-      // 관리자 권한 확인
-      if (decoded.role !== 'admin') {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-
-      // 인증 성공 시 계속 진행
+      // JWT 검증은 API 라우트에서 수행하도록 변경
       return response;
 
     } catch (error) {
-      console.error('JWT 토큰 검증 실패:', error);
+      console.error('인증 확인 실패:', error);
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

@@ -3,6 +3,9 @@ import connectMongoDB from '@/lib/mongodb';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 
+// Node.js Runtime 명시 (MongoDB 연결을 위해)
+export const runtime = 'nodejs';
+
 // User 모델 정의 (로그인과 동일)
 const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
