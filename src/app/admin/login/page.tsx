@@ -27,13 +27,15 @@ export default function AdminLoginPage() {
 
       const data = await response.json();
 
-      if (response.ok) {
-        // 관리자 세션 정보를 로컬 스토리지에 저장
-        localStorage.setItem('adminSession', JSON.stringify(data.user));
-        console.log('관리자 로그인 성공');
+      if (response.ok && data.success) {
+        // JWT 토큰을 로컬 스토리지에 저장
+        localStorage.setItem('admin_token', data.token);
+        // 사용자 정보 저장
+        localStorage.setItem('admin_user', JSON.stringify(data.user));
+        console.log('✅ 관리자 로그인 성공');
         
         // 관리자 대시보드로 리다이렉트
-        router.push('/admin/dashboard');
+        router.push('/admin');
       } else {
         setError(data.error || '로그인에 실패했습니다.');
       }
