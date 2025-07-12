@@ -71,11 +71,12 @@ async function connectToSupabase(retries = 5) { // 재시도 횟수 증가
 
 export async function GET() {
   try {
-    console.log('🌟 === API: 패키지 목록 조회 요청 받음 ===');
+    console.log('🌟 === API: 패키지 목록 조회 요청 받음 (v2.0) ===');
     console.log('🔧 환경변수 상태:');
     console.log('- NEXT_PUBLIC_SUPABASE_URL:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
     console.log('- NEXT_PUBLIC_SUPABASE_ANON_KEY:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
     console.log('- NODE_ENV:', process.env.NODE_ENV);
+    console.log('- Mock 데이터 길이:', mockPackages.length);
     
     // Supabase 우선 연결 시도 (재시도 포함)
     try {
