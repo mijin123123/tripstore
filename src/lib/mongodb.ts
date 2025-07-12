@@ -39,15 +39,17 @@ async function connectMongoDB() {
 
   if (!cached.promise) {
     console.log('🔄 새로운 MongoDB 연결 시도...');
+    console.log('🔗 연결 URI 형식 확인 (보안을 위해 값은 표시하지 않음)');
     
+    // 서버리스 환경에 최적화된 연결 옵션
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000, // 5초 타임아웃 (Netlify 서버리스 함수 제한 시간 고려)
-      socketTimeoutMS: 8000, // 8초 소켓 타임아웃 (Netlify 10초 제한보다 짧게)
-      maxPoolSize: 5, // 서버리스 환경에 맞게 연결 풀 크기 축소
-      retryWrites: true,
-      connectTimeoutMS: 5000 // 연결 타임아웃 추가
-      // autoIndex 옵션 제거 - Mongoose 호환성 문제
+      serverSelectionTimeoutMS: 3000, // 3초로 줄임
+      socketTimeoutMS: 4000, // 4초로 줄임
+      maxPoolSize: 1, // 서버리스 환경에 최적화
+      retryWrites: false, // 첫 연결 시도만 하도록 변경
+      connectTimeoutMS: 3000, // 3초로 줄임
+      family: 4 // IPv4 강제 사용 (일부 환경에서 IPv6 문제 해결)
     };
 
     cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {

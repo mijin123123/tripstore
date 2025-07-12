@@ -21,6 +21,8 @@ const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
+    
+    console.log('📝 로그인 요청:', email);
 
     // 입력 데이터 검증
     if (!email || !password) {
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
     const jwtSecret = process.env.JWT_SECRET;
 
     if (!mongoUri) {
-      console.error('MONGODB_URI 환경 변수가 설정되지 않았습니다.');
+      console.error('❌ MONGODB_URI 환경 변수가 설정되지 않았습니다.');
       return NextResponse.json(
         { error: '데이터베이스 연결 오류가 발생했습니다.' },
         { status: 500 }
@@ -52,15 +54,25 @@ export async function POST(request: NextRequest) {
     }
 
     if (!jwtSecret) {
-      console.error('JWT_SECRET 환경 변수가 설정되지 않았습니다.');
+      console.error('❌ JWT_SECRET 환경 변수가 설정되지 않았습니다.');
       return NextResponse.json(
         { error: '서버 설정 오류가 발생했습니다.' },
         { status: 500 }
       );
     }
 
-    // MongoDB 연결
-    await connectMongoDB();
+    // MongoDB 연결 시도
+    try {
+      console.log('🔄 MongoDB 연결 시도 중...');
+      await connectMongoDB();
+      console.log('✅ MongoDB 연결 성공');
+    } catch (dbError) {
+      console.error('❌ MongoDB 연결 실패:', dbError);
+      return NextResponse.json(
+        { error: '데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
+        { status: 500 }
+      );
+    }
 
     // 사용자 조회
     const user = await User.findOne({ email: email.toLowerCase() });
