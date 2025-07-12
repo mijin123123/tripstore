@@ -168,26 +168,41 @@ export default function Home() {
 	const [seasonalPackages, setSeasonalPackages] = useState([]);
 	const [loading, setLoading] = useState(true);
 
-	// DB에서 패키지 데이터 가져오기
+	// DB에서 패키지 데이터 가져오기 (강화된 버전)
 	useEffect(() => {
 		const fetchPackages = async () => {
 			try {
 				setLoading(true);
-				const response = await fetch('/api/packages');
+				console.log('🔄 패키지 데이터 로딩 시작...');
+				
+				const response = await fetch('/api/packages', {
+					method: 'GET',
+					headers: {
+						'Cache-Control': 'no-cache',
+						'Content-Type': 'application/json'
+					}
+				});
 				
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
 				
 				const data = await response.json();
+				console.log('📥 API 응답 받음:', {
+					isArray: Array.isArray(data),
+					length: Array.isArray(data) ? data.length : Object.keys(data).length,
+					firstItem: Array.isArray(data) ? data[0] : data
+				});
 				
 				// API가 직접 배열을 반환하는지 또는 객체로 감싸져 있는지 확인
 				const packages = Array.isArray(data) ? data : (data.packages || []);
 				
 				if (packages.length > 0) {
-					// 추천 패키지 (처음 3개 사용)
+					console.log(`✅ ${packages.length}개 패키지 로드 성공!`);
+					
+					// 추천 패키지 (처음 6개 사용 - 더 많은 패키지 노출)
 					const featured = packages
-						.slice(0, 3)
+						.slice(0, 6)
 						.map(pkg => ({
 							id: pkg.id,
 							name: pkg.title,
@@ -197,9 +212,9 @@ export default function Home() {
 							image: pkg.image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1740"
 						}));
 					
-					// 특별 할인 상품 (다음 3개 사용)
+					// 특별 할인 상품 (다음 6개 사용 - 더 많은 패키지 노출)
 					const offers = packages
-						.slice(3, 6)
+						.slice(6, 12)
 						.map(pkg => ({
 							id: pkg.id,
 							name: pkg.title,
@@ -212,9 +227,9 @@ export default function Home() {
 						}));
 					
 					// 시즌별 추천 패키지 (카테고리별로 분류) - 해외여행 카테고리
-					const categories = ['문화/예술', '문화체험', '도시탐방', '건축/예술', '역사문화', '휴양/힐링'];
+					const categories = ['문화/예술', '문화체험', '도시탐방', '건축/예술', '역사문화', '휴양/힐링', '문화/자연', '역사/문화', '자연/문화'];
 					const seasonal = categories.map((category: string) => {
-						const categoryPackages = packages.filter((pkg: any) => pkg.category === category).slice(0, 2);
+						const categoryPackages = packages.filter((pkg: any) => pkg.category === category).slice(0, 4); // 각 카테고리에서 4개씩
 						return {
 							title: `${category} 여행`,
 							packages: categoryPackages.map((pkg: any) => ({
@@ -226,12 +241,20 @@ export default function Home() {
 						};
 					}).filter((season: any) => season.packages.length > 0);
 					
+					console.log('📊 데이터 분배:', {
+						featured: featured.length,
+						offers: offers.length,
+						seasonal: seasonal.length
+					});
+					
 					setFeaturedPackages(featured);
 					setSpecialOffers(offers);
 					setSeasonalPackages(seasonal);
+				} else {
+					console.warn('⚠️ 패키지 데이터가 없습니다.');
 				}
 			} catch (error) {
-				console.error('패키지 데이터 로딩 실패:', error);
+				console.error('❌ 패키지 데이터 로딩 실패:', error);
 			} finally {
 				setLoading(false);
 			}

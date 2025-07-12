@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { Search, Filter, PackageX, Map, Compass } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { packagesData } from "@/data/packagesData";
 import { formatPrice } from "@/utils/formatPrice";
 
 function PackagesContent() {
@@ -16,6 +15,49 @@ function PackagesContent() {
 	const [selectedType, setSelectedType] = useState(
 		searchParams.get("type") || "모든 종류"
 	);
+	const [packages, setPackages] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	// API에서 패키지 데이터 가져오기
+	useEffect(() => {
+		const fetchPackages = async () => {
+			try {
+				setLoading(true);
+				const response = await fetch('/api/packages');
+				
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				
+				const data = await response.json();
+				const packagesArray = Array.isArray(data) ? data : (data.packages || []);
+				
+				// DB 데이터를 packagesData 형식으로 변환
+				const formattedPackages = packagesArray.map((pkg: any) => ({
+					id: pkg.id,
+					destination: pkg.destination || pkg.title, // destination 필드가 없으면 title 사용
+					type: pkg.category || "해외여행", // category를 type으로 매핑
+					title: pkg.title,
+					description: pkg.description,
+					price: pkg.price,
+					duration: `${pkg.duration || 7}일`,
+					image: pkg.image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1740",
+					rating: 4.5, // 기본값
+					reviews: 128, // 기본값
+					name: pkg.title // 기존 코드와의 호환성을 위해 추가
+				}));
+				
+				setPackages(formattedPackages);
+			} catch (error) {
+				console.error('패키지 데이터 로딩 실패:', error);
+				setPackages([]); // 에러 시 빈 배열
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchPackages();
+	}, []);
 
 	useEffect(() => {
 		const destination = searchParams.get("destination") || "";
@@ -25,7 +67,7 @@ function PackagesContent() {
 	}, [searchParams]);
 
 	const filteredAndSortedPackages = useMemo(() => {
-		return packagesData.filter((pkg) => {
+		return packages.filter((pkg) => {
 			const matchesSearch = pkg.destination
 				.toLowerCase()
 				.includes(searchTerm.toLowerCase());
@@ -33,7 +75,7 @@ function PackagesContent() {
 				selectedType === "모든 종류" || pkg.type === selectedType;
 			return matchesSearch && matchesType;
 		});
-	}, [searchTerm, selectedType]);
+	}, [packages, searchTerm, selectedType]);
 
 	return (
 		<div>
@@ -116,16 +158,35 @@ function PackagesContent() {
 					
 					{/* 결과 카운터 */}
 					<div className="mb-6">
-						<h2 className="text-xl font-bold text-gray-800">
-							{filteredAndSortedPackages.length > 0 ? (
-								<>발견된 여행 상품 <span className="text-gray-500">{filteredAndSortedPackages.length}개</span></>
-							) : '검색 결과 없음'}
-						</h2>
+						{loading ? (
+							<div className="flex items-center space-x-2">
+								<div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+								<h2 className="text-xl font-bold text-gray-800">패키지를 불러오는 중...</h2>
+							</div>
+						) : (
+							<h2 className="text-xl font-bold text-gray-800">
+								{filteredAndSortedPackages.length > 0 ? (
+									<>발견된 여행 상품 <span className="text-gray-500">{filteredAndSortedPackages.length}개</span></>
+								) : '검색 결과 없음'}
+							</h2>
+						)}
 					</div>
 					
 					{/* Packages Grid */}
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{filteredAndSortedPackages.length > 0 ? (
+						{loading ? (
+							// 로딩 상태에서 스켈레톤 UI 표시
+							Array.from({ length: 6 }).map((_, index) => (
+								<div key={index} className="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden animate-pulse">
+									<div className="h-48 bg-gray-200"></div>
+									<div className="p-4">
+										<div className="h-6 bg-gray-200 rounded mb-2"></div>
+										<div className="h-4 bg-gray-200 rounded mb-3"></div>
+										<div className="h-4 bg-gray-200 rounded w-2/3"></div>
+									</div>
+								</div>
+							))
+						) : filteredAndSortedPackages.length > 0 ? (
 							filteredAndSortedPackages.map((pkg) => (
 								<Link
 									href={`/packages/${pkg.id}`}
