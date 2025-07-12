@@ -64,10 +64,16 @@ export async function POST(request: NextRequest) {
     // MongoDB 연결 시도
     try {
       console.log('🔄 MongoDB 연결 시도 중...');
-      await connectMongoDB();
+      
+      // 기존 연결 함수 대신 직접 연결 방식 사용
+      const connectMongoDBDirect = (await import('@/lib/mongodb-direct')).default;
+      await connectMongoDBDirect();
+      
       console.log('✅ MongoDB 연결 성공');
     } catch (dbError) {
       console.error('❌ MongoDB 연결 실패:', dbError);
+      console.error('❌ 오류 내용:', dbError.message);
+      
       return NextResponse.json(
         { error: '데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
         { status: 500 }
