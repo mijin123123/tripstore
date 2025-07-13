@@ -9,14 +9,5 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Next.js App Router의 API 라우트를 위한 리디렉션 규칙
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/next_api_*"
-  status = 200
-
-# 모든 다른 요청을 Next.js 페이지 서버로 전달
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/next_*"
-  status = 200
+# Netlify 플러그인이 라우팅을 자동으로 처리하므로,
+# 수동 리디렉션 규칙을 제거하여 충돌을 방지합니다.

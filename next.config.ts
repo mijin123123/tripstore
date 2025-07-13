@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Netlify와 같은 환경에 배포하기 위한 독립 실행형 출력 모드
+  output: 'standalone',
+
   // Netlify 배포를 위해 trailingSlash는 false로 유지합니다.
   trailingSlash: false,
   
