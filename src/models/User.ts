@@ -51,7 +51,18 @@ UserSchema.set('toJSON', {
   }
 });
 
-// 모델이 이미 존재하는 경우 재사용 (Next.js의 Hot Reload 대응)
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
+/**
+ * User 모델을 가져오거나 생성합니다.
+ * 이 방식은 Next.js의 개발 환경에서 모델이 여러 번 컴파일되는 문제를 방지합니다.
+ */
+let User;
+
+try {
+  // 기존 모델이 있으면 재사용
+  User = mongoose.model('User');
+} catch (error) {
+  // 모델이 없으면 새로 생성
+  User = mongoose.model('User', UserSchema);
+}
 
 export default User;

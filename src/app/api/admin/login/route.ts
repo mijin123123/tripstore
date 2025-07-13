@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { authenticateUser } from '@/lib/auth';
 
+// Node.js Runtime 명시 (JWT 호환성을 위해)
+export const runtime = 'nodejs';
+
 /**
  * 관리자 로그인 API 핸들러
  */
@@ -9,11 +12,25 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password } = body;
     
+    console.log('📝 관리자 로그인 시도:', email);
+    
     // 필수 필드 확인
     if (!email || !password) {
       return NextResponse.json(
         { success: false, error: '이메일과 비밀번호를 입력해주세요.' },
         { status: 400 }
+      );
+    }
+    
+    // 환경 변수 확인
+    if (!process.env.MONGODB_URI || !process.env.JWT_SECRET) {
+      console.error('❌ 필수 환경 변수가 설정되지 않았습니다');
+      console.error('MONGODB_URI 설정됨:', !!process.env.MONGODB_URI);
+      console.error('JWT_SECRET 설정됨:', !!process.env.JWT_SECRET);
+      
+      return NextResponse.json(
+        { success: false, error: '서버 설정 오류가 발생했습니다.' },
+        { status: 500 }
       );
     }
     

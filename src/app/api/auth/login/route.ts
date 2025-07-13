@@ -65,9 +65,12 @@ export async function POST(request: NextRequest) {
     try {
       console.log('🔄 MongoDB 연결 시도 중...');
       
-      // 기존 연결 함수 대신 직접 연결 방식 사용
-      const connectMongoDBDirect = (await import('@/lib/mongodb-direct')).default;
-      await connectMongoDBDirect();
+      // 직접 연결
+      await mongoose.connect(mongoUri, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
+      });
       
       console.log('✅ MongoDB 연결 성공');
     } catch (dbError) {
