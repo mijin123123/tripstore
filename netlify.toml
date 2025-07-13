@@ -5,7 +5,18 @@
 [build.environment]
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
-  
-# The Netlify Next.js plugin will handle API routes and other routing automatically.
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Next.js App Router의 API 라우트를 위한 리디렉션 규칙
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/next_api_*"
+  status = 200
+
+# 모든 다른 요청을 Next.js 페이지 서버로 전달
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/next_*"
+  status = 200
