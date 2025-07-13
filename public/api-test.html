@@ -91,6 +91,7 @@
 
         async function testNetlifyLogin() {
             try {
+                log('Netlify Login 테스트 시작...');
                 const response = await fetch('/.netlify/functions/login', {
                     method: 'POST',
                     headers: {
@@ -101,10 +102,15 @@
                         password: 'test123'
                     })
                 });
+                
+                log('응답 상태: ' + response.status);
+                log('응답 헤더: ' + JSON.stringify([...response.headers.entries()]));
+                
                 const data = await response.json();
-                log('Netlify Login: ' + JSON.stringify(data, null, 2));
+                log('Netlify Login 응답: ' + JSON.stringify(data, null, 2));
             } catch (error) {
                 log('Netlify Login 오류: ' + error.message, true);
+                log('오류 스택: ' + error.stack, true);
             }
         }
 
