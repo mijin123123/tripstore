@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // 서버 렌더링 활성화 (기본값)
   // 정적 내보내기를 사용하지 않음으로써 동적 라우팅과 API 라우트를 활성화
-  trailingSlash: true,
+  trailingSlash: false, // Netlify에서는 false로 설정
   
   images: {
     // 넷리파이에서는 Next.js의 이미지 최적화를 사용할 수 없으므로 비활성화
@@ -32,18 +32,16 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // 정적 생성 문제 해결을 위한 설정
-  output: 'standalone', // 독립 실행형 출력 사용
+  // Netlify에 최적화된 출력 설정 - API 라우트를 위해 export 대신 standalone 사용
+  // output: 'export', // API 라우트 비활성화됨
+  distDir: '.next',
   
   // 서버 컴포넌트 및 실험적 기능 설정
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'tripstore.netlify.app'],
+      allowedOrigins: ['localhost:3000', 'mellifluous-druid-c340bb.netlify.app'],
     },
   },
-  
-  // Netlify에서 정적 생성 관련 문제 해결을 위한 설정
-  distDir: '.next',
   
   // 페이지 생성 방식을 더 명확하게 제어
   generateBuildId: async () => {

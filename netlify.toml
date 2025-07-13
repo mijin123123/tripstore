@@ -5,11 +5,7 @@
 [build.environment]
   # MongoDB 환경변수 (실제 값은 Netlify 환경변수에서 설정)
   MONGODB_URI = ""
-  # 기존 Supabase 환경변수는 사용 중지
-  # NEXT_PUBLIC_SUPABASE_URL = "https://qgegpackzjjyceraqrny.supabase.co"
-  # NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZWdwYWNrempqeWNlcmFxcm55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjUwMDMsImV4cCI6MjA2NzY0MTAwM30.MFLBWRg0i-rh2yfUdl51wsnvGGqBLOWUjsIks73vtO0"
-  # 기존 Neon Database URL (사용 중지)
-  # NEON_DATABASE_URL = "postgresql://neondb_owner:dummy@ep-dummy.neon.tech/dummy"
+  JWT_SECRET = ""
   # Next.js에 사전 렌더링을 비활성화하도록 지시하는 환경 변수
   NEXT_DISABLE_PRERENDER = "true"
   NEXT_TELEMETRY_DISABLED = "1"
@@ -19,6 +15,12 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# API 라우트 리다이렉트 설정
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/___netlify-handler"
+  status = 200
+
 # API 엔드포인트 캐시 무효화
 [[headers]]
   for = "/api/*"
@@ -27,15 +29,7 @@
     Pragma = "no-cache"
     Expires = "0"
 
+# Next.js 함수 설정
 [functions]
-  included_files = ["!node_modules/@next/swc-*/**, !.next/cache/**"]
+  directory = ".netlify/functions"
   node_bundler = "esbuild"
-  
-  # 함수 타임아웃 설정 (최대 10초, Netlify 한계값)
-  [functions.config]
-    timeout_seconds = 10
-
-  # 몽고DB 연결 함수 최적화
-  [functions."api/packages"]
-    node_bundler = "esbuild"
-    included_files = ["src/lib/fallback-data.ts", "src/lib/mock-data.ts"]
