@@ -53,8 +53,7 @@ async function connectMongoDB() {
       connectTimeoutMS: 10000, // 10초로 증가
       family: 4, // IPv4 강제 사용
       authSource: 'admin', // 인증 소스 명시
-      ssl: true, // SSL 연결 강제
-      sslValidate: true // SSL 검증 활성화
+      ssl: true // SSL 연결 강제 (sslValidate 제거)
     };
 
     cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {
