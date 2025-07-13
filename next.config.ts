@@ -54,7 +54,12 @@ const nextConfig: NextConfig = {
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   
   // MongoDB 관련 트랜스파일 패키지 (필요시)
-  // transpilePackages: ['mongoose'],
+  transpilePackages: ['mongoose'],
+  
+  // 환경 변수 설정
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
   
   // 정적 최적화 비활성화
   poweredByHeader: false,

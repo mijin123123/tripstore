@@ -8,18 +8,20 @@ if (!MONGODB_URI && process.env.NODE_ENV !== 'development' && typeof window === 
 }
 
 // Global MongoDB connection cache type
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
 declare global {
-  var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
+  var mongoose: MongooseCache | undefined;
 }
 
 // Global MongoDB connection cache
-let cached = global.mongoose;
+let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (!global.mongoose) {
+  global.mongoose = cached;
 }
 
 async function connectMongoDB() {
@@ -44,12 +46,15 @@ async function connectMongoDB() {
     // 서버리스 환경에 최적화된 연결 옵션
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 3000, // 3초로 줄임
-      socketTimeoutMS: 4000, // 4초로 줄임
-      maxPoolSize: 1, // 서버리스 환경에 최적화
-      retryWrites: false, // 첫 연결 시도만 하도록 변경
-      connectTimeoutMS: 3000, // 3초로 줄임
-      family: 4 // IPv4 강제 사용 (일부 환경에서 IPv6 문제 해결)
+      serverSelectionTimeoutMS: 10000, // 10초로 증가
+      socketTimeoutMS: 45000, // 45초로 증가
+      maxPoolSize: 10, // 연결 풀 크기 증가
+      retryWrites: true, // 재시도 활성화
+      connectTimeoutMS: 10000, // 10초로 증가
+      family: 4, // IPv4 강제 사용
+      authSource: 'admin', // 인증 소스 명시
+      ssl: true, // SSL 연결 강제
+      sslValidate: true // SSL 검증 활성화
     };
 
     cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {

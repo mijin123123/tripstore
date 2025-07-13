@@ -65,17 +65,14 @@ export async function POST(request: NextRequest) {
     try {
       console.log('🔄 MongoDB 연결 시도 중...');
       
-      // 직접 연결
-      await mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 5000,
-        connectTimeoutMS: 5000,
-      });
+      // connectMongoDB 함수 사용
+      await connectMongoDB();
       
       console.log('✅ MongoDB 연결 성공');
-    } catch (dbError) {
+    } catch (dbError: any) {
       console.error('❌ MongoDB 연결 실패:', dbError);
       console.error('❌ 오류 내용:', dbError.message);
+      console.error('❌ 스택 트레이스:', dbError.stack);
       
       return NextResponse.json(
         { error: '데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
