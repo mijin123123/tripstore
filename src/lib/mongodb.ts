@@ -48,18 +48,13 @@ async function connectMongoDB() {
       bufferCommands: false,
       serverSelectionTimeoutMS: 10000, // 10초로 증가
       socketTimeoutMS: 45000, // 45초로 증가
-      maxPoolSize: 10, // 연결 풀 크기 증가
-      retryWrites: true, // 재시도 활성화
-      connectTimeoutMS: 10000, // 10초로 증가
-      family: 4, // IPv4 강제 사용
-      authSource: 'admin', // 인증 소스 명시
-      ssl: true // SSL 연결 강제 (sslValidate 제거)
+      ssl: true, // SSL/TLS 연결 강제
     };
 
-    cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {
-      console.log('✅ MongoDB 연결 성공');
-      console.log('📊 연결 상태:', mongooseInstance.connection.readyState);
-      return mongooseInstance;
+    cached.promise = mongoose.connect(mongoUri, opts).then((mongoose) => {
+      console.log('✅ 새로운 MongoDB 연결 성공!');
+      console.log('📊 연결 상태:', mongoose.connection.readyState);
+      return mongoose;
     }).catch((error) => {
       console.error('❌ MongoDB 연결 실패:', error.message);
       console.error('🔍 연결 문자열 확인:', mongoUri ? '설정됨' : '누락됨');
