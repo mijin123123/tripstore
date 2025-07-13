@@ -17,6 +17,8 @@
     <button onclick="testEnvCheck()">Environment Check</button>
     <button onclick="testDebug()">Debug Check</button>
     <button onclick="testLogin()">Login Test</button>
+    <button onclick="testNetlifyHealth()">Netlify Health</button>
+    <button onclick="testNetlifyLogin()">Netlify Login</button>
     
     <div id="results"></div>
     
@@ -77,10 +79,40 @@
             }
         }
 
+        async function testNetlifyHealth() {
+            try {
+                const response = await fetch('/.netlify/functions/health');
+                const data = await response.json();
+                log('Netlify Health: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Netlify Health 오류: ' + error.message, true);
+            }
+        }
+
+        async function testNetlifyLogin() {
+            try {
+                const response = await fetch('/.netlify/functions/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'test123'
+                    })
+                });
+                const data = await response.json();
+                log('Netlify Login: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Netlify Login 오류: ' + error.message, true);
+            }
+        }
+
         // 페이지 로드 시 자동으로 health check 실행
         window.onload = function() {
             log('API 테스트 페이지 로드됨');
             testHealth();
+            testNetlifyHealth();
         };
     </script>
 </body>

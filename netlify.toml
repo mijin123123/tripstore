@@ -10,7 +10,12 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# API Routes 처리
+# Functions 설정
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# API Routes 처리 (Next.js)
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/___netlify-handler"
@@ -25,6 +30,15 @@
 # Headers for API routes
 [[headers]]
   for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Headers for Netlify Functions
+[[headers]]
+  for = "/.netlify/functions/*"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
     Access-Control-Allow-Origin = "*"

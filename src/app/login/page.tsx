@@ -27,13 +27,27 @@ export default function LoginPage() {
       
       console.log('로그인 시도:', email);
       
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      // 먼저 Netlify Functions를 시도
+      let response;
+      try {
+        response = await fetch('/.netlify/functions/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+      } catch (netlifyError: any) {
+        console.log('Netlify Functions 실패, Next.js API로 fallback:', netlifyError.message);
+        // Next.js API로 fallback
+        response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+      }
 
       const data = await response.json();
 
