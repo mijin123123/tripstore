@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Netlify에 최적화된 설정
+  // Netlify 배포를 위해 trailingSlash는 false로 유지합니다.
   trailingSlash: false,
   
   images: {
-    unoptimized: true,
+    // Netlify의 이미지 최적화 기능을 사용하지 않는 경우 true로 설정할 수 있습니다.
+    // unoptimized: true, 
     remotePatterns: [
       {
         protocol: "https",
@@ -22,55 +23,20 @@ const nextConfig: NextConfig = {
     ],
   },
   
+  // 빌드 시 타입스크립트 및 ESLint 오류를 무시합니다.
+  // 프로덕션 빌드 전에는 이 옵션들을 제거하고 오류를 해결하는 것이 좋습니다.
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
   typescript: {
     ignoreBuildErrors: true,
   },
-  
-  // Netlify Functions를 위한 설정
-  distDir: '.next',
-  
-  // 서버 컴포넌트 및 실험적 기능 설정
+
+  // serverActions는 필요 시 유지합니다.
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'mellifluous-druid-c340bb.netlify.app'],
     },
-  },
-  
-  // 빌드 ID 생성
-  generateBuildId: async () => {
-    return 'tripstore-build-' + Date.now()
-  },
-  
-  // 파일 확장자 지정
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  
-  // MongoDB 관련 트랜스파일 패키지
-  transpilePackages: ['mongoose'],
-  
-  // 정적 최적화 비활성화
-  poweredByHeader: false,
-  
-  // 리다이렉트 설정
-  async redirects() {
-    return []
-  },
-  
-  // 헤더 설정
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
-        ],
-      },
-    ]
   },
 };
 

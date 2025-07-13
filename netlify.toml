@@ -6,41 +6,6 @@
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
   
-# Next.js Plugin
+# The Netlify Next.js plugin will handle API routes and other routing automatically.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-# Functions 설정
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-# API Routes 처리 (Next.js)
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/___netlify-handler"
-  status = 200
-
-# Catch-all for SPA routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Headers for API routes
-[[headers]]
-  for = "/api/*"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-
-# Headers for Netlify Functions
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
