@@ -3,33 +3,30 @@
   publish = ".next"
 
 [build.environment]
-  # MongoDB 환경변수 (실제 값은 Netlify 환경변수에서 설정)
-  MONGODB_URI = ""
-  JWT_SECRET = ""
-  # Next.js에 사전 렌더링을 비활성화하도록 지시하는 환경 변수
-  NEXT_DISABLE_PRERENDER = "true"
-  NEXT_TELEMETRY_DISABLED = "1"
   NODE_VERSION = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
   
-# 넷리파이에서 Next.js 사이트를 올바르게 배포하기 위한 플러그인
+# Next.js Plugin
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# API 라우트 리다이렉트 설정
+# API Routes 처리
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/___netlify-handler"
   status = 200
 
-# API 엔드포인트 캐시 무효화
+# Catch-all for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for API routes
 [[headers]]
   for = "/api/*"
   [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
-    Pragma = "no-cache"
-    Expires = "0"
-
-# Next.js 함수 설정
-[functions]
-  directory = ".netlify/functions"
-  node_bundler = "esbuild"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"

@@ -19,13 +19,18 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 export async function POST(request: NextRequest) {
+  console.log('🔄 로그인 API 호출됨');
+  
   try {
     const { email, password } = await request.json();
     
     console.log('📝 로그인 요청:', email);
+    console.log('🌍 환경:', process.env.NODE_ENV);
+    console.log('🔗 MongoDB URI 존재:', !!process.env.MONGODB_URI);
 
     // 입력 데이터 검증
     if (!email || !password) {
+      console.log('❌ 입력 데이터 누락');
       return NextResponse.json(
         { error: '이메일과 비밀번호를 입력해주세요.' },
         { status: 400 }
@@ -35,6 +40,7 @@ export async function POST(request: NextRequest) {
     // 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('❌ 이메일 형식 오류');
       return NextResponse.json(
         { error: '올바른 이메일 형식이 아닙니다.' },
         { status: 400 }
