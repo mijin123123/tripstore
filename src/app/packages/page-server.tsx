@@ -3,18 +3,24 @@ import { Search, Filter, PackageX, Map, Compass } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/utils/formatPrice";
-import connectMongoDB from '@/lib/mongodb';
-import Package from '@/models/Package';
+import { supabase } from '@/lib/supabase';
 
 // 서버에서 패키지 데이터 가져오기
 async function getPackages() {
 	try {
-		await connectMongoDB();
-		const packages = await Package.find({}).sort({ createdAt: -1 }).lean();
+		const { data: packages, error } = await supabase
+			.from('packages')
+			.select('*')
+			.order('created_at', { ascending: false });
+
+		if (error) {
+			console.error('패키지 데이터 로딩 실패:', error);
+			return [];
+		}
 		
 		// 직렬화 가능한 형태로 변환
 		return packages.map((pkg: any) => ({
-			id: pkg._id.toString(),
+			id: pkg.id.toString(),
 			destination: pkg.destination || pkg.title,
 			type: pkg.category || "해외여행",
 			title: pkg.title,

@@ -19,29 +19,27 @@ export default function AdminLoginPage() {
     try {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: '서버 오류' }));
+        throw new Error(errorData.error || '로그인 실패');
+      }
+
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        // JWT 토큰을 로컬 스토리지에 저장
+      if (data.success) {
         localStorage.setItem('admin_token', data.token);
-        // 사용자 정보 저장
         localStorage.setItem('admin_user', JSON.stringify(data.user));
-        console.log('✅ 관리자 로그인 성공');
-        
-        // 관리자 대시보드로 리다이렉트
         router.push('/admin');
       } else {
         setError(data.error || '로그인에 실패했습니다.');
       }
     } catch (error) {
-      console.error('로그인 오류:', error);
-      setError('서버 오류가 발생했습니다.');
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }

@@ -1,35 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectMongoDB from '@/lib/mongodb';
+import { supabaseAdmin } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
-import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 
-// Node.js Runtime 명시 (MongoDB 연결을 위해)
+// Node.js Runtime 명시 (JWT 호환성을 위해)
 export const runtime = 'nodejs';
 
-// User 모델 정의 (로그인과 동일)
-const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
-  name: { type: String },
-  created_at: { type: Date, default: Date.now }
-});
-
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
-
 export async function POST(request: NextRequest) {
-  console.log('=== 회원가입 API 시작 ===');
+  console.log('🔄 회원가입 API 호출됨');
   
   try {
-    console.log('📥 요청 본문 파싱 시도...');
-    const { name, email, password } = await request.json();
-    console.log('✅ 요청 데이터:', { name, email, password: '***' });
+    const { email, password, name } = await request.json();
+    
+    console.log('📝 회원가입 요청:', email, name);
 
     // 입력 데이터 검증
-    if (!name || !email || !password) {
-      console.log('❌ 필수 필드 누락');
+    if (!email || !password || !name) {
+      console.log('❌ 입력 데이터 누락');
       return NextResponse.json(
-        { error: '모든 필드를 입력해주세요.' },
+        { error: '이메일, 비밀번호, 이름을 모두 입력해주세요.' },
         { status: 400 }
       );
     }
@@ -37,7 +26,7 @@ export async function POST(request: NextRequest) {
     // 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.log('❌ 이메일 형식 오류:', email);
+      console.log('❌ 이메일 형식 오류');
       return NextResponse.json(
         { error: '올바른 이메일 형식이 아닙니다.' },
         { status: 400 }
@@ -53,88 +42,76 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 환경 변수 확인
-    if (!process.env.MONGODB_URI) {
-      console.error('❌ MONGODB_URI 환경 변수가 설정되지 않았습니다.');
-      return NextResponse.json(
-        { error: '데이터베이스 연결 설정이 없습니다.' },
-        { status: 500 }
-      );
-    }
+    // 기존 사용자 확인
+    const { data: existingUser, error: checkError } = await supabaseAdmin
+      .from('users')
+      .select('email')
+      .eq('email', email)
+      .single();
 
-    console.log('🔗 MongoDB 연결 시도...');
-    await connectMongoDB();
-    console.log('✅ MongoDB 연결 성공');
-
-    // 이메일 중복 확인
-    console.log('🔍 이메일 중복 확인:', email);
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    
     if (existingUser) {
-      console.log('❌ 이미 존재하는 이메일:', email);
+      console.log('❌ 이미 존재하는 이메일');
       return NextResponse.json(
         { error: '이미 사용 중인 이메일입니다.' },
         { status: 409 }
       );
     }
 
-    // 비밀번호 해시화
-    console.log('🔐 비밀번호 해시화...');
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    console.log('✅ 비밀번호 해시화 완료');
+    // 비밀번호 해시
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    // 사용자 생성
-    console.log('👤 새 사용자 생성...');
-    const newUser = await User.create({
-      name: name.trim(),
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      role: 'user'
+    // 새 사용자 생성
+    const { data: newUser, error: insertError } = await supabaseAdmin
+      .from('users')
+      .insert([
+        {
+          email,
+          password_hash: hashedPassword,
+          name,
+          role: 'user',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('❌ 사용자 생성 실패:', insertError);
+      return NextResponse.json(
+        { error: '회원가입 중 오류가 발생했습니다.' },
+        { status: 500 }
+      );
+    }
+
+    console.log('✅ 회원가입 성공:', newUser.email);
+
+    // JWT 토큰 생성
+    const jwtSecret = process.env.JWT_SECRET;
+    const token = jwt.sign(
+      { 
+        id: newUser.id, 
+        email: newUser.email, 
+        role: newUser.role 
+      },
+      jwtSecret!,
+      { expiresIn: '1d' }
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: '회원가입이 완료되었습니다.',
+      token,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role
+      }
     });
 
-    console.log('✅ 사용자 생성 성공:', newUser._id);
-
-    // 성공 응답 (비밀번호 제외)
-    return NextResponse.json({
-      message: '회원가입이 완료되었습니다.',
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        created_at: newUser.created_at
-      }
-    }, { status: 201 });
-
   } catch (error) {
-    console.error('💥 회원가입 오류:', error);
-    
-    // MongoDB 중복 키 오류 처리
-    if (error instanceof mongoose.Error && 'code' in error && error.code === 11000) {
-      return NextResponse.json(
-        { error: '이미 사용 중인 이메일입니다.' },
-        { status: 409 }
-      );
-    }
-
-    // Mongoose 유효성 검사 오류
-    if (error instanceof mongoose.Error.ValidationError) {
-      return NextResponse.json(
-        { error: '입력 데이터가 올바르지 않습니다.', details: error.message },
-        { status: 400 }
-      );
-    }
-
-    // MongoDB 연결 오류
-    if (error instanceof mongoose.Error) {
-      return NextResponse.json(
-        { error: '데이터베이스 연결 오류가 발생했습니다.' },
-        { status: 500 }
-      );
-    }
-
-    // 기타 오류
+    console.error('💥 회원가입 처리 중 예외 발생:', error);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다.' },
       { status: 500 }

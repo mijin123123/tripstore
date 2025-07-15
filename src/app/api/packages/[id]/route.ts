@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectMongoDB from '@/lib/mongodb';
-import Package from '@/models/Package';
-import mongoose from 'mongoose';
-
-// Node.js Runtime 명시 (MongoDB 연결을 위해)
-export const runtime = 'nodejs';
+import { supabase } from '@/lib/supabase';
 
 // 특정 패키지 조회 API
 export async function GET(
@@ -14,13 +9,10 @@ export async function GET(
   try {
     console.log(`API: 패키지 ID ${params.id} 조회 요청 받음`);
     
-    // MongoDB 연결
-    await connectMongoDB();
-    
     const { id } = params;
     
-    // MongoDB ObjectId 형식 확인
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    // UUID 형식 확인 (간단한 체크)
+    if (!id || id.length < 36) {
       return NextResponse.json(
         { error: '잘못된 패키지 ID 형식입니다.' },
         { status: 400 }
@@ -28,31 +20,21 @@ export async function GET(
     }
     
     // 패키지 조회
-    const packageData = await Package.findById(id);
+    const { data: packageData, error } = await supabase
+      .from('packages')
+      .select('*')
+      .eq('id', id)
+      .single();
     
-    if (!packageData) {
+    if (error || !packageData) {
       return NextResponse.json(
         { error: '패키지를 찾을 수 없습니다.' },
         { status: 404 }
       );
     }
     
-    // 응답 데이터 변환
-    const responseData = {
-      id: packageData._id.toString(),
-      title: packageData.title,
-      description: packageData.description,
-      price: packageData.price,
-      duration: packageData.duration,
-      location: packageData.location,
-      image_url: packageData.image_url,
-      includes: packageData.includes,
-      available_dates: packageData.available_dates,
-      created_at: packageData.created_at
-    };
-    
     console.log(`패키지 조회 성공: ${packageData.title}`);
-    return NextResponse.json(responseData);
+    return NextResponse.json(packageData);
     
   } catch (error) {
     console.error('패키지 조회 API 오류:', error);
@@ -71,13 +53,10 @@ export async function PUT(
   try {
     console.log(`API: 패키지 ID ${params.id} 수정 요청 받음`);
     
-    // MongoDB 연결
-    await connectMongoDB();
-    
     const { id } = params;
     
-    // MongoDB ObjectId 형식 확인
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    // UUID 형식 확인
+    if (!id || id.length < 36) {
       return NextResponse.json(
         { error: '잘못된 패키지 ID 형식입니다.' },
         { status: 400 }
@@ -86,36 +65,23 @@ export async function PUT(
     
     const updateData = await request.json();
     
-    // 패키지 업데이트
-    const updatedPackage = await Package.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    // updated_at 자동 설정은 트리거에서 처리됨
+    const { data: updatedPackage, error } = await supabase
+      .from('packages')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
     
-    if (!updatedPackage) {
+    if (error || !updatedPackage) {
       return NextResponse.json(
-        { error: '패키지를 찾을 수 없습니다.' },
+        { error: '패키지를 찾을 수 없거나 수정에 실패했습니다.' },
         { status: 404 }
       );
     }
     
-    // 응답 데이터 변환
-    const responseData = {
-      id: updatedPackage._id.toString(),
-      title: updatedPackage.title,
-      description: updatedPackage.description,
-      price: updatedPackage.price,
-      duration: updatedPackage.duration,
-      location: updatedPackage.location,
-      image_url: updatedPackage.image_url,
-      includes: updatedPackage.includes,
-      available_dates: updatedPackage.available_dates,
-      created_at: updatedPackage.created_at
-    };
-    
     console.log(`패키지 수정 성공: ${updatedPackage.title}`);
-    return NextResponse.json(responseData);
+    return NextResponse.json(updatedPackage);
     
   } catch (error) {
     console.error('패키지 수정 API 오류:', error);
@@ -134,13 +100,10 @@ export async function DELETE(
   try {
     console.log(`API: 패키지 ID ${params.id} 삭제 요청 받음`);
     
-    // MongoDB 연결
-    await connectMongoDB();
-    
     const { id } = params;
     
-    // MongoDB ObjectId 형식 확인
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    // UUID 형식 확인
+    if (!id || id.length < 36) {
       return NextResponse.json(
         { error: '잘못된 패키지 ID 형식입니다.' },
         { status: 400 }
@@ -148,11 +111,16 @@ export async function DELETE(
     }
     
     // 패키지 삭제
-    const deletedPackage = await Package.findByIdAndDelete(id);
+    const { data: deletedPackage, error } = await supabase
+      .from('packages')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
     
-    if (!deletedPackage) {
+    if (error || !deletedPackage) {
       return NextResponse.json(
-        { error: '패키지를 찾을 수 없습니다.' },
+        { error: '패키지를 찾을 수 없거나 삭제에 실패했습니다.' },
         { status: 404 }
       );
     }
@@ -160,7 +128,7 @@ export async function DELETE(
     console.log(`패키지 삭제 성공: ${deletedPackage.title}`);
     return NextResponse.json({ 
       message: '패키지가 성공적으로 삭제되었습니다.',
-      id: deletedPackage._id.toString()
+      id: deletedPackage.id
     });
     
   } catch (error) {

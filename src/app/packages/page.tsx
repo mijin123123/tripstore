@@ -8,7 +8,7 @@ import PackagesClient from './PackagesClient';
  * 패키지 페이지 - 단순화된 버전
  * 
  * 서버리스 환경에서 안정적인 렌더링을 위해 완전히 정적 데이터를 사용합니다.
- * 클라이언트 컴포넌트에서 추가로 MongoDB 데이터를 가져오도록 시도합니다.
+ * 클라이언트 컴포넌트에서 추가로 Supabase 데이터를 가져오도록 시도합니다.
  */
 export default function PackagesPage() {
 	// 하드코딩된 데이터 사용 (안정적 렌더링 보장)

@@ -1,5 +1,5 @@
 // 직접 하드코딩된 패키지 데이터
-// MongoDB 연결이 실패하거나 Netlify 배포 환경에서 사용됨
+// 데이터베이스 연결이 실패하거나 Netlify 배포 환경에서 사용됨
 
 export const hardcodedPackages = [
   {

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { verifyToken } from '@/lib/auth';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -29,8 +28,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           return;
         }
         
-        // 토큰 검증
-        const user = verifyToken(token);
+        // 토큰 검증을 위한 API 호출
+        const response = await fetch('/api/admin/verify-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          console.log('❌ 토큰 검증 실패, 로그인 페이지로 이동');
+          localStorage.removeItem('admin_token');
+          router.push('/admin/login');
+          return;
+        }
+        
+        const result = await response.json();
+        const user = result.user;
         
         console.log('👤 사용자 정보:', user?.email);
         

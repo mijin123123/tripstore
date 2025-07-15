@@ -22,7 +22,9 @@ exports.handler = async (event, context) => {
       timestamp: new Date().toISOString(),
       method: event.httpMethod,
       env: {
-        hasMongoUri: !!process.env.MONGODB_URI,
+        hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        hasSupabaseServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
         hasJwtSecret: !!process.env.JWT_SECRET,
         nodeEnv: process.env.NODE_ENV || 'production'
       }

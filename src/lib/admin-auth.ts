@@ -40,14 +40,14 @@ export function createAdminSession() {
   };
 }
 
-// MongoDB와 통합된 관리자 권한 확인 함수
+// Supabase와 통합된 관리자 권한 확인 함수
 export async function checkAdminPermission(email: string) {
   // 특정 이메일로만 관리자 권한 제한
   const isLocalAdmin = isAdminUser(email);
   
-  // MongoDB에서 관리자 권한 확인
-  const isMongoAdmin = await isAdmin(email);
+  // Supabase에서 관리자 권한 확인
+  const isSupabaseAdmin = await isAdmin(email);
   
   // 둘 중 하나라도 관리자이면 관리자로 인정
-  return isLocalAdmin || isMongoAdmin;
+  return isLocalAdmin || isSupabaseAdmin;
 }

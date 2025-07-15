@@ -1,12 +1,14 @@
-# Netlify 환경변수 설정 가이드 (MongoDB Atlas)
+# Netlify 환경변수 설정 가이드 (Supabase)
 
 ## 필수 환경변수 설정
 
 Netlify 대시보드에서 다음 환경변수들을 설정해야 합니다:
 
-### 1. MongoDB 연결 (필수)
+### 1. Supabase 연결 (필수)
 ```
-MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
 ### 2. JWT 시크릿 (필수)
@@ -42,17 +44,6 @@ NODE_VERSION=20
 3. **배포 재시작**
    - 환경변수 설정 완료 후
    - **Deploys** 탭 → **Trigger deploy** → **Deploy site**
-
-## MongoDB Atlas 네트워크 설정
-
-MongoDB Atlas에서 Netlify 접근을 허용해야 합니다:
-
-1. **MongoDB Atlas 대시보드** 로그인
-2. **Network Access** → **IP Access List**
-3. **Add IP Address** 클릭
-4. **Allow access from anywhere** (0.0.0.0/0) 선택
-5. **Confirm** 클릭
-
 ## 배포 후 테스트 방법
 
 1. **API 테스트**
@@ -71,11 +62,6 @@ MongoDB Atlas에서 Netlify 접근을 허용해야 합니다:
    ```
 
 ## 문제 해결
-
-### MONGODB_URI 오류
-- 환경변수 이름 정확히 입력 (대소문자 구분)
-- MongoDB 연결 문자열에 특수문자가 있는 경우 URL 인코딩
-- Atlas 네트워크 접근 허용 설정 확인
 
 ### JWT_SECRET 오류  
 - 최소 32자 이상의 복잡한 문자열 사용

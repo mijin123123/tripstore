@@ -1,4 +1,5 @@
-const { MongoClient } = require('mongodb');
+const { createClient } = require('@supabase/supabase-js');
+const bcrypt = require('bcryptjs');
 
 exports.handler = async (event, context) => {
   // CORS 헤더 설정
@@ -29,26 +30,37 @@ exports.handler = async (event, context) => {
 
   try {
     // 환경 변수 확인
-    const mongoUri = process.env.MONGODB_URI;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const jwtSecret = process.env.JWT_SECRET;
 
     console.log('🔍 환경 변수 확인:');
-    console.log('- MONGODB_URI:', !!mongoUri);
+    console.log('- SUPABASE_URL:', !!supabaseUrl);
+    console.log('- SUPABASE_SERVICE_KEY:', !!supabaseServiceKey);
     console.log('- JWT_SECRET:', !!jwtSecret);
 
-    if (!mongoUri) {
+    if (!supabaseUrl || !supabaseServiceKey) {
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
-          error: 'MONGODB_URI 환경 변수가 설정되지 않았습니다.',
+          error: 'Supabase 환경 변수가 설정되지 않았습니다.',
           env_check: {
-            MONGODB_URI: false,
+            SUPABASE_URL: !!supabaseUrl,
+            SUPABASE_SERVICE_KEY: !!supabaseServiceKey,
             JWT_SECRET: !!jwtSecret
           }
         })
       };
     }
+
+    // Supabase 클라이언트 생성
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
 
     // 요청 바디 파싱
     const { email, password } = JSON.parse(event.body);
@@ -63,64 +75,51 @@ exports.handler = async (event, context) => {
 
     console.log('📝 로그인 시도:', email);
 
-    // MongoDB 연결 테스트
-    const client = new MongoClient(mongoUri);
+    // Supabase에서 사용자 조회
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    console.log('🔍 사용자 조회 결과:', user ? '찾음' : '없음');
     
-    try {
-      await client.connect();
-      console.log('✅ MongoDB 연결 성공');
-      
-      const db = client.db('tripstore');
-      const users = db.collection('users');
-      
-      // 사용자 조회
-      const user = await users.findOne({ email: email.toLowerCase() });
-      
-      if (!user) {
-        return {
-          statusCode: 401,
-          headers,
-          body: JSON.stringify({ error: '존재하지 않는 사용자입니다.' })
-        };
-      }
-
-      console.log('✅ 사용자 찾음:', user.email);
-
-      // 간단한 패스워드 체크 (테스트용)
-      let isValidPassword = false;
-      
-      // 1. 테스트 계정 체크
-      if (email === 'test@example.com' && password === 'test123') {
-        isValidPassword = true;
-      }
-      // 2. 평문 비밀번호 체크 (테스트용)
-      else if (user.password === password) {
-        isValidPassword = true;
-      }
-      // 3. 해시된 비밀번호 체크 (실제 데이터용)
-      else if (user.password && user.password.startsWith('$2b$')) {
-        // bcrypt 해시인 경우 - 일단 스킵 (bcrypt 모듈이 없을 수 있음)
-        console.log('해시된 비밀번호 감지됨');
-      }
-
-      if (!isValidPassword) {      return {
-        statusCode: 200,
+    if (error || !user) {
+      console.log('❌ 사용자를 찾을 수 없음:', error?.message);
+      return {
+        statusCode: 401,
         headers,
-        body: JSON.stringify({
-          message: '로그인 성공',
-          user: {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.name || '사용자',
-            role: user.role || 'user'
-          }
-        })
+        body: JSON.stringify({ error: '존재하지 않는 사용자입니다.' })
       };
-      }
-
-    } finally {
-      await client.close();
     }
+
+    // 비밀번호 확인
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValidPassword) {
+      console.log('❌ 비밀번호 불일치');
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: '잘못된 비밀번호입니다.' })
+      };
+    }
+
+    console.log('✅ 로그인 성공');
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        message: '로그인 성공',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      })
+    };
 
   } catch (error) {
     console.error('❌ 오류 발생:', error);

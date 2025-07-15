@@ -1,53 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
-// Node.js Runtime 명시 (MongoDB 연결을 위해)
+// Node.js Runtime 명시
 export const runtime = 'nodejs';
 
 export async function GET() {
   try {
     // 환경변수 확인
-    const mongoUri = process.env.MONGODB_URI;
     const jwtSecret = process.env.JWT_SECRET;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const nodeEnv = process.env.NODE_ENV || 'development';
     
     console.log('🔍 Health Check 시작...');
     console.log('📋 환경 정보:', {
       nodeEnv,
-      mongoUriExists: !!mongoUri,
       jwtSecretExists: !!jwtSecret,
-      mongoUriPreview: mongoUri ? `${mongoUri.substring(0, 20)}...` : 'null'
+      supabaseUrlExists: !!supabaseUrl,
+      supabaseKeyExists: !!supabaseKey
     });
     
     const envStatus = {
-      mongodb: mongoUri ? '✅ 설정됨' : '❌ 누락됨',
       jwt: jwtSecret ? '✅ 설정됨' : '❌ 누락됨',
+      supabase_url: supabaseUrl ? '✅ 설정됨' : '❌ 누락됨',
+      supabase_key: supabaseKey ? '✅ 설정됨' : '❌ 누락됨',
       nodeEnv: nodeEnv,
       timestamp: new Date().toISOString()
     };
 
-    // MongoDB 연결 테스트
+    // Supabase 연결 테스트
     let dbStatus = '❌ 연결 실패';
     let dbError = null;
     
-    if (mongoUri) {
+    if (supabaseUrl && supabaseKey) {
       try {
-        console.log('📡 MongoDB 연결 테스트 시작...');
-        const connectMongoDB = (await import('@/lib/mongodb')).default;
-        const connection = await connectMongoDB();
+        console.log('📡 Supabase 연결 테스트 시작...');
         
-        if (connection && connection.connection.readyState === 1) {
-          dbStatus = '✅ 연결 성공';
-          console.log('✅ MongoDB 연결 성공!');
+        // 간단한 쿼리로 연결 테스트
+        const { data, error } = await supabaseAdmin
+          .from('users')
+          .select('count(*)')
+          .limit(1);
+        
+        if (error) {
+          dbStatus = '❌ 연결 오류';
+          dbError = error.message;
+          console.error('❌ Supabase 연결 오류:', error);
         } else {
-          dbStatus = `⚠️ 연결 상태: ${connection?.connection.readyState}`;
+          dbStatus = '✅ 연결 성공';
+          console.log('✅ Supabase 연결 성공!');
         }
       } catch (error) {
-        console.error('❌ MongoDB 연결 오류:', error);
-        dbStatus = '❌ 연결 오류';
+        console.error('❌ Supabase 연결 실패:', error);
+        dbStatus = '❌ 연결 실패';
         dbError = error instanceof Error ? error.message : 'Unknown error';
       }
     } else {
-      dbError = 'MONGODB_URI 환경변수가 설정되지 않음';
+      dbError = 'Supabase 환경변수가 설정되지 않음';
     }
 
     const response = {
@@ -56,7 +65,8 @@ export async function GET() {
       environment: envStatus,
       database: {
         status: dbStatus,
-        error: dbError
+        error: dbError,
+        type: 'Supabase (PostgreSQL)'
       },
       runtime: 'nodejs',
       version: process.version
