@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// Edge runtime에서 nodejs로 변경
+export const runtime = 'nodejs';
+
 // 패키지 목록 조회 API
 export async function GET(request: NextRequest) {
   try {
