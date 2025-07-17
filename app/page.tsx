@@ -1,75 +1,90 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, MapPin, Calendar, Users, Star, ArrowRight, Globe, Shield, Award } from 'lucide-react'
+import { packageApi } from '../lib/api'
+import { supabase } from '../lib/supabase'
+import AuthModal from '../components/AuthModal'
+import type { Database } from '../lib/supabase'
 
-interface TravelPackage {
-  id: number
-  title: string
-  location: string
-  price: number
-  duration: string
-  image: string
-  rating: number
-  reviews: number
-  highlights: string[]
-}
-
-const featuredPackages: TravelPackage[] = [
-  {
-    id: 1,
-    title: '일본 도쿄 & 오사카 5일',
-    location: '일본',
-    price: 1200000,
-    duration: '4박 5일',
-    image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80',
-    rating: 4.8,
-    reviews: 324,
-    highlights: ['온천 체험', '후지산 투어', '유니버설 스튜디오']
-  },
-  {
-    id: 2,
-    title: '유럽 3국 로맨틱 투어',
-    location: '프랑스, 이탈리아, 스위스',
-    price: 2800000,
-    duration: '7박 8일',
-    image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
-    rating: 4.9,
-    reviews: 156,
-    highlights: ['에펠탑', '로마 콜로세움', '융프라우']
-  },
-  {
-    id: 3,
-    title: '발리 럭셔리 리조트',
-    location: '인도네시아',
-    price: 1800000,
-    duration: '5박 6일',
-    image: 'https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=800&q=80',
-    rating: 4.7,
-    reviews: 289,
-    highlights: ['오션뷰 빌라', '스파 패키지', '전용 해변']
-  },
-  {
-    id: 4,
-    title: '뉴욕 & 라스베가스',
-    location: '미국',
-    price: 2200000,
-    duration: '6박 7일',
-    image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80',
-    rating: 4.6,
-    reviews: 412,
-    highlights: ['브로드웨이 뮤지컬', '그랜드캐니언', '카지노']
-  }
-]
+type PackageRow = Database['public']['Tables']['packages']['Row']
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedDestination, setSelectedDestination] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [travelers, setTravelers] = useState(2)
+  const [featuredPackages, setFeaturedPackages] = useState<PackageRow[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
-  const handleSearch = () => {
-    console.log('검색:', { searchQuery, selectedDestination, selectedDate, travelers })
+  // 사용자 인증 상태 확인
+  useEffect(() => {
+    const checkUser = async () => {
+      if (supabase) {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+      }
+    }
+    checkUser()
+
+    // 인증 상태 변경 감지
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          setUser(session?.user || null)
+        }
+      )
+      return () => subscription.unsubscribe()
+    }
+  }, [])
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    async function loadFeaturedPackages() {
+      try {
+        setIsLoading(true)
+        const packages = await packageApi.getPopularPackages(4)
+        setFeaturedPackages(packages)
+      } catch (error) {
+        console.error('Error loading featured packages:', error)
+        // 에러 시 기본 데이터 사용
+        setFeaturedPackages([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadFeaturedPackages()
+  }, [])
+
+  const handleSearch = async () => {
+    try {
+      if (searchQuery.trim()) {
+        // 검색 결과 페이지로 이동 (쿼리 파라미터 포함)
+        const searchParams = new URLSearchParams({
+          q: searchQuery,
+          date: selectedDate,
+          travelers: travelers.toString()
+        })
+        window.location.href = `/search?${searchParams.toString()}`
+      }
+    } catch (error) {
+      console.error('Search error:', error)
+    }
+  }
+
+  const handleLogout = async () => {
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
+  }
+
+  const openAuthModal = (mode: 'login' | 'signup') => {
+    setAuthMode(mode)
+    setAuthModalOpen(true)
   }
 
   return (
@@ -90,8 +105,32 @@ export default function Home() {
               <a href="#" className="text-gray-700 hover:text-primary-600">고객센터</a>
             </nav>
             <div className="flex items-center space-x-4">
-              <button className="text-gray-700 hover:text-primary-600">로그인</button>
-              <button className="btn-primary">회원가입</button>
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-gray-700">안녕하세요, {user.email}</span>
+                  <button 
+                    onClick={handleLogout}
+                    className="text-gray-700 hover:text-primary-600"
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => openAuthModal('login')}
+                    className="text-gray-700 hover:text-primary-600"
+                  >
+                    로그인
+                  </button>
+                  <button 
+                    onClick={() => openAuthModal('signup')}
+                    className="btn-primary"
+                  >
+                    회원가입
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -211,51 +250,76 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredPackages.map((pkg) => (
-              <div key={pkg.id} className="card hover:shadow-lg transition-shadow duration-300">
-                <div className="relative">
-                  <img 
-                    src={pkg.image} 
-                    alt={pkg.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-4 right-4 bg-white rounded-full px-2 py-1 flex items-center space-x-1">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-medium">{pkg.rating}</span>
+            {isLoading ? (
+              // 로딩 상태
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="card animate-pulse">
+                  <div className="h-48 bg-gray-300 rounded-t-lg"></div>
+                  <div className="p-4">
+                    <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded mb-3"></div>
+                    <div className="h-8 bg-gray-300 rounded"></div>
                   </div>
                 </div>
-                
-                <div className="p-4">
-                  <h4 className="font-semibold text-lg mb-2">{pkg.title}</h4>
-                  <p className="text-gray-600 text-sm mb-2 flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {pkg.location}
-                  </p>
-                  <p className="text-gray-600 text-sm mb-3">{pkg.duration}</p>
-                  
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {pkg.highlights.map((highlight, index) => (
-                      <span key={index} className="bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
-                        {highlight}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-2xl font-bold text-primary-600">
-                        {pkg.price.toLocaleString()}원
-                      </span>
-                      <p className="text-sm text-gray-500">({pkg.reviews}개 리뷰)</p>
+              ))
+            ) : (
+              featuredPackages.map((pkg) => (
+                <div key={pkg.id} className="card hover:shadow-lg transition-shadow duration-300">
+                  <div className="relative">
+                    <img 
+                      src={pkg.images[0] || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80'} 
+                      alt={pkg.title}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-4 right-4 bg-white rounded-full px-2 py-1 flex items-center space-x-1">
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span className="text-sm font-medium">{pkg.rating}</span>
                     </div>
-                    <button className="btn-primary flex items-center">
-                      예약
-                      <ArrowRight className="h-4 w-4 ml-1" />
-                    </button>
+                    {pkg.original_price > pkg.price && (
+                      <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
+                        {Math.round(((pkg.original_price - pkg.price) / pkg.original_price) * 100)}% 할인
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-4">
+                    <h4 className="font-semibold text-lg mb-2">{pkg.title}</h4>
+                    <p className="text-gray-600 text-sm mb-2 flex items-center">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {pkg.location}
+                    </p>
+                    <p className="text-gray-600 text-sm mb-3">{pkg.duration}</p>
+                    
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {pkg.highlights.slice(0, 3).map((highlight, index) => (
+                        <span key={index} className="bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
+                          {highlight}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <div>
+                        {pkg.original_price > pkg.price && (
+                          <span className="text-sm text-gray-400 line-through mr-2">
+                            {pkg.original_price.toLocaleString()}원
+                          </span>
+                        )}
+                        <span className="text-2xl font-bold text-primary-600">
+                          {pkg.price.toLocaleString()}원
+                        </span>
+                        <p className="text-sm text-gray-500">({pkg.reviews}개 리뷰)</p>
+                      </div>
+                      <button className="btn-primary flex items-center">
+                        예약
+                        <ArrowRight className="h-4 w-4 ml-1" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -310,6 +374,14 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        mode={authMode}
+        onModeChange={setAuthMode}
+      />
     </div>
   )
 }
