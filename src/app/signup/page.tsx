@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
-import { AuthService } from '@/lib/auth'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -91,23 +90,31 @@ export default function SignupPage() {
     setLoading(true)
     
     try {
-      // 실제 회원가입 API 호출
-      const { user, error } = await AuthService.signup({
-        name: formData.name.trim(),
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        agreeTerms: formData.agreeTerms,
-        agreePrivacy: formData.agreePrivacy,
-        agreeMarketing: formData.agreeMarketing
+      // API 호출
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          agreeTerms: formData.agreeTerms,
+          agreePrivacy: formData.agreePrivacy,
+          agreeMarketing: formData.agreeMarketing
+        })
       })
 
-      if (error) {
-        setErrors({ general: error })
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrors({ general: data.error })
         return
       }
 
-      if (user) {
+      if (data.user) {
         // 회원가입 성공 시 로그인 페이지로 이동
         router.push('/login?message=회원가입이 완료되었습니다. 바로 로그인하세요.')
       }

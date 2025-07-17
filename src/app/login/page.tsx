@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react'
-import { AuthService } from '@/lib/auth'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -52,20 +51,28 @@ export default function LoginPage() {
     setLoading(true)
     
     try {
-      // 실제 로그인 API 호출
-      const { user, error } = await AuthService.login({
-        email: formData.email,
-        password: formData.password
+      // API 호출
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
       })
 
-      if (error) {
-        setErrors({ general: error })
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrors({ general: data.error })
         return
       }
 
-      if (user) {
+      if (data.user) {
         // 로그인 성공 - 사용자 정보를 로컬 스토리지에 저장
-        localStorage.setItem('user', JSON.stringify(user))
+        localStorage.setItem('user', JSON.stringify(data.user))
         
         // 헤더의 사용자 정보를 업데이트하기 위해 커스텀 이벤트 발생
         window.dispatchEvent(new Event('storage'))
