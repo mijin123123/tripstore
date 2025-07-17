@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import bcrypt from 'bcryptjs'
 
 export async function POST(request: Request) {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     // 사용자 조회
-    const { data: user, error } = await supabase
+    const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('email', email)
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     const { password_hash, ...userWithoutPassword } = user
 
     // 로그인 카운트 업데이트
-    await supabase
+    await supabaseAdmin
       .from('users')
       .update({ 
         login_count: (user.login_count || 0) + 1,
