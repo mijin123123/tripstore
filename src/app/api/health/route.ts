@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
+// CORS 헤더 설정
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
 export async function GET() {
   try {
     console.log('Health check API 시작')
@@ -29,7 +40,7 @@ export async function GET() {
         details: error.details,
         hint: error.hint,
         envCheck
-      }, { status: 500 })
+      }, { status: 500, headers: corsHeaders })
     }
 
     // 테이블 구조 확인
@@ -47,7 +58,7 @@ export async function GET() {
       tableStructure: tableInfo ? Object.keys(tableInfo[0] || {}) : [],
       envCheck,
       timestamp: new Date().toISOString()
-    })
+    }, { headers: corsHeaders })
   } catch (error) {
     console.error('API 오류:', error)
     return NextResponse.json({
@@ -55,6 +66,6 @@ export async function GET() {
       message: 'API 호출 실패',
       error: error instanceof Error ? error.message : '알 수 없는 오류',
       stack: error instanceof Error ? error.stack : undefined
-    }, { status: 500 })
+    }, { status: 500, headers: corsHeaders })
   }
 }

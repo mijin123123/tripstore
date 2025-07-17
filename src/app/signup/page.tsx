@@ -89,11 +89,8 @@ export default function SignupPage() {
     setLoading(true)
     
     try {
-      // Netlify Functions 사용 - 배포 환경에서는 절대 경로 사용
-      const isProduction = process.env.NODE_ENV === 'production' || 
-                          window.location.hostname.includes('netlify.app');
-      
-      const apiUrl = isProduction 
+      // API 호출 - 개발 환경에서는 Next.js API routes, 프로덕션에서는 Netlify Functions
+      const apiUrl = process.env.NODE_ENV === 'production' 
         ? '/.netlify/functions/signup'
         : '/api/auth/signup';
 

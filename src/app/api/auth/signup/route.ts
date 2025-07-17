@@ -2,6 +2,17 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import bcrypt from 'bcryptjs'
 
+// CORS 헤더 설정
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
 export async function POST(request: Request) {
   try {
     const { name, email, phone, password, agreeTerms, agreePrivacy, agreeMarketing } = await request.json()
@@ -9,14 +20,14 @@ export async function POST(request: Request) {
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: '필수 정보를 모두 입력해주세요.' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       )
     }
 
     if (!agreeTerms || !agreePrivacy) {
       return NextResponse.json(
         { error: '이용약관과 개인정보처리방침에 동의해주세요.' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       )
     }
 
@@ -30,7 +41,7 @@ export async function POST(request: Request) {
     if (existingUser) {
       return NextResponse.json(
         { error: '이미 사용중인 이메일입니다.' },
-        { status: 409 }
+        { status: 409, headers: corsHeaders }
       )
     }
 
@@ -60,7 +71,7 @@ export async function POST(request: Request) {
       console.error('사용자 생성 오류:', error)
       return NextResponse.json(
         { error: '회원가입 중 오류가 발생했습니다.' },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       )
     }
 
@@ -70,12 +81,12 @@ export async function POST(request: Request) {
     return NextResponse.json({
       user: userWithoutPassword,
       message: '회원가입이 완료되었습니다.'
-    })
+    }, { headers: corsHeaders })
   } catch (error) {
     console.error('회원가입 오류:', error)
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다.' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     )
   }
 }
