@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Netlify 배포를 위해 standalone 대신 export 사용
-  // output: 'standalone',
-
-  // Netlify 배포를 위해 trailingSlash는 false로 유지합니다.
+  // Netlify 배포를 위한 설정
   trailingSlash: false,
   
   images: {
