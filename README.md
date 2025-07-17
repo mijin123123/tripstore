@@ -2,6 +2,12 @@
 
 TripStore는 해외여행 전문 여행사 웹사이트입니다. 사용자들이 다양한 해외여행 패키지를 검색하고 예약할 수 있는 모던하고 직관적인 플랫폼을 제공합니다.
 
+## 🌐 라이브 데모
+
+- **배포 URL**: [🚀 TripStore 사이트](https://tripstore.netlify.app)
+- **GitHub Repository**: [https://github.com/trip1235/trip](https://github.com/trip1235/trip)
+- **배포 상태**: ✅ 배포 완료 및 정상 작동 중
+
 ## 주요 기능
 
 ### 🌍 여행 패키지 검색
@@ -157,6 +163,26 @@ npm run start
 - Next.js 이미지 최적화
 - 컴포넌트 지연 로딩
 - CSS 최적화
+
+## 🚀 배포 & 데이터베이스
+
+### 배포 플랫폼: Netlify
+- **배포 URL**: [https://tripstore.netlify.app](https://tripstore.netlify.app)
+- **자동 배포**: GitHub 연동으로 자동 배포 설정
+- **빌드 설정**: `netlify.toml` 파일로 관리
+- **배포 상태**: ✅ 성공적으로 배포 완료
+
+### 데이터베이스: Supabase (예정)
+- **Phase 2**: 실시간 데이터 관리를 위한 Supabase 연동 예정
+- **주요 테이블**: 여행 패키지, 예약, 사용자, 리뷰
+- **실시간 기능**: 실시간 예약 상태 업데이트
+- **인증**: Supabase Auth를 통한 사용자 인증
+
+### 배포 프로세스
+1. **Phase 1**: 정적 사이트 Netlify 배포 ✅
+2. **Phase 2**: Supabase 데이터베이스 연동 (진행 예정)
+3. **Phase 3**: 실시간 예약 시스템 구축
+4. **Phase 4**: 결제 시스템 연동
 
 ## 향후 개발 계획
 
