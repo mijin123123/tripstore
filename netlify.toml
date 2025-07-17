@@ -5,11 +5,12 @@
 [build.environment]
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
+  NEXT_PUBLIC_SITE_URL = "https://mellifluous-druid-c3d6b0.netlify.app"
   NEXT_PUBLIC_SUPABASE_URL = "https://tmlnroulydvsbpadbpem.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtbG5yb3VseWR2c2JwYWRicGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0MDY0NTIsImV4cCI6MjA2Nzk4MjQ1Mn0.062pPf8vv2gS5Qo09AONf8riER0Q_n5u9Mg3WSxgrgk"
   SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtbG5yb3VseWR2c2JwYWRicGVtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjQwNjQ1MiwiZXhwIjoyMDY3OTgyNDUyfQ.wr6YV9JcJ0__OzWG4VEKLw6fc1DSgPM3VFAHVJvbx78"
-  JWT_SECRET = "cRD1UcDIhDbQUO4NjFVzqTPl7q1HShfKa1A9uOdTFRBBdFMRvAZY+OB8UMTPqUYDqlnuqUZqXWh8Zm6r4rJ2oQ=="
-  DATABASE_URL = "postgresql://postgres.tmlnroulydvsbpadbpem:dkdlfltm1640@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
+  JWT_SECRET = "KXKHqY2iyh/ICr0yGVRsexIiJRs90UK4OzIARmmyaCAgTqSMsXjVb9bULAcp9+0XadpcpdJqsIye306S6/d/DA=="
+  DATABASE_URL = "postgresql://postgres:dkdlfltm1640@db.tmlnroulydvsbpadbpem.supabase.co:5432/postgres"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

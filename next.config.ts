@@ -32,11 +32,21 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // serverActions는 필요 시 유지합니다.
+  // Netlify에서 Edge Functions 사용
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'mellifluous-druid-c3d6b0.netlify.app'],
     },
+  },
+  
+  // 리다이렉션과 리라이팅 설정
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      },
+    ];
   },
 };
 

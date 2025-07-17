@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
+import { apiCall } from '@/lib/api'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -88,12 +89,9 @@ export default function SignupPage() {
     setLoading(true)
     
     try {
-      // API 호출
-      const response = await fetch('/api/auth/signup', {
+      // API 호출 - 새로운 유틸리티 함수 사용
+      const response = await apiCall('/api/auth/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           name: formData.name.trim(),
           email: formData.email,

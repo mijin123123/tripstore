@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react'
+import { apiCall } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -52,11 +53,10 @@ export default function LoginPage() {
     
     try {
       // API 호출
-      const response = await fetch('/api/auth/login', {
+    try {
+      // API 호출 - 새로운 유틸리티 함수 사용
+      const response = await apiCall('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password

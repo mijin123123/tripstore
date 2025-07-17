@@ -9,7 +9,11 @@ export default function TestPage() {
   const testHealth = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/health')
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://mellifluous-druid-c3d6b0.netlify.app'
+        : '';
+      
+      const response = await fetch(`${baseUrl}/api/health`)
       const data = await response.json()
       setResult({
         status: response.status,
@@ -29,7 +33,11 @@ export default function TestPage() {
   const testSignup = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/auth/signup', {
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://mellifluous-druid-c3d6b0.netlify.app'
+        : '';
+      
+      const response = await fetch(`${baseUrl}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +71,11 @@ export default function TestPage() {
   const testLogin = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/auth/login', {
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://mellifluous-druid-c3d6b0.netlify.app'
+        : '';
+      
+      const response = await fetch(`${baseUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
