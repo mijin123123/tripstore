@@ -52,8 +52,6 @@ export default function LoginPage() {
     setLoading(true)
     
     try {
-      // API 호출
-    try {
       // API 호출 - 새로운 유틸리티 함수 사용
       const response = await apiCall('/api/auth/login', {
         method: 'POST',
