@@ -52,16 +52,14 @@ export default function SignupPage() {
 
     if (!formData.phone) {
       newErrors.phone = '전화번호를 입력해주세요'
-    } else if (!/^[0-9-]{10,14}$/.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = '올바른 전화번호 형식을 입력해주세요'
+    } else if (!/^[0-9-\s]{10,20}$/.test(formData.phone)) {
+      newErrors.phone = '올바른 전화번호 형식을 입력해주세요 (예: 010-1234-5678)'
     }
 
     if (!formData.password) {
       newErrors.password = '비밀번호를 입력해주세요'
-    } else if (formData.password.length < 8) {
-      newErrors.password = '비밀번호는 최소 8자리 이상이어야 합니다'
-    } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(formData.password)) {
-      newErrors.password = '비밀번호는 영문과 숫자를 포함해야 합니다'
+    } else if (formData.password.length < 6) {
+      newErrors.password = '비밀번호는 최소 6자리 이상이어야 합니다'
     }
 
     if (!formData.confirmPassword) {
