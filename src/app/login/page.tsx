@@ -52,31 +52,46 @@ export default function LoginPage() {
     setLoading(true)
     
     try {
-      // API 호출 - 새로운 유틸리티 함수 사용
-      const response = await apiCall('/api/auth/login', {
+      // Netlify Functions 사용 - 배포 환경에서는 절대 경로 사용
+      const isProduction = process.env.NODE_ENV === 'production' || 
+                          window.location.hostname.includes('netlify.app');
+      
+      const apiUrl = isProduction 
+        ? '/.netlify/functions/login'
+        : '/api/auth/login';
+
+      console.log('API 호출 URL:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password
         })
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setErrors({ general: data.error })
-        return
+        setErrors({ general: data.error });
+        return;
       }
 
       if (data.user) {
-        // 로그인 성공 - 사용자 정보를 로컬 스토리지에 저장
-        localStorage.setItem('user', JSON.stringify(data.user))
+        // 로그인 성공 - 사용자 정보와 토큰을 로컬 스토리지에 저장
+        localStorage.setItem('user', JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
         
         // 헤더의 사용자 정보를 업데이트하기 위해 커스텀 이벤트 발생
-        window.dispatchEvent(new Event('storage'))
+        window.dispatchEvent(new Event('storage'));
         
         // 성공 시 홈페이지로 이동
-        router.push('/')
+        router.push('/');
       }
     } catch (error) {
       console.error('로그인 오류:', error)

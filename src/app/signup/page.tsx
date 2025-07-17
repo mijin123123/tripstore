@@ -89,9 +89,21 @@ export default function SignupPage() {
     setLoading(true)
     
     try {
-      // API 호출 - 새로운 유틸리티 함수 사용
-      const response = await apiCall('/api/auth/signup', {
+      // Netlify Functions 사용 - 배포 환경에서는 절대 경로 사용
+      const isProduction = process.env.NODE_ENV === 'production' || 
+                          window.location.hostname.includes('netlify.app');
+      
+      const apiUrl = isProduction 
+        ? '/.netlify/functions/signup'
+        : '/api/auth/signup';
+
+      console.log('API 호출 URL:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           name: formData.name.trim(),
           email: formData.email,
@@ -101,17 +113,29 @@ export default function SignupPage() {
           agreePrivacy: formData.agreePrivacy,
           agreeMarketing: formData.agreeMarketing
         })
-      })
+      });
 
       console.log('Response status:', response.status)
       console.log('Response headers:', response.headers)
 
-      const data = await response.json()
+      let data;
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        console.error('JSON 파싱 오류:', parseError)
+        setErrors({ general: '서버 응답을 처리할 수 없습니다.' })
+        return
+      }
+
       console.log('Response data:', data)
 
       if (!response.ok) {
         console.error('API 오류:', data)
-        setErrors({ general: data.error || '회원가입 중 오류가 발생했습니다.' })
+        if (response.status === 404) {
+          setErrors({ general: 'API 엔드포인트를 찾을 수 없습니다. 관리자에게 문의하세요.' })
+        } else {
+          setErrors({ general: data.error || '회원가입 중 오류가 발생했습니다.' })
+        }
         return
       }
 

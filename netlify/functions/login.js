@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 exports.handler = async (event, context) => {
   // CORS 헤더 설정
@@ -107,6 +108,17 @@ exports.handler = async (event, context) => {
 
     console.log('✅ 로그인 성공');
 
+    // JWT 토큰 생성
+    const token = jwt.sign(
+      { 
+        userId: user.id,
+        email: user.email,
+        name: user.name
+      },
+      jwtSecret,
+      { expiresIn: '7d' }
+    )
+
     return {
       statusCode: 200,
       headers,
@@ -117,7 +129,8 @@ exports.handler = async (event, context) => {
           email: user.email,
           name: user.name,
           role: user.role
-        }
+        },
+        token
       })
     };
 
