@@ -107,10 +107,15 @@ export default function SignupPage() {
         })
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response headers:', response.headers)
+
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (!response.ok) {
-        setErrors({ general: data.error })
+        console.error('API 오류:', data)
+        setErrors({ general: data.error || '회원가입 중 오류가 발생했습니다.' })
         return
       }
 
@@ -119,8 +124,8 @@ export default function SignupPage() {
         router.push('/login?message=회원가입이 완료되었습니다. 바로 로그인하세요.')
       }
     } catch (error) {
-      console.error('회원가입 오류:', error)
-      setErrors({ general: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.' })
+      console.error('회원가입 네트워크 오류:', error)
+      setErrors({ general: '네트워크 오류가 발생했습니다. 다시 시도해주세요.' })
     } finally {
       setLoading(false)
     }
