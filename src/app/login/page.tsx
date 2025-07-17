@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react'
+import { AuthService } from '@/lib/auth'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -51,13 +52,29 @@ export default function LoginPage() {
     setLoading(true)
     
     try {
-      // 여기에 실제 로그인 API 호출 로직을 추가할 수 있습니다
-      // 현재는 데모용으로 시뮬레이션합니다
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // 성공 시 홈페이지로 이동
-      router.push('/')
+      // 실제 로그인 API 호출
+      const { user, error } = await AuthService.login({
+        email: formData.email,
+        password: formData.password
+      })
+
+      if (error) {
+        setErrors({ general: error })
+        return
+      }
+
+      if (user) {
+        // 로그인 성공 - 사용자 정보를 로컬 스토리지에 저장
+        localStorage.setItem('user', JSON.stringify(user))
+        
+        // 헤더의 사용자 정보를 업데이트하기 위해 커스텀 이벤트 발생
+        window.dispatchEvent(new Event('storage'))
+        
+        // 성공 시 홈페이지로 이동
+        router.push('/')
+      }
     } catch (error) {
+      console.error('로그인 오류:', error)
       setErrors({ general: '로그인 중 오류가 발생했습니다. 다시 시도해주세요.' })
     } finally {
       setLoading(false)

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
+import { AuthService } from '@/lib/auth'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -90,13 +91,28 @@ export default function SignupPage() {
     setLoading(true)
     
     try {
-      // 여기에 실제 회원가입 API 호출 로직을 추가할 수 있습니다
-      // 현재는 데모용으로 시뮬레이션합니다
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // 성공 시 로그인 페이지로 이동
-      router.push('/login?message=회원가입이 완료되었습니다. 바로 로그인하세요.')
+      // 실제 회원가입 API 호출
+      const { user, error } = await AuthService.signup({
+        name: formData.name.trim(),
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        agreeTerms: formData.agreeTerms,
+        agreePrivacy: formData.agreePrivacy,
+        agreeMarketing: formData.agreeMarketing
+      })
+
+      if (error) {
+        setErrors({ general: error })
+        return
+      }
+
+      if (user) {
+        // 회원가입 성공 시 로그인 페이지로 이동
+        router.push('/login?message=회원가입이 완료되었습니다. 바로 로그인하세요.')
+      }
     } catch (error) {
+      console.error('회원가입 오류:', error)
       setErrors({ general: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.' })
     } finally {
       setLoading(false)

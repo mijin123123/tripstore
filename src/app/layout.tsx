@@ -1,13 +1,39 @@
 'use client'
 
 import './globals.css'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, MapPin, Phone, Mail, Facebook, Instagram, Youtube, ChevronDown, User, UserPlus } from 'lucide-react'
+import { Menu, X, MapPin, Phone, Mail, Facebook, Instagram, Youtube, ChevronDown, User, UserPlus, LogOut } from 'lucide-react'
 
 function Navigation() {
   const [isDropdownOpen, setIsDropdownOpen] = useState<string | null>(null)
+  const [user, setUser] = useState<any>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // 로그인 상태 확인
+  useEffect(() => {
+    const checkUser = () => {
+      const userData = localStorage.getItem('user')
+      if (userData) {
+        setUser(JSON.parse(userData))
+      }
+    }
+    
+    checkUser()
+    
+    // 스토리지 변경 이벤트 리스너
+    window.addEventListener('storage', checkUser)
+    
+    return () => {
+      window.removeEventListener('storage', checkUser)
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    setUser(null)
+    window.location.href = '/'
+  }
 
   const handleMouseEnter = (menu: string) => {
     if (timeoutRef.current) {
@@ -51,22 +77,48 @@ function Navigation() {
 
           {/* Right side actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              href="/login" 
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-colors p-2 rounded-lg hover:bg-blue-50"
-              title="로그인"
-            >
-              <User className="w-5 h-5" />
-              <span>로그인</span>
-            </Link>
-            <Link 
-              href="/signup" 
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-colors p-2 rounded-lg hover:bg-blue-50"
-              title="회원가입"
-            >
-              <UserPlus className="w-5 h-5" />
-              <span>회원가입</span>
-            </Link>
+            {user ? (
+              <>
+                <span className="text-gray-700 font-medium">
+                  {user.name}님 안녕하세요
+                </span>
+                <Link 
+                  href="/mypage" 
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-colors p-2 rounded-lg hover:bg-blue-50"
+                  title="마이페이지"
+                >
+                  <User className="w-5 h-5" />
+                  <span>마이페이지</span>
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-red-600 font-medium transition-colors p-2 rounded-lg hover:bg-red-50"
+                  title="로그아웃"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>로그아웃</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  href="/login" 
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-colors p-2 rounded-lg hover:bg-blue-50"
+                  title="로그인"
+                >
+                  <User className="w-5 h-5" />
+                  <span>로그인</span>
+                </Link>
+                <Link 
+                  href="/signup" 
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-colors p-2 rounded-lg hover:bg-blue-50"
+                  title="회원가입"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  <span>회원가입</span>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
