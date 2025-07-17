@@ -12,11 +12,17 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   // 클라이언트 사이드에서는 상대 경로를 사용 (가장 안전한 방법)
   const url = endpoint;
   
-  return fetch(url, {
+  console.log('API 호출:', url, options);
+  
+  const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
     },
   });
+  
+  console.log('API 응답:', response.status, response.statusText);
+  
+  return response;
 };

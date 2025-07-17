@@ -14,3 +14,9 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# API 경로 리다이렉션
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/___netlify-handler"
+  status = 200
