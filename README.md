@@ -1,45 +1,194 @@
-# TripStore - 여행 패키지 관리 시스템
+# TripStore - 해외여행 여행사 사이트
 
-Next.js와 Supabase를 기반으로 한 여행 패키지 예약 및 관리 시스템입니다.
+TripStore는 해외여행 전문 여행사 웹사이트입니다. 사용자들이 다양한 해외여행 패키지를 검색하고 예약할 수 있는 모던하고 직관적인 플랫폼을 제공합니다.
 
-## 관리자 계정 정보
+## 주요 기능
 
-**슈퍼 관리자**
-- 이메일: `sonchanmin89@gmail.com`
-- 비밀번호: `aszx1212`
-- 역할: 시스템 슈퍼 관리자 (모든 권한)
+### 🌍 여행 패키지 검색
+- 목적지별 여행 패키지 검색
+- 날짜 및 인원 선택
+- 다양한 필터 옵션 (가격, 기간, 평점, 특징)
+- 정렬 기능 (인기순, 가격순, 평점순)
+
+### 📦 패키지 상세 정보
+- 상세한 여행 일정 및 포함사항
+- 고화질 이미지 갤러리
+- 실시간 예약 시스템
+- 리뷰 및 평점 시스템
+
+### 🎨 사용자 경험
+- 반응형 디자인 (모바일, 태블릿, 데스크톱)
+- 직관적인 사용자 인터페이스
+- 빠른 로딩 속도
+- 접근성 최적화
+
+### 🛡️ 신뢰성
+- 안전한 결제 시스템
+- 24시간 고객 지원
+- 여행자 보험 포함
+- 무료 취소 정책
+
+## 기술 스택
+
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Animation**: Framer Motion
+- **Development**: ESLint, PostCSS, Autoprefixer
+
+## 프로젝트 구조
+
+```
+tripstore/
+├── app/
+│   ├── globals.css          # 전역 스타일
+│   ├── layout.tsx           # 메인 레이아웃
+│   ├── page.tsx             # 홈페이지
+│   ├── search/
+│   │   └── page.tsx         # 검색 결과 페이지
+│   └── package/
+│       └── page.tsx         # 패키지 상세 페이지
+├── public/                  # 정적 파일
+├── next.config.js           # Next.js 설정
+├── tailwind.config.js       # Tailwind CSS 설정
+├── tsconfig.json            # TypeScript 설정
+└── package.json             # 프로젝트 의존성
+```
 
 ## 시작하기
 
-개발 서버를 실행하려면:
+### 필요 조건
+- Node.js 18.0.0 이상
+- npm 또는 yarn
 
+### 설치 및 실행
+
+1. **의존성 설치**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **개발 서버 실행**
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **브라우저에서 확인**
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 빌드 및 배포
 
-## Learn More
+```bash
+# 프로덕션 빌드
+npm run build
 
-To learn more about Next.js, take a look at the following resources:
+# 프로덕션 서버 실행
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 페이지 구성
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 홈페이지 (`/`)
+- 히어로 섹션과 검색 폼
+- 인기 여행 패키지 섹션
+- 서비스 특징 소개
+- 푸터
 
-## Deploy on Vercel
+### 검색 결과 페이지 (`/search`)
+- 검색 필터 사이드바
+- 여행 패키지 목록
+- 정렬 및 페이지네이션
+- 검색 결과 통계
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 패키지 상세 페이지 (`/package`)
+- 이미지 갤러리
+- 상세 정보 탭 (개요, 일정, 포함사항, 리뷰)
+- 예약 사이드바
+- 가격 정보 및 할인
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 주요 컴포넌트
+
+### 검색 기능
+- 목적지 검색
+- 날짜 선택
+- 인원 선택
+- 필터링 옵션
+
+### 패키지 카드
+- 이미지 썸네일
+- 기본 정보 (제목, 위치, 기간)
+- 가격 및 할인 정보
+- 평점 및 리뷰 수
+- 특징 태그
+
+### 예약 시스템
+- 실시간 가격 계산
+- 출발일 선택
+- 인원 선택
+- 예약 확인
+
+## 스타일링
+
+### Tailwind CSS 설정
+- 커스텀 컬러 팔레트
+- 반응형 브레이크포인트
+- 유틸리티 클래스
+
+### 디자인 시스템
+- 일관된 색상 체계
+- 타이포그래피 스케일
+- 그림자 및 애니메이션
+
+## 개발 가이드
+
+### 코드 스타일
+- TypeScript 엄격 모드
+- ESLint 규칙 준수
+- 컴포넌트 기반 개발
+
+### 상태 관리
+- React useState 훅
+- 로컬 상태 관리
+- 폼 상태 처리
+
+### 성능 최적화
+- Next.js 이미지 최적화
+- 컴포넌트 지연 로딩
+- CSS 최적화
+
+## 향후 개발 계획
+
+### 기능 추가
+- [ ] 사용자 인증 시스템
+- [ ] 실제 결제 시스템 연동
+- [ ] 리뷰 및 평점 시스템
+- [ ] 위시리스트 기능
+- [ ] 예약 관리 시스템
+
+### 기술 개선
+- [ ] 데이터베이스 연동
+- [ ] API 서버 구축
+- [ ] 상태 관리 라이브러리 도입
+- [ ] 테스트 코드 작성
+- [ ] PWA 기능 추가
+
+### UI/UX 개선
+- [ ] 다크 모드 지원
+- [ ] 다국어 지원
+- [ ] 접근성 향상
+- [ ] 모바일 앱 스타일
+- [ ] 애니메이션 추가
+
+## 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+
+## 문의사항
+
+프로젝트에 대한 문의나 제안사항이 있으시면 언제든지 연락주세요.
+
+---
+
+**TripStore** - 세계 어디든, 특별한 여행을 시작하세요! 🌍✈️
