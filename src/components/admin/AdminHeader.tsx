@@ -11,18 +11,16 @@ export default function AdminHeader() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [darkMode, setDarkMode] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
   
   // 로그아웃 처리
   const handleSignOut = async () => {
     try {
-      console.log('로그아웃 시작...');
-      await logout();
-      // 로그아웃은 auth.tsx에서 페이지 리다이렉션을 처리합니다
+      await signOut();
+      router.push('/admin/login');
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
-      alert('로그아웃 처리 중 오류가 발생했습니다.');
     }
   };
   

@@ -1,477 +1,302 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, MapPin, Calendar, Users, Clock, CheckCircle, XCircle, Star, Heart, Share2 } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { Database } from '@/types/database'
 
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Utensils,
-  Home,
-  Camera,
-  Plane,
-  Clock,
-  Check,
-  X,
-  ArrowLeft,
-  ChevronRight,
-  CalendarCheck,
-  Share2,
-  Heart,
-  ShoppingCart
-} from "lucide-react";
+type Package = Database['public']['Tables']['packages']['Row']
 
-// 데이터베이스 패키지 타입 정의
-interface Package {
-  id: string;
-  title: string;
-  description: string;
-  destination: string;
-  price: string;
-  discountprice: string | null;
-  duration: number | null;
-  departuredate: string[];
-  images: string[];
-  rating: string | null;
-  reviewcount: number | null;
-  category: string;
-  season: string | null;
-  inclusions: string[] | null;
-  exclusions: string[] | null;
-  isfeatured: boolean | null;
-  isonsale: boolean | null;
-  itinerary: any;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-}
-
-// 패키지 기능 정의
-const packageFeatures = [
-  { key: 'duration', icon: Clock, label: '여행 기간' },
-  { key: 'destination', icon: MapPin, label: '여행지' },
-  { key: 'groupSize', icon: Users, label: '그룹 규모' },
-  { key: 'meals', icon: Utensils, label: '제공 식사' },
-  { key: 'accommodation', icon: Home, label: '숙박 시설' },
-  { key: 'activities', icon: Camera, label: '주요 활동' },
-  { key: 'departureDate', icon: Calendar, label: '출발일' },
-  { key: 'transportation', icon: Plane, label: '교통 수단' },
-];
-
-export default function PackageDetail() {
-  const params = useParams();
-  const router = useRouter();
-  const [packageData, setPackageData] = useState<Package | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [travelers, setTravelers] = useState("1");
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+export default function PackageDetailPage() {
+  const { id } = useParams()
+  const router = useRouter()
+  const [packageData, setPackageData] = useState<Package | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = useState('')
+  const [guestCount, setGuestCount] = useState(1)
 
   useEffect(() => {
     async function fetchPackage() {
-      if (params.id) {
-        try {
-          const packageId = typeof params.id === "string" ? params.id : params.id[0];
-          const response = await fetch(`/api/packages/${packageId}`);
-          
-          if (response.ok) {
-            const data = await response.json();
-            setPackageData(data);
-            if (data.departuredate && data.departuredate.length > 0) {
-              setSelectedDate(new Date(data.departuredate[0]));
-            }
-          } else {
-            console.error('Package not found');
-          }
-        } catch (error) {
-          console.error('Error fetching package:', error);
+      try {
+        setLoading(true)
+        const { data, error } = await supabase
+          .from('packages')
+          .select('*')
+          .eq('id', id)
+          .eq('is_active', true)
+          .single()
+
+        if (error) {
+          throw error
         }
+
+        setPackageData(data)
+      } catch (error) {
+        console.error('패키지 정보를 불러오는 중 오류 발생:', error)
+        setError('패키지 정보를 불러올 수 없습니다.')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false);
     }
 
-    fetchPackage();
-  }, [params.id]);
+    if (id) {
+      fetchPackage()
+    }
+  }, [id])
+
+  const handleBooking = () => {
+    if (!selectedDate) {
+      alert('출발일을 선택해주세요.')
+      return
+    }
+    router.push(`/booking/${id}?date=${selectedDate}&guests=${guestCount}`)
+  }
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="w-8 h-8 border-4 border-gray-300 border-t-gray-800 rounded-full animate-spin mb-3"></div>
-          <p className="text-sm text-gray-600">상품 정보를 불러오는 중...</p>
+      <div className="min-h-screen bg-gray-50 pt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-48 mb-6"></div>
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="h-96 bg-gray-300 rounded-lg mb-6"></div>
+              <div className="h-8 bg-gray-300 rounded w-3/4 mb-4"></div>
+              <div className="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
+              <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+            </div>
+          </div>
         </div>
       </div>
-    );
+    )
   }
 
-  if (!packageData) {
+  if (error || !packageData) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">상품을 찾을 수 없습니다</h2>
-        <p className="text-gray-600 mb-8">요청하신 여행 상품이 존재하지 않거나 삭제되었습니다.</p>
-        <button
-          onClick={() => router.push("/packages")}
-          className="px-6 py-3 bg-gray-800 text-white rounded-md font-medium hover:bg-gray-700 transition-colors flex items-center mx-auto"
-        >
-          <ArrowLeft className="mr-2 h-5 w-5" />
-          모든 상품 보기
-        </button>
+      <div className="min-h-screen bg-gray-50 pt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6">
+            <Link 
+              href="/packages"
+              className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              패키지 목록으로 돌아가기
+            </Link>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">패키지를 찾을 수 없습니다</h1>
+            <p className="text-gray-600 mb-6">{error || '요청하신 패키지가 존재하지 않거나 삭제되었습니다.'}</p>
+            <Link 
+              href="/packages"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              패키지 목록 보기
+            </Link>
+          </div>
+        </div>
       </div>
-    );
+    )
   }
-
-  const handlePrevImage = () => {
-    if (!packageData.images || packageData.images.length <= 1) return;
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? packageData.images!.length - 1 : prev - 1
-    );
-  };
-
-  const handleNextImage = () => {
-    if (!packageData.images || packageData.images.length <= 1) return;
-    setCurrentImageIndex((prev) => 
-      prev === packageData.images!.length - 1 ? 0 : prev + 1
-    );
-  };
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-16">
-      {/* 헤더 이미지 */}
-      <div className="relative h-[50vh] lg:h-[60vh]">
-        <Image
-          src={packageData.images && packageData.images.length > 0 ? packageData.images[currentImageIndex] : '/placeholder.jpg'}
-          alt={packageData.title}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10"></div>
-        
-        {/* 이미지 갤러리 내비게이션 */}
-        {packageData.images && packageData.images.length > 1 && (
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center space-x-2">
-            {packageData.images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentImageIndex(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
-                  index === currentImageIndex ? "bg-white scale-110" : "bg-white/50"
-                }`}
-                aria-label={`이미지 ${index + 1} 보기`}
-              />
-            ))}
-          </div>
-        )}
-        
+    <div className="min-h-screen bg-gray-50 pt-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 뒤로가기 버튼 */}
-        <button
-          onClick={() => router.push("/packages")}
-          className="absolute top-6 left-6 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-all"
-          aria-label="뒤로 가기"
-        >
-          <ArrowLeft className="h-5 w-5 text-gray-800" />
-        </button>
-        
-        {/* 공유 및 좋아요 버튼 */}
-        <div className="absolute top-6 right-6 z-10 flex space-x-2">
-          <button className="bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-all" aria-label="공유하기">
-            <Share2 className="h-5 w-5 text-gray-800" />
-          </button>
-          <button className="bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-all" aria-label="좋아요">
-            <Heart className="h-5 w-5 text-gray-800" />
-          </button>
+        <div className="mb-6">
+          <Link 
+            href="/packages"
+            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            패키지 목록으로 돌아가기
+          </Link>
         </div>
-      </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 메인 콘텐츠 */}
+          <div className="lg:col-span-2">
+            {/* 이미지 */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+              <img 
+                src={packageData.image_url || '/placeholder-image.jpg'} 
+                alt={packageData.title}
+                className="w-full h-96 object-cover"
+              />
+            </div>
 
-      <div className="container mx-auto px-4 -mt-20 relative z-10">
-        <div className="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-            <div className="w-full md:w-8/12">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-md">
-                  {packageData.category}
-                </span>
-                {packageData.rating && (
-                  <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-md">
-                    ★ {packageData.rating} / 5
-                  </span>
-                )}
+            {/* 패키지 정보 */}
+            <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{packageData.title}</h1>
+                  <div className="flex items-center text-gray-600 mb-2">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    <span>{packageData.destination}</span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <Clock className="w-4 h-4 mr-1" />
+                    <span>{packageData.duration}일</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                    <Heart className="w-5 h-5" />
+                  </button>
+                  <button className="p-2 text-gray-400 hover:text-blue-500 transition-colors">
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                {packageData.title}
-              </h1>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-gray-700 text-lg leading-relaxed mb-6">
                 {packageData.description}
               </p>
 
-              {/* 탭 메뉴 */}
-              <div className="border-b border-gray-200 mb-6">
-                <nav className="flex space-x-8">
-                  <button
-                    onClick={() => setActiveTab("overview")}
-                    className={`py-3 font-medium text-sm border-b-2 transition-colors ${
-                      activeTab === "overview"
-                        ? "border-gray-800 text-gray-800"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    개요
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("itinerary")}
-                    className={`py-3 font-medium text-sm border-b-2 transition-colors ${
-                      activeTab === "itinerary"
-                        ? "border-gray-800 text-gray-800"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    일정
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("details")}
-                    className={`py-3 font-medium text-sm border-b-2 transition-colors ${
-                      activeTab === "details"
-                        ? "border-gray-800 text-gray-800"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    포함/불포함
-                  </button>
-                </nav>
-              </div>
-
-              {/* 탭 콘텐츠 */}
-              <div className="py-2">
-                {activeTab === "overview" && (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {packageFeatures.map((feature) => {
-                        const value = packageData[feature.key as keyof Package];
-                        if (!value) return null;
-                        
-                        return (
-                          <div key={feature.key} className="flex items-start">
-                            <div className="flex-shrink-0 mt-1">
-                              <feature.icon className="h-5 w-5 text-gray-500" />
-                            </div>
-                            <div className="ml-3">
-                              <h3 className="text-sm font-medium text-gray-800">{feature.label}</h3>
-                              <div className="mt-1 text-sm text-gray-600">
-                                {Array.isArray(value) ? (
-                                  <div className="flex flex-wrap gap-1">
-                                    {value.slice(0, 3).map((item, i) => (
-                                      <span key={i}>
-                                        {typeof item === 'string' && item}
-                                        {i < Math.min(value.length, 3) - 1 && ", "}
-                                      </span>
-                                    ))}
-                                    {value.length > 3 && " 외 " + (value.length - 3) + "개"}
-                                  </div>
-                                ) : (
-                                  <span>{value}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {packageData.highlights && packageData.highlights.length > 0 && (
-                      <div className="mt-8">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">하이라이트</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {packageData.highlights.map((highlight, index) => (
-                            <div key={index} className="flex items-center">
-                              <div className="flex-shrink-0">
-                                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-700">
-                                  <Check className="h-4 w-4" />
-                                </div>
-                              </div>
-                              <p className="ml-3 text-sm text-gray-700">{highlight}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              {/* 여행 일정 */}
+              {packageData.schedule && (
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">여행 일정</h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <pre className="text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
+                      {packageData.schedule}
+                    </pre>
                   </div>
-                )}
+                </div>
+              )}
 
-                {activeTab === "itinerary" && (
-                  <div className="space-y-6">
-                    {packageData.itinerary ? (
-                      <div className="space-y-8">
-                        {packageData.itinerary.map((day, index) => (
-                          <div key={index} className="relative">
-                            {index !== packageData.itinerary!.length - 1 && (
-                              <div className="absolute top-10 bottom-0 left-4 w-0.5 bg-gray-200"></div>
-                            )}
-                            <div className="flex items-start space-x-4">
-                              <div className="flex-shrink-0 z-10">
-                                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-800 text-white font-medium text-sm">
-                                  {day.day}
-                                </div>
-                              </div>
-                              <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden flex-1">
-                                <div className="p-4">
-                                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{day.title}</h3>
-                                  <p className="text-gray-600">{day.description}</p>
-                                </div>
-                                {day.image && (
-                                  <div className="relative h-48 w-full">
-                                    <Image
-                                      src={day.image}
-                                      alt={day.title}
-                                      className="object-cover"
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 italic">일정 정보가 없습니다.</p>
-                    )}
-                  </div>
-                )}
+              {/* 포함 사항 */}
+              {packageData.includes && packageData.includes.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">포함 사항</h3>
+                  <ul className="space-y-2">
+                    {packageData.includes.map((item, index) => (
+                      <li key={index} className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-                {activeTab === "details" && (
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">포함 사항</h3>
-                      {packageData.inclusions && packageData.inclusions.length > 0 ? (
-                        <ul className="space-y-2">
-                          {packageData.inclusions.map((item, index) => (
-                            <li key={index} className="flex items-start">
-                              <div className="flex-shrink-0 mt-1">
-                                <Check className="h-4 w-4 text-green-500" />
-                              </div>
-                              <p className="ml-2 text-gray-600">{item}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-gray-500 italic">포함 사항 정보가 없습니다.</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">불포함 사항</h3>
-                      {packageData.exclusions && packageData.exclusions.length > 0 ? (
-                        <ul className="space-y-2">
-                          {packageData.exclusions.map((item, index) => (
-                            <li key={index} className="flex items-start">
-                              <div className="flex-shrink-0 mt-1">
-                                <X className="h-4 w-4 text-red-500" />
-                              </div>
-                              <p className="ml-2 text-gray-600">{item}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-gray-500 italic">불포함 사항 정보가 없습니다.</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              {/* 불포함 사항 */}
+              {packageData.excludes && packageData.excludes.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">불포함 사항</h3>
+                  <ul className="space-y-2">
+                    {packageData.excludes.map((item, index) => (
+                      <li key={index} className="flex items-center text-gray-700">
+                        <XCircle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
+          </div>
 
-            {/* 예약 사이드바 */}
-            <div className="w-full md:w-4/12 sticky top-24">
-              <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-100 p-6">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                    ₩{new Intl.NumberFormat('ko-KR').format(Number(packageData.price))}
-                  </h3>
-                  <p className="text-sm text-gray-500">1인 기준, 세금 포함</p>
+          {/* 예약 사이드바 */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-6">
+              <div className="mb-6">
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900">
+                    {packageData.price?.toLocaleString()}원
+                  </span>
+                  <span className="text-gray-600 ml-2">/ 인</span>
+                </div>
+                {packageData.rating && (
+                  <div className="flex items-center mt-2">
+                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                    <span className="text-sm text-gray-600 ml-1">
+                      {packageData.rating} (후기 {packageData.review_count || 0}개)
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4 mb-6">
+                {/* 출발일 선택 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    출발일
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
 
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">출발일 선택</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Calendar className="h-5 w-5 text-blue-500" />
-                      </div>
-                      <select
-                        value={selectedDate ? selectedDate.toISOString() : ''}
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            setSelectedDate(new Date(e.target.value));
-                          } else {
-                            setSelectedDate(null);
-                          }
-                        }}
-                        className="w-full pl-10 py-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 cursor-pointer"
-                      >
-                        <option value="">출발일을 선택하세요</option>
-                        {packageData.departuredate && packageData.departuredate.map((date, index) => {
-                          const dateObj = new Date(date);
-                          const formattedDate = dateObj.toLocaleDateString('ko-KR', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          });
-                          
-                          return (
-                            <option key={index} value={dateObj.toISOString()}>
-                              {formattedDate}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">인원 수</label>
-                    <select 
-                      value={travelers}
-                      onChange={(e) => setTravelers(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="1">1명</option>
-                      <option value="2">2명</option>
-                      <option value="3">3명</option>
-                      <option value="4">4명</option>
-                      <option value="5">5명 이상</option>
-                    </select>
-                  </div>
+                {/* 인원 선택 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    인원
+                  </label>
+                  <select
+                    value={guestCount}
+                    onChange={(e) => setGuestCount(Number(e.target.value))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {[...Array(10)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}명
+                      </option>
+                    ))}
+                  </select>
                 </div>
+              </div>
 
-                <button 
-                  onClick={() => {
-                    if (!selectedDate) {
-                      alert("출발일을 선택해주세요.");
-                      return;
-                    }
-                    
-                    // ISO 문자열로 전달하여 데이터 손실 방지
-                    const isoDate = selectedDate.toISOString();
-                    
-                    // URL에서는 URL 인코딩하여 전달
-                    const encodedDate = encodeURIComponent(isoDate);
-                    
-                    router.push(`/reservation?packageId=${packageData.id}&departureDate=${encodedDate}&travelers=${travelers}`);
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors flex items-center justify-center mb-3"
-                >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  예약하기
-                </button>
+              {/* 총 금액 */}
+              <div className="border-t pt-4 mb-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-gray-900">총 금액</span>
+                  <span className="text-2xl font-bold text-blue-600">
+                    {((packageData.price || 0) * guestCount).toLocaleString()}원
+                  </span>
+                </div>
+              </div>
 
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="flex items-center mb-4">
-                    <CalendarCheck className="h-5 w-5 text-gray-500 mr-2" />
-                    <p className="text-sm text-gray-600">예약 가능 여부 확인 가능</p>
+              {/* 예약 버튼 */}
+              <button
+                onClick={handleBooking}
+                className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-4"
+              >
+                예약하기
+              </button>
+
+              {/* 여행 정보 */}
+              <div className="space-y-3 text-sm text-gray-600">
+                <div className="flex items-center justify-between">
+                  <span>여행 기간</span>
+                  <span>{packageData.duration}일</span>
+                </div>
+                {packageData.start_date && (
+                  <div className="flex items-center justify-between">
+                    <span>출발일</span>
+                    <span>{new Date(packageData.start_date).toLocaleDateString()}</span>
                   </div>
-
+                )}
+                {packageData.end_date && (
+                  <div className="flex items-center justify-between">
+                    <span>도착일</span>
+                    <span>{new Date(packageData.end_date).toLocaleDateString()}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span>최대 인원</span>
+                  <span>{packageData.max_participants}명</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>현재 예약</span>
+                  <span>{packageData.current_participants || 0}명</span>
                 </div>
               </div>
             </div>
@@ -479,5 +304,5 @@ export default function PackageDetail() {
         </div>
       </div>
     </div>
-  );
+  )
 }

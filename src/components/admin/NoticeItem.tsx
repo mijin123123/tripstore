@@ -13,8 +13,8 @@ interface Notice {
   id: string;
   title: string;
   content: string;
-  isImportant: boolean;
-  createdAt: string;
+  is_important: boolean;
+  created_at: string;
 }
 
 interface NoticeItemProps {
@@ -68,7 +68,7 @@ export default function NoticeItem({ notice }: NoticeItemProps) {
   return (
     <div className="grid grid-cols-12 gap-4 p-4 items-center">
       <div className="col-span-2 text-sm text-gray-500">
-        {formatDate(notice.createdAt)}
+        {formatDate(notice.created_at)}
       </div>
       
       <div className="col-span-6 font-medium">
@@ -76,7 +76,7 @@ export default function NoticeItem({ notice }: NoticeItemProps) {
       </div>
       
       <div className="col-span-2">
-        {notice.isImportant ? (
+        {notice.is_important ? (
           <span className="flex items-center text-red-500">
             <AlertTriangle className="h-4 w-4 mr-1" />
             <span className="text-sm">중요</span>

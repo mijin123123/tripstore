@@ -5,46 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar, CreditCard, Check, Info, User, Users, Mail, Phone, MapPin, Globe, Shield, AlertCircle } from "lucide-react";
+import { packagesData, TravelPackage } from "@/data/packagesData";
 
-// 패키지 타입 정의
-interface Package {
-  id: string;
-  title: string;
-  description: string;
-  destination: string;
-  price: string;
-  duration: string;
-  imageUrl: string;
-  category: string;
-  highlights: string[];
-  included: string[];
-  excluded: string[];
-  itinerary: string[];
-  featured: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// DB에서 패키지 정보 가져오기
-async function getPackageById(id: string) {
-  try {
-    console.log('패키지 조회 시작, ID:', id);
-    const response = await fetch(`/api/packages/${id}`);
-    console.log('API 응답 상태:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API 오류 응답:', errorText);
-      throw new Error('패키지를 찾을 수 없습니다.');
-    }
-    
-    const packageData = await response.json();
-    console.log('패키지 조회 성공:', packageData.title);
-    return packageData;
-  } catch (error) {
-    console.error('패키지 조회 오류:', error);
-    return null;
-  }
+// 클라이언트 컴포넌트에서 직접 패키지 검색 함수 구현
+function getPackageById(id: string | number) {
+  const numId = typeof id === 'string' ? parseInt(id) : id;
+  return packagesData.find(pkg => pkg.id === numId);
 }
 
 
@@ -92,7 +58,7 @@ export default function ReservationPage() {
 function ReservationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [packageData, setPackageData] = useState<Package | null>(null);
+  const [packageData, setPackageData] = useState<TravelPackage | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [reservationComplete, setReservationComplete] = useState(false);
@@ -112,67 +78,48 @@ function ReservationContent() {
 
   const [errors, setErrors] = useState<ReservationFormErrors>({});
 
-  // 가격 포맷팅 함수
-  const formatPrice = (price: string) => {
-    const numPrice = parseInt(price.replace(/[^\d]/g, ''));
-    return new Intl.NumberFormat('ko-KR', {
-      style: 'currency',
-      currency: 'KRW',
-      maximumFractionDigits: 0
-    }).format(numPrice);
-  };
-
-  // 총 가격 계산 함수
-  const calculateTotalPrice = () => {
-    if (!packageData) return '₩0';
-    const basePrice = parseInt(packageData.price.replace(/[^\d]/g, ''));
-    const total = basePrice * form.travelers;
-    return formatPrice(total.toString());
-  };
-
   useEffect(() => {
     const packageId = searchParams.get("packageId");
     const departureDate = searchParams.get("departureDate");
     const travelers = searchParams.get("travelers");
     
     if (packageId) {
-      getPackageById(packageId).then(data => {
-        if (data) {
-          setPackageData(data);
-          
-          // 초기값 설정
-          let initialDate = null;
-          
-          if (departureDate) {
-            try {
-              // URL에서 받은 날짜를 디코딩하여 Date 객체로 변환
-              initialDate = new Date(decodeURIComponent(departureDate));
-            } catch (error) {
-              console.error("날짜 변환 오류:", error);
-              initialDate = null;
-            }
+      const data = getPackageById(packageId);
+      if (data) {
+        setPackageData(data);
+        
+        // 초기값 설정
+        let initialDate = null;
+        
+        if (departureDate) {
+          try {
+            // URL에서 받은 날짜를 디코딩하여 Date 객체로 변환
+            initialDate = new Date(decodeURIComponent(departureDate));
+          } catch (error) {
+            console.error("날짜 변환 오류:", error);
+            initialDate = null;
           }
-          
-          // 유효한 날짜인지 확인
-          if (initialDate instanceof Date && !isNaN(initialDate.getTime())) {
-            setForm(prev => ({
-              ...prev,
-              departureDate: initialDate,
-              travelers: travelers ? parseInt(travelers) : 1
-            }));
-          } else {
-            setForm(prev => ({
-              ...prev,
-              departureDate: null,
-              travelers: travelers ? parseInt(travelers) : 1
-            }));
-          }
+        } else if (data.departureDate && data.departureDate.length > 0) {
+          initialDate = new Date(data.departureDate[0]);
         }
-        setLoading(false);
-      });
-    } else {
-      setLoading(false);
+        
+        // 유효한 날짜인지 확인
+        if (initialDate instanceof Date && !isNaN(initialDate.getTime())) {
+          setForm(prev => ({
+            ...prev,
+            departureDate: initialDate,
+            travelers: travelers ? parseInt(travelers) : 1
+          }));
+        } else {
+          setForm(prev => ({
+            ...prev,
+            departureDate: null,
+            travelers: travelers ? parseInt(travelers) : 1
+          }));
+        }
+      }
     }
+    setLoading(false);
   }, [searchParams]);
 
   const validateStep = (step: number): boolean => {
@@ -239,81 +186,23 @@ function ReservationContent() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const calculateTotalPrice = (): string => {
+    if (!packageData) return "0";
+    
+    const basePrice = parseInt(packageData.price.replace(/[^0-9]/g, ""));
+    const totalPrice = basePrice * form.travelers;
+    
+    return totalPrice.toLocaleString() + "원";
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateStep(currentStep)) {
-      try {
-        console.log('예약 생성 시작');
-        
-        // 날짜 유효성 검증
-        if (!form.departureDate || isNaN(form.departureDate.getTime())) {
-          alert('유효한 출발일을 선택해주세요.');
-          return;
-        }
-
-        // 패키지 ID 유효성 검증
-        if (!packageData?.id) {
-          alert('패키지 정보가 없습니다.');
-          return;
-        }
-        
-        // 예약 데이터 구성
-        const reservationData = {
-          userId: null, // 현재 로그인 기능이 없으므로 null
-          packageId: packageData.id,
-          departureDate: form.departureDate.toISOString().split('T')[0], // 날짜 유효성 검증 후 사용
-          travelers: form.travelers,
-          totalPrice: parseInt(calculateTotalPrice().replace(/[^\d]/g, '')), // 숫자로 변환
-          status: 'pending',
-          paymentStatus: 'pending',
-          contactName: `${form.lastName} ${form.firstName}`,
-          contactEmail: form.email,
-          contactPhone: form.phone,
-          specialRequests: form.specialRequests || null,
-          // createdAt, updatedAt은 DB에서 자동으로 처리되므로 제거
-        };
-
-        console.log('예약 데이터:', reservationData);
-
-        // 예약 생성 API 호출
-        const response = await fetch('/api/reservations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(reservationData),
-        });
-
-        console.log('API 응답 상태:', response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('API 오류 응답:', errorText);
-          
-          let errorMessage = '예약 생성에 실패했습니다.';
-          
-          try {
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.error || errorMessage;
-          } catch {
-            errorMessage = errorText || errorMessage;
-          }
-          
-          throw new Error(errorMessage);
-        }
-
-        const newReservation = await response.json();
-        console.log('예약 생성 완료:', newReservation);
-        
-        // 예약 완료 처리
-        setReservationComplete(true);
-        setReservationCode(`TS-${newReservation.id.substring(0, 8)}`);
-        
-      } catch (error) {
-        console.error('예약 생성 오류:', error);
-        alert(`예약 생성 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
-      }
+      // 여기서는 실제 결제 및 예약 처리를 하지 않고 성공으로 가정
+      // 실제 구현에서는 API 호출 등으로 처리
+      setReservationComplete(true);
+      setReservationCode(`TS-${Date.now().toString().substring(7)}`);
     }
   };
 
@@ -864,13 +753,13 @@ function ReservationContent() {
                 <div className="mb-4">
                   <div className="relative h-36 w-full rounded-md overflow-hidden mb-3">
                     <Image
-                      src={packageData.imageUrl}
-                      alt={packageData.title}
+                      src={packageData.image}
+                      alt={packageData.name}
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <h3 className="font-bold text-gray-800">{packageData.title}</h3>
+                  <h3 className="font-bold text-gray-800">{packageData.name}</h3>
                   <p className="text-sm text-gray-600 mb-1">{packageData.description}</p>
                   <div className="flex items-center text-sm text-gray-500">
                     <Calendar className="h-4 w-4 mr-1" />
@@ -881,7 +770,7 @@ function ReservationContent() {
                 <div className="border-t border-b border-gray-100 py-4 mb-4">
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">기본 가격 (1인)</span>
-                    <span className="font-medium">{formatPrice(packageData.price)}</span>
+                    <span className="font-medium">{packageData.price}</span>
                   </div>
                   
                   <div className="flex justify-between mb-2">

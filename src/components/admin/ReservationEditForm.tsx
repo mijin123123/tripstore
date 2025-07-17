@@ -16,12 +16,12 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
   const [error, setError] = useState('');
   
   const [formData, setFormData] = useState({
-    contactName: '',
-    contactEmail: '',
-    contactPhone: '',
+    contact_name: '',
+    contact_email: '',
+    contact_phone: '',
     travelers: 1,
     status: 'pending',
-    specialRequests: '',
+    special_requests: '',
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,47 +29,26 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
   useEffect(() => {
     const fetchReservation = async () => {
       try {
-        console.log('예약 데이터 조회 시작:', id);
         const response = await fetch(`/api/reservations/${id}`);
         
-        console.log('응답 상태:', response.status, response.statusText);
-        
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('API 오류 응답:', errorText);
-          throw new Error(`예약 데이터를 불러오는데 실패했습니다: ${response.status}`);
+          throw new Error('예약 데이터를 불러오는데 실패했습니다');
         }
         
-        const text = await response.text();
-        console.log('응답 텍스트:', text);
-        
-        if (!text) {
-          throw new Error('서버에서 빈 응답을 받았습니다');
-        }
-        
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (parseError) {
-          console.error('JSON 파싱 오류:', parseError);
-          console.error('받은 텍스트:', text);
-          throw new Error('서버 응답을 파싱할 수 없습니다');
-        }
-        
-        console.log('파싱된 데이터:', data);
+        const data = await response.json();
         setReservation(data);
         
         setFormData({
-          contactName: data.contactName || '',
-          contactEmail: data.contactEmail || '',
-          contactPhone: data.contactPhone || '',
+          contact_name: data.contact_name || '',
+          contact_email: data.contact_email || '',
+          contact_phone: data.contact_phone || '',
           travelers: data.travelers || 1,
           status: data.status || 'pending',
-          specialRequests: data.specialRequests || '',
+          special_requests: data.special_requests || '',
         });
       } catch (err) {
         console.error('예약 데이터 불러오기 오류:', err);
-        setError(err instanceof Error ? err.message : '예약 데이터를 불러오는데 실패했습니다.');
+        setError('예약 데이터를 불러오는데 실패했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -100,19 +79,8 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
       });
       
       if (!response.ok) {
-        const text = await response.text();
-        let errorMessage = '예약 수정에 실패했습니다.';
-        
-        if (text) {
-          try {
-            const errorData = JSON.parse(text);
-            errorMessage = errorData.error || errorMessage;
-          } catch {
-            errorMessage = text;
-          }
-        }
-        
-        throw new Error(errorMessage);
+        const errorData = await response.json();
+        throw new Error(errorData.message || '예약 수정에 실패했습니다.');
       }
       
       router.push(`/admin/reservations/${id}`);
@@ -141,34 +109,34 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div>
-          <label htmlFor="contactName" className="block text-sm font-medium text-gray-700">이름</label>
+          <label htmlFor="contact_name" className="block text-sm font-medium text-gray-700">이름</label>
           <input
             type="text"
-            name="contactName"
-            id="contactName"
-            value={formData.contactName}
+            name="contact_name"
+            id="contact_name"
+            value={formData.contact_name}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
         <div>
-          <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">이메일</label>
+          <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700">이메일</label>
           <input
             type="email"
-            name="contactEmail"
-            id="contactEmail"
-            value={formData.contactEmail}
+            name="contact_email"
+            id="contact_email"
+            value={formData.contact_email}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
         <div>
-          <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700">연락처</label>
+          <label htmlFor="contact_phone" className="block text-sm font-medium text-gray-700">연락처</label>
           <input
             type="text"
-            name="contactPhone"
-            id="contactPhone"
-            value={formData.contactPhone}
+            name="contact_phone"
+            id="contact_phone"
+            value={formData.contact_phone}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
@@ -200,11 +168,11 @@ export default function ReservationEditForm({ id }: ReservationEditFormProps) {
           </select>
         </div>
         <div>
-          <label htmlFor="specialRequests" className="block text-sm font-medium text-gray-700">특별 요청사항</label>
+          <label htmlFor="special_requests" className="block text-sm font-medium text-gray-700">특별 요청사항</label>
           <textarea
-            name="specialRequests"
-            id="specialRequests"
-            value={formData.specialRequests}
+            name="special_requests"
+            id="special_requests"
+            value={formData.special_requests}
             onChange={handleChange}
             rows={4}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"

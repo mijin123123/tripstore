@@ -50,13 +50,12 @@ export default function ReservationDetailPage() {
   }
   
   // 숫자를 통화 형식으로 포맷팅
-  const formatCurrency = (amount: string | number) => {
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('ko-KR', { 
       style: 'currency', 
       currency: 'KRW',
       maximumFractionDigits: 0
-    }).format(numAmount);
+    }).format(amount);
   };
   
   // 예약 상태에 따른 배지 스타일
@@ -134,12 +133,12 @@ export default function ReservationDetailPage() {
                 
                 <div>
                   <p className="text-sm text-gray-500">예약 일자</p>
-                  <p>{new Date(reservation.createdAt).toLocaleDateString('ko-KR')}</p>
+                  <p>{new Date(reservation.created_at).toLocaleDateString('ko-KR')}</p>
                 </div>
                 
                 <div>
                   <p className="text-sm text-gray-500">출발 일자</p>
-                  <p>{reservation.departureDate}</p>
+                  <p>{reservation.departure_date}</p>
                 </div>
                 
                 <div>
@@ -149,12 +148,12 @@ export default function ReservationDetailPage() {
                 
                 <div>
                   <p className="text-sm text-gray-500">총 금액</p>
-                  <p className="font-bold">{formatCurrency(reservation.totalPrice)}</p>
+                  <p className="font-bold">{formatCurrency(reservation.total_price)}</p>
                 </div>
                 
                 <div>
                   <p className="text-sm text-gray-500">결제 상태</p>
-                  <p>{reservation.paymentStatus === 'paid' ? '결제 완료' : '미결제'}</p>
+                  <p>{reservation.payment_status === 'paid' ? '결제 완료' : '미결제'}</p>
                 </div>
               </div>
             </CardContent>
@@ -168,22 +167,22 @@ export default function ReservationDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">이름</p>
-                  <p>{reservation.contactName}</p>
+                  <p>{reservation.contact_name}</p>
                 </div>
                 
                 <div>
                   <p className="text-sm text-gray-500">이메일</p>
-                  <p>{reservation.contactEmail}</p>
+                  <p>{reservation.contact_email}</p>
                 </div>
                 
                 <div>
                   <p className="text-sm text-gray-500">전화번호</p>
-                  <p>{reservation.contactPhone}</p>
+                  <p>{reservation.contact_phone}</p>
                 </div>
                 
                 <div className="col-span-2">
                   <p className="text-sm text-gray-500">특별 요청</p>
-                  <p>{reservation.specialRequests || '없음'}</p>
+                  <p>{reservation.special_requests || '없음'}</p>
                 </div>
               </div>
             </CardContent>
@@ -196,12 +195,22 @@ export default function ReservationDetailPage() {
               <CardTitle>패키지 정보</CardTitle>
             </CardHeader>
             <CardContent>
-              {reservation.packageTitle ? (
+              {reservation.packages ? (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-lg">{reservation.packageTitle}</h3>
-                  <p className="text-gray-600">{reservation.packageDestination}</p>
+                  {reservation.packages.images && reservation.packages.images[0] && (
+                    <div className="aspect-video rounded-md overflow-hidden bg-gray-100">
+                      <img 
+                        src={reservation.packages.images[0]} 
+                        alt={reservation.packages.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                   
-                  <Link href={`/admin/packages/${reservation.packageId}`}>
+                  <h3 className="font-bold text-lg">{reservation.packages.title}</h3>
+                  <p className="text-gray-600">{reservation.packages.destination}</p>
+                  
+                  <Link href={`/admin/packages/${reservation.package_id}`}>
                     <Button variant="outline" className="w-full">
                       패키지 상세 보기
                     </Button>
