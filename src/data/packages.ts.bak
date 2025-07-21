@@ -1,0 +1,1619 @@
+// 패키지 타입 정의
+export interface Package {
+  id: string;
+  type: 'overseas' | 'hotel' | 'domestic' | 'luxury';
+  region: string;
+  regionKo: string;
+  title: string;
+  price: string;
+  duration: string;
+  rating: number;
+  image: string;
+  highlights: string[];
+  departure: string;
+  description: string;
+  itinerary?: Array<{
+    day: number;
+    title: string;
+    description: string;
+    meals: {
+      breakfast: boolean;
+      lunch: boolean;
+      dinner: boolean;
+    };
+    accommodation: string;
+  }>;
+  included?: string[];
+  excluded?: string[];
+  notes?: string[];
+  location?: string;
+  features?: string[];
+}
+
+// 모든 패키지 데이터를 저장하는 객체
+export const allPackages: Record<string, Package> = {
+  // 유럽 패키지
+  'europe-1': {
+    id: 'europe-1',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '로맨틱 파리 & 런던 7일',
+    price: '2,890,000',
+    duration: '7일 5박',
+    rating: 4.9,
+    image: '/images/europe-paris.jpg',
+    highlights: ['에펠탑', '루브르 박물관', '빅벤', '버킹엄 궁전'],
+    departure: '매주 화/금 출발',
+    description: '프랑스 파리와 영국 런던의 아름다운 명소들을 방문하는 7일간의 로맨틱한 여행입니다. 에펠탑, 루브르 박물관 등 파리의 유명 관광지와 빅벤, 버킹엄 궁전 등 런던의 주요 명소를 경험할 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 파리 도착',
+        description: '인천공항에서 출발하여 파리 샤를드골 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '파리 시내 관광',
+        description: '에펠탑, 개선문, 샹젤리제 거리, 루브르 박물관 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '베르사유 궁전 투어',
+        description: '베르사유 궁전과 정원 방문, 몽마르트 언덕과 사크레쾨르 대성당',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '파리 - 런던 (유로스타)',
+        description: '유로스타 기차를 타고 런던으로 이동, 런던 도착 후 테임즈강 크루즈',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '런던 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '런던 시내 관광',
+        description: '빅벤, 버킹엄 궁전, 타워 브릿지, 대영박물관 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '런던 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '런던 자유 시간 & 귀국',
+        description: '오전 자유 시간, 옥스포드 거리 쇼핑 후 런던 히드로 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 7,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 5박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '파리-런던 유로스타 기차표',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '항공 스케줄에 따라 일정 변경 가능',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'europe-2': {
+    id: 'europe-2',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '이탈리아 로마 & 베니스 8일',
+    price: '3,190,000',
+    duration: '8일 6박',
+    rating: 4.8,
+    image: '/images/europe-italy.jpg',
+    highlights: ['콜로세움', '바티칸', '베니스 곤돌라', '피사의 사탑'],
+    departure: '매주 월/목 출발',
+    description: '이탈리아의 문화와 예술의 중심지인 로마, 피렌체, 베니스를 탐방하는 8일 여행입니다. 세계적인 문화유산을 직접 체험하고 이탈리아의 전통 요리를 맛볼 수 있는 특별한 기회입니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 로마 도착',
+        description: '인천공항에서 출발하여 로마 피우미치노 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '로마 시내 관광',
+        description: '콜로세움, 로마 포럼, 트레비 분수, 스페인 계단 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '바티칸 시국 투어',
+        description: '바티칸 박물관, 시스티나 성당, 성 베드로 대성당 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '로마 - 피렌체',
+        description: '기차로 피렌체로 이동, 두오모, 우피치 미술관 방문',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '피렌체 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '피렌체 - 피사 - 베니스',
+        description: '피사의 사탑 방문 후 베니스로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '베니스 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '베니스 시내 관광',
+        description: '산 마르코 광장, 두칼레 궁전, 곤돌라 탑승 체험',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '베니스 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '베니스 - 밀라노 & 귀국',
+        description: '베니스에서 밀라노로 이동, 두오모 성당 방문 후 밀라노 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 8,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 6박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '도시 간 기차 또는 전용차량 이동',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '항공 스케줄에 따라 일정 변경 가능',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'europe-3': {
+    id: 'europe-3',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '스위스 알프스 & 독일 8일',
+    price: '3,490,000',
+    duration: '8일 6박',
+    rating: 4.7,
+    image: '/images/europe-swiss.jpg',
+    highlights: ['융프라우', '라인강', '노이슈반슈타인성', '체르마트'],
+    departure: '매주 수/토 출발',
+    description: '알프스의 장엄한 풍경과 독일의 중세 도시들을 탐방하는 8일 여행입니다. 융프라우, 체르마트의 산악 경관부터 독일의 노이슈반슈타인 성과 흑림 지역까지 매혹적인 중부 유럽의 풍경을 경험하세요.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 취리히 도착',
+        description: '인천공항에서 출발하여 취리히 국제공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '취리히 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '취리히 - 루체른 - 인터라켄',
+        description: '루체른 시내 관광, 카펠 다리, 시계탑 방문 후 인터라켄으로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '인터라켄 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '융프라우 등정',
+        description: '융프라우요흐(Top of Europe) 방문, 아이거 북벽 전망대',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '인터라켄 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '인터라켄 - 체르마트',
+        description: '기차로 체르마트로 이동, 마터호른 전망대 방문',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '체르마트 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '체르마트 - 뮌헨',
+        description: '기차로 뮌헨으로 이동, 마리엔 광장, 호프브로이하우스 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '뮌헨 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '노이슈반슈타인성 투어',
+        description: '노이슈반슈타인성 방문, 퓌센 마을 탐방',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '뮌헨 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '뮌헨 시내 관광 & 귀국',
+        description: '뉴 타운홀, BMW 박물관 방문 후 뮌헨 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 8,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 6박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '도시 간 기차 또는 전용차량 이동',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '항공 스케줄에 따라 일정 변경 가능',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  // 호텔 패키지
+  'hotel-europe-1': {
+    id: 'hotel-europe-1',
+    type: 'hotel',
+    region: 'europe',
+    regionKo: '유럽 호텔',
+    title: '파리 럭셔리 호텔',
+    price: '450,000',
+    duration: '1박',
+    rating: 5,
+    image: '/images/hotel-paris.jpg',
+    location: '파리, 프랑스',
+    highlights: ['에펠탑 뷰', '럭셔리 스파', '미슐랭 레스토랑', '프라이빗 발코니'],
+    features: ['에펠탑 뷰', '럭셔리 스파', '미슐랭 레스토랑'],
+    departure: '연중 운영',
+    description: '파리 중심부에 위치한 5성급 럭셔리 호텔로, 에펠탑의 환상적인 전망을 자랑합니다. 세계적으로 유명한 미슐랭 레스토랑과 럭셔리 스파, 넓은 객실을 갖추고 있으며 파리의 주요 관광지와 가까운 거리에 있어 편리한 위치를 자랑합니다.',
+    included: [
+      '조식 뷔페',
+      '무료 Wi-Fi',
+      '웰컴 드링크',
+      '피트니스 센터 이용',
+      '실내 수영장 이용'
+    ],
+    excluded: [
+      '공항 픽업 서비스 (별도 요금)',
+      '스파 트리트먼트',
+      '미니바 이용료',
+      '룸서비스',
+      '세탁 서비스'
+    ],
+    notes: [
+      '체크인: 오후 3시, 체크아웃: 정오 12시',
+      '조기 체크인 및 늦은 체크아웃은 별도 요금 발생',
+      '18세 미만 객실 예약 불가',
+      '전 객실 금연'
+    ]
+  },
+  // 국내 호텔 패키지
+  'domestic-hotel-1': {
+    id: 'domestic-hotel-1',
+    type: 'domestic',
+    region: 'hotel',
+    regionKo: '국내 호텔',
+    title: '서울 강남 프리미엄 호텔',
+    price: '280,000',
+    duration: '1박',
+    rating: 5,
+    image: '/images/hotel-seoul.jpg',
+    location: '서울 강남구',
+    highlights: ['강남역 근처', '비즈니스 센터', '스카이라운지', '고급 레스토랑'],
+    features: ['강남역 근처', '비즈니스 센터', '스카이라운지'],
+    departure: '연중 운영',
+    description: '서울 강남의 중심부에 위치한 5성급 호텔로, 비즈니스와 관광 모두에 최적의 위치를 자랑합니다. 고급스러운 객실과 스카이라운지에서 서울의 환상적인 야경을 감상할 수 있으며, 비즈니스 센터와 회의 시설을 갖추고 있습니다.',
+    included: [
+      '조식 뷔페',
+      '무료 Wi-Fi',
+      '헬스장 이용',
+      '사우나 이용',
+      '비즈니스 센터 이용'
+    ],
+    excluded: [
+      '발렛 파킹 서비스',
+      '룸서비스',
+      '미니바 이용료',
+      '세탁 서비스'
+    ],
+    notes: [
+      '체크인: 오후 2시, 체크아웃: 정오 12시',
+      '조기 체크인 및 늦은 체크아웃은 별도 요금 발생',
+      '전 객실 금연',
+      '주차는 1일 1회 무료'
+    ]
+  },
+  // 럭셔리 패키지
+  'luxury-europe-1': {
+    id: 'luxury-europe-1',
+    type: 'luxury',
+    region: 'europe',
+    regionKo: '럭셔리 유럽',
+    title: '프랑스 & 이탈리아 럭셔리 10일',
+    price: '12,800,000',
+    duration: '10일 8박',
+    rating: 4.9,
+    image: '/images/luxury-europe.jpg',
+    highlights: ['프라이빗 투어', '5성급 호텔', '미슐랭 스타 레스토랑', '전용 리무진'],
+    departure: '매월 1일, 15일 출발',
+    description: '파리, 니스, 로마, 피렌체를 아우르는 최고급 럭셔리 여행입니다. 전용 리무진과 프라이빗 가이드, 5성급 호텔, 미슐랭 스타 레스토랑에서의 식사 등 최상의 서비스로 유럽 여행을 경험하실 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 파리 도착',
+        description: '인천공항에서 출발하여 파리 샤를드골 공항에 도착, 전용 리무진으로 호텔 이동',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '파리 포시즌 호텔 (5성급)'
+      },
+      {
+        day: 2,
+        title: '파리 프라이빗 투어',
+        description: '에펠탑, 루브르 박물관 VIP 입장, 오르세 미술관 프라이빗 투어',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 포시즌 호텔 (5성급)'
+      },
+      {
+        day: 3,
+        title: '베르사유 궁전 VIP 투어',
+        description: '베르사유 궁전 일반인 출입제한 구역 포함 프라이빗 투어, 미슐랭 3스타 레스토랑 저녁 식사',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 포시즌 호텔 (5성급)'
+      },
+      {
+        day: 4,
+        title: '파리 - 니스 (전용기)',
+        description: '전용 항공편으로 니스로 이동, 프랑스 리비에라 요트 투어',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '니스 그랜드 호텔 (5성급)'
+      },
+      {
+        day: 5,
+        title: '모나코 & 에즈 마을 방문',
+        description: '모나코 왕궁, 몬테카를로 카지노, 중세 마을 에즈 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '니스 그랜드 호텔 (5성급)'
+      },
+      {
+        day: 6,
+        title: '니스 - 로마 (전용기)',
+        description: '전용 항공편으로 로마로 이동, 바티칸 시국 애프터아워 프라이빗 투어',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 하시엔다 호텔 (5성급)'
+      },
+      {
+        day: 7,
+        title: '로마 VIP 투어',
+        description: '콜로세움 지하 투어, 로마 포럼 프라이빗 투어, 트레비 분수 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 하시엔다 호텔 (5성급)'
+      },
+      {
+        day: 8,
+        title: '로마 - 피렌체',
+        description: '전용 차량으로 피렌체로 이동, 우피치 미술관 VIP 입장',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '피렌체 포 시즌스 (5성급)'
+      },
+      {
+        day: 9,
+        title: '피렌체 & 투스카니 와이너리 투어',
+        description: '두오모 성당, 키안티 지역 프라이빗 와이너리 방문 후 로마로 이동, 로마 공항에서 출발',
+        meals: { breakfast: true, lunch: true, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 10,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '비즈니스 클래스 국제선 항공권',
+      '유럽 내 도시 간 전용기 이동',
+      '5성급 럭셔리 호텔 8박',
+      '전 일정 미슐랭 스타급 레스토랑 식사',
+      '전용 리무진 및 전문 기사',
+      '프라이빗 가이드',
+      '모든 관광지 VIP 입장권',
+      '프리미엄 여행 키트',
+      '컨시어지 서비스'
+    ],
+    excluded: [
+      '개인 쇼핑 비용',
+      '호텔 내 부대시설 이용료',
+      '여권 발급 비용',
+      '해외 로밍 서비스'
+    ],
+    notes: [
+      '출발 최소 30일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '맞춤형 일정 변경 가능 (별도 문의)',
+      '최소 2인 이상 출발'
+    ]
+  },
+  
+  // 동남아시아 패키지
+  'southeast-asia-thailand': {
+    id: 'southeast-asia-thailand',
+    type: 'overseas',
+    region: 'southeast-asia',
+    regionKo: '동남아시아',
+    title: '태국 방콕 & 파타야 5일',
+    price: '890,000',
+    duration: '5일 3박',
+    rating: 4.8,
+    image: '/images/thailand.jpg',
+    highlights: ['왕궁', '왓포', '파타야 비치', '수상시장'],
+    departure: '매일 출발',
+    description: '태국의 수도 방콕과 휴양지 파타야를 모두 경험하는 5일 일정입니다. 화려한 사원과 궁전, 활기찬 시장, 아름다운 해변까지 태국의 매력을 모두 느낄 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 방콕 도착',
+        description: '인천공항에서 출발하여 방콕 수완나품 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '방콕 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '방콕 시내 관광',
+        description: '왕궁, 왓프라깨우, 왓포, 짜오프라야강 디너 크루즈',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '방콕 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '방콕 - 파타야 이동',
+        description: '담넌사두억 수상시장 방문 후 파타야로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파타야 비치 4성급 리조트'
+      },
+      {
+        day: 4,
+        title: '파타야 비치 & 코랄 아일랜드',
+        description: '코랄 아일랜드 보트 투어, 해양 스포츠, 알카자 쇼',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파타야 비치 4성급 리조트'
+      },
+      {
+        day: 5,
+        title: '파타야 - 방콕 & 귀국',
+        description: '오전 자유시간, 방콕 공항으로 이동 후 인천행 탑승',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 3박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '한국어 가이드',
+      '입장료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '태국 입국 시 입국 카드 작성 필요',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'southeast-asia-vietnam': {
+    id: 'southeast-asia-vietnam',
+    type: 'overseas',
+    region: 'southeast-asia',
+    regionKo: '동남아시아',
+    title: '베트남 다낭 & 호이안 5일',
+    price: '1,190,000',
+    duration: '5일 3박',
+    rating: 4.7,
+    image: '/images/vietnam.jpg',
+    highlights: ['바나힐', '미케 비치', '호이안 구시가지', '한시장'],
+    departure: '매일 출발',
+    description: '베트남 중부의 휴양지 다낭과 유네스코 세계문화유산인 호이안을 함께 여행하는 5일 패키지입니다. 아름다운 해변과 독특한 문화, 맛있는 현지 음식을 모두 경험할 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 다낭 도착',
+        description: '인천공항에서 출발하여 다낭 국제공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '다낭 해변가 4성급 리조트'
+      },
+      {
+        day: 2,
+        title: '바나힐 테마파크',
+        description: '케이블카 탑승 후 바나힐 테마파크 관광, 황금의 다리, 프랑스 마을 등',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '다낭 해변가 4성급 리조트'
+      },
+      {
+        day: 3,
+        title: '호이안 구시가지 투어',
+        description: '호이안 구시가지, 일본교, 중국회관, 등롱 만들기 체험',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '다낭 해변가 4성급 리조트'
+      },
+      {
+        day: 4,
+        title: '다낭 시내 관광',
+        description: '오행산, 영응사, 한시장, 미케 비치 자유시간',
+        meals: { breakfast: true, lunch: true, dinner: false },
+        accommodation: '다낭 해변가 4성급 리조트'
+      },
+      {
+        day: 5,
+        title: '다낭 & 귀국',
+        description: '오전 자유시간, 다낭 공항으로 이동 후 인천행 탑승',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 리조트 4박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '한국어 가이드',
+      '입장료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '현지 날씨에 따라 일부 활동이 제한될 수 있음',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'southeast-asia-singapore': {
+    id: 'southeast-asia-singapore',
+    type: 'overseas',
+    region: 'southeast-asia',
+    regionKo: '동남아시아',
+    title: '싱가포르 & 말레이시아 6일',
+    price: '1,490,000',
+    duration: '6일 4박',
+    rating: 4.9,
+    image: '/images/singapore.jpg',
+    highlights: ['마리나베이샌즈', '센토사', '쿠알라룸푸르', '페트로나스 타워'],
+    departure: '매주 화/금/일 출발',
+    description: '싱가포르의 현대적인 매력과 말레이시아의 다채로운 문화를 함께 경험하는 6일 여행입니다. 두 나라의 대표 관광지를 효율적으로 둘러볼 수 있는 알찬 일정입니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 싱가포르 도착',
+        description: '인천공항에서 출발하여 싱가포르 창이공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '싱가포르 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '싱가포르 시내 관광',
+        description: '가든스 바이 더 베이, 마리나베이샌즈, 머라이언 파크, 차이나타운',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '싱가포르 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '센토사 섬 투어',
+        description: 'S.E.A 아쿠아리움, 유니버설 스튜디오, 케이블카',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '싱가포르 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '싱가포르 - 쿠알라룸푸르 이동',
+        description: '전용 차량으로 말레이시아 국경 통과 후 쿠알라룸푸르로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '쿠알라룸푸르 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '쿠알라룸푸르 시내 관광 & 귀국',
+        description: '페트로나스 트윈 타워, 바투 동굴, 국립 모스크, 메르데카 광장 방문 후 공항으로 이동',
+        meals: { breakfast: true, lunch: true, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 6,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 4박',
+      '일정상 표기된 식사',
+      '전용 차량 이동',
+      '한국어 가이드',
+      '입장료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '싱가포르, 말레이시아 입국 신고서 작성 필요',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'southeast-asia-philippines': {
+    id: 'southeast-asia-philippines',
+    type: 'overseas',
+    region: 'southeast-asia',
+    regionKo: '동남아시아',
+    title: '필리핀 세부 리조트 5일',
+    price: '1,290,000',
+    duration: '5일 3박',
+    rating: 4.6,
+    image: '/images/cebu.jpg',
+    highlights: ['막탄 리조트', '보홀섬', '알로나 비치', '스노클링'],
+    departure: '매주 월/수/금/일 출발',
+    description: '필리핀의 대표적인 휴양지 세부에서 완벽한 휴식을 경험하는 5일 패키지입니다. 아름다운 해변과 다양한 해양 액티비티, 그리고 편안한 리조트에서의 시간을 즐길 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 세부 도착',
+        description: '인천공항에서 출발하여 세부 막탄 공항에 도착 후 리조트 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '막탄 섬 5성급 리조트'
+      },
+      {
+        day: 2,
+        title: '보홀섬 투어',
+        description: '초콜릿 힐스, 안경원숭이 보호구역, 로복강 크루즈, 알로나 비치',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '막탄 섬 5성급 리조트'
+      },
+      {
+        day: 3,
+        title: '세부 시티 투어',
+        description: '막탄 사원, 산페드로 요새, SM 몰, 세부 시티 야경 투어',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '막탄 섬 5성급 리조트'
+      },
+      {
+        day: 4,
+        title: '해양 스포츠 & 선택 관광',
+        description: '스노클링, 다이빙, 제트스키 등 해양 액티비티 또는 자유시간',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '막탄 섬 5성급 리조트'
+      },
+      {
+        day: 5,
+        title: '세부 & 귀국',
+        description: '오전 자유시간, 세부 공항으로 이동 후 인천행 탑승',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '5성급 리조트 4박',
+      '일정상 표기된 식사',
+      '공항-리조트 간 전용 차량 이동',
+      '한국어 가이드',
+      '보홀섬 투어 비용',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '해양 액티비티 선택 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '날씨 상황에 따라 보홀섬 투어가 취소될 수 있음',
+      '수영복, 썬크림 등 휴양지 필수품 지참 권장'
+    ]
+  },
+  
+  // 일본 패키지
+  'japan-tokyo-osaka': {
+    id: 'japan-tokyo-osaka',
+    type: 'overseas',
+    region: 'japan',
+    regionKo: '일본',
+    title: '도쿄 & 오사카 벚꽃 여행 5일',
+    price: '1,890,000',
+    duration: '5일 3박',
+    rating: 4.9,
+    image: '/images/japan-tokyo.jpg',
+    highlights: ['시부야', '아사쿠사', '오사카성', '벚꽃 명소'],
+    departure: '3-5월 매일 출발',
+    description: '일본의 대표 도시 도쿄와 오사카를 벚꽃 시즌에 방문하는 5일 일정입니다. 아름다운 벚꽃 명소와 현대적인 도시 문화, 그리고 전통 사원까지 다양한 일본의 매력을 만날 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 도쿄 도착',
+        description: '인천공항에서 출발하여 도쿄 나리타 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '도쿄 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '도쿄 시내 및 벚꽃 관광',
+        description: '아사쿠사 센소지, 우에노 공원 벚꽃 구경, 시부야, 하라주쿠 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '도쿄 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '도쿄 - 오사카 이동',
+        description: '신칸센으로 오사카로 이동, 도톤보리, 신사이바시 방문',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '오사카 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '오사카 시내 관광',
+        description: '오사카성, 유니버설 스튜디오 재팬 또는 자유 일정',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '오사카 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '오사카 & 귀국',
+        description: '오전 쇼핑 시간, 간사이 공항으로 이동 후 인천행 탑승',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 3박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '도쿄-오사카 신칸센 티켓',
+      '한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '유니버설 스튜디오 입장료',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '벚꽃 개화 시기는 기상 조건에 따라 달라질 수 있음',
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'japan-kyushu': {
+    id: 'japan-kyushu',
+    type: 'overseas',
+    region: 'japan',
+    regionKo: '일본',
+    title: '규슈 온천 힐링 여행 6일',
+    price: '2,190,000',
+    duration: '6일 4박',
+    rating: 4.8,
+    image: '/images/japan-kyushu.jpg',
+    highlights: ['벳푸 온천', '유후인', '구마모토성', '아소산'],
+    departure: '연중 출발',
+    description: '일본 남부 규슈 지방의 아름다운 자연과 온천을 즐기는 힐링 여행입니다. 벳푸와 유후인의 유명 온천에서 피로를 풀고, 구마모토성과 아소산의 자연 경관을 감상할 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 후쿠오카 도착',
+        description: '인천공항에서 출발하여 후쿠오카 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '후쿠오카 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '후쿠오카 - 벳푸 이동',
+        description: '다자이후 텐만구 방문 후 벳푸로 이동, 지옥온천 견학',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '벳푸 온천 료칸'
+      },
+      {
+        day: 3,
+        title: '벳푸 - 유후인 - 구마모토',
+        description: '유후인 관광, 유후인노모리 기차 탑승, 구마모토로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '구마모토 시내 호텔'
+      },
+      {
+        day: 4,
+        title: '구마모토 - 아소산',
+        description: '구마모토성, 아소산 화산 트레킹, 쿠마몬 스퀘어 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '아소 온천 료칸'
+      },
+      {
+        day: 5,
+        title: '아소 - 후쿠오카 이동',
+        description: '야나가와 뱃놀이, 텐진 쇼핑, 라멘 맛집 탐방',
+        meals: { breakfast: true, lunch: true, dinner: false },
+        accommodation: '후쿠오카 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '후쿠오카 & 귀국',
+        description: '오전 자유시간, 후쿠오카 공항으로 이동 후 인천행 탑승',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 2박, 온천 료칸 2박',
+      '일정상 표기된 식사',
+      '전용 관광버스 이동',
+      '한국어 가이드',
+      '입장료',
+      '온천 입욕료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '온천 입욕 시 문신이 있는 경우 입장이 제한될 수 있음',
+      '아소산은 화산 활동에 따라 접근이 제한될 수 있음',
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요'
+    ]
+  },
+  'japan-hokkaido': {
+    id: 'japan-hokkaido',
+    type: 'overseas',
+    region: 'japan',
+    regionKo: '일본',
+    title: '홋카이도 삿포로 & 하코다테 7일',
+    price: '2,690,000',
+    duration: '7일 5박',
+    rating: 4.7,
+    image: '/images/japan-hokkaido.jpg',
+    highlights: ['삿포로 맥주공장', '오타루 운하', '하코다테 야경', '니세코'],
+    departure: '6-9월, 12-2월 출발',
+    description: '일본 최북단 홋카이도의 아름다운 자연과 도시를 탐험하는 7일 여행입니다. 여름에는 시원한 기후와 라벤더 풍경을, 겨울에는 환상적인 설경과 온천을 즐길 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 삿포로 도착',
+        description: '인천공항에서 출발하여 삿포로 치토세 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '삿포로 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '삿포로 시내 관광',
+        description: '오도리 공원, 시계탑, 삿포로 맥주 공장, 스스키노 번화가',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '삿포로 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '오타루 당일 여행',
+        description: '오타루 운하, 오르골당, 유리 공예점, 해산물 시장',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '삿포로 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '삿포로 - 노보리베츠 - 하코다테',
+        description: '노보리베츠 지옥계곡, 쇼와신잔, 토야호, 하코다테로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '하코다테 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '하코다테 관광',
+        description: '하코다테 모닝 마켓, 고료카쿠 공원, 하코다테 산 야경',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '하코다테 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '하코다테 - 삿포로 & 귀국',
+        description: '기차로 삿포로로 이동, 삿포로 미츠코시 백화점 쇼핑 후 공항으로 이동',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 7,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 5박',
+      '일정상 표기된 식사',
+      '전용 관광버스 이동',
+      '하코다테-삿포로 특급열차 티켓',
+      '한국어 가이드',
+      '입장료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '계절에 따라 관광지가 변경될 수 있음 (여름: 라벤더 농장 / 겨울: 설경 관광)',
+      '겨울철 여행시 방한 의류 필수',
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요'
+    ]
+  },
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '로맨틱 파리 & 런던 7일',
+    price: '2,890,000',
+    duration: '7일 5박',
+    rating: 4.9,
+    image: '/images/europe-paris.jpg',
+    highlights: ['에펠탑', '루브르 박물관', '빅벤', '버킹엄 궁전'],
+    departure: '매주 화/금 출발',
+    description: '프랑스 파리와 영국 런던의 아름다운 명소들을 방문하는 7일간의 로맨틱한 여행입니다. 에펠탑, 루브르 박물관 등 파리의 유명 관광지와 빅벤, 버킹엄 궁전 등 런던의 주요 명소를 경험할 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 파리 도착',
+        description: '인천공항에서 출발하여 파리 샤를드골 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '파리 시내 관광',
+        description: '에펠탑, 개선문, 샹젤리제 거리, 루브르 박물관 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '베르사유 궁전 투어',
+        description: '베르사유 궁전과 정원 방문, 몽마르트 언덕과 사크레쾨르 대성당',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '파리 - 런던 (유로스타)',
+        description: '유로스타 기차를 타고 런던으로 이동, 런던 도착 후 테임즈강 크루즈',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '런던 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '런던 시내 관광',
+        description: '빅벤, 버킹엄 궁전, 타워 브릿지, 대영박물관 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '런던 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '런던 자유 시간 & 귀국',
+        description: '오전 자유 시간, 옥스포드 거리 쇼핑 후 런던 히드로 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 7,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 5박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '파리-런던 유로스타 기차표',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '항공 스케줄에 따라 일정 변경 가능',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'europe-2': {
+    id: 'europe-2',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '이탈리아 로마 & 베니스 8일',
+    price: '3,190,000',
+    duration: '8일 6박',
+    rating: 4.8,
+    image: '/images/europe-italy.jpg',
+    highlights: ['콜로세움', '바티칸', '베니스 곤돌라', '피사의 사탑'],
+    departure: '매주 월/목 출발',
+    description: '이탈리아의 문화와 예술의 중심지인 로마, 피렌체, 베니스를 탐방하는 8일 여행입니다. 세계적인 문화유산을 직접 체험하고 이탈리아의 전통 요리를 맛볼 수 있는 특별한 기회입니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 로마 도착',
+        description: '인천공항에서 출발하여 로마 피우미치노 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '로마 시내 관광',
+        description: '콜로세움, 로마 포럼, 트레비 분수, 스페인 계단 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '바티칸 시국 투어',
+        description: '바티칸 박물관, 시스티나 성당, 성 베드로 대성당 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '로마 - 피렌체',
+        description: '기차로 피렌체로 이동, 두오모, 우피치 미술관 방문',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '피렌체 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '피렌체 - 피사 - 베니스',
+        description: '피사의 사탑 방문 후 베니스로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '베니스 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '베니스 시내 관광',
+        description: '산 마르코 광장, 두칼레 궁전, 곤돌라 탑승 체험',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '베니스 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '베니스 - 밀라노 & 귀국',
+        description: '베니스에서 밀라노로 이동, 두오모 성당 방문 후 밀라노 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 8,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 6박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '도시 간 기차 또는 전용차량 이동',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '항공 스케줄에 따라 일정 변경 가능',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'europe-3': {
+    id: 'europe-3',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '스위스 알프스 & 독일 8일',
+    price: '3,490,000',
+    duration: '8일 6박',
+    rating: 4.7,
+    image: '/images/europe-swiss.jpg',
+    highlights: ['융프라우', '라인강', '노이슈반슈타인성', '체르마트'],
+    departure: '매주 수/토 출발',
+    description: '스위스 알프스의 웅장한 산맥과 독일의 낭만적인 도시들을 함께 여행하는 8일 일정입니다. 유럽의 자연 경관과 역사적인 도시를 동시에 체험할 수 있는 특별한 여행입니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 취리히 도착',
+        description: '인천공항에서 출발하여 취리히 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '취리히 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '취리히 - 루체른 - 인터라켄',
+        description: '취리히 시내 관광, 루체른 카펠교, 인터라켄으로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '인터라켄 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '융프라우 투어',
+        description: '융프라우 등정, 아이거 빙하 마을 방문, 전망대에서 알프스 파노라마 감상',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '인터라켄 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '인터라켄 - 체르마트',
+        description: '체르마트로 이동, 마터호른 전망대 방문, 알파인 하이킹',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '체르마트 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '체르마트 - 뮌헨',
+        description: '기차로 뮌헨으로 이동, 마리엔 광장, 신시청사, 호프브로이하우스 방문',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '뮌헨 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '뮌헨 - 노이슈반슈타인 성 - 프랑크푸르트',
+        description: '노이슈반슈타인 성 방문, 로맨틱 가도 여행 후 프랑크푸르트로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '프랑크푸르트 시내 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '라인강 크루즈 & 귀국',
+        description: '라인강 크루즈, 중세 마을 뤼데스하임 방문 후 프랑크푸르트 공항에서 출발',
+        meals: { breakfast: true, lunch: true, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 8,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 6박',
+      '일정상 표기된 식사',
+      '전용 버스 이동',
+      '융프라우 등정 티켓',
+      '라인강 크루즈 티켓',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '노이슈반슈타인 성 내부 입장료',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '고산 지대 방문 시 고산병에 주의',
+      '알프스 지역 날씨는 변덕스러우므로 방한복과 우산 필수',
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요'
+    ]
+  },
+  'europe-4': {
+    id: 'europe-4',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '스페인 & 포르투갈 9일',
+    price: '3,790,000',
+    duration: '9일 7박',
+    rating: 4.6,
+    image: '/images/europe-spain.jpg',
+    highlights: ['사그라다 파밀리아', '알함브라 궁전', '포르투', '리스본'],
+    departure: '매주 화/일 출발',
+    description: '이베리아 반도의 매력적인 두 나라, 스페인과 포르투갈의 역사, 문화, 열정을 느낄 수 있는 9일 여행입니다. 독특한 건축물, 플라멩코 쇼, 와인, 그리고 지중해의 맛을 경험하세요.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 마드리드 도착',
+        description: '인천공항에서 출발하여 마드리드 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '마드리드 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '마드리드 시내 관광',
+        description: '프라도 미술관, 마요르 광장, 왕궁, 솔 광장 관광',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '마드리드 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '마드리드 - 톨레도 - 세비야',
+        description: '중세 도시 톨레도 방문 후 세비야로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '세비야 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '세비야 - 그라나다',
+        description: '세비야 대성당, 히랄다 탑, 스페인 광장 관광 후 그라나다로 이동, 플라멩코 쇼 관람',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '그라나다 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '그라나다 - 바르셀로나',
+        description: '알함브라 궁전 방문 후 바르셀로나로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '바르셀로나 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '바르셀로나 시내 관광',
+        description: '사그라다 파밀리아, 구엘 공원, 람블라스 거리, 바르셀로네타 비치 관광',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '바르셀로나 시내 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '바르셀로나 - 리스본',
+        description: '항공으로 포르투갈 리스본으로 이동, 제로니모스 수도원, 벨렘 탑 방문',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '리스본 시내 4성급 호텔'
+      },
+      {
+        day: 8,
+        title: '리스본 - 신트라 - 귀국',
+        description: '신트라 왕궁, 로카 곶 방문 후 리스본 공항에서 출발',
+        meals: { breakfast: true, lunch: true, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 9,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '스페인-포르투갈 국내선 항공권',
+      '4성급 호텔 7박',
+      '일정상 표기된 식사',
+      '전용 버스 이동',
+      '플라멩코 쇼 관람',
+      '현지 한국어 가이드',
+      '주요 관광지 입장료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '바르셀로나는 소매치기가 많으니 귀중품 관리에 주의',
+      '스페인은 늦은 식사 문화 (점심 14-15시, 저녁 21-22시)',
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요'
+    ]
+  },
+  'europe-5': {
+    id: 'europe-5',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '그리스 아테네 & 산토리니 8일',
+    price: '3,290,000',
+    duration: '8일 6박',
+    rating: 4.8,
+    image: '/images/europe-greece.jpg',
+    highlights: ['파르테논 신전', '산토리니', '미코노스', '델피'],
+    departure: '매주 수/토 출발',
+    description: '고대 문명의 발상지 그리스와 에게해의 아름다운 섬들을 여행하는 8일 일정입니다. 역사적인 유적지와 환상적인 절경의 에게해 섬들을 탐험하세요.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 아테네 도착',
+        description: '인천공항에서 출발하여 아테네 국제공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '아테네 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '아테네 시내 관광',
+        description: '아크로폴리스, 파르테논 신전, 플라카 지구, 신테그마 광장 관광',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '아테네 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '아테네 - 산토리니',
+        description: '페리로 산토리니로 이동, 이아(Oia) 마을 석양 감상',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '산토리니 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '산토리니 섬 관광',
+        description: '피라 마을, 흑모래 해변, 와이너리 투어 및 와인 시음',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '산토리니 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '산토리니 - 미코노스',
+        description: '페리로 미코노스로 이동, 리틀 베니스, 미코노스 타운 관광',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '미코노스 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '미코노스 자유 일정',
+        description: '파라다이스 비치 또는 자유 일정 (델로스 섬 옵션 투어 가능)',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '미코노스 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '미코노스 - 아테네 & 귀국',
+        description: '페리로 아테네로 이동, 쇼핑 시간 후 아테네 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 8,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 6박',
+      '일정상 표기된 식사',
+      '페리 티켓 (아테네-산토리니-미코노스-아테네)',
+      '전용 버스 이동',
+      '현지 한국어 가이드',
+      '주요 관광지 입장료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용 (델로스 섬 투어 등)'
+    ],
+    notes: [
+      '날씨에 따라 페리 운항이 취소될 수 있으며, 이 경우 항공으로 변경될 수 있음',
+      '산토리니와 미코노스는 계단이 많아 편안한 신발 필수',
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요'
+    ]
+  },
+  'europe-6': {
+    id: 'europe-6',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '중부유럽 4국 투어 9일',
+    price: '3,590,000',
+    duration: '9일 7박',
+    rating: 4.7,
+    image: '/images/europe-central.jpg',
+    highlights: ['프라하', '비엔나', '부다페스트', '뮌헨'],
+    departure: '매주 화/금 출발',
+    description: '중부 유럽의 아름다운 나라들, 체코, 오스트리아, 헝가리, 독일을 탐험하는 9일 여행입니다. 역사적인 도시들과 유네스코 세계문화유산을 탐방하며 중유럽의 매력을 경험하세요.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 프라하 도착',
+        description: '인천공항에서 출발하여 프라하 바츨라프 하벨 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '프라하 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '프라하 시내 관광',
+        description: '프라하 성, 성 비트 대성당, 카를교, 구시가지 광장, 천문시계 관광',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '프라하 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '프라하 - 체스키크룸로프 - 비엔나',
+        description: '유네스코 세계문화유산 체스키크룸로프 관광 후 비엔나로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '비엔나 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '비엔나 시내 관광',
+        description: '쇤브룬 궁전, 벨베데레 궁전, 호프부르크, 오페라 하우스, 슈테판 대성당 관광',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '비엔나 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '비엔나 - 부다페스트',
+        description: '비엔나에서 부다페스트로 이동, 어부의 요새, 마차시 성당, 영웅 광장 관광',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '부다페스트 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '부다페스트 - 다뉴브강 크루즈',
+        description: '부다페스트 국회의사당, 다뉴브 강 유람선 탑승, 겔레르트 언덕',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '부다페스트 시내 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '부다페스트 - 잘츠부르크 - 뮌헨',
+        description: '모차르트의 도시 잘츠부르크 관광 후 뮌헨으로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '뮌헨 시내 4성급 호텔'
+      },
+      {
+        day: 8,
+        title: '뮌헨 시내 관광 & 귀국',
+        description: '마리엔 광장, 신시청사, 님펜부르크 궁전 관광 후 뮌헨 공항에서 출발',
+        meals: { breakfast: true, lunch: true, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 9,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 7박',
+      '일정상 표기된 식사',
+      '전용 버스 이동',
+      '다뉴브 강 유람선 티켓',
+      '현지 한국어 가이드',
+      '주요 관광지 입장료',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '4개국을 방문하므로 여행 일정이 다소 빡빡할 수 있음',
+      '유럽의 성당 입장 시 복장 규정 주의 (짧은 옷, 민소매 금지)',
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요'
+    ]
+  }
+};
+
+// 지역별 패키지 가져오기
+export function getPackagesByRegion(type: string, region: string): Package[] {
+  return Object.values(allPackages).filter(
+    (pkg) => pkg.type === type && pkg.region === region
+  );
+}
+
+// 특정 패키지 가져오기
+export function getPackageById(id: string): Package | undefined {
+  return allPackages[id];
+}

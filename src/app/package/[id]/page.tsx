@@ -1,0 +1,410 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { MapPin, Calendar, Users, Star, Clock, Plane, CheckCircle, BarChart, Coffee, Utensils, Wifi, HelpCircle, CreditCard } from 'lucide-react'
+import { Package, getPackageById } from '@/data/packages'
+
+export default function PackageDetail() {
+  const params = useParams();
+  const router = useRouter();
+  const [packageData, setPackageData] = useState<Package | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [showCalendar, setShowCalendar] = useState<boolean>(false);
+  
+  // 패키지에 포함된 추천 출발일
+  const availableDates = [
+    { date: '2025-08-05', day: '화' },
+    { date: '2025-08-08', day: '금' },
+    { date: '2025-08-12', day: '화' },
+    { date: '2025-08-15', day: '금' },
+    { date: '2025-08-19', day: '화' }
+  ];
+  
+  useEffect(() => {
+    if (params?.id) {
+      const id = params.id as string;
+      const packageInfo = getPackageById(id);
+      setPackageData(packageInfo);
+      setIsLoading(false);
+    }
+  }, [params]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!packageData) {
+    return (
+      <div className="min-h-screen pt-20">
+        <div className="max-w-6xl mx-auto px-4 py-16 text-center">
+          <HelpCircle className="w-16 h-16 mx-auto text-red-500 mb-4" />
+          <h1 className="text-3xl font-bold mb-4">패키지를 찾을 수 없습니다</h1>
+          <p className="mb-8 text-gray-600">요청하신 패키지 정보를 찾을 수 없습니다. 다른 패키지를 선택해주세요.</p>
+          <Link href="/" className="btn btn-primary">
+            메인 페이지로 돌아가기
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const getBackLink = () => {
+    if (packageData && packageData.type && packageData.region) {
+      return `/${packageData.type}/${packageData.region}`;
+    }
+    return '/'; // 기본값으로 홈페이지로 이동
+  };
+
+  return (
+    <div className="min-h-screen pt-20">
+      {/* 헤더 섹션 */}
+      <section 
+        className="relative h-96 bg-cover bg-center"
+        style={{ backgroundImage: `url(${packageData.image})` }}
+      >
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
+          <div className="text-white">
+            <div className="mb-4">
+              <Link href={getBackLink()} className="text-blue-200 hover:text-white transition-colors flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                {packageData.regionKo} 여행 패키지 목록으로
+              </Link>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{packageData.title}</h1>
+            <p className="text-xl mb-6 max-w-3xl">
+              {packageData.description.split('.')[0]}.
+            </p>
+            <div className="flex items-center gap-4 text-sm flex-wrap">
+              <span className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                {packageData.regionKo}
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                {packageData.duration}
+              </span>
+              <span className="flex items-center gap-1">
+                <Plane className="w-4 h-4" />
+                {packageData.departure}
+              </span>
+              <span className="flex items-center gap-1">
+                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                {packageData.rating} 고객 평점
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 메인 콘텐츠 */}
+          <div className="lg:col-span-2">
+            {/* 패키지 설명 */}
+            <section className="bg-white rounded-xl shadow-md p-6 mb-8">
+              {/* 여행 대표 이미지 */}
+              <div className="mb-6 overflow-hidden rounded-lg">
+                <img src={packageData.image} alt={packageData.title} className="w-full h-auto object-cover" />
+              </div>
+              
+              <h2 className="text-2xl font-bold mb-4">여행 소개</h2>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                {packageData.description}
+              </p>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {packageData.highlights.map((highlight, index) => (
+                  <div key={index} className="bg-blue-50 rounded-lg p-3 text-center">
+                    <span className="block text-blue-700 font-medium">{highlight}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 일정 */}
+            <section className="bg-white rounded-xl shadow-md p-6 mb-8">
+              <h2 className="text-2xl font-bold mb-6">상세 일정</h2>
+              
+              <div className="space-y-6">
+                {packageData.itinerary?.map((day) => (
+                  <div key={day.day} className="border-l-4 border-blue-500 pl-4 pb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                        {day.day}
+                      </div>
+                      <h3 className="text-xl font-semibold">{day.title}</h3>
+                    </div>
+                    <p className="text-gray-700 mb-3">{day.description}</p>
+                    
+                    <div className="flex flex-wrap gap-4 items-center mt-3">
+                      <div className="flex items-center">
+                        <span className="text-sm text-gray-500">숙박:</span>
+                        <span className="ml-2 text-sm font-medium">{day.accommodation}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">식사:</span>
+                        <span className={`inline-flex items-center p-1 rounded ${day.meals.breakfast ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
+                          <Coffee className="w-3 h-3 mr-1" /> 조식
+                        </span>
+                        <span className={`inline-flex items-center p-1 rounded ${day.meals.lunch ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                          <Utensils className="w-3 h-3 mr-1" /> 중식
+                        </span>
+                        <span className={`inline-flex items-center p-1 rounded ${day.meals.dinner ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'}`}>
+                          <Utensils className="w-3 h-3 mr-1" /> 석식
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 포함/불포함 사항 */}
+            <section className="bg-white rounded-xl shadow-md p-6 mb-8">
+              <h2 className="text-2xl font-bold mb-6">포함 및 불포함 사항</h2>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center text-green-700">
+                    <CheckCircle className="w-5 h-5 mr-2" /> 포함 사항
+                  </h3>
+                  <ul className="space-y-2">
+                    {packageData.included?.map((item, index) => (
+                      <li key={index} className="flex items-start">
+                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />
+                        <span className="text-gray-700">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center text-red-700">
+                    <span className="w-5 h-5 mr-2 relative">
+                      <span className="absolute inset-0 text-red-500">×</span>
+                    </span>
+                    불포함 사항
+                  </h3>
+                  <ul className="space-y-2">
+                    {packageData.excluded?.map((item, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="w-4 h-4 text-red-500 mr-2 mt-0.5 relative">
+                          <span className="absolute inset-0 text-red-500">×</span>
+                        </span>
+                        <span className="text-gray-700">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* 유의사항 */}
+            <section className="bg-white rounded-xl shadow-md p-6">
+              <h2 className="text-2xl font-bold mb-4">예약 시 참고사항</h2>
+              
+              <ul className="space-y-2">
+                {packageData.notes?.map((note, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-blue-500 mr-2">•</span>
+                    <span className="text-gray-700">{note}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+
+          {/* 사이드바 - 예약 박스 */}
+          <div className="lg:sticky lg:top-24 h-fit">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 text-white">
+                <h3 className="text-xl font-bold">예약하기</h3>
+              </div>
+              
+              <div className="p-5">
+                <div className="mb-5">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-gray-600">가격</span>
+                    <span className="text-xl font-bold text-blue-600">{packageData.price}원</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span>1인 기준 (VAT 포함)</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 mb-5">
+                  <div className="relative">
+                    <label className="flex items-center gap-2 text-sm font-medium mb-1 text-gray-700">
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                      출발일
+                    </label>
+                    <div className="relative">
+                      {/* 날짜 선택 입력 필드 */}
+                      <div 
+                        className="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm cursor-pointer hover:border-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-200 focus-within:border-blue-500 transition-colors flex justify-between items-center"
+                        onClick={() => setShowCalendar(!showCalendar)}
+                      >
+                        <span className={selectedDate ? "text-gray-900" : "text-gray-400"}>
+                          {selectedDate ? `${selectedDate.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1.$2.$3")} (${['일','월','화','수','목','금','토'][new Date(selectedDate).getDay()]})` : "날짜를 선택하세요"}
+                        </span>
+                        <Calendar className="w-4 h-4 text-blue-600" />
+                      </div>
+                      
+                      {/* 달력 팝업 */}
+                      {showCalendar && (
+                        <div className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 p-3">
+                          {/* 달력 헤더 */}
+                          <div className="flex justify-between items-center mb-2 border-b pb-2">
+                            <h4 className="font-semibold text-sm">2025년 8월</h4>
+                            <button 
+                              type="button"
+                              className="text-gray-400 hover:text-gray-600"
+                              onClick={() => setShowCalendar(false)}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                              </svg>
+                            </button>
+                          </div>
+                          
+                          {/* 요일 표시 */}
+                          <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500 mb-1">
+                            {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
+                              <div key={index} className="py-1">
+                                {day}
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* 날짜 그리드 */}
+                          <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                            {/* 8월 1일이 목요일(4)부터 시작하도록 빈 셀 추가 */}
+                            {[...Array(3)].map((_, index) => (
+                              <div key={`empty-${index}`} className="p-1 text-gray-300"></div>
+                            ))}
+                            
+                            {/* 8월 1일부터 31일까지 */}
+                            {[...Array(31)].map((_, index) => {
+                              const day = index + 1;
+                              const dateString = `2025-08-${day.toString().padStart(2, '0')}`;
+                              const isRecommended = availableDates.some(d => d.date === dateString);
+                              const isSelected = selectedDate === dateString;
+                              
+                              return (
+                                <div 
+                                  key={day}
+                                  className={`p-1 relative ${
+                                    isSelected ? 'bg-blue-600 text-white rounded-full' : 
+                                    'text-gray-700 hover:bg-blue-100 hover:rounded-full'
+                                  } cursor-pointer flex items-center justify-center`}
+                                  onClick={() => {
+                                    setSelectedDate(dateString);
+                                    setShowCalendar(false);
+                                  }}
+                                >
+                                  {day}
+                                  {isRecommended && !isSelected && (
+                                    <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          
+                          {/* 가능한 날짜 리스트 */}
+                          <div className="mt-2 pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-500 mb-1">추천 출발일:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {availableDates.map((date, index) => (
+                                <button
+                                  key={index}
+                                  type="button"
+                                  className={`px-2 py-1 text-xs rounded-full ${
+                                    selectedDate === date.date ? 
+                                    'bg-blue-600 text-white' : 
+                                    'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                                  }`}
+                                  onClick={() => {
+                                    setSelectedDate(date.date);
+                                    setShowCalendar(false);
+                                  }}
+                                >
+                                  {date.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$2.$3")} ({date.day})
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="relative">
+                    <label className="flex items-center gap-2 text-sm font-medium mb-1 text-gray-700">
+                      <Users className="w-4 h-4 text-blue-600" />
+                      인원
+                    </label>
+                    <div className="relative">
+                      <select className="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors">
+                        <option value="1">성인 1명</option>
+                        <option value="2">성인 2명</option>
+                        <option value="3">성인 3명</option>
+                        <option value="4">성인 4명</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mb-5">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-medium">총액</span>
+                    <span className="text-xl font-bold text-blue-700">{packageData.price}원</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span>예약금</span>
+                    <span>{parseInt(packageData.price.replace(/,/g, '')) * 0.1}원</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <button 
+                    className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
+                    onClick={() => router.push(`/booking/${packageData.id}`)}
+                  >
+                    예약하기
+                  </button>
+                  <button 
+                    className="w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors flex justify-center items-center text-sm"
+                    onClick={() => router.push(`/booking/${packageData.id}`)}
+                  >
+                    <CreditCard className="w-4 h-4 mr-1" />
+                    결제하기
+                  </button>
+                </div>
+                
+                <div className="mt-4 text-center text-xs text-gray-500">
+                  7일 전 취소 시 100% 환불
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

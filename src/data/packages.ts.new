@@ -1,0 +1,216 @@
+// 패키지 타입 정의
+export interface Package {
+  id: string;
+  type: 'overseas' | 'hotel' | 'domestic' | 'luxury';
+  region: string;
+  regionKo: string;
+  title: string;
+  price: string;
+  duration: string;
+  rating: number;
+  image: string;
+  highlights: string[];
+  departure: string;
+  description: string;
+  itinerary?: Array<{
+    day: number;
+    title: string;
+    description: string;
+    meals: {
+      breakfast: boolean;
+      lunch: boolean;
+      dinner: boolean;
+    };
+    accommodation: string;
+  }>;
+  included?: string[];
+  excluded?: string[];
+  notes?: string[];
+  location?: string;
+  features?: string[];
+}
+
+// 모든 패키지 데이터를 저장하는 객체
+export const allPackages: Record<string, Package> = {
+  // 유럽 패키지
+  'europe-1': {
+    id: 'europe-1',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '로맨틱 파리 & 런던 7일',
+    price: '2,890,000',
+    duration: '7일 5박',
+    rating: 4.9,
+    image: '/images/europe-paris.jpg',
+    highlights: ['에펠탑', '루브르 박물관', '빅벤', '버킹엄 궁전'],
+    departure: '매주 화/금 출발',
+    description: '프랑스 파리와 영국 런던의 아름다운 명소들을 방문하는 7일간의 로맨틱한 여행입니다. 에펠탑, 루브르 박물관 등 파리의 유명 관광지와 빅벤, 버킹엄 궁전 등 런던의 주요 명소를 경험할 수 있습니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 파리 도착',
+        description: '인천공항에서 출발하여 파리 샤를드골 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '파리 시내 관광',
+        description: '에펠탑, 개선문, 샹젤리제 거리, 루브르 박물관 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '베르사유 궁전 투어',
+        description: '베르사유 궁전과 정원 방문, 몽마르트 언덕과 사크레쾨르 대성당',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '파리 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '파리 - 런던 (유로스타)',
+        description: '유로스타 기차를 타고 런던으로 이동, 런던 도착 후 테임즈강 크루즈',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '런던 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '런던 시내 관광',
+        description: '빅벤, 버킹엄 궁전, 타워 브릿지, 대영박물관 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '런던 시내 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '런던 자유 시간 & 귀국',
+        description: '오전 자유 시간, 옥스포드 거리 쇼핑 후 런던 히드로 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 7,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 5박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '파리-런던 유로스타 기차표',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '항공 스케줄에 따라 일정 변경 가능',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },
+  'europe-2': {
+    id: 'europe-2',
+    type: 'overseas',
+    region: 'europe',
+    regionKo: '유럽',
+    title: '이탈리아 로마 & 베니스 8일',
+    price: '3,190,000',
+    duration: '8일 6박',
+    rating: 4.8,
+    image: '/images/europe-italy.jpg',
+    highlights: ['콜로세움', '바티칸', '베니스 곤돌라', '피사의 사탑'],
+    departure: '매주 월/목 출발',
+    description: '이탈리아의 문화와 예술의 중심지인 로마, 피렌체, 베니스를 탐방하는 8일 여행입니다. 세계적인 문화유산을 직접 체험하고 이탈리아의 전통 요리를 맛볼 수 있는 특별한 기회입니다.',
+    itinerary: [
+      {
+        day: 1,
+        title: '인천 출발 - 로마 도착',
+        description: '인천공항에서 출발하여 로마 피우미치노 공항에 도착 후 호텔 체크인',
+        meals: { breakfast: false, lunch: false, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 2,
+        title: '로마 시내 관광',
+        description: '콜로세움, 로마 포럼, 트레비 분수, 스페인 계단 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 3,
+        title: '바티칸 시국 투어',
+        description: '바티칸 박물관, 시스티나 성당, 성 베드로 대성당 방문',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '로마 시내 4성급 호텔'
+      },
+      {
+        day: 4,
+        title: '로마 - 피렌체',
+        description: '기차로 피렌체로 이동, 두오모, 우피치 미술관 방문',
+        meals: { breakfast: true, lunch: false, dinner: true },
+        accommodation: '피렌체 시내 4성급 호텔'
+      },
+      {
+        day: 5,
+        title: '피렌체 - 피사 - 베니스',
+        description: '피사의 사탑 방문 후 베니스로 이동',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '베니스 4성급 호텔'
+      },
+      {
+        day: 6,
+        title: '베니스 시내 관광',
+        description: '산 마르코 광장, 두칼레 궁전, 곤돌라 탑승 체험',
+        meals: { breakfast: true, lunch: true, dinner: true },
+        accommodation: '베니스 4성급 호텔'
+      },
+      {
+        day: 7,
+        title: '베니스 - 밀라노 & 귀국',
+        description: '베니스에서 밀라노로 이동, 두오모 성당 방문 후 밀라노 공항에서 출발',
+        meals: { breakfast: true, lunch: false, dinner: false },
+        accommodation: '기내'
+      },
+      {
+        day: 8,
+        title: '인천 도착',
+        description: '인천공항 도착, 여행 종료',
+        meals: { breakfast: false, lunch: false, dinner: false },
+        accommodation: '-'
+      }
+    ],
+    included: [
+      '왕복 국제선 항공권 및 세금',
+      '4성급 호텔 6박',
+      '일정상 표기된 식사',
+      '공항-호텔 간 전용 차량 이동',
+      '도시 간 기차 또는 전용차량 이동',
+      '현지 한국어 가이드',
+      '여행자 보험'
+    ],
+    excluded: [
+      '개인 여행 경비',
+      '일정에 표기되지 않은 식사',
+      '가이드 및 드라이버 팁',
+      '각종 매너팁',
+      '선택 관광 비용'
+    ],
+    notes: [
+      '출발 최소 3일 전까지 예약 필요',
+      '여권은 출발일 기준 6개월 이상 유효기간 필요',
+      '항공 스케줄에 따라 일정 변경 가능',
+      '현지 상황에 따라 관광지 순서 변경 가능'
+    ]
+  },

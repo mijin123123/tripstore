@@ -1,0 +1,163 @@
+'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { MapPin, Star, Calendar, Crown, Mountain, Waves } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+
+export default function LuxuryJapanPage() {
+  const router = useRouter();
+  const packages = [
+    {
+      id: 'luxury-japan-1',
+      name: '교토 프리미엄 료칸 체험',
+      location: '교토, 일본',
+      image: '/images/luxury-kyoto.jpg',
+      rating: 5,
+      price: '₩1,800,000',
+      features: ['전통 료칸', '개인 온천', '가이세키 요리'],
+    },
+    {
+      id: 'luxury-japan-2',
+      name: '도쿄 미슐랭 투어',
+      location: '도쿄, 일본',
+      image: '/images/luxury-tokyo.jpg',
+      rating: 5,
+      price: '₩2,200,000',
+      features: ['미슐랭 3스타', '개인 셰프', '프리미엄 쇼핑'],
+    },
+    {
+      id: 'luxury-japan-3',
+      name: '후지산 럭셔리 리트리트',
+      location: '하코네, 일본',
+      image: '/images/luxury-fuji.jpg',
+      rating: 5,
+      price: '₩2,500,000',
+      features: ['후지산 뷰', '프라이빗 온천', '헬기 투어'],
+    },
+  ]
+
+  return (
+    <div className="min-h-screen pt-20">
+      {/* Hero Section */}
+      <section className="relative h-96 bg-gradient-to-r from-red-600 to-orange-700">
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
+          <div className="text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">럭셔리 일본</h1>
+            <p className="text-xl mb-6">일본의 정통 문화와 최고급 서비스의 완벽한 조화</p>
+            <div className="flex items-center gap-4 text-sm">
+              <span className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                도쿄, 교토, 오사카, 하코네
+              </span>
+              <span className="flex items-center gap-1">
+                <Crown className="w-4 h-4" />
+                전통 럭셔리 체험
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Packages Grid */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">프리미엄 일본 패키지</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              일본 전통의 멋과 현대적 세련미가 어우러진 특별한 럭셔리 여행 경험
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {packages.map((pkg) => (
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="relative h-48">
+                  <div className="w-full h-full bg-gradient-to-r from-red-400 to-orange-500 flex items-center justify-center">
+                    <span className="text-white font-semibold">{pkg.name}</span>
+                  </div>
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                    <div className="flex items-center gap-1">
+                      <Crown className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-sm font-semibold">LUXURY</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
+                  <div className="flex items-center gap-1 text-gray-600 mb-3">
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm">{pkg.location}</span>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {pkg.features.map((feature, index) => (
+                        <span key={index} className="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full">
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xl font-bold text-red-600">{pkg.price}</span>
+                      <span className="text-gray-500 text-xs">/인</span>
+                    </div>
+                    <button 
+                      className="btn btn-primary btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/package/${pkg.id}`);
+                      }}
+                    >
+                      상세보기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Japanese Luxury Features */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">일본 럭셔리 특징</h2>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Waves className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">프라이빗 온천</h3>
+              <p className="text-gray-600">오직 당신만을 위한 전용 온천에서 진정한 휴식을</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">전통 서비스</h3>
+              <p className="text-gray-600">일본 전통의 정성과 세심함이 담긴 최고급 서비스</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mountain className="w-8 h-8 text-yellow-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">자연과의 조화</h3>
+              <p className="text-gray-600">후지산과 전통 정원이 어우러진 아름다운 자연 속에서</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}

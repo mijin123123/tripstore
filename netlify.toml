@@ -1,19 +1,16 @@
 [build]
-  publish = "public"
-  command = "echo 'Static site - no build needed'"
+  publish = ".next"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
+# Next.js는 자체적으로 라우팅을 처리하므로 리다이렉트 설정 단순화
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[functions]
-  directory = "dist"
+  force = false
