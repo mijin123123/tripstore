@@ -17,17 +17,7 @@ export function createServerSupabaseClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
-      },
-      set(name: string, value: string, options: { path: string; maxAge: number; domain?: string }) {
-        cookieStore.set({ name, value, ...options })
-      },
-      remove(name: string, options: { path: string; domain?: string }) {
-        cookieStore.set({ name, value: '', ...options, maxAge: 0 })
-      },
-    },
+    cookies: cookieStore,
   })
 }
 
