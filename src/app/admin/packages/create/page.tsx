@@ -22,15 +22,29 @@ export default function CreatePackage() {
   
   // 카테고리 ID와 지역명 매핑 정의
   const categoryRegionMap: Record<number, { region: string, regionKo: string }> = {
+    // 메인 카테고리
     1: { region: 'overseas', regionKo: '해외여행' },
     2: { region: 'domestic', regionKo: '국내여행' },
     3: { region: 'hotel', regionKo: '호텔' },
+    
+    // 해외여행 서브 카테고리
     4: { region: 'europe', regionKo: '유럽' },
     5: { region: 'southeast-asia', regionKo: '동남아시아' },
     6: { region: 'japan', regionKo: '일본' },
     7: { region: 'americas', regionKo: '미주' },
     8: { region: 'china-hongkong', regionKo: '중국/홍콩' },
     9: { region: 'guam-saipan', regionKo: '괌/사이판' },
+    
+    // 국내여행 서브 카테고리 (ID는 예상치임)
+    10: { region: 'seoul', regionKo: '서울' },
+    11: { region: 'jeju', regionKo: '제주' },
+    12: { region: 'busan', regionKo: '부산' },
+    13: { region: 'gangwon', regionKo: '강원' },
+    14: { region: 'gyeonggi', regionKo: '경기' },
+    15: { region: 'incheon', regionKo: '인천' },
+    16: { region: 'gyeongsang', regionKo: '경상' },
+    17: { region: 'jeolla', regionKo: '전라' },
+    18: { region: 'chungcheong', regionKo: '충청' },
     // 필요에 따라 더 많은 카테고리 매핑을 추가할 수 있습니다
   }
   
@@ -121,7 +135,24 @@ export default function CreatePackage() {
     // 카테고리 선택 시 자동으로 지역명 설정
     if (name === 'category_id' && value) {
       const categoryId = parseInt(value, 10)
-      const regionInfo = categoryRegionMap[categoryId]
+      
+      // 선택한 카테고리 찾기
+      const selectedCategory = categories.find(cat => cat.id === categoryId)
+      let regionInfo = categoryRegionMap[categoryId]
+      
+      // 디버깅을 위한 로그
+      console.log('카테고리 선택:', {
+        categoryId,
+        selectedCategory,
+        regionInfo,
+        allCategories: categories
+      })
+      
+      // 현재 카테고리에 매핑이 없고, 부모 카테고리가 있는 경우
+      if (!regionInfo && selectedCategory && selectedCategory.parent_id) {
+        // 부모 카테고리의 매핑 사용
+        regionInfo = categoryRegionMap[selectedCategory.parent_id]
+      }
       
       if (regionInfo) {
         setFormData(prev => ({
@@ -129,6 +160,28 @@ export default function CreatePackage() {
           region: regionInfo.region,
           region_ko: regionInfo.regionKo,
         }))
+      }
+      
+      // 타입도 설정 (해외여행, 국내여행, 호텔 등)
+      if (selectedCategory) {
+        // 부모 카테고리가 있으면 부모의 타입을 사용
+        const parentCategory = selectedCategory.parent_id 
+          ? categories.find(cat => cat.id === selectedCategory.parent_id) 
+          : null
+        
+        if (parentCategory && parentCategory.slug) {
+          const typeFromSlug = parentCategory.slug // 'overseas', 'domestic', 'hotel' 등
+          setFormData(prev => ({
+            ...prev,
+            type: typeFromSlug
+          }))
+        } else if (selectedCategory.slug) {
+          // 메인 카테고리인 경우
+          setFormData(prev => ({
+            ...prev,
+            type: selectedCategory.slug
+          }))
+        }
       }
     }
     
