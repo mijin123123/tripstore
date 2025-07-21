@@ -233,7 +233,10 @@ const Header = () => {
                           <div className="p-3">
                             <div className="text-sm text-gray-500 mb-2">{user.email}</div>
                             <Link href="/profile" className="block py-2 text-sm text-gray-700 hover:text-blue-500 transition-colors">
-                              마이페이지
+                              내 프로필
+                            </Link>
+                            <Link href="/bookings" className="block py-2 text-sm text-gray-700 hover:text-blue-500 transition-colors">
+                              내 예약
                             </Link>
                             {user.is_admin && (
                               <Link href="/admin" className="block py-2 text-sm text-gray-700 hover:text-blue-500 transition-colors">
@@ -323,7 +326,10 @@ const Header = () => {
                       <p className="text-xs text-gray-500 truncate">{user.email}</p>
                     </div>
                     <Link href="/profile" className="block py-2 text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                      마이페이지
+                      내 프로필
+                    </Link>
+                    <Link href="/bookings" className="block py-2 text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                      내 예약
                     </Link>
                     {user.is_admin && (
                       <Link href="/admin" className="block py-2 text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>

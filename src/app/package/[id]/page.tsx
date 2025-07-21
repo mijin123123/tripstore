@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Calendar, Users, Star, Clock, Plane, CheckCircle, BarChart, Coffee, Utensils, Wifi, HelpCircle, CreditCard } from 'lucide-react'
-import { Package, getPackageById } from '@/data/packages'
+import { Package } from '@/types'
+import { getPackageById } from '@/lib/api'
 
 export default function PackageDetail() {
   const params = useParams();
@@ -24,12 +25,21 @@ export default function PackageDetail() {
   ];
   
   useEffect(() => {
-    if (params?.id) {
-      const id = params.id as string;
-      const packageInfo = getPackageById(id);
-      setPackageData(packageInfo || null);
-      setIsLoading(false);
+    async function loadPackageData() {
+      if (params?.id) {
+        try {
+          const id = params.id as string;
+          const packageInfo = await getPackageById(id);
+          setPackageData(packageInfo);
+        } catch (error) {
+          console.error('패키지 데이터를 불러오는 중 오류 발생:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
     }
+    
+    loadPackageData();
   }, [params]);
 
   if (isLoading) {

@@ -1,66 +1,47 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { MapPin, Star, Calendar, Home, Palmtree, Umbrella, Wifi, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Villa } from '@/types'
+import { getAllVillas } from '@/lib/api'
 
 export default function DomesticPoolVillaPage() {
   const router = useRouter();
-  const villas = [
-    {
-      id: '1',
-      name: '제주 사려니 프라이빗풀 빌라',
-      location: '제주도 서귀포시',
-      image: '/images/villa-jeju.jpg',
-      rating: 5,
-      price: '480,000',
-      features: ['프라이빗 풀', '한라산 뷰', '바베큐'],
-    },
-    {
-      id: '2',
-      name: '강원도 평창 하늘정원 빌라',
-      location: '평창, 강원도',
-      image: '/images/villa-pyeongchang.jpg',
-      rating: 5,
-      price: '420,000',
-      features: ['온수풀', '스키리조트 근처', '자쿠지'],
-    },
-    {
-      id: '3',
-      name: '경기도 가평 수상 풀빌라',
-      location: '가평, 경기도',
-      image: '/images/villa-gapyeong.jpg',
-      rating: 4.5,
-      price: '380,000',
-      features: ['수상 빌라', '오픈 에어풀', '캠프파이어'],
-    },
-    {
-      id: '4',
-      name: '양양 서핑 비치 풀빌라',
-      location: '양양, 강원도',
-      image: '/images/villa-yangyang.jpg',
-      rating: 4.5,
-      price: '350,000',
-      features: ['해변 근처', '인피니티풀', '루프탑 테라스'],
-    },
-    {
-      id: '5',
-      name: '여수 밤바다 오션뷰 풀빌라',
-      location: '여수, 전라남도',
-      image: '/images/villa-yeosu.jpg',
-      rating: 4.5,
-      price: '420,000',
-      features: ['오션뷰', '인피니티풀', '루프탑 테라스'],
-    },
-    {
-      id: '6',
-      name: '남해 독일마을 감성 풀빌라',
-      location: '남해, 경상남도',
-      image: '/images/villa-namhae.jpg',
-      rating: 4.5,
-      price: '380,000',
-      features: ['독일마을 근처', '온수풀', '테라스'],
-    },
-  ]
+  const [villas, setVillas] = useState<Villa[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchVillas() {
+      try {
+        const villaData = await getAllVillas();
+        // 국내 풀빌라 데이터만 필터링 (필요한 경우)
+        const domesticVillas = villaData.filter(villa => 
+          villa.location.includes('제주도') || 
+          villa.location.includes('강원도') || 
+          villa.location.includes('경기도') ||
+          villa.location.includes('전라남도') ||
+          villa.location.includes('경상남도')
+        );
+        setVillas(domesticVillas);
+      } catch (error) {
+        console.error('빌라 데이터를 가져오는 중 오류 발생:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchVillas();
+  }, []);
+
+  // 로딩 상태 표시
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-20">
