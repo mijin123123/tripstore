@@ -870,8 +870,8 @@ export function getPackageById(id: string): Package | undefined {
   }
   
   // 국내 풀빌라 패키지 처리
-  if (id.startsWith('pool-villa-') || id.startsWith('domestic-pool-villa-')) {
-    const villaId = id.startsWith('pool-villa-') ? id.replace('pool-villa-', '') : id.replace('domestic-pool-villa-', '');
+  if (id.startsWith('pool-villa-') || id.startsWith('domestic-villa-')) {
+    const villaId = id.startsWith('pool-villa-') ? id.replace('pool-villa-', '') : id.replace('domestic-villa-', '');
     const villaPackages: Record<string, Package> = {
       'pool-villa-jeju': {
         id: 'pool-villa-jeju',
@@ -882,10 +882,226 @@ export function getPackageById(id: string): Package | undefined {
         price: '450,000',
         duration: '1박',
         rating: 4.9,
-        image: '/images/pool-villa-jeju.jpg',
+        image: '/images/villa-jeju.jpg',
         highlights: ['프라이빗 풀', '제주 오션뷰', '바베큐 시설'],
         departure: '연중가능',
         description: '제주의 아름다운 해변을 바라보며 프라이빗 풀에서 휴식을 즐길 수 있는 풀빌라입니다.'
+      },
+      'domestic-villa-1': {
+        id: 'domestic-villa-1',
+        type: 'domestic',
+        region: 'pool-villa',
+        regionKo: '풀빌라',
+        title: '제주 사려니 프라이빗풀 빌라',
+        price: '480,000',
+        duration: '1박',
+        rating: 5,
+        image: '/images/villa-jeju.jpg',
+        highlights: ['프라이빗 풀', '한라산 뷰', '바베큐'],
+        departure: '연중가능',
+        description: '제주 사려니 숲길 근처에 위치한 독채 풀빌라로, 한라산 전망을 감상할 수 있는 프라이빗 풀과 야외 바베큐 시설을 갖추고 있습니다. 주변 자연 환경과 조화를 이루는 모던한 디자인으로, 완벽한 휴식과 프라이버시를 제공합니다.',
+        included: [
+          '프라이빗 수영장 이용',
+          '웰컴 드링크',
+          '바베큐 그릴 및 기본 도구',
+          '무료 와이파이',
+          '주차장'
+        ],
+        excluded: [
+          '식사',
+          '바베큐 재료',
+          '픽업 서비스',
+          '추가 인원 요금',
+          '관광 가이드'
+        ],
+        notes: [
+          '체크인: 오후 3시, 체크아웃: 오전 11시',
+          '최대 6인까지 이용 가능 (기준 인원 4인, 추가 인원 1인당 50,000원)',
+          '반려동물 동반 불가',
+          '바베큐 이용 시 사전 예약 필요',
+          '소음으로 인한 민원이 발생하지 않도록 야간 소음 자제 부탁드립니다'
+        ],
+        features: ['한라산 전망', '독채 빌라', '프라이빗 수영장', '바베큐 시설', '고급 인테리어']
+      },
+      'domestic-villa-2': {
+        id: 'domestic-villa-2',
+        type: 'domestic',
+        region: 'pool-villa',
+        regionKo: '풀빌라',
+        title: '강원도 평창 하늘정원 빌라',
+        price: '420,000',
+        duration: '1박',
+        rating: 5,
+        image: '/images/villa-pyeongchang.jpg',
+        highlights: ['온수풀', '스키리조트 근처', '자쿠지'],
+        departure: '연중가능',
+        description: '강원도 평창의 높은 고도에 위치한 럭셔리 풀빌라로, 계절에 상관없이 즐길 수 있는 온수 수영장과 자쿠지를 갖추고 있습니다. 스키 리조트와 가까워 겨울에는 스키를, 여름에는 시원한 고원 지대의 기후를 만끽할 수 있는 사계절 휴양지입니다.',
+        included: [
+          '온수 풀 이용',
+          '자쿠지 이용',
+          '아침 식사 (2인)',
+          '무료 와이파이',
+          '주차장'
+        ],
+        excluded: [
+          '추가 식사',
+          '스키 장비 렌탈',
+          '스파 트리트먼트',
+          '추가 인원 요금',
+          '리조트 셔틀'
+        ],
+        notes: [
+          '체크인: 오후 2시, 체크아웃: 오전 11시',
+          '최대 4인까지 이용 가능 (기준 인원 2인, 추가 인원 1인당 50,000원)',
+          '스키 시즌(12월-2월)은 요금이 30% 인상됩니다',
+          '온수풀 이용 시간: 오전 7시 - 오후 10시',
+          '스키 리조트 셔틀 예약 가능 (유료)'
+        ],
+        features: ['온수 수영장', '자쿠지', '스키 리조트 근처', '산악 전망', '자연 친화적 설계']
+      },
+      'domestic-villa-3': {
+        id: 'domestic-villa-3',
+        type: 'domestic',
+        region: 'pool-villa',
+        regionKo: '풀빌라',
+        title: '경기도 가평 수상 풀빌라',
+        price: '380,000',
+        duration: '1박',
+        rating: 4.5,
+        image: '/images/villa-gapyeong.jpg',
+        highlights: ['수상 빌라', '오픈 에어풀', '캠프파이어'],
+        departure: '연중가능',
+        description: '가평 북한강변에 위치한 독특한 수상 풀빌라로, 물 위에 떠 있는 듯한 경험을 제공합니다. 오픈 에어 수영장과 강변 캠프파이어 시설을 갖추고 있어 특별한 추억을 만들 수 있는 이색적인 숙소입니다.',
+        included: [
+          '수영장 이용',
+          '캠프파이어 세트 (장작 및 점화기)',
+          '카약 2시간 무료 대여',
+          '바베큐 그릴',
+          'TV 및 사운드 시스템'
+        ],
+        excluded: [
+          '식사',
+          '바베큐 재료',
+          '카약 추가 이용',
+          '낚시 장비',
+          '보트 투어'
+        ],
+        notes: [
+          '체크인: 오후 3시, 체크아웃: 오전 11시',
+          '최대 6인까지 이용 가능 (기준 인원 4인, 추가 인원 1인당 40,000원)',
+          '안전을 위해 어린이는 반드시 성인 동반 필수',
+          '우천시 캠프파이어 이용이 제한될 수 있습니다',
+          '수영장 이용 시간: 오전 8시 - 오후 9시'
+        ],
+        features: ['수상 빌라', '오픈 에어 수영장', '강변 전망', '캠프파이어', '카약 대여']
+      },
+      'domestic-villa-4': {
+        id: 'domestic-villa-4',
+        type: 'domestic',
+        region: 'pool-villa',
+        regionKo: '풀빌라',
+        title: '양양 서핑 비치 풀빌라',
+        price: '350,000',
+        duration: '1박',
+        rating: 4.5,
+        image: '/images/villa-yangyang.jpg',
+        highlights: ['해변 근처', '인피니��풀', '루프탑 테라스'],
+        departure: '연중가능',
+        description: '양양 서핑 해변 근처에 위치한 모던한 풀빌라로, 인피니티 수영장과 루프탑 테라스를 갖추고 있습니다. 서핑 애호가들에게 이상적이며, 해변까지 도보 5분 거리로 접근성이 뛰어납니다.',
+        included: [
+          '인피니티풀 이용',
+          '루프탑 테라스',
+          '서핑 보드 보관소',
+          '주차장',
+          '무료 와이파이'
+        ],
+        excluded: [
+          '식사',
+          '서핑 강습',
+          '장비 대여',
+          '해변 셔틀',
+          '바비큐 재료'
+        ],
+        notes: [
+          '체크인: 오후 2시, 체크아웃: 오전 11시',
+          '최대 4인까지 이용 가능 (기준 인원 2인, 추가 인원 1인당 30,000원)',
+          '서핑 보드 세척 및 보관 공간 제공',
+          '성수기(6월-8월) 요금 20% 인상',
+          '루프탑 테라스 이용 시간: 오전 8시 - 오후 10시'
+        ],
+        features: ['인피니티 수영장', '해변 근접', '루프탑 테라스', '서핑 보드 보관소', '모던 디자인']
+      },
+      'domestic-villa-5': {
+        id: 'domestic-villa-5',
+        type: 'domestic',
+        region: 'pool-villa',
+        regionKo: '풀빌라',
+        title: '여수 밤바다 오션뷰 풀빌라',
+        price: '420,000',
+        duration: '1박',
+        rating: 4.5,
+        image: '/images/villa-yeosu.jpg',
+        highlights: ['오션뷰', '인피니티풀', '루프탑 테라스'],
+        departure: '연중가능',
+        description: '여수 밤바다가 한눈에 보이는 언덕 위에 위치한 럭셔리 풀빌라입니다. 인피니티 에지 수영장에서 바다와 하늘이 맞닿은 환상적인 전망을 감상할 수 있으며, 밤에는 빛나는 여수 밤바다의 낭만을 즐길 수 있습니다.',
+        included: [
+          '인피니티 수영장 이용',
+          '루프탑 테라스',
+          '웰컴 와인 1병',
+          '조식 도시락 배달 서비스',
+          '무료 주차'
+        ],
+        excluded: [
+          '저녁 식사',
+          '바다 투어',
+          '마사지 서비스',
+          '추가 음료',
+          '관광 가이드'
+        ],
+        notes: [
+          '체크인: 오후 3시, 체크아웃: 오전 11시',
+          '최대 4인까지 이용 가능 (기준 인원 2인, 추가 인원 1인당 50,000원)',
+          '풀빌라에서 도보 10분 거리에 카페와 레스토랑 위치',
+          '야외 수영장 이용 시간: 오전 8시 - 오후 9시',
+          '방음 시설이 되어있으나, 늦은 시간 소음 자제 부탁드립니다'
+        ],
+        features: ['오션뷰', '인피니티 수영장', '루프탑 테라스', '웰컴 와인', '럭셔리 인테리어']
+      },
+      'domestic-villa-6': {
+        id: 'domestic-villa-6',
+        type: 'domestic',
+        region: 'pool-villa',
+        regionKo: '풀빌라',
+        title: '남해 독일마을 감성 풀빌라',
+        price: '380,000',
+        duration: '1박',
+        rating: 4.5,
+        image: '/images/villa-namhae.jpg',
+        highlights: ['독일마을 근처', '온수풀', '테라스'],
+        departure: '연중가능',
+        description: '남해 독일마을 인근에 위치한 유럽풍 디자인의 풀빌라로, 사계절 이용 가능한 온수풀과 아름다운 바다를 조망할 수 있는 테라스를 갖추고 있습니다. 독일마을의 이국적인 분위기와 남해의 아름다운 자연을 동시에 즐길 수 있는 특별한 공간입니다.',
+        included: [
+          '온수풀 이용',
+          '독일식 아침 식사 바구니',
+          '테라스 이용',
+          '무료 주차',
+          '무료 와이파이'
+        ],
+        excluded: [
+          '저녁 식사',
+          '바베큐 재료',
+          '독일마을 투어 가이드',
+          '추가 침구류',
+          '픽업 서비스'
+        ],
+        notes: [
+          '체크인: 오후 2시, 체크아웃: 오전 11시',
+          '최대 6인까지 이용 가능 (기준 인원 4인, 추가 인원 1인당 40,000원)',
+          '독일마을까지 도보 15분',
+          '온수풀 이용 시간: 오전 7시 - 오후 10시',
+          '주변 관광지: 독일마을, 상주은모래비치, 미조항 (차량 15-20분 거리)'
+        ],
+        features: ['유럽풍 디자인', '온수 수영장', '바다 전망', '독일마을 근처', '프라이빗 테라스']
       },
       'pool-villa-gapyeong': {
         id: 'pool-villa-gapyeong',
@@ -896,7 +1112,7 @@ export function getPackageById(id: string): Package | undefined {
         price: '380,000',
         duration: '1박',
         rating: 4.8,
-        image: '/images/pool-villa-gapyeong.jpg',
+        image: '/images/villa-gapyeong.jpg',
         highlights: ['프라이빗 풀', '숲속 뷰', '테라스'],
         departure: '연중가능',
         description: '가평의 울창한 숲속에서 프라이빗 풀과 함께 조용한 휴식을 즐길 수 있는 풀빌라입니다.'
@@ -910,13 +1126,13 @@ export function getPackageById(id: string): Package | undefined {
         price: '420,000',
         duration: '1박',
         rating: 4.7,
-        image: '/images/pool-villa-yangyang.jpg',
+        image: '/images/villa-yangyang.jpg',
         highlights: ['프라이빗 풀', '해변 접근성', '루프탑 테라스'],
         departure: '연중가능',
         description: '양양 해변과 가까운 곳에 위치한 프라이빗 풀과 루프탑 테라스를 갖춘 럭셔리 풀빌라입니다.'
       }
     };
-    return villaPackages[id] || villaPackages[`pool-villa-${villaId}`];
+    return villaPackages[id] || villaPackages[`domestic-villa-${villaId}`];
   }
 
   // 괌/사이판 호텔 패키지 처리
