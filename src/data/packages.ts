@@ -1005,7 +1005,7 @@ export function getPackageById(id: string): Package | undefined {
         duration: '1박',
         rating: 4.5,
         image: '/images/villa-yangyang.jpg',
-        highlights: ['해변 근처', '인피니��풀', '루프탑 테라스'],
+        highlights: ['해변 근처', '인피니티풀', '루프탑 테라스'],
         departure: '연중가능',
         description: '양양 서핑 해변 근처에 위치한 모던한 풀빌라로, 인피니티 수영장과 루프탑 테라스를 갖추고 있습니다. 서핑 애호가들에게 이상적이며, 해변까지 도보 5분 거리로 접근성이 뛰어납니다.',
         included: [
