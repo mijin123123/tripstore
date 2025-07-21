@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
-export default function LoginPage() {
+// 로그인 폼 컴포넌트 - useSearchParams를 사용하는 부분을 분리
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/'
@@ -291,5 +292,20 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// 메인 페이지 컴포넌트
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-12 sm:pt-20 bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
