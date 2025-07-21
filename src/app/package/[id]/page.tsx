@@ -27,7 +27,7 @@ export default function PackageDetail() {
     if (params?.id) {
       const id = params.id as string;
       const packageInfo = getPackageById(id);
-      setPackageData(packageInfo);
+      setPackageData(packageInfo || null);
       setIsLoading(false);
     }
   }, [params]);
