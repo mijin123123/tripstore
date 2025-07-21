@@ -99,17 +99,15 @@ export default function DomesticPoolVillaPage() {
             {villas.map((villa) => (
               <div 
                 key={villa.id} 
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full cursor-pointer"
                 onClick={() => router.push(`/package/domestic-villa-${villa.id}`)}
               >
-                <div className="relative h-48">
-                  <div className="w-full h-full bg-gradient-to-r from-teal-400 to-emerald-500 flex items-center justify-center">
-                    <span className="text-white font-semibold">{villa.name}</span>
-                  </div>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <div className="flex items-center gap-1">
+                <div className="relative h-48 bg-gradient-to-r from-teal-500 to-emerald-600 flex-shrink-0">
+                  <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                  <div className="absolute top-4 right-4 bg-white bg-opacity-90 px-3 py-1 rounded-full">
+                    <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{villa.rating}</span>
+                      <span className="text-sm font-medium">{villa.rating}</span>
                     </div>
                   </div>
                 </div>
@@ -124,7 +122,10 @@ export default function DomesticPoolVillaPage() {
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-2">
                       {villa.features.map((feature, index) => (
-                        <span key={index} className="bg-teal-50 text-teal-600 text-xs px-2 py-1 rounded-full">
+                        <span 
+                          key={index}
+                          className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm"
+                        >
                           {feature}
                         </span>
                       ))}
@@ -133,11 +134,13 @@ export default function DomesticPoolVillaPage() {
                   
                   <div className="flex items-center justify-between mt-4">
                     <div>
-                      <span className="text-gray-500 text-xs">1박 기준</span>
-                      <div className="text-xl font-bold text-teal-600">₩{villa.price}</div>
+                      <span className="text-xl font-bold text-teal-600">
+                        {villa.price}원
+                      </span>
+                      <span className="text-gray-500 text-xs">/ 1박</span>
                     </div>
-                    <div className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors">
-                      예약하기
+                    <div className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors">
+                      상세보기
                     </div>
                   </div>
                 </div>
