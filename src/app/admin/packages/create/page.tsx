@@ -20,6 +20,28 @@ export default function CreatePackage() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   
+  // 카테고리 ID와 지역명 매핑 정의
+  const categoryRegionMap: Record<number, { region: string, regionKo: string }> = {
+    1: { region: 'overseas', regionKo: '해외여행' },
+    2: { region: 'domestic', regionKo: '국내여행' },
+    3: { region: 'hotel', regionKo: '호텔' },
+    4: { region: 'europe', regionKo: '유럽' },
+    5: { region: 'southeast-asia', regionKo: '동남아시아' },
+    6: { region: 'japan', regionKo: '일본' },
+    7: { region: 'americas', regionKo: '미주' },
+    8: { region: 'china-hongkong', regionKo: '중국/홍콩' },
+    9: { region: 'guam-saipan', regionKo: '괌/사이판' },
+    // 필요에 따라 더 많은 카테고리 매핑을 추가할 수 있습니다
+  }
+  
+  // 타입과 지역명 매핑 정의
+  const typeRegionMap: Record<string, { region: string, regionKo: string }> = {
+    'overseas': { region: 'overseas', regionKo: '해외' },
+    'hotel': { region: 'hotel', regionKo: '호텔' },
+    'domestic': { region: 'domestic', regionKo: '국내' },
+    'luxury': { region: 'luxury', regionKo: '럭셔리' },
+  }
+
   const [formData, setFormData] = useState({
     id: '', // 자동 생성될 ID
     title: '',
@@ -95,6 +117,33 @@ export default function CreatePackage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+    
+    // 카테고리 선택 시 자동으로 지역명 설정
+    if (name === 'category_id' && value) {
+      const categoryId = parseInt(value, 10)
+      const regionInfo = categoryRegionMap[categoryId]
+      
+      if (regionInfo) {
+        setFormData(prev => ({
+          ...prev,
+          region: regionInfo.region,
+          region_ko: regionInfo.regionKo,
+        }))
+      }
+    }
+    
+    // 타입 선택 시 자동으로 기본 지역명 설정 (카테고리에 의해 덮어쓰여질 수 있음)
+    if (name === 'type' && value && !formData.region) {
+      const typeInfo = typeRegionMap[value]
+      
+      if (typeInfo) {
+        setFormData(prev => ({
+          ...prev,
+          region: typeInfo.region,
+          region_ko: typeInfo.regionKo,
+        }))
+      }
+    }
     
     // 지역 직접 입력 시 ID는 0으로 설정
     if (name === 'region' || name === 'region_ko') {
