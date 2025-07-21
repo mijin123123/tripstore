@@ -1,16 +1,34 @@
-'use client'
-
 import Link from 'next/link'
 import { Facebook, Instagram, Twitter, Youtube, Phone, Mail, MapPin, Plane } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { createServerSupabaseClient } from '@/lib/supabase-client'
+import { headers } from 'next/headers'
 
-const Footer = () => {
-  const pathname = usePathname()
+async function getFooterSettings() {
+  const supabase = createServerSupabaseClient()
+  const { data } = await supabase
+    .from('site_settings')
+    .select('*')
+    .eq('setting_group', 'footer')
+  
+  const settings: Record<string, string> = {}
+  data?.forEach((item: { setting_key: string, setting_value: string | null }) => {
+    settings[item.setting_key] = item.setting_value || ''
+  })
+  
+  return settings
+}
+
+const Footer = async () => {
+  const headersList = headers()
+  const pathname = headersList.get('x-pathname') || ''
   
   // 관리자 페이지에서는 푸터를 표시하지 않음
-  if (pathname?.startsWith('/admin')) {
+  if (pathname.startsWith('/admin')) {
     return null
   }
+  
+  // 설정 정보 가져오기
+  const footerSettings = await getFooterSettings()
   
   return (
     <footer className="bg-gray-900 text-white py-12">
@@ -60,22 +78,21 @@ const Footer = () => {
               <div className="flex items-start gap-3">
                 <Phone className="w-4 h-4 mt-1 text-blue-400" />
                 <div>
-                  <p className="font-medium">02-1234-5678</p>
-                  <p className="text-sm text-gray-400">평일 09:00-18:00</p>
+                  <p className="font-medium">{footerSettings.footer_tel || '02-1234-5678'}</p>
+                  <p className="text-sm text-gray-400">{footerSettings.footer_customer_service_hours || '평일 09:00-18:00'}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Mail className="w-4 h-4 mt-1 text-blue-400" />
                 <div>
-                  <p className="font-medium">info@tripstore.co.kr</p>
+                  <p className="font-medium">{footerSettings.footer_email || 'info@tripstore.co.kr'}</p>
                   <p className="text-sm text-gray-400">24시간 이메일 상담</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 mt-1 text-blue-400" />
                 <div>
-                  <p className="font-medium">서울특별시 강남구</p>
-                  <p className="text-sm text-gray-400">테헤란로 123길 45</p>
+                  <p className="font-medium">{footerSettings.footer_address || '서울특별시 강남구 테헤란로 123길 45'}</p>
                 </div>
               </div>
             </div>
@@ -104,17 +121,16 @@ const Footer = () => {
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="text-sm text-gray-400">
             <p className="mb-1">
-              <span className="mr-4">사업자등록번호: 123-45-67890</span>
-              <span className="mr-4">대표: 홍길동</span>
-              <span>통신판매업신고: 2024-서울강남-1234</span>
+              <span className="mr-4">사업자등록번호: {footerSettings.footer_business_number || '123-45-67890'}</span>
+              <span className="mr-4">대표: {footerSettings.footer_ceo || '홍길동'}</span>
+              <span>통신판매업신고: {footerSettings.footer_mail_order_business || '2024-서울강남-1234'}</span>
             </p>
             <p>
-              <span className="mr-4">개인정보관리책임자: 김여행</span>
-              <span>호스팅서비스: TripStore Co., Ltd.</span>
+              <span className="mr-4">{footerSettings.footer_company_name || '트립스토어 주식회사'}</span>
             </p>
           </div>
           <p className="text-sm text-gray-500">
-            © 2024 TripStore. All rights reserved.
+            {footerSettings.footer_copyright || '© 2025 트립스토어 All Rights Reserved.'}
           </p>
         </div>
       </div>

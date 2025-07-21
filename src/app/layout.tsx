@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import { Inter, Noto_Sans_KR } from 'next/font/google'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { headers } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] })
 const notoSansKR = Noto_Sans_KR({ 
@@ -20,8 +21,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // URL 패턴을 서버 컴포넌트에서는 직접 확인할 수 없으므로
-  // admin 경로에 대한 특별한 처리는 각 레이아웃에서 구현해야 함
+  const headersList = headers()
+  const pathname = headersList.get('x-pathname') || ''
+  
+  // 현재 경로를 Response 헤더에 추가
+  const path = headersList.get('x-invoke-path') || ''
+  
   return (
     <html lang="ko" className={notoSansKR.className}>
       <body className={`${inter.className} min-h-screen bg-gray-50`}>

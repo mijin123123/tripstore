@@ -15,7 +15,9 @@ import {
   Hotel,
   Building,
   LogOut,
-  User
+  User,
+  Image,
+  Settings
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -153,6 +155,14 @@ export default function AdminLayout({
             <Link href="/admin/payments" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
               <CreditCard className="h-5 w-5 mr-3" />
               <span>결제 관리</span>
+            </Link>
+            <Link href="/admin/hero-images" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <Image className="h-5 w-5 mr-3" />
+              <span>히어로 이미지 관리</span>
+            </Link>
+            <Link href="/admin/site-settings" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <Settings className="h-5 w-5 mr-3" />
+              <span>사이트 설정</span>
             </Link>
           </nav>
         </div>

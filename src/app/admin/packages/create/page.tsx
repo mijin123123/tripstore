@@ -13,21 +13,11 @@ type Category = {
   parent_id: number | null
 }
 
-type Region = {
-  id: number
-  name: string
-  name_ko: string
-  slug: string
-  parent_id: number | null
-}
-
 export default function CreatePackage() {
   const router = useRouter()
   const [categories, setCategories] = useState<Category[]>([])
-  const [regions, setRegions] = useState<Region[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [imageUploading, setImageUploading] = useState(false)
   const [error, setError] = useState('')
   
   const [formData, setFormData] = useState({
@@ -43,7 +33,7 @@ export default function CreatePackage() {
     rating: 4.5,
     departure: '',
     description: '',
-    image: '',
+    images: [''], // 여러 이미지 URL을 저장하는 배열
     highlights: [''],
     features: [''],
     included: [''],
@@ -62,7 +52,7 @@ export default function CreatePackage() {
   })
   
   useEffect(() => {
-    const fetchCategoriesAndRegions = async () => {
+    const fetchCategories = async () => {
       setIsLoading(true)
       const supabase = createClient()
       
@@ -75,26 +65,17 @@ export default function CreatePackage() {
         
         if (categoryError) throw categoryError
         
-        // 지역 가져오기
-        const { data: regionData, error: regionError } = await supabase
-          .from('regions')
-          .select('*')
-          .order('id')
-        
-        if (regionError) throw regionError
-        
         setCategories(categoryData || [])
-        setRegions(regionData || [])
         
       } catch (error) {
         console.error('데이터를 가져오는 데 실패했습니다:', error)
-        setError('카테고리와 지역 데이터를 불러오는데 실패했습니다.')
+        setError('카테고리 데이터를 불러오는데 실패했습니다.')
       } finally {
         setIsLoading(false)
       }
     }
     
-    fetchCategoriesAndRegions()
+    fetchCategories()
   }, [])
   
   // 패키지 ID 자동 생성
@@ -115,17 +96,12 @@ export default function CreatePackage() {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     
-    // 지역 선택 시 region_ko도 함께 설정
-    if (name === 'region_id') {
-      const selectedRegion = regions.find(r => r.id === parseInt(value))
-      if (selectedRegion) {
-        setFormData(prev => ({
-          ...prev,
-          region_id: parseInt(value),
-          region: selectedRegion.name,
-          region_ko: selectedRegion.name_ko
-        }))
-      }
+    // 지역 직접 입력 시 ID는 0으로 설정
+    if (name === 'region' || name === 'region_ko') {
+      setFormData(prev => ({
+        ...prev,
+        region_id: 0 // 직접 입력 시 ID는 0으로 설정
+      }))
     }
   }
   
@@ -264,43 +240,29 @@ export default function CreatePackage() {
     }] }))
   }
   
-  // 이미지 업로드 처리
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
-    
-    const file = files[0]
-    setImageUploading(true)
-    
-    try {
-      const supabase = createClient()
-      
-      // 파일 이름 생성 (고유값)
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${formData.id || Date.now()}.${fileExt}`
-      const filePath = `packages/${fileName}`
-      
-      // 스토리지에 업로드
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, file)
-      
-      if (uploadError) throw uploadError
-      
-      // 이미지 URL 가져오기
-      const { data } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath)
-      
-      if (data) {
-        setFormData(prev => ({ ...prev, image: data.publicUrl }))
-      }
-    } catch (error) {
-      console.error('이미지 업로드 실패:', error)
-      setError('이미지 업로드에 실패했습니다.')
-    } finally {
-      setImageUploading(false)
+  // 이미지 URL 입력 처리
+  const handleImageChange = (index: number, value: string) => {
+    const newImages = [...formData.images];
+    newImages[index] = value;
+    setFormData(prev => ({ ...prev, images: newImages }));
+  }
+  
+  // 이미지 URL 추가
+  const addImage = () => {
+    if (formData.images.length < 10) {
+      setFormData(prev => ({ ...prev, images: [...prev.images, ''] }));
+    } else {
+      setError('이미지는 최대 10개까지만 추가할 수 있습니다.');
     }
+  }
+  
+  // 이미지 URL 제거
+  const removeImage = (index: number) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData(prev => ({ 
+      ...prev, 
+      images: newImages.length ? newImages : [''] 
+    }));
   }
   
   // 패키지 저장 처리
@@ -309,8 +271,16 @@ export default function CreatePackage() {
     setIsSaving(true)
     setError('')
     
+    // 이미지 URL 검증
+    const filteredImages = formData.images.filter(url => url.trim() !== '')
+    if (filteredImages.length === 0) {
+      setError('최소 한 개 이상의 이미지 URL을 입력해주세요.')
+      setIsSaving(false)
+      return
+    }
+    
     // 필수 입력값 검증
-    if (!formData.title || !formData.price || !formData.image || !formData.description || 
+    if (!formData.title || !formData.price || !formData.description || 
         !formData.duration || !formData.region || !formData.type || !formData.departure) {
       setError('필수 입력 필드를 모두 채워주세요.')
       setIsSaving(false)
@@ -336,12 +306,13 @@ export default function CreatePackage() {
           duration: formData.duration,
           region: formData.region,
           region_ko: formData.region_ko,
-          region_id: formData.region_id,
+          region_id: 0, // 지역 ID는 0으로 설정 (직접 입력 사용)
           type: formData.type,
           rating: formData.rating,
           departure: formData.departure,
           description: formData.description,
-          image: formData.image,
+          image: filteredImages[0], // 첫 번째 이미지를 대표 이미지로 사용
+          images: filteredImages, // 모든 이미지 URL 배열 저장
           highlights: filteredHighlights,
           features: filteredFeatures,
           included: filteredIncluded,
@@ -465,21 +436,29 @@ export default function CreatePackage() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">지역 <span className="text-red-500">*</span></label>
-              <select
-                name="region_id"
-                value={formData.region_id}
+              <label className="block text-sm font-medium text-gray-700 mb-1">지역명(영문) <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                name="region"
+                value={formData.region}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예: europe, japan, southeast-asia"
                 required
-              >
-                <option value="">지역 선택</option>
-                {regions.map(region => (
-                  <option key={region.id} value={region.id}>
-                    {region.name_ko} ({region.name})
-                  </option>
-                ))}
-              </select>
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">지역명(한글) <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                name="region_ko"
+                value={formData.region_ko}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예: 유럽, 일본, 동남아시아"
+                required
+              />
             </div>
             
             <div>
@@ -586,44 +565,59 @@ export default function CreatePackage() {
           </div>
         </div>
         
-        {/* 이미지 업로드 섹션 */}
+        {/* 이미지 URL 입력 섹션 */}
         <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">이미지 <span className="text-red-500">*</span></h2>
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              {formData.image ? (
-                <div className="mb-4">
-                  <p className="text-sm text-gray-500 mb-2">현재 이미지:</p>
-                  <div className="relative h-48 w-full overflow-hidden rounded-lg">
+          <h2 className="text-xl font-semibold mb-4">이미지 URL <span className="text-red-500">*</span> (최대 10개)</h2>
+          
+          <div className="space-y-4">
+            {formData.images.map((imageUrl, index) => (
+              <div key={index} className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={imageUrl}
+                    onChange={(e) => handleImageChange(index, e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={`이미지 URL ${index + 1} (https://로 시작하는 이미지 주소)`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-full"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                {imageUrl && (
+                  <div className="relative h-48 w-full overflow-hidden rounded-lg border border-gray-200">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={formData.image}
-                      alt="패키지 이미지"
+                      src={imageUrl}
+                      alt={`패키지 이미지 ${index + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=이미지+로드+실패';
+                      }}
                     />
                   </div>
-                </div>
-              ) : (
-                <div className="mb-4 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <p className="mt-2 text-sm text-gray-500">이미지를 업로드해주세요</p>
-                </div>
-              )}
-              
-              <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">이미지 업로드</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  disabled={imageUploading}
-                />
-                {imageUploading && (
-                  <p className="mt-2 text-sm text-blue-500">이미지 업로드 중...</p>
                 )}
               </div>
-            </div>
+            ))}
+            
+            {formData.images.length < 10 && (
+              <button
+                type="button"
+                onClick={addImage}
+                className="mt-3 inline-flex items-center text-blue-600 hover:text-blue-700"
+              >
+                <Plus className="h-4 w-4 mr-1" /> 이미지 URL 추가 ({formData.images.length}/10)
+              </button>
+            )}
+            
+            <p className="text-sm text-gray-500 mt-2">
+              * 첫번째 이미지가 대표 이미지로 사용됩니다
+            </p>
           </div>
         </div>
         
