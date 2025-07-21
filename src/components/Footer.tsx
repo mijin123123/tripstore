@@ -110,7 +110,15 @@ const Footer = async () => {
               <div>
                 <p className="font-medium text-white">1:1 채팅 상담</p>
                 <div className="mt-2 bg-white p-2 rounded-lg w-24 h-24 flex items-center justify-center">
-                  <p className="text-xs text-gray-500">(카카오톡 QR코드 위치)</p>
+                  {footerSettings.footer_kakao_qr ? (
+                    <img 
+                      src={footerSettings.footer_kakao_qr} 
+                      alt="카카오톡 QR 코드" 
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <p className="text-xs text-gray-500">(카카오톡 QR코드 위치)</p>
+                  )}
                 </div>
               </div>
             </div>

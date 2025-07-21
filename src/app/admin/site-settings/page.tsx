@@ -28,6 +28,7 @@ export default function SiteSettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string>('footer')
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchSettings()
@@ -75,6 +76,47 @@ export default function SiteSettingsPage() {
         }
       }
     }))
+  }
+  
+  // 이미지 파일을 Base64로 변환하는 함수
+  const convertImageToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  }
+  
+  // 이미지 파일 업로드 처리
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, settingKey: string, group: string) => {
+    try {
+      setImageUploadError(null);
+      const file = e.target.files?.[0];
+      
+      if (!file) return;
+      
+      // 파일 크기 제한 (2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        setImageUploadError("파일 크기는 2MB를 초과할 수 없습니다.");
+        return;
+      }
+      
+      // 이미지 파일 유형 확인
+      if (!file.type.startsWith('image/')) {
+        setImageUploadError("이미지 파일만 업로드할 수 있습니다.");
+        return;
+      }
+      
+      // 이미지를 Base64로 변환
+      const base64Image = await convertImageToBase64(file);
+      
+      // 상태 업데이트
+      handleInputChange(settingKey, base64Image, group);
+    } catch (err: any) {
+      console.error("이미지 업로드 오류:", err);
+      setImageUploadError("이미지 업로드 중 오류가 발생했습니다.");
+    }
   }
 
   const handleSaveSettings = async (group: string) => {
@@ -134,6 +176,7 @@ export default function SiteSettingsPage() {
       'footer_tel': '전화번호',
       'footer_email': '이메일',
       'footer_customer_service_hours': '고객센터 운영시간',
+      'footer_kakao_qr': '카카오톡 QR코드 URL',
       'footer_copyright': '저작권 정보',
       
       // 결제 정보
@@ -213,6 +256,49 @@ export default function SiteSettingsPage() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           rows={3}
                         />
+                      ) : setting.setting_key === 'footer_kakao_qr' ? (
+                        <div className="space-y-3">
+                          <div className="flex flex-col gap-2">
+                            <input
+                              type="file"
+                              id={`file-${setting.id}`}
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleImageUpload(e, setting.setting_key, 'footer')}
+                            />
+                            <div className="flex gap-2">
+                              <label 
+                                htmlFor={`file-${setting.id}`}
+                                className="px-4 py-2 bg-blue-100 text-blue-600 rounded-md cursor-pointer hover:bg-blue-200 transition-colors"
+                              >
+                                QR코드 이미지 선택
+                              </label>
+                              {setting.setting_value && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleInputChange(setting.setting_key, '', 'footer')}
+                                  className="px-4 py-2 bg-red-100 text-red-600 rounded-md cursor-pointer hover:bg-red-200 transition-colors"
+                                >
+                                  이미지 삭제
+                                </button>
+                              )}
+                            </div>
+                            {imageUploadError && (
+                              <p className="text-xs text-red-500">{imageUploadError}</p>
+                            )}
+                            <p className="text-xs text-gray-500">최대 파일 크기: 2MB, 권장 크기: 200x200px</p>
+                          </div>
+                          
+                          {setting.setting_value && (
+                            <div className="mt-2 bg-gray-50 p-2 rounded border w-32 h-32">
+                              <img 
+                                src={setting.setting_value} 
+                                alt="카카오톡 QR 코드 미리보기" 
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <input
                           type="text"

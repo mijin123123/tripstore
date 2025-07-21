@@ -24,6 +24,7 @@ VALUES
   ('footer_tel', '02-1234-5678', 'footer', '대표 전화번호'),
   ('footer_email', 'help@tripstore.co.kr', 'footer', '이메일'),
   ('footer_customer_service_hours', '평일 09:00 - 18:00 (점심시간 12:00 - 13:00)', 'footer', '고객센터 운영시간'),
+  ('footer_kakao_qr', '', 'footer', '카카오톡 QR코드 이미지 (Base64 인코딩)'),
   ('footer_copyright', '© 2025 트립스토어 All Rights Reserved.', 'footer', '저작권 정보');
 
 -- 초기 데이터 삽입: 결제 정보
