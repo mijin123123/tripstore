@@ -35,7 +35,7 @@ export default function CreatePackage() {
     8: { region: 'china-hongkong', regionKo: '중국/홍콩' },
     9: { region: 'guam-saipan', regionKo: '괌/사이판' },
     
-    // 국내여행 서브 카테고리 (ID는 예상치임)
+    // 국내여행 서브 카테고리
     10: { region: 'seoul', regionKo: '서울' },
     11: { region: 'jeju', regionKo: '제주' },
     12: { region: 'busan', regionKo: '부산' },
@@ -152,6 +152,10 @@ export default function CreatePackage() {
       if (!regionInfo && selectedCategory && selectedCategory.parent_id) {
         // 부모 카테고리의 매핑 사용
         regionInfo = categoryRegionMap[selectedCategory.parent_id]
+        console.log('부모 카테고리 매핑 사용:', {
+          parentId: selectedCategory.parent_id,
+          parentRegionInfo: regionInfo
+        })
       }
       
       if (regionInfo) {
