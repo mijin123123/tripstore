@@ -8,15 +8,17 @@ import { PlusCircle, Search, Edit, Trash2, Star, Eye } from 'lucide-react'
 
 type Package = {
   id: string
-  title: string
-  region: string
-  region_ko: string
-  price: string
-  duration: string
-  rating: number
-  image: string
+  name: string // title 대신 name 필드 사용
+  region: string | null
+  location: string // region_ko 대신 location 필드 사용
+  price: number // 데이터베이스에서는 number 타입
+  category?: string | null // type 대신 category 필드 사용
+  description?: string | null
+  image: string | null
   is_featured: boolean
-  type: string
+  created_at?: string
+  start_date?: string | null
+  end_date?: string | null
 }
 
 export default function AdminPackages() {
@@ -51,8 +53,8 @@ export default function AdminPackages() {
   }, [])
   
   const filteredPackages = packages.filter(pkg => 
-    pkg.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    pkg.region_ko.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (pkg.name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (pkg.location?.toLowerCase().includes(searchQuery.toLowerCase())) ||
     pkg.id.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
@@ -141,12 +143,12 @@ export default function AdminPackages() {
                 <tr className="bg-gray-50 text-left text-sm">
                   <th className="px-6 py-3 font-medium text-gray-500">이미지</th>
                   <th className="px-6 py-3 font-medium text-gray-500">ID</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">제목</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">지역</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">이름</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">위치</th>
                   <th className="px-6 py-3 font-medium text-gray-500">가격</th>
                   <th className="px-6 py-3 font-medium text-gray-500">기간</th>
                   <th className="px-6 py-3 font-medium text-gray-500">평점</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">타입</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">카테고리</th>
                   <th className="px-6 py-3 font-medium text-gray-500">추천</th>
                   <th className="px-6 py-3 font-medium text-gray-500">동작</th>
                 </tr>
@@ -159,7 +161,7 @@ export default function AdminPackages() {
                         <div className="h-12 w-16 relative overflow-hidden rounded-md">
                           <Image
                             src={pkg.image}
-                            alt={pkg.title}
+                            alt={pkg.name || '패키지 이미지'}
                             fill
                             style={{ objectFit: "cover" }}
                           />
@@ -167,19 +169,19 @@ export default function AdminPackages() {
                       )}
                     </td>
                     <td className="px-6 py-3 font-mono text-sm">{pkg.id}</td>
-                    <td className="px-6 py-3 font-medium">{pkg.title}</td>
-                    <td className="px-6 py-3">{pkg.region_ko}</td>
+                    <td className="px-6 py-3 font-medium">{pkg.name}</td>
+                    <td className="px-6 py-3">{pkg.location}</td>
                     <td className="px-6 py-3">{pkg.price}</td>
-                    <td className="px-6 py-3">{pkg.duration}</td>
+                    <td className="px-6 py-3">{pkg.start_date && pkg.end_date ? `${pkg.start_date} ~ ${pkg.end_date}` : '기간 미지정'}</td>
                     <td className="px-6 py-3">
                       <div className="flex items-center">
                         <Star className="h-4 w-4 fill-amber-400 stroke-amber-400 mr-1" />
-                        <span>{pkg.rating}</span>
+                        <span>4.5</span> {/* 고정 값 사용 */}
                       </div>
                     </td>
                     <td className="px-6 py-3">
                       <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
-                        {pkg.type}
+                        {pkg.category || '분류 없음'}
                       </span>
                     </td>
                     <td className="px-6 py-3">
