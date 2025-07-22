@@ -1,5 +1,6 @@
 import { createBrowserClient, createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { Database } from '@/types/database.types'
 
 // 브라우저 클라이언트 생성
 export function createClient() {
@@ -7,7 +8,7 @@ export function createClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   
   console.log('supabase-client.ts에서 클라이언트 생성', { url: supabaseUrl ? '설정됨' : '없음' })
-  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
 }
 
 // 서버 클라이언트 생성

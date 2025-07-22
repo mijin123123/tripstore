@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-client'
+import { Database } from '@/types/database.types'
 import { Edit, Plus, Save, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 
@@ -104,7 +105,7 @@ export default function HeroImagesPage() {
         .order('page_slug', { nullsFirst: true })
         
       if (error) throw error
-      setHeroImages(data || [])
+      setHeroImages(data as HeroImage[] || [])
     } catch (err: any) {
       setError(`히어로 이미지를 불러오는데 실패했습니다: ${err.message}`)
       console.error('히어로 이미지 불러오기 오류:', err)
