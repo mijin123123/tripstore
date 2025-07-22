@@ -14,7 +14,7 @@ type Hotel = {
   rating: number
   price: string
   amenities: string[] | null
-  category_id: number
+  category_id?: number
   description: string | null
   address: string | null
   is_featured: boolean
@@ -86,8 +86,13 @@ export default function AdminHotels() {
       
       if (categoryError) throw categoryError
       
-      // 데이터 타입을 일치시키기 위해 명시적 타입 변환
-      setHotels((hotelData as Hotel[]) || [])
+      // 데이터 변환 및 설정
+      const formattedHotels: Hotel[] = (hotelData || []).map(hotel => ({
+        ...hotel,
+        category_id: hotel.category_id || 0
+      }))
+      
+      setHotels(formattedHotels)
       setCategories((categoryData as Category[]) || [])
     } catch (error) {
       console.error('데이터를 가져오는 데 실패했습니다:', error)
@@ -194,7 +199,7 @@ export default function AdminHotels() {
       rating: hotel.rating,
       price: hotel.price,
       amenities: hotel.amenities || [''],
-      category_id: hotel.category_id,
+      category_id: hotel.category_id || 0,
       description: hotel.description || '',
       address: hotel.address || '',
       room_types: hotel.room_types || [''],

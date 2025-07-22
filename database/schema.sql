@@ -85,6 +85,42 @@ CREATE TABLE IF NOT EXISTS villas (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 호텔 테이블 생성
+CREATE TABLE IF NOT EXISTS hotels (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  location TEXT NOT NULL,
+  image TEXT NOT NULL,
+  rating DECIMAL(3, 1) NOT NULL,
+  price TEXT NOT NULL,
+  amenities JSONB,
+  category_id INTEGER REFERENCES categories(id),
+  description TEXT,
+  address TEXT,
+  room_types JSONB,
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 리조트 테이블 생성
+CREATE TABLE IF NOT EXISTS resorts (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  location TEXT NOT NULL,
+  image TEXT NOT NULL,
+  rating DECIMAL(3, 1) NOT NULL,
+  price TEXT NOT NULL,
+  facilities JSONB,
+  category_id INTEGER REFERENCES categories(id),
+  description TEXT,
+  address TEXT,
+  room_types JSONB,
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 리뷰 테이블
 CREATE TABLE IF NOT EXISTS reviews (
   id SERIAL PRIMARY KEY,
