@@ -68,8 +68,9 @@ export default function AdminLayout({
           return
         }
 
-        if (!userData.is_admin) {
-          console.log('관리자 권한이 없음')
+        // 역할이 admin인지 확인
+        if (userData.role !== 'admin') {
+          console.log('관리자 권한이 없음', userData.role)
           router.push('/')
           return
         }
