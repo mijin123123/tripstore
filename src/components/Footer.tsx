@@ -76,13 +76,6 @@ const Footer = async () => {
             <h4 className="text-lg font-semibold mb-4">연락처</h4>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <Phone className="w-4 h-4 mt-1 text-blue-400" />
-                <div>
-                  <p className="font-medium">{footerSettings.footer_tel || '02-1234-5678'}</p>
-                  <p className="text-sm text-gray-400">{footerSettings.footer_customer_service_hours || '평일 09:00-18:00'}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
                 <Mail className="w-4 h-4 mt-1 text-blue-400" />
                 <div>
                   <p className="font-medium">{footerSettings.footer_email || 'info@tripstore.co.kr'}</p>
@@ -104,7 +97,7 @@ const Footer = async () => {
             <div className="space-y-4">
               <div>
                 <p className="font-medium text-white">1:1 채팅 상담</p>
-                <div className="mt-2 bg-white p-2 rounded-lg w-24 h-24 flex items-center justify-center">
+                <div className="mt-2 bg-white p-3 rounded-lg w-32 h-32 flex items-center justify-center">
                   {footerSettings.footer_kakao_qr ? (
                     <img 
                       src={footerSettings.footer_kakao_qr} 
@@ -112,7 +105,7 @@ const Footer = async () => {
                       className="w-full h-full object-contain"
                     />
                   ) : (
-                    <p className="text-xs text-gray-500">(카카오톡 QR코드 위치)</p>
+                    <p className="text-sm text-gray-500">(카카오톡 QR코드 위치)</p>
                   )}
                 </div>
               </div>

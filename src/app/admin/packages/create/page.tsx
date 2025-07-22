@@ -16,6 +16,9 @@ type Category = {
 export default function CreatePackage() {
   const router = useRouter()
   const [categories, setCategories] = useState<Category[]>([])
+  const [mainCategories, setMainCategories] = useState<Category[]>([])
+  const [subCategories, setSubCategories] = useState<Category[]>([])
+  const [filteredSubCategories, setFilteredSubCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
@@ -64,8 +67,9 @@ export default function CreatePackage() {
     region: '',
     regionKo: '',
     region_id: 0,
-    category_id: 0,
-    type: '',
+    category_id: 0,      // 메인 카테고리 ID
+    subcategory_id: 0,   // 서브 카테고리 ID
+    type: '',            // 내부 처리용 (UI에서는 표시하지 않음)
     rating: 4.5,
     departure: '',
     description: '',
@@ -101,7 +105,15 @@ export default function CreatePackage() {
         
         if (categoryError) throw categoryError
         
-        setCategories(categoryData || [])
+        const allCategories = categoryData || [];
+        setCategories(allCategories);
+        
+        // 메인 카테고리와 서브 카테고리 분리
+        const main = allCategories.filter(cat => cat.parent_id === null);
+        const sub = allCategories.filter(cat => cat.parent_id !== null);
+        
+        setMainCategories(main);
+        setSubCategories(sub);
         
       } catch (error) {
         console.error('데이터를 가져오는 데 실패했습니다:', error)
@@ -113,6 +125,16 @@ export default function CreatePackage() {
     
     fetchCategories()
   }, [])
+  
+  // 메인 카테고리 선택에 따라 서브 카테고리 필터링
+  useEffect(() => {
+    if (formData.category_id) {
+      const filtered = subCategories.filter(cat => cat.parent_id === formData.category_id)
+      setFilteredSubCategories(filtered)
+    } else {
+      setFilteredSubCategories([])
+    }
+  }, [formData.category_id, subCategories])
   
   // 패키지 ID 자동 생성
   useEffect(() => {
@@ -132,72 +154,45 @@ export default function CreatePackage() {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     
-    // 카테고리 선택 시 자동으로 지역명 설정
+    // 메인 카테고리 선택 시 처리
     if (name === 'category_id' && value) {
       const categoryId = parseInt(value, 10)
       
       // 선택한 카테고리 찾기
       const selectedCategory = categories.find(cat => cat.id === categoryId)
-      let regionInfo = categoryRegionMap[categoryId]
+      const regionInfo = categoryRegionMap[categoryId]
       
-      // 디버깅을 위한 로그
-      console.log('카테고리 선택:', {
-        categoryId,
-        selectedCategory,
-        regionInfo,
-        allCategories: categories
-      })
+      // 서브 카테고리 ID 초기화
+      setFormData(prev => ({
+        ...prev,
+        subcategory_id: 0
+      }))
       
-      // 현재 카테고리에 매핑이 없고, 부모 카테고리가 있는 경우
-      if (!regionInfo && selectedCategory && selectedCategory.parent_id) {
-        // 부모 카테고리의 매핑 사용
-        regionInfo = categoryRegionMap[selectedCategory.parent_id]
-        console.log('부모 카테고리 매핑 사용:', {
-          parentId: selectedCategory.parent_id,
-          parentRegionInfo: regionInfo
-        })
-      }
-      
-      if (regionInfo) {
+      if (regionInfo && selectedCategory) {
+        // 메인 카테고리 정보 설정
         setFormData(prev => ({
           ...prev,
           region: regionInfo.region,
-          regionKo: regionInfo.regionKo, // camelCase 사용 (database.types.ts와 일치)
+          regionKo: regionInfo.regionKo,
+          type: selectedCategory.slug // 내부 처리용 타입 설정
         }))
-      }
-      
-      // 타입도 설정 (해외여행, 국내여행, 호텔 등)
-      if (selectedCategory) {
-        // 부모 카테고리가 있으면 부모의 타입을 사용
-        const parentCategory = selectedCategory.parent_id 
-          ? categories.find(cat => cat.id === selectedCategory.parent_id) 
-          : null
-        
-        if (parentCategory && parentCategory.slug) {
-          const typeFromSlug = parentCategory.slug // 'overseas', 'domestic', 'hotel' 등
-          setFormData(prev => ({
-            ...prev,
-            type: typeFromSlug
-          }))
-        } else if (selectedCategory.slug) {
-          // 메인 카테고리인 경우
-          setFormData(prev => ({
-            ...prev,
-            type: selectedCategory.slug
-          }))
-        }
       }
     }
     
-    // 타입 선택 시 자동으로 기본 지역명 설정 (카테고리에 의해 덮어쓰여질 수 있음)
-    if (name === 'type' && value && !formData.region) {
-      const typeInfo = typeRegionMap[value]
+    // 서브 카테고리 선택 시 처리
+    if (name === 'subcategory_id' && value) {
+      const subcategoryId = parseInt(value, 10)
       
-      if (typeInfo) {
+      // 선택한 서브 카테고리 찾기
+      const selectedSubcategory = categories.find(cat => cat.id === subcategoryId)
+      let regionInfo = categoryRegionMap[subcategoryId]
+      
+      if (selectedSubcategory && regionInfo) {
+        // 서브 카테고리 정보 설정
         setFormData(prev => ({
           ...prev,
-          region: typeInfo.region,
-          regionKo: typeInfo.regionKo, // camelCase 사용 (database.types.ts와 일치)
+          region: regionInfo.region,
+          regionKo: regionInfo.regionKo
         }))
       }
     }
@@ -387,7 +382,7 @@ export default function CreatePackage() {
     
     // 필수 입력값 검증
     if (!formData.title || !formData.price || !formData.description || 
-        !formData.duration || !formData.type || !formData.departure || !formData.category_id) {
+        !formData.duration || !formData.departure || !formData.category_id || !formData.subcategory_id) {
       setError('필수 입력 필드를 모두 채워주세요.')
       setIsSaving(false)
       return
@@ -426,6 +421,8 @@ export default function CreatePackage() {
           region: formData.region,
           regionKo: formData.regionKo,
           region_id: 0, // 지역 ID는 0으로 설정 (직접 입력 사용)
+          category_id: formData.category_id, // 메인 카테고리 ID 
+          subcategory_id: formData.subcategory_id, // 서브 카테고리 ID
           type: formData.type,
           rating: formData.rating,
           departure: formData.departure,
@@ -520,7 +517,7 @@ export default function CreatePackage() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">카테고리 <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">메인 카테고리 <span className="text-red-500">*</span></label>
               <select
                 name="category_id"
                 value={formData.category_id}
@@ -528,33 +525,38 @@ export default function CreatePackage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="">카테고리 선택</option>
-                {categories.map(category => (
+                <option value="">메인 카테고리 선택</option>
+                {mainCategories.map(category => (
                   <option key={category.id} value={category.id}>
-                    {category.name} {category.parent_id ? '(서브 카테고리)' : '(메인 카테고리)'}
+                    {category.name}
                   </option>
                 ))}
               </select>
               <div className="mt-1 text-xs text-gray-500">
-                카테고리 선택 시 지역명이 자동으로 설정됩니다.
+                메인 카테고리를 먼저 선택하세요.
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">타입 <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">서브 카테고리 <span className="text-red-500">*</span></label>
               <select
-                name="type"
-                value={formData.type}
+                name="subcategory_id"
+                value={formData.subcategory_id}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!formData.category_id}
                 required
               >
-                <option value="">타입 선택</option>
-                <option value="overseas">해외여행</option>
-                <option value="hotel">호텔</option>
-                <option value="domestic">국내여행</option>
-                <option value="luxury">럭셔리</option>
+                <option value="">서브 카테고리 선택</option>
+                {filteredSubCategories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
+              <div className="mt-1 text-xs text-gray-500">
+                메인 카테고리를 선택하면 해당하는 서브 카테고리가 표시됩니다.
+              </div>
             </div>
             
             <div className="hidden">

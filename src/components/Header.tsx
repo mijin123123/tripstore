@@ -153,12 +153,12 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 z-[100] transition-all">
-      <nav className="py-4">
-        <div className="max-w-6xl mx-auto px-4">
+      <nav className="py-3 md:py-4">
+        <div className="max-w-6xl mx-auto px-3 md:px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold text-blue-500">
-              <Plane className="w-6 h-6" />
+            <Link href="/" className="flex items-center gap-1 md:gap-2 text-lg md:text-xl font-bold text-blue-500">
+              <Plane className="w-5 h-5 md:w-6 md:h-6" />
               TripStore
             </Link>
 
@@ -253,8 +253,8 @@ const Header = () => {
                   </div>
                 ) : (
                   <>
-                    <Link href="/auth/login" className="btn btn-outline btn-sm">로그인</Link>
-                    <Link href="/auth/signup" className="btn btn-primary btn-sm">회원가입</Link>
+                    <Link href="/auth/login" className="btn btn-outline btn-sm py-1 h-auto min-h-0 md:py-2 md:h-auto">로그인</Link>
+                    <Link href="/auth/signup" className="btn btn-primary btn-sm py-1 h-auto min-h-0 md:py-2 md:h-auto">회원가입</Link>
                   </>
                 )}
               </div>
@@ -266,9 +266,9 @@ const Header = () => {
               onClick={toggleMenu}
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5" />
               )}
             </button>
           </div>
@@ -283,20 +283,20 @@ const Header = () => {
               {Object.entries(categories).map(([key, category]) => (
                 <div key={key}>
                   <button
-                    className="flex items-center justify-between w-full py-2 border-b border-gray-100"
+                    className="flex items-center justify-between w-full py-1.5 border-b border-gray-100 text-sm"
                     onClick={() => handleDropdownToggle(key)}
                   >
                     <span className="font-medium">{category.title}</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === key ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === key ? 'rotate-180' : ''}`} />
                   </button>
-                  <div className={`pl-4 py-2 space-y-1 ${
+                  <div className={`pl-3 py-1 space-y-0.5 ${
                     activeDropdown === key ? 'block' : 'hidden'
                   }`}>
                     {category.items.map((item) => (
                       <Link
                         key={item.name}
                         href={item.href}
-                        className="block py-1 text-sm text-gray-600 hover:text-blue-500 transition-colors"
+                        className="block py-0.5 text-xs text-gray-600 hover:text-blue-500 transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         {item.name}
@@ -306,27 +306,27 @@ const Header = () => {
                 </div>
               ))}
               
-              <div className="border-t border-gray-200 pt-4">
+              <div className="border-t border-gray-200 pt-2">
                 <Link
                   href="/about"
-                  className="block py-2 font-medium text-gray-700 hover:text-blue-500 transition-colors"
+                  className="block py-1.5 font-medium text-sm text-gray-700 hover:text-blue-500 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   회사소개
                 </Link>
               </div>
-              <div className="pt-4 space-y-2">
+              <div className="pt-2 space-y-1.5">
                 {user ? (
                   <>
-                    <div className="px-4 py-2 bg-blue-50 rounded-md mb-2">
-                      <p className="text-sm font-medium">{user.name || '환영합니다!'}</p>
+                    <div className="px-3 py-1.5 bg-blue-50 rounded-md mb-1.5">
+                      <p className="text-xs font-medium">{user.name || '환영합니다!'}</p>
                       <p className="text-xs text-gray-500 truncate">{user.email}</p>
                     </div>
-                    <Link href="/profile" className="block py-2 text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                    <Link href="/profile" className="block py-1 text-xs text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
                       마이페이지
                     </Link>
                     {user.is_admin && (
-                      <Link href="/admin" className="block py-2 text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                      <Link href="/admin" className="block py-1 text-xs text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
                         관리자 페이지
                       </Link>
                     )}
@@ -335,15 +335,15 @@ const Header = () => {
                         handleLogout();
                         setIsMenuOpen(false);
                       }}
-                      className="w-full btn btn-outline btn-error mt-2"
+                      className="w-full btn btn-outline btn-error text-xs h-auto min-h-0 py-1.5 mt-1.5"
                     >
                       로그아웃
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link href="/auth/login" className="btn btn-outline w-full block text-center" onClick={() => setIsMenuOpen(false)}>로그인</Link>
-                    <Link href="/auth/signup" className="btn btn-primary w-full block text-center" onClick={() => setIsMenuOpen(false)}>회원가입</Link>
+                    <Link href="/auth/login" className="btn btn-outline w-full block text-center h-auto min-h-0 py-2" onClick={() => setIsMenuOpen(false)}>로그인</Link>
+                    <Link href="/auth/signup" className="btn btn-primary w-full block text-center h-auto min-h-0 py-2" onClick={() => setIsMenuOpen(false)}>회원가입</Link>
                   </>
                 )}
               </div>
