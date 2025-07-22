@@ -4,55 +4,30 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Search, CheckCircle, XCircle, AlertCircle, Info, Eye } from 'lucide-react'
 import Link from 'next/link'
+import { Database } from '@/types/database.types'
 
-type Payment = {
-  id: string
-  booking_id: string | null
-  amount: number
-  status: string
-  payment_method: string
-  created_at: string
-  updated_at: string
-  transaction_id: string | null
-  bookings?: null | {
-    id: string
-    user_id: string
-    package_id: string | null
-    villa_id: string | null
-    start_date: string | null
-    end_date: string | null
-    status: string
-    created_at: string
-    booking_date: string
-    cost: number
-    quantity: number | null
-    payment_status: string | null
-    special_requests: string | null
-    people_count: number | null
-    total_price: number | null
+type PaymentWithRelations = Database['public']['Tables']['payments']['Row'] & {
+  bookings?: (Database['public']['Tables']['bookings']['Row'] & {
     users?: {
       name: string | null
       email: string
     }
     packages?: {
-      title: string
+      name: string
     } | null
     villas?: {
       name: string
     } | null
-    hotels?: {
-      name: string
-    } | null
-  }
+  }) | null
 }
 
 export default function AdminPayments() {
-  const [payments, setPayments] = useState<Payment[]>([])
+  const [payments, setPayments] = useState<PaymentWithRelations[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [showDetailModal, setShowDetailModal] = useState(false)
-  const [currentPayment, setCurrentPayment] = useState<Payment | null>(null)
+  const [currentPayment, setCurrentPayment] = useState<PaymentWithRelations | null>(null)
   
   useEffect(() => {
     fetchPayments()
@@ -70,16 +45,15 @@ export default function AdminPayments() {
           bookings (
             *,
             users (name, email),
-            packages (title),
-            villas (name),
-            hotels (name)
+            packages (name),
+            villas (name)
           )
         `)
         .order('created_at', { ascending: false })
       
       if (error) throw error
       
-      setPayments(data || [])
+      setPayments(data as any || [])
     } catch (error) {
       console.error('결제 데이터를 가져오는 데 실패했습니다:', error)
     } finally {
@@ -107,7 +81,7 @@ export default function AdminPayments() {
       // 환불 처리 시 예약 상태도 변경
       if (status === 'refunded') {
         const payment = payments.find(p => p.id === id)
-        if (payment) {
+        if (payment && payment.booking_id) {
           await supabase
             .from('bookings')
             .update({ status: 'cancelled' })
@@ -122,7 +96,7 @@ export default function AdminPayments() {
   }
   
   // 결제 정보 상세 보기
-  const viewPaymentDetail = (payment: Payment) => {
+  const viewPaymentDetail = (payment: PaymentWithRelations) => {
     setCurrentPayment(payment)
     setShowDetailModal(true)
   }
@@ -170,13 +144,11 @@ export default function AdminPayments() {
   }
   
   // 결제 종류 확인 (패키지, 호텔, 빌라)
-  const getBookingType = (payment: Payment) => {
+  const getBookingType = (payment: PaymentWithRelations) => {
     if (!payment.bookings) return '알 수 없음'
     
     if (payment.bookings.package_id) {
       return '패키지'
-    } else if (payment.bookings.hotel_id) {
-      return '호텔'
     } else if (payment.bookings.villa_id) {
       return '빌라'
     }
@@ -185,13 +157,11 @@ export default function AdminPayments() {
   }
   
   // 결제 항목 이름 가져오기
-  const getBookingItemName = (payment: Payment) => {
+  const getBookingItemName = (payment: PaymentWithRelations) => {
     if (!payment.bookings) return '-'
     
     if (payment.bookings.packages) {
-      return payment.bookings.packages.title
-    } else if (payment.bookings.hotels) {
-      return payment.bookings.hotels.name
+      return payment.bookings.packages.name
     } else if (payment.bookings.villas) {
       return payment.bookings.villas.name
     }
@@ -454,11 +424,11 @@ export default function AdminPayments() {
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">체크인</dt>
-                      <dd>{new Date(currentPayment.bookings.start_date).toLocaleDateString()}</dd>
+                      <dd>{currentPayment.bookings.start_date ? new Date(currentPayment.bookings.start_date).toLocaleDateString() : '-'}</dd>
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">체크아웃</dt>
-                      <dd>{new Date(currentPayment.bookings.end_date).toLocaleDateString()}</dd>
+                      <dd>{currentPayment.bookings.end_date ? new Date(currentPayment.bookings.end_date).toLocaleDateString() : '-'}</dd>
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">예약일</dt>

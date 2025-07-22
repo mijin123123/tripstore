@@ -73,7 +73,7 @@ export default function AdminResorts() {
       // 리조트 데이터 가져오기
       const { data: resortData, error: resortError } = await supabase
         .from('resorts')
-        .select('*, regions(name, name_ko)')
+        .select('*, regions!resorts_region_id_fkey(name, name_ko)')
         .order('created_at', { ascending: false })
       
       if (resortError) throw resortError
@@ -86,7 +86,7 @@ export default function AdminResorts() {
       
       if (regionError) throw regionError
       
-      setResorts(resortData || [])
+      setResorts(resortData as any || [])
       setRegions(regionData || [])
     } catch (error) {
       console.error('데이터를 가져오는 데 실패했습니다:', error)

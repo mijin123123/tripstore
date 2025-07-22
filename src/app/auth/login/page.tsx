@@ -48,11 +48,11 @@ function LoginForm() {
         if (redirectTo.includes('/admin')) {
           const { data: userData } = await supabase
             .from('users')
-            .select('is_admin')
+            .select('role')
             .eq('id', session.user.id)
             .single();
             
-          if (userData?.is_admin) {
+          if (userData?.role === 'admin') {
             router.push('/admin');
           }
         } else {
@@ -135,7 +135,7 @@ function LoginForm() {
         // users 테이블에서 관리자 여부 확인
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('is_admin')
+          .select('role')
           .eq('id', userId)
           .single()
         
@@ -143,7 +143,7 @@ function LoginForm() {
         
         // 관리자 페이지 접근 시 권한 체크
         if (redirectTo.includes('/admin')) {
-          if (userError || !userData || !userData.is_admin) {
+          if (userError || !userData || userData.role !== 'admin') {
             setLoginError('관리자 권한이 없습니다.')
             await supabase.auth.signOut()
             return
@@ -154,7 +154,7 @@ function LoginForm() {
         console.log('로그인 성공, 리디렉션:', redirectTo)
         
         // 권한에 따른 리디렉션
-        if (userData?.is_admin && !redirectTo.includes('/admin')) {
+        if (userData?.role === 'admin' && !redirectTo.includes('/admin')) {
           router.push('/admin')
         } else {
           router.push(redirectTo)

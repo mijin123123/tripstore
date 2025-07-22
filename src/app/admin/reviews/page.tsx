@@ -6,22 +6,20 @@ import { Edit, Trash2, Star } from 'lucide-react'
 import Link from 'next/link'
 
 interface Review {
-  id: string
+  id: number
   user_id: string
-  package_id: string
+  package_id: string | null
   rating: number
-  comment: string
+  comment: string | null
   created_at: string
   user_name: string
   package_title: string
-  status: string
 }
 
 export default function ReviewsManagement() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState('all')
 
   const fetchReviews = async () => {
     setIsLoading(true)
@@ -33,7 +31,7 @@ export default function ReviewsManagement() {
         .select(`
           *,
           users:user_id (name, email),
-          packages:package_id (title)
+          packages:package_id (name)
         `)
         .order('created_at', { ascending: false })
       
@@ -47,8 +45,7 @@ export default function ReviewsManagement() {
         comment: item.comment,
         created_at: new Date(item.created_at).toLocaleDateString('ko-KR'),
         user_name: item.users?.name || '알 수 없음',
-        package_title: item.packages?.title || '삭제된 패키지',
-        status: item.status || 'approved'
+        package_title: item.packages?.name || '삭제된 패키지'
       })) || []
       
       setReviews(formattedReviews)
@@ -65,30 +62,7 @@ export default function ReviewsManagement() {
     fetchReviews()
   }, [])
   
-  const handleStatusChange = async (reviewId: string, newStatus: string) => {
-    setIsLoading(true)
-    const supabase = createClient()
-    
-    try {
-      const { error } = await supabase
-        .from('reviews')
-        .update({ status: newStatus })
-        .eq('id', reviewId)
-      
-      if (error) throw error
-      
-      // 상태 변경 후 리뷰 목록 새로고침
-      fetchReviews()
-      
-    } catch (error: any) {
-      console.error('리뷰 상태 변경 중 오류가 발생했습니다:', error.message)
-      setError('리뷰 상태 변경에 실패했습니다.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-  
-  const handleDelete = async (reviewId: string) => {
+  const handleDelete = async (reviewId: number) => {
     if (!window.confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return
     
     setIsLoading(true)
@@ -113,9 +87,7 @@ export default function ReviewsManagement() {
     }
   }
   
-  const filteredReviews = selectedStatus === 'all' 
-    ? reviews 
-    : reviews.filter(review => review.status === selectedStatus)
+  const filteredReviews = reviews
 
   const renderStars = (rating: number) => {
     return Array(5).fill(0).map((_, index) => (
@@ -130,18 +102,6 @@ export default function ReviewsManagement() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">리뷰 관리</h1>
-        <div className="flex space-x-2">
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">모든 리뷰</option>
-            <option value="pending">승인 대기 중</option>
-            <option value="approved">승인됨</option>
-            <option value="rejected">거부됨</option>
-          </select>
-        </div>
       </div>
 
       {error && (
@@ -181,9 +141,6 @@ export default function ReviewsManagement() {
                       날짜
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      상태
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       관리
                     </th>
                   </tr>
@@ -211,54 +168,14 @@ export default function ReviewsManagement() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">{review.created_at}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                          ${review.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
-                          ${review.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-                          ${review.status === 'rejected' ? 'bg-red-100 text-red-800' : ''}`
-                        }>
-                          {review.status === 'approved' && '승인됨'}
-                          {review.status === 'pending' && '승인 대기 중'}
-                          {review.status === 'rejected' && '거부됨'}
-                        </span>
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          {review.status === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => handleStatusChange(review.id, 'approved')}
-                                className="text-green-600 hover:text-green-800 transition-colors"
-                                title="승인"
-                              >
-                                승인
-                              </button>
-                              <button
-                                onClick={() => handleStatusChange(review.id, 'rejected')}
-                                className="text-red-600 hover:text-red-800 transition-colors"
-                                title="거부"
-                              >
-                                거부
-                              </button>
-                            </>
-                          )}
-                          {review.status !== 'pending' && (
-                            <button
-                              onClick={() => handleStatusChange(review.id, 'pending')}
-                              className="text-yellow-600 hover:text-yellow-800 transition-colors"
-                              title="승인 대기로 변경"
-                            >
-                              대기로 변경
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDelete(review.id)}
-                            className="text-red-600 hover:text-red-800 transition-colors ml-2"
-                            title="삭제"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleDelete(review.id)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                          title="삭제"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}

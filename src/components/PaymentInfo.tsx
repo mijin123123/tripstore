@@ -1,7 +1,7 @@
-import { createServerSupabaseClient } from '@/lib/supabase-client'
+import { createClient } from '@/lib/supabase'
 
 async function getPaymentSettings() {
-  const supabase = createServerSupabaseClient()
+  const supabase = createClient()
   const { data } = await supabase
     .from('site_settings')
     .select('*')

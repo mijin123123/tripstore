@@ -11,11 +11,6 @@ type Region = {
   name: string
   name_ko: string
   slug: string
-  description: string | null
-  image: string | null
-  parent_id: number | null
-  created_at: string
-  updated_at: string
 }
 
 export default function AdminRegions() {
@@ -28,10 +23,7 @@ export default function AdminRegions() {
   const [formData, setFormData] = useState({
     name: '',
     name_ko: '',
-    slug: '',
-    description: '',
-    image: '',
-    parent_id: null as number | null
+    slug: ''
   })
   const [imageUploading, setImageUploading] = useState(false)
   const [error, setError] = useState('')
@@ -54,7 +46,7 @@ export default function AdminRegions() {
         throw error
       }
       
-      setRegions(data || [])
+      setRegions(data as any || [])
     } catch (error) {
       console.error('지역을 가져오는 데 실패했습니다:', error)
     } finally {
@@ -72,10 +64,7 @@ export default function AdminRegions() {
     setFormData({
       name: '',
       name_ko: '',
-      slug: '',
-      description: '',
-      image: '',
-      parent_id: null
+      slug: ''
     })
     setError('')
   }
@@ -90,10 +79,7 @@ export default function AdminRegions() {
     setFormData({
       name: region.name,
       name_ko: region.name_ko,
-      slug: region.slug,
-      description: region.description || '',
-      image: region.image || '',
-      parent_id: region.parent_id
+      slug: region.slug
     })
     setShowEditModal(true)
   }

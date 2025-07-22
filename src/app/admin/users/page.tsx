@@ -9,11 +9,7 @@ type User = {
   email: string
   name: string | null
   phone: string | null
-  birthdate: string | null
-  gender: string | null
-  address: string | null
-  avatar_url: string | null
-  is_admin: boolean
+  role: string
   created_at: string
 }
 
@@ -63,7 +59,7 @@ export default function AdminUsers() {
       const supabase = createClient()
       const { error } = await supabase
         .from('users')
-        .update({ is_admin: !currentStatus })
+        .update({ role: !currentStatus ? 'admin' : 'user' })
         .eq('id', id)
       
       if (error) {
@@ -115,11 +111,11 @@ export default function AdminUsers() {
         </div>
         <div className="bg-white rounded-xl shadow p-4 flex flex-col">
           <span className="text-sm text-gray-500">관리자</span>
-          <span className="text-2xl font-bold">{users.filter(user => user.is_admin).length}</span>
+          <span className="text-2xl font-bold">{users.filter(user => user.role === 'admin').length}</span>
         </div>
         <div className="bg-white rounded-xl shadow p-4 flex flex-col">
           <span className="text-sm text-gray-500">일반 사용자</span>
-          <span className="text-2xl font-bold">{users.filter(user => !user.is_admin).length}</span>
+          <span className="text-2xl font-bold">{users.filter(user => user.role !== 'admin').length}</span>
         </div>
       </div>
       
@@ -133,11 +129,8 @@ export default function AdminUsers() {
                   <th className="px-6 py-3 font-medium text-gray-500">이름</th>
                   <th className="px-6 py-3 font-medium text-gray-500">이메일</th>
                   <th className="px-6 py-3 font-medium text-gray-500">전화번호</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">생년월일</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">성별</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">주소</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">가입일</th>
                   <th className="px-6 py-3 font-medium text-gray-500">역할</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">가입일</th>
                   <th className="px-6 py-3 font-medium text-gray-500">권한 관리</th>
                 </tr>
               </thead>
@@ -169,48 +162,25 @@ export default function AdminUsers() {
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      {user.birthdate ? (
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                          {new Date(user.birthdate).toLocaleDateString()}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      {user.gender || <span className="text-gray-400">-</span>}
-                    </td>
-                    <td className="px-6 py-4">
-                      {user.address ? (
-                        <div className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                          <span className="truncate max-w-[150px]">{user.address}</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.role === 'admin' ? '관리자' : '일반 사용자'}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       {new Date(user.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      {user.is_admin ? (
-                        <span className="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800 font-medium">관리자</span>
-                      ) : (
-                        <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-medium">일반 사용자</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
                       <button
-                        onClick={() => handleToggleAdmin(user.id, user.is_admin)}
+                        onClick={() => handleToggleAdmin(user.id, user.role === 'admin')}
                         className={`flex items-center px-3 py-1 rounded text-sm ${
-                          user.is_admin 
+                          user.role === 'admin' 
                             ? 'bg-red-50 text-red-700 hover:bg-red-100' 
                             : 'bg-green-50 text-green-700 hover:bg-green-100'
                         }`}
                       >
-                        {user.is_admin ? (
+                        {user.role === 'admin' ? (
                           <>
                             <ShieldOff className="h-4 w-4 mr-1" /> 관리자 해제
                           </>

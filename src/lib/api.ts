@@ -13,7 +13,7 @@ export async function getAllPackages(): Promise<Package[]> {
     return [];
   }
   
-  return data as Package[];
+  return data as any;
 }
 
 // 특정 타입과 지역의 패키지 가져오기
@@ -30,7 +30,7 @@ export async function getPackagesByTypeAndRegion(type: string, region: string): 
     return [];
   }
   
-  return data as Package[];
+  return data as any;
 }
 
 // ID로 패키지 가져오기
@@ -47,7 +47,7 @@ export async function getPackageById(id: string): Promise<Package | null> {
     return null;
   }
   
-  return data as Package;
+  return data as any;
 }
 
 // 모든 빌라 가져오기
@@ -87,7 +87,7 @@ export async function createPackage(packageData: Omit<PackageTable, 'id'>): Prom
   const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
-    .insert([packageData])
+    .insert([packageData as any])
     .select();
   
   if (error) {
@@ -95,7 +95,7 @@ export async function createPackage(packageData: Omit<PackageTable, 'id'>): Prom
     return null;
   }
   
-  return data[0] as Package;
+  return data[0] as any;
 }
 
 // 패키지 업데이트
@@ -103,7 +103,7 @@ export async function updatePackage(id: string, packageData: Partial<PackageTabl
   const supabase = createClient();
   const { data, error } = await supabase
     .from('packages')
-    .update(packageData)
+    .update(packageData as any)
     .eq('id', id)
     .select();
   
@@ -112,7 +112,7 @@ export async function updatePackage(id: string, packageData: Partial<PackageTabl
     return null;
   }
   
-  return data[0] as Package;
+  return data[0] as any;
 }
 
 // 패키지 삭제
