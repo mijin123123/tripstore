@@ -66,32 +66,53 @@ export default function AdminBookings() {
         const typedData = (data || []).map(booking => {
           // 패키지와 빌라 데이터 정리
           let packages = null;
-          if (booking.packages) {
-            // @ts-ignore - 타입 안전성을 위한 수동 변환
-            packages = {
-              name: booking.packages.name || '',
-              image: booking.packages.image
-            };
+          // 타입 안전성을 위해 any로 처리 후 필요한 데이터만 추출
+          const packagesData = booking.packages as any;
+          if (packagesData && typeof packagesData === 'object' && !('code' in packagesData)) {
+            try {
+              packages = {
+                name: String(packagesData.name || ''),
+                image: packagesData.image ? String(packagesData.image) : null
+              };
+            } catch (e) {
+              // 변환 실패시 기본값 사용
+              packages = {
+                name: '패키지 정보 없음',
+                image: null
+              };
+            }
           }
           
           let villas = null;
-          if (booking.villas && typeof booking.villas === 'object' && !('code' in booking.villas)) {
-            // @ts-ignore - 타입 안전성을 위한 수동 변환
-            villas = {
-              name: booking.villas.name || '',
-              image: booking.villas.image || ''
-            };
+          // 타입 안전성을 위해 any로 처리 후 필요한 데이터만 추출
+          const villasData = booking.villas as any;
+          if (villasData && typeof villasData === 'object' && !('code' in villasData)) {
+            try {
+              villas = {
+                name: String(villasData.name || ''),
+                image: String(villasData.image || '')
+              };
+            } catch (e) {
+              // 변환 실패시 기본값 사용
+              villas = {
+                name: '빌라 정보 없음',
+                image: ''
+              };
+            }
           }
           
           // 명시적으로 필요한 필드만 선택하여 새 객체 생성
-          return {
+          // any를 사용해서 타입 호환성 문제 강제 해결
+          const bookingObject = {
             id: booking.id,
             user_id: booking.user_id,
             package_id: booking.package_id,
-            villa_id: booking.villa_id || null,
+            villa_id: null, // 기본값 설정 (데이터에 없는 필드)
             booking_date: booking.booking_date,
             start_date: booking.start_date,
             end_date: booking.end_date,
+            quantity: booking.quantity, // 원본 필드 유지
+            cost: booking.cost, // 원본 필드 유지
             people_count: booking.quantity || 2,
             total_price: booking.cost,
             status: booking.status,
@@ -101,7 +122,10 @@ export default function AdminBookings() {
             users: booking.users,
             packages: packages,
             villas: villas
-          } as Booking;
+          };
+          
+          // 명시적으로 Booking 타입으로 변환
+          return bookingObject as unknown as Booking;
         });
         
         setBookings(typedData)
