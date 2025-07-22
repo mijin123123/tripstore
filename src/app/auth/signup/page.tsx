@@ -101,10 +101,12 @@ export default function SignupPage() {
       console.log('전화번호:', formData.phone);
       console.log('비밀번호 길이:', formData.password.length);
       
-      // Supabase 클라이언트 생성
+      // 1단계: Supabase 클라이언트 생성
       const supabase = createClient()
+      console.log('Supabase 클라이언트 생성됨');
       
-      // Supabase Auth를 사용한 회원가입 (이메일 인증 없이 자동 확인 처리)
+      // 2단계: Supabase Auth를 사용한 회원가입 (이메일 인증 없이 자동 확인 처리)
+      console.log('Auth 회원가입 시도 중...');
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -119,8 +121,11 @@ export default function SignupPage() {
       })
       
       if (error) {
+        console.error('Auth 회원가입 오류:', error);
         throw error
       }
+      
+      console.log('Auth 회원가입 성공:', data);
       
       // 회원 정보를 users 테이블에도 저장
       if (data.user) {
@@ -144,6 +149,7 @@ export default function SignupPage() {
         console.log('저장할 사용자 데이터:', userData);
         
         try {
+          console.log('3단계: 사용자 데이터 저장 API 호출 중...');
           // 서버 API를 통해 사용자 생성 (서비스 역할 사용)
           const response = await fetch('/api/user', {
             method: 'POST',
@@ -161,20 +167,26 @@ export default function SignupPage() {
             }),
           });
           
+          console.log('API 응답 상태:', response.status, response.statusText);
+          
           const result = await response.json();
+          console.log('API 응답 데이터:', result);
           
           if (!response.ok) {
+            console.error('API 응답 오류:', result);
             throw new Error(result.error || '사용자 데이터 저장에 실패했습니다.');
           }
           
           console.log('사용자 데이터 저장 성공:', result.user);
         } catch (error: any) {
           console.error('사용자 데이터 저장 API 오류:', error);
+          alert(`사용자 데이터 저장 중 오류가 발생했습니다: ${error.message}`);
           // 사용자 데이터 저장 실패해도 계속 진행
         }
         
+        console.log('4단계: 자동 로그인 시도...');
         // 이메일 인증 없이 바로 로그인 처리
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password
         })
@@ -182,30 +194,53 @@ export default function SignupPage() {
         if (signInError) {
           console.error('자동 로그인 실패:', signInError)
           // 로그인 실패해도 회원가입은 완료되었으므로 로그인 페이지로 이동
-          alert('회원가입이 완료되었습니다. 로그인해주세요.')
-          router.push('/auth/login')
+          alert('회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.')
+          console.log('로그인 페이지로 리디렉션 중...');
+          
+          // 0.5초 후에 리디렉션 (리디렉션 문제 디버깅용)
+          setTimeout(() => {
+            router.push('/auth/login')
+          }, 500)
           return
         }
         
+        console.log('자동 로그인 성공!', signInData);
+        
         // 자동 로그인 성공 시 메인 페이지로 이동
-        alert('회원가입이 완료되었습니다!')
-        router.push('/')
+        alert('회원가입이 완료되었습니다! 메인 페이지로 이동합니다.')
+        console.log('메인 페이지로 리디렉션 중...');
+        
+        // 0.5초 후에 리디렉션 (리디렉션 문제 디버깅용)
+        setTimeout(() => {
+          router.push('/')
+        }, 500)
         return
       }
       
-      console.log('회원가입 성공:', data)
+      console.log('회원가입 성공 (사용자 없음 케이스):', data)
       
       // 회원가입은 성공했지만 자동 로그인은 실패한 경우 로그인 페이지로 이동
-      alert('회원가입이 완료되었습니다. 로그인해주세요.')
-      router.push('/auth/login')
+      alert('회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.')
+      console.log('로그인 페이지로 리디렉션 중...');
+      
+      // 0.5초 후에 리디렉션 (리디렉션 문제 디버깅용)
+      setTimeout(() => {
+        router.push('/auth/login')
+      }, 500)
     } catch (error: any) {
       console.error('회원가입 오류:', error)
       let errorMessage = '회원가입에 실패했습니다. 다시 시도해주세요.'
       
       if (error.message === 'User already registered') {
-        errorMessage = '이미 등록된 이메일 주소입니다.'
+        errorMessage = '이미 등록된 이메일 주소입니다. 로그인 페이지로 이동합니다.';
+        console.log('이미 등록된 이메일. 로그인 페이지로 리디렉션 예정...');
+        
+        // 이미 등록된 사용자인 경우, 2초 후에 로그인 페이지로 이동
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 2000);
       } else if (error.message?.includes('password')) {
-        errorMessage = '비밀번호가 요구사항을 충족하지 않습니다. 더 강력한 비밀번호를 사용해주세요.'
+        errorMessage = '비밀번호가 요구사항을 충족하지 않습니다. 더 강력한 비밀번호를 사용해주세요.';
       }
       
       alert(errorMessage)
