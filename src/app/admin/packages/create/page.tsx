@@ -62,7 +62,7 @@ export default function CreatePackage() {
     price: '',
     duration: '',
     region: '',
-    region_ko: '',
+    regionKo: '',
     region_id: 0,
     category_id: 0,
     type: '',
@@ -203,7 +203,7 @@ export default function CreatePackage() {
     }
     
     // 지역 직접 입력 시 ID는 0으로 설정
-    if (name === 'region' || name === 'region_ko') {
+    if (name === 'region' || name === 'regionKo') {
       setFormData(prev => ({
         ...prev,
         region_id: 0 // 직접 입력 시 ID는 0으로 설정
@@ -424,7 +424,7 @@ export default function CreatePackage() {
           price: formData.price,
           duration: formData.duration,
           region: formData.region,
-          region_ko: formData.region_ko,
+          regionKo: formData.regionKo,
           region_id: 0, // 지역 ID는 0으로 설정 (직접 입력 사용)
           type: formData.type,
           rating: formData.rating,
@@ -573,8 +573,8 @@ export default function CreatePackage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">지역명(한글)</label>
               <input
                 type="text"
-                name="region_ko"
-                value={formData.region_ko}
+                name="regionKo"
+                value={formData.regionKo}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="예: 유럽, 일본, 동남아시아"
