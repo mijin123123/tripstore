@@ -6,31 +6,33 @@ import { Search, CalendarDays, Users, Calendar, CheckCircle, XCircle, Clock, Dol
 import Link from 'next/link'
 
 type Booking = {
-  id: number
+  id: string
   user_id: string
   package_id: string | null
-  villa_id: string | null
+  villa_id?: string | null // 선택적 필드
   booking_date: string
-  start_date: string
+  start_date: string | null
   end_date: string | null
-  people_count: number
-  total_price: number
+  quantity: number | null
+  cost: number
   status: string
-  payment_status: string
-  special_requests: string | null
+  payment_status?: string // 선택적 필드
+  special_requests?: string | null // 선택적 필드
+  people_count?: number // 선택적 필드
+  total_price?: number // 선택적 필드
   created_at: string
   users: {
     name: string | null
     email: string
   }
   packages?: {
-    title: string
-    image: string
-  }
+    name: string
+    image: string | null
+  } | null
   villas?: {
     name: string
     image: string
-  }
+  } | null
 }
 
 export default function AdminBookings() {
@@ -51,7 +53,7 @@ export default function AdminBookings() {
           .select(`
             *,
             users (name, email),
-            packages (title, image),
+            packages (name, image),
             villas (name, image)
           `)
           .order('created_at', { ascending: false })
@@ -60,7 +62,15 @@ export default function AdminBookings() {
           throw error
         }
         
-        setBookings(data || [])
+        // 타입 변환을 통해 데이터 구조 맞추기
+        const typedData = (data || []).map(booking => ({
+          ...booking,
+          payment_status: booking.status, // 결제 상태 필드가 없으면 일반 상태로 대체
+          people_count: booking.quantity || 2, // 인원수 정보가 없으면 기본값 사용
+          total_price: booking.cost // 총 가격은 cost 필드 사용
+        })) as Booking[]
+        
+        setBookings(typedData)
       } catch (error) {
         console.error('예약을 가져오는 데 실패했습니다:', error)
       } finally {
@@ -77,7 +87,7 @@ export default function AdminBookings() {
     const searchMatch = 
       booking.users?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.users?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.packages?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.packages?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.villas?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.id.toString().includes(searchQuery);
     
@@ -90,7 +100,7 @@ export default function AdminBookings() {
     return searchMatch && statusMatch && paymentMatch;
   });
   
-  const handleUpdateStatus = async (id: number, newStatus: string) => {
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
     try {
       const supabase = createClient()
       const { error } = await supabase
@@ -111,12 +121,14 @@ export default function AdminBookings() {
     }
   }
   
-  const handleUpdatePaymentStatus = async (id: number, newStatus: string) => {
+  const handleUpdatePaymentStatus = async (id: string, newStatus: string) => {
     try {
       const supabase = createClient()
+      // payment_status 필드가 없으므로 상태를 메모로 저장
+      // 실제로는 status 필드 또는 메타데이터로 저장하는 것이 좋습니다
       const { error } = await supabase
         .from('bookings')
-        .update({ payment_status: newStatus })
+        .update({ status: `payment:${newStatus}` }) // 임시 해결책: status 필드에 payment 상태 저장
         .eq('id', id)
       
       if (error) {
@@ -264,7 +276,7 @@ export default function AdminBookings() {
                     <td className="px-6 py-4">
                       {booking.package_id ? (
                         <Link href={`/package/${booking.package_id}`} className="text-blue-600 hover:underline">
-                          {booking.packages?.title || booking.package_id}
+                          {booking.packages?.name || booking.package_id}
                         </Link>
                       ) : booking.villa_id ? (
                         <span>{booking.villas?.name || booking.villa_id}</span>
@@ -279,7 +291,7 @@ export default function AdminBookings() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {new Date(booking.start_date).toLocaleDateString()}
+                      {booking.start_date ? new Date(booking.start_date).toLocaleDateString() : '날짜 미정'}
                       {booking.end_date && ` ~ ${new Date(booking.end_date).toLocaleDateString()}`}
                     </td>
                     <td className="px-6 py-4">
