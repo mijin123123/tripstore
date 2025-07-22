@@ -71,7 +71,7 @@ export default function CreatePackage() {
   const [formData, setFormData] = useState({
     id: '', // 자동 생성될 ID
     title: '',
-    price: '',
+    price: 0, // number 타입으로 변경
     duration: '',
     region: '',
     regionKo: '',
@@ -450,32 +450,18 @@ export default function CreatePackage() {
     try {
       const supabase = createClient()
       
+      // 데이터베이스 스키마에 맞게 insert 데이터 구성
       const { error } = await supabase
         .from('packages')
         .insert({
-          id: formData.id,
-          title: formData.title,
-          price: formData.price,
-          duration: formData.duration,
+          // 데이터베이스 스키마에 있는 필드만 사용
+          name: formData.title,
+          price: Number(formData.price),
+          location: formData.regionKo || '',
           region: formData.region,
-          regionKo: formData.regionKo,
-          region_id: formData.subcategory_id || 0, // 서브 카테고리 ID를 지역 ID로 사용
-          category_id: formData.category_id, // 메인 카테고리 ID
-          subcategory_id: formData.subcategory_id, // 서브 카테고리 ID
-          type: formData.type, // 메인 카테고리의 slug (overseas, hotel, domestic, luxury)
-          rating: formData.rating,
-          departure: formData.departure,
+          category: formData.type, // 카테고리 필드 사용
           description: formData.description,
-          image: filteredImages[0], // 첫 번째 이미지를 대표 이미지로 사용
-          images: filteredImages, // 모든 이미지 URL 배열 저장
-          highlights: filteredHighlights,
-          features: filteredFeatures,
-          included: filteredIncluded,
-          excluded: filteredExcluded,
-          notes: filteredNotes,
-          itinerary: formData.itinerary,
-          max_people: formData.max_people,
-          min_people: formData.min_people,
+          image: filteredImages.length > 0 ? filteredImages[0] : null,
           is_featured: formData.is_featured
         })
       
