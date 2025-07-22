@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, Check } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -94,15 +95,62 @@ export default function SignupPage() {
     setIsLoading(true)
     
     try {
-      // 실제 회원가입 API 호출
-      // 여기서는 임시로 2초 후 성공으로 처리
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Supabase 클라이언트 생성
+      const supabase = createClient()
+      
+      // Supabase Auth를 사용한 회원가입
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+            phone: formData.phone,
+            marketing_agree: formData.agreeMarketing
+          }
+        }
+      })
+      
+      if (error) {
+        throw error
+      }
+      
+      // 회원 정보를 users 테이블에도 저장
+      if (data.user) {
+        const { error: userError } = await supabase
+          .from('users')
+          .insert({
+            id: data.user.id,
+            email: formData.email,
+            name: formData.name,
+            phone: formData.phone,
+            marketing_agree: formData.agreeMarketing,
+            is_admin: false,
+            created_at: new Date().toISOString()
+          })
+        
+        if (userError) {
+          console.error('사용자 데이터 저장 실패:', userError)
+          // 계속 진행 - Auth는 이미 생성됨
+        }
+      }
+      
+      console.log('회원가입 성공:', data);
       
       // 회원가입 성공 시 로그인 페이지로 이동
       alert('회원가입이 완료되었습니다. 로그인해주세요.')
       router.push('/auth/login')
-    } catch (error) {
-      alert('회원가입에 실패했습니다. 다시 시도해주세요.')
+    } catch (error: any) {
+      console.error('회원가입 오류:', error)
+      let errorMessage = '회원가입에 실패했습니다. 다시 시도해주세요.'
+      
+      if (error.message === 'User already registered') {
+        errorMessage = '이미 등록된 이메일 주소입니다.'
+      } else if (error.message?.includes('password')) {
+        errorMessage = '비밀번호가 요구사항을 충족하지 않습니다. 더 강력한 비밀번호를 사용해주세요.'
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsLoading(false)
     }
