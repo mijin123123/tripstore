@@ -11,13 +11,11 @@ import {
   CreditCard, 
   Home, 
   BarChart3,
-  Map,
-  Hotel,
-  Building,
   LogOut,
   User,
   Image,
-  Settings
+  Settings,
+  Star
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -132,17 +130,9 @@ export default function AdminLayout({
               <Package className="h-5 w-5 mr-3" />
               <span>패키지 관리</span>
             </Link>
-            <Link href="/admin/villas" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              <Building className="h-5 w-5 mr-3" />
-              <span>빌라 관리</span>
-            </Link>
-            <Link href="/admin/hotels" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              <Hotel className="h-5 w-5 mr-3" />
-              <span>호텔 관리</span>
-            </Link>
-            <Link href="/admin/regions" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              <Map className="h-5 w-5 mr-3" />
-              <span>지역 관리</span>
+            <Link href="/admin/reviews" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <Star className="h-5 w-5 mr-3" />
+              <span>리뷰 관리</span>
             </Link>
             <Link href="/admin/bookings" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors">
               <CalendarDays className="h-5 w-5 mr-3" />
