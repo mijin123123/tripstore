@@ -13,7 +13,7 @@ type Hotel = {
   image: string
   rating: number
   price: string
-  amenities: string[]
+  amenities: string[] | null
   region_id: number
   description: string | null
   address: string | null
@@ -84,8 +84,9 @@ export default function AdminHotels() {
       
       if (regionError) throw regionError
       
-      setHotels(hotelData || [])
-      setRegions(regionData || [])
+      // 데이터 타입을 일치시키기 위해 명시적 타입 변환
+      setHotels((hotelData as Hotel[]) || [])
+      setRegions((regionData as Region[]) || [])
     } catch (error) {
       console.error('데이터를 가져오는 데 실패했습니다:', error)
     } finally {

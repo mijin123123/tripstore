@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Facebook, Instagram, Twitter, Youtube, Phone, Mail, MapPin, Plane } from 'lucide-react'
-import { createServerSupabaseClient } from '@/lib/supabase-client'
+import { createServerClient as createServerSupabaseClient } from '@/lib/supabase-server'
 import { headers } from 'next/headers'
 
 async function getFooterSettings() {
