@@ -63,12 +63,46 @@ export default function AdminBookings() {
         }
         
         // 타입 변환을 통해 데이터 구조 맞추기
-        const typedData = (data || []).map(booking => ({
-          ...booking,
-          payment_status: booking.status, // 결제 상태 필드가 없으면 일반 상태로 대체
-          people_count: booking.quantity || 2, // 인원수 정보가 없으면 기본값 사용
-          total_price: booking.cost // 총 가격은 cost 필드 사용
-        })) as Booking[]
+        const typedData = (data || []).map(booking => {
+          // 패키지와 빌라 데이터 정리
+          let packages = null;
+          if (booking.packages) {
+            // @ts-ignore - 타입 안전성을 위한 수동 변환
+            packages = {
+              name: booking.packages.name || '',
+              image: booking.packages.image
+            };
+          }
+          
+          let villas = null;
+          if (booking.villas && typeof booking.villas === 'object' && !('code' in booking.villas)) {
+            // @ts-ignore - 타입 안전성을 위한 수동 변환
+            villas = {
+              name: booking.villas.name || '',
+              image: booking.villas.image || ''
+            };
+          }
+          
+          // 명시적으로 필요한 필드만 선택하여 새 객체 생성
+          return {
+            id: booking.id,
+            user_id: booking.user_id,
+            package_id: booking.package_id,
+            villa_id: booking.villa_id || null,
+            booking_date: booking.booking_date,
+            start_date: booking.start_date,
+            end_date: booking.end_date,
+            people_count: booking.quantity || 2,
+            total_price: booking.cost,
+            status: booking.status,
+            payment_status: booking.status, // 결제 상태 필드가 없으면 일반 상태로 대체
+            special_requests: null,
+            created_at: booking.created_at,
+            users: booking.users,
+            packages: packages,
+            villas: villas
+          } as Booking;
+        });
         
         setBookings(typedData)
       } catch (error) {
