@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 type Payment = {
   id: string
-  booking_id: string
+  booking_id: string | null
   amount: number
   status: 'pending' | 'completed' | 'failed' | 'refunded'
   payment_method: string
