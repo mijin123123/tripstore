@@ -27,33 +27,42 @@ export default function CreatePackage() {
   const categoryRegionMap: Record<number, { region: string, regionKo: string }> = {
     // 메인 카테고리
     1: { region: 'overseas', regionKo: '해외여행' },
-    2: { region: 'domestic', regionKo: '국내여행' },
-    3: { region: 'hotel', regionKo: '호텔' },
+    2: { region: 'hotel', regionKo: '호텔' },
+    3: { region: 'domestic', regionKo: '국내' },
+    4: { region: 'luxury', regionKo: '럭셔리' },
     
-    // 해외여행 서브 카테고리
-    4: { region: 'europe', regionKo: '유럽' },
-    5: { region: 'southeast-asia', regionKo: '동남아시아' },
-    6: { region: 'japan', regionKo: '일본' },
-    7: { region: 'americas', regionKo: '미주' },
-    8: { region: 'china-hongkong', regionKo: '중국/홍콩' },
-    9: { region: 'guam-saipan', regionKo: '괌/사이판' },
+    // 해외여행(overseas) 서브 카테고리
+    11: { region: 'europe', regionKo: '유럽' },
+    12: { region: 'southeast-asia', regionKo: '동남아' },
+    13: { region: 'japan', regionKo: '일본' },
+    14: { region: 'guam-saipan', regionKo: '괌/사이판' },
+    15: { region: 'americas', regionKo: '미주/캐나다/하와이' },
+    16: { region: 'china-hongkong', regionKo: '대만/홍콩/마카오' },
     
-    // 국내여행 서브 카테고리
-    10: { region: 'seoul', regionKo: '서울' },
-    11: { region: 'jeju', regionKo: '제주' },
-    12: { region: 'busan', regionKo: '부산' },
-    13: { region: 'gangwon', regionKo: '강원' },
-    14: { region: 'gyeonggi', regionKo: '경기' },
-    15: { region: 'incheon', regionKo: '인천' },
-    16: { region: 'gyeongsang', regionKo: '경상' },
-    17: { region: 'jeolla', regionKo: '전라' },
-    18: { region: 'chungcheong', regionKo: '충청' },
-    // 필요에 따라 더 많은 카테고리 매핑을 추가할 수 있습니다
+    // 호텔(hotel) 서브 카테고리
+    21: { region: 'europe', regionKo: '유럽' },
+    22: { region: 'southeast-asia', regionKo: '동남아' },
+    23: { region: 'japan', regionKo: '일본' },
+    24: { region: 'guam-saipan', regionKo: '괌/사이판' },
+    25: { region: 'americas', regionKo: '미주/캐나다/하와이' },
+    26: { region: 'china-hongkong', regionKo: '대만/홍콩/마카오' },
+    
+    // 국내(domestic) 서브 카테고리
+    31: { region: 'hotel', regionKo: '호텔' },
+    32: { region: 'resort', regionKo: '리조트' },
+    33: { region: 'pool-villa', regionKo: '풀빌라' },
+    
+    // 럭셔리(luxury) 서브 카테고리
+    41: { region: 'europe', regionKo: '유럽' },
+    42: { region: 'japan', regionKo: '일본' },
+    43: { region: 'southeast-asia', regionKo: '동남아' },
+    44: { region: 'cruise', regionKo: '크루즈' },
+    45: { region: 'special-theme', regionKo: '이색테마' },
   }
   
   // 타입과 지역명 매핑 정의
   const typeRegionMap: Record<string, { region: string, regionKo: string }> = {
-    'overseas': { region: 'overseas', regionKo: '해외' },
+    'overseas': { region: 'overseas', regionKo: '해외여행' },
     'hotel': { region: 'hotel', regionKo: '호텔' },
     'domestic': { region: 'domestic', regionKo: '국내' },
     'luxury': { region: 'luxury', regionKo: '럭셔리' },
@@ -92,38 +101,62 @@ export default function CreatePackage() {
   })
   
   useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoading(true)
-      const supabase = createClient()
-      
-      try {
-        // 카테고리 가져오기
-        const { data: categoryData, error: categoryError } = await supabase
-          .from('categories')
-          .select('*')
-          .order('id')
-        
-        if (categoryError) throw categoryError
-        
-        const allCategories = categoryData || [];
-        setCategories(allCategories);
-        
-        // 메인 카테고리와 서브 카테고리 분리
-        const main = allCategories.filter(cat => cat.parent_id === null);
-        const sub = allCategories.filter(cat => cat.parent_id !== null);
-        
-        setMainCategories(main);
-        setSubCategories(sub);
-        
-      } catch (error) {
-        console.error('데이터를 가져오는 데 실패했습니다:', error)
-        setError('카테고리 데이터를 불러오는데 실패했습니다.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
+    // 정적 카테고리 데이터 사용
+    setIsLoading(true)
     
-    fetchCategories()
+    try {
+      // 메인 카테고리 정의
+      const main: Category[] = [
+        { id: 1, name: '해외여행', slug: 'overseas', parent_id: null },
+        { id: 2, name: '호텔', slug: 'hotel', parent_id: null },
+        { id: 3, name: '국내', slug: 'domestic', parent_id: null },
+        { id: 4, name: '럭셔리', slug: 'luxury', parent_id: null }
+      ];
+      
+      // 서브 카테고리 정의
+      const sub: Category[] = [
+        // 해외여행(overseas) 서브 카테고리
+        { id: 11, name: '유럽', slug: 'europe', parent_id: 1 },
+        { id: 12, name: '동남아', slug: 'southeast-asia', parent_id: 1 },
+        { id: 13, name: '일본', slug: 'japan', parent_id: 1 },
+        { id: 14, name: '괌/사이판', slug: 'guam-saipan', parent_id: 1 },
+        { id: 15, name: '미주/캐나다/하와이', slug: 'americas', parent_id: 1 },
+        { id: 16, name: '대만/홍콩/마카오', slug: 'china-hongkong', parent_id: 1 },
+        
+        // 호텔(hotel) 서브 카테고리
+        { id: 21, name: '유럽', slug: 'europe', parent_id: 2 },
+        { id: 22, name: '동남아', slug: 'southeast-asia', parent_id: 2 },
+        { id: 23, name: '일본', slug: 'japan', parent_id: 2 },
+        { id: 24, name: '괌/사이판', slug: 'guam-saipan', parent_id: 2 },
+        { id: 25, name: '미주/캐나다/하와이', slug: 'americas', parent_id: 2 },
+        { id: 26, name: '대만/홍콩/마카오', slug: 'china-hongkong', parent_id: 2 },
+        
+        // 국내(domestic) 서브 카테고리
+        { id: 31, name: '호텔', slug: 'hotel', parent_id: 3 },
+        { id: 32, name: '리조트', slug: 'resort', parent_id: 3 },
+        { id: 33, name: '풀빌라', slug: 'pool-villa', parent_id: 3 },
+        
+        // 럭셔리(luxury) 서브 카테고리
+        { id: 41, name: '유럽', slug: 'europe', parent_id: 4 },
+        { id: 42, name: '일본', slug: 'japan', parent_id: 4 },
+        { id: 43, name: '동남아', slug: 'southeast-asia', parent_id: 4 },
+        { id: 44, name: '크루즈', slug: 'cruise', parent_id: 4 },
+        { id: 45, name: '이색테마', slug: 'special-theme', parent_id: 4 },
+      ];
+      
+      // 모든 카테고리 합치기
+      const allCategories = [...main, ...sub];
+      
+      setCategories(allCategories);
+      setMainCategories(main);
+      setSubCategories(sub);
+      
+    } catch (error) {
+      console.error('카테고리 데이터 설정에 실패했습니다:', error)
+      setError('카테고리 데이터를 불러오는데 실패했습니다.')
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
   
   // 메인 카테고리 선택에 따라 서브 카테고리 필터링
@@ -188,11 +221,17 @@ export default function CreatePackage() {
       let regionInfo = categoryRegionMap[subcategoryId]
       
       if (selectedSubcategory && regionInfo) {
+        // 메인 카테고리에서 타입 가져오기
+        const mainCategoryId = selectedSubcategory.parent_id || 0;
+        const mainCategory = categories.find(cat => cat.id === mainCategoryId);
+        const typeValue = mainCategory ? mainCategory.slug : '';
+        
         // 서브 카테고리 정보 설정
         setFormData(prev => ({
           ...prev,
           region: regionInfo.region,
-          regionKo: regionInfo.regionKo
+          regionKo: regionInfo.regionKo,
+          type: typeValue // 메인 카테고리의 slug를 타입으로 설정
         }))
       }
     }
@@ -420,10 +459,10 @@ export default function CreatePackage() {
           duration: formData.duration,
           region: formData.region,
           regionKo: formData.regionKo,
-          region_id: 0, // 지역 ID는 0으로 설정 (직접 입력 사용)
-          category_id: formData.category_id, // 메인 카테고리 ID 
+          region_id: formData.subcategory_id || 0, // 서브 카테고리 ID를 지역 ID로 사용
+          category_id: formData.category_id, // 메인 카테고리 ID
           subcategory_id: formData.subcategory_id, // 서브 카테고리 ID
-          type: formData.type,
+          type: formData.type, // 메인 카테고리의 slug (overseas, hotel, domestic, luxury)
           rating: formData.rating,
           departure: formData.departure,
           description: formData.description,
@@ -554,7 +593,7 @@ export default function CreatePackage() {
                 ))}
               </select>
               <div className="mt-1 text-xs text-gray-500">
-                메인 카테고리를 선택하면 해당하는 서브 카테고리가 표시됩니다.
+                {formData.category_id ? '해당 메인 카테고리의 서브 카테고리를 선택하세요.' : '메인 카테고리를 먼저 선택하세요.'}
               </div>
             </div>
             

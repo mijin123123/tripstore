@@ -164,32 +164,68 @@ export default function SignupPage() {
           
           console.log('API 요청 페이로드:', apiPayload);
           
-          // 서버 API를 통해 사용자 생성 (서비스 역할 사용)
-          const response = await fetch('/api/user', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(apiPayload),
-          });
-          
-          console.log('API 응답 상태:', response.status, response.statusText);
-          
+          // 최대 3번 재시도 설정
+          let attempts = 0;
+          let success = false;
           let result;
-          try {
-            result = await response.json();
-            console.log('API 응답 데이터:', result);
-          } catch (jsonError) {
-            console.error('API 응답 JSON 파싱 오류:', jsonError);
-            throw new Error('API 응답을 처리할 수 없습니다.');
+          
+          while (attempts < 3 && !success) {
+            attempts++;
+            console.log(`API 호출 시도 ${attempts}/3...`);
+            
+            try {
+              // 서버 API를 통해 사용자 생성 (서비스 역할 사용)
+              const response = await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(apiPayload),
+              });
+              
+              console.log('API 응답 상태:', response.status, response.statusText);
+              
+              try {
+                result = await response.json();
+                console.log('API 응답 데이터:', result);
+              } catch (jsonError) {
+                console.error('API 응답 JSON 파싱 오류:', jsonError);
+                if (attempts < 3) {
+                  console.log('1초 후 재시도합니다...');
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                  continue;
+                }
+                throw new Error('API 응답을 처리할 수 없습니다.');
+              }
+              
+              if (!response.ok) {
+                console.error('API 응답 오류:', result);
+                if (attempts < 3) {
+                  console.log('1초 후 재시도합니다...');
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                  continue;
+                }
+                throw new Error(result.error || '사용자 데이터 저장에 실패했습니다.');
+              }
+              
+              // 성공!
+              console.log('사용자 데이터 저장 성공:', result.user);
+              success = true;
+              break;
+            } catch (apiError) {
+              console.error(`API 호출 실패 (시도 ${attempts}/3):`, apiError);
+              if (attempts < 3) {
+                console.log('1초 후 재시도합니다...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            }
           }
           
-          if (!response.ok) {
-            console.error('API 응답 오류:', result);
-            throw new Error(result.error || '사용자 데이터 저장에 실패했습니다.');
+          // 모든 시도 후에도 실패한 경우 로그 남김 (하지만 Auth 계정은 생성되었으므로 계속 진행)
+          if (!success) {
+            console.warn('모든 API 호출 시도 실패 - Auth 계정만 생성됨, 데이터베이스 저장 실패');
+            // Auth 계정은 이미 생성되었으므로 계속 진행
           }
-          
-          console.log('사용자 데이터 저장 성공:', result.user);
         } catch (error: any) {
           console.error('사용자 데이터 저장 API 오류:', error);
           
@@ -228,10 +264,32 @@ export default function SignupPage() {
         alert('회원가입이 완료되었습니다! 메인 페이지로 이동합니다.')
         console.log('메인 페이지로 리디렉션 중...');
         
-        // 0.5초 후에 리디렉션 (리디렉션 문제 디버깅용)
-        setTimeout(() => {
-          router.push('/')
-        }, 500)
+        try {
+          // 로컬 스토리지 검사 - 세션 체크를 위한 추가 디버깅
+          const localStorageKeys = Object.keys(localStorage);
+          console.log('localStorage keys:', localStorageKeys);
+          
+          // Supabase 세션이 저장되었는지 확인
+          const hasSupabaseSession = localStorageKeys.some(key => key.includes('supabase.auth'));
+          console.log('Supabase 세션이 로컬에 저장됨:', hasSupabaseSession);
+          
+          // 다시 세션 상태 확인
+          const { data: newSessionData } = await supabase.auth.getSession();
+          console.log('리디렉션 전 최종 세션 상태:', newSessionData?.session ? '로그인됨' : '로그인되지 않음');
+          
+          // 페이지 이동 기록 저장
+          console.log('메인 페이지로 이동 시도:', new Date().toISOString());
+          
+          // 2초 후에 리디렉션 (리디렉션 문제 디버깅용 - 시간 증가)
+          setTimeout(() => {
+            console.log('리디렉션 실행:', new Date().toISOString());
+            window.location.href = '/'; // router.push 대신 직접 URL 변경
+          }, 2000);
+        } catch (redirectError) {
+          console.error('리디렉션 오류:', redirectError);
+          // 오류 발생 시 직접 URL 이동
+          window.location.href = '/';
+        }
         return
       }
       
@@ -241,10 +299,20 @@ export default function SignupPage() {
       alert('회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.')
       console.log('로그인 페이지로 리디렉션 중...');
       
-      // 0.5초 후에 리디렉션 (리디렉션 문제 디버깅용)
-      setTimeout(() => {
-        router.push('/auth/login')
-      }, 500)
+      try {
+        // 페이지 이동 기록 저장
+        console.log('로그인 페이지로 이동 시도:', new Date().toISOString());
+        
+        // 2초 후에 리디렉션 (리디렉션 문제 디버깅용 - 시간 증가)
+        setTimeout(() => {
+          console.log('리디렉션 실행:', new Date().toISOString());
+          window.location.href = '/auth/login'; // router.push 대신 직접 URL 변경
+        }, 2000);
+      } catch (redirectError) {
+        console.error('리디렉션 오류:', redirectError);
+        // 오류 발생 시 직접 URL 이동
+        window.location.href = '/auth/login';
+      }
     } catch (error: any) {
       console.error('회원가입 오류:', error)
       let errorMessage = '회원가입에 실패했습니다. 다시 시도해주세요.'
