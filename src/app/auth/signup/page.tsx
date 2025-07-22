@@ -98,7 +98,7 @@ export default function SignupPage() {
       // Supabase 클라이언트 생성
       const supabase = createClient()
       
-      // Supabase Auth를 사용한 회원가입
+      // Supabase Auth를 사용한 회원가입 (이메일 인증 없이 자동 확인 처리)
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -107,7 +107,8 @@ export default function SignupPage() {
             name: formData.name,
             phone: formData.phone,
             marketing_agree: formData.agreeMarketing
-          }
+          },
+          emailRedirectTo: window.location.origin + '/auth/login'
         }
       })
       
@@ -131,13 +132,31 @@ export default function SignupPage() {
         
         if (userError) {
           console.error('사용자 데이터 저장 실패:', userError)
-          // 계속 진행 - Auth는 이미 생성됨
         }
+        
+        // 이메일 인증 없이 바로 로그인 처리
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password
+        })
+        
+        if (signInError) {
+          console.error('자동 로그인 실패:', signInError)
+          // 로그인 실패해도 회원가입은 완료되었으므로 로그인 페이지로 이동
+          alert('회원가입이 완료되었습니다. 로그인해주세요.')
+          router.push('/auth/login')
+          return
+        }
+        
+        // 자동 로그인 성공 시 메인 페이지로 이동
+        alert('회원가입이 완료되었습니다!')
+        router.push('/')
+        return
       }
       
-      console.log('회원가입 성공:', data);
+      console.log('회원가입 성공:', data)
       
-      // 회원가입 성공 시 로그인 페이지로 이동
+      // 회원가입은 성공했지만 자동 로그인은 실패한 경우 로그인 페이지로 이동
       alert('회원가입이 완료되었습니다. 로그인해주세요.')
       router.push('/auth/login')
     } catch (error: any) {
