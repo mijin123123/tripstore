@@ -87,7 +87,7 @@ export default function PackageDetail() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                {packageData.regionKo} 여행 패키지 목록으로
+                {packageData.region_ko} 여행 패키지 목록으로
               </Link>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">{packageData.title}</h1>
@@ -97,7 +97,7 @@ export default function PackageDetail() {
             <div className="flex items-center gap-4 text-sm flex-wrap">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
-                {packageData.regionKo}
+                {packageData.region_ko}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />

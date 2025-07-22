@@ -162,7 +162,7 @@ export default function CreatePackage() {
         setFormData(prev => ({
           ...prev,
           region: regionInfo.region,
-          region_ko: regionInfo.regionKo,
+          region_ko: regionInfo.regionKo, // 데이터베이스는 region_ko지만 매핑은 regionKo 사용
         }))
       }
       
@@ -197,7 +197,7 @@ export default function CreatePackage() {
         setFormData(prev => ({
           ...prev,
           region: typeInfo.region,
-          region_ko: typeInfo.regionKo,
+          region_ko: typeInfo.regionKo, // 데이터베이스는 region_ko지만 매핑은 regionKo 사용
         }))
       }
     }
