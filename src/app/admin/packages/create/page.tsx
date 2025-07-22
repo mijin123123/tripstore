@@ -435,7 +435,6 @@ export default function CreatePackage() {
           excluded: filteredExcluded,
           notes: filteredNotes,
           itinerary: formData.itinerary,
-          category_id: formData.category_id,
           max_people: formData.max_people,
           min_people: formData.min_people,
           is_featured: formData.is_featured
