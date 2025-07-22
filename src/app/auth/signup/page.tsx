@@ -150,27 +150,39 @@ export default function SignupPage() {
         
         try {
           console.log('3단계: 사용자 데이터 저장 API 호출 중...');
+          
+          // userId와 userData를 명확하게 준비
+          const apiPayload = {
+            userId: data.user.id,
+            userData: {
+              email: formData.email,
+              name: formData.name,
+              phone: formData.phone,
+              is_admin: false
+            }
+          };
+          
+          console.log('API 요청 페이로드:', apiPayload);
+          
           // 서버 API를 통해 사용자 생성 (서비스 역할 사용)
           const response = await fetch('/api/user', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              userId: data.user.id,
-              userData: {
-                email: formData.email,
-                name: formData.name,
-                phone: formData.phone,
-                is_admin: false
-              }
-            }),
+            body: JSON.stringify(apiPayload),
           });
           
           console.log('API 응답 상태:', response.status, response.statusText);
           
-          const result = await response.json();
-          console.log('API 응답 데이터:', result);
+          let result;
+          try {
+            result = await response.json();
+            console.log('API 응답 데이터:', result);
+          } catch (jsonError) {
+            console.error('API 응답 JSON 파싱 오류:', jsonError);
+            throw new Error('API 응답을 처리할 수 없습니다.');
+          }
           
           if (!response.ok) {
             console.error('API 응답 오류:', result);
@@ -180,8 +192,14 @@ export default function SignupPage() {
           console.log('사용자 데이터 저장 성공:', result.user);
         } catch (error: any) {
           console.error('사용자 데이터 저장 API 오류:', error);
-          alert(`사용자 데이터 저장 중 오류가 발생했습니다: ${error.message}`);
-          // 사용자 데이터 저장 실패해도 계속 진행
+          
+          // API 오류로 인해 회원가입이 완전히 실패했음을 알림
+          // 그러나 여기서는 Auth 계정은 이미 생성되었으므로 계속 진행
+          if (error.message) {
+            console.warn('사용자 데이터 저장 실패 - Auth 계정은 생성됨:', error.message);
+          }
+          
+          // Auth 계정은 생성되었으므로 로그인은 계속 진행
         }
         
         console.log('4단계: 자동 로그인 시도...');
