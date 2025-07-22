@@ -26,12 +26,16 @@ type Payment = {
     booking_date: string
     cost: number
     quantity: number | null
+    payment_status: string | null
+    special_requests: string | null
+    people_count: number | null
+    total_price: number | null
     users?: {
       name: string | null
       email: string
     }
     packages?: {
-      name: string
+      title: string
     } | null
     villas?: {
       name: string
