@@ -95,6 +95,12 @@ export default function SignupPage() {
     setIsLoading(true)
     
     try {
+      console.log('회원가입 시도 중...');
+      console.log('이메일:', formData.email);
+      console.log('이름:', formData.name);
+      console.log('전화번호:', formData.phone);
+      console.log('비밀번호 길이:', formData.password.length);
+      
       // Supabase 클라이언트 생성
       const supabase = createClient()
       

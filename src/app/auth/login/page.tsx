@@ -97,6 +97,10 @@ function LoginForm() {
     setLoginError('')
     
     try {
+      console.log('로그인 시도 중...');
+      console.log('이메일:', formData.email);
+      console.log('비밀번호 길이:', formData.password.length);
+      
       const supabase = createClient()
       
       const { data, error } = await supabase.auth.signInWithPassword({
