@@ -318,7 +318,7 @@ export default function BookingPage() {
                       <h3 className="text-lg font-semibold">{packageData.title}</h3>
                       <div className="flex items-center gap-1 text-gray-600 mt-1">
                         <MapPin className="w-4 h-4" />
-                        <span className="text-sm">{packageData.region_ko}</span>
+                        <span className="text-sm">{packageData.regionKo}</span>
                       </div>
                       <div className="mt-2 text-sm text-gray-600">
                         <div className="flex items-center mb-1">

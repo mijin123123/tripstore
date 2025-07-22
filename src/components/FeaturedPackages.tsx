@@ -98,7 +98,7 @@ const FeaturedPackages = () => {
                   
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
                     <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{pkg.region_ko}</span>
+                    <span className="text-sm">{pkg.regionKo}</span>
                   </div>
 
                   <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">

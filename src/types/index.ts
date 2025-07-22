@@ -2,7 +2,8 @@ export interface Package {
   id: string;
   type: string;
   region: string;
-  region_ko: string; // snake_case로 변경 (Supabase 컬럼명과 일치)
+  regionKo: string; // camelCase 사용 (database.types.ts와 일치시킴)
+  region_ko?: string; // 호환성을 위한 별칭
   title: string;
   price: string;
   duration: string;

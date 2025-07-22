@@ -162,7 +162,7 @@ export default function CreatePackage() {
         setFormData(prev => ({
           ...prev,
           region: regionInfo.region,
-          region_ko: regionInfo.regionKo, // 데이터베이스는 region_ko지만 매핑은 regionKo 사용
+          regionKo: regionInfo.regionKo, // camelCase 사용 (database.types.ts와 일치)
         }))
       }
       
@@ -197,7 +197,7 @@ export default function CreatePackage() {
         setFormData(prev => ({
           ...prev,
           region: typeInfo.region,
-          region_ko: typeInfo.regionKo, // 데이터베이스는 region_ko지만 매핑은 regionKo 사용
+          regionKo: typeInfo.regionKo, // camelCase 사용 (database.types.ts와 일치)
         }))
       }
     }
@@ -394,11 +394,11 @@ export default function CreatePackage() {
     }
     
     // 카테고리 선택 후에도 지역명이 없는 경우 - 타입 정보로 기본값 설정
-    if (!formData.region || !formData.region_ko) {
+    if (!formData.region || !formData.regionKo) {
       if (formData.type && typeRegionMap[formData.type]) {
         const typeInfo = typeRegionMap[formData.type];
         formData.region = typeInfo.region;
-        formData.region_ko = typeInfo.regionKo;
+        formData.regionKo = typeInfo.regionKo;
       } else {
         setError('지역 정보가 설정되지 않았습니다. 다른 카테고리를 선택해 보세요.')
         setIsSaving(false)
