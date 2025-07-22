@@ -118,20 +118,49 @@ export default function SignupPage() {
       
       // 회원 정보를 users 테이블에도 저장
       if (data.user) {
-        const { error: userError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            email: formData.email,
-            name: formData.name,
-            phone: formData.phone,
-            marketing_agree: formData.agreeMarketing,
-            is_admin: false,
-            created_at: new Date().toISOString()
-          })
+        console.log('회원가입 사용자 ID:', data.user.id);
         
-        if (userError) {
-          console.error('사용자 데이터 저장 실패:', userError)
+        // 잠시 대기하여 Supabase Auth가 처리될 시간을 줌
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // 사용자 메타데이터 확인을 위한 세션 체크
+        const { data: sessionData } = await supabase.auth.getSession();
+        console.log('현재 세션 상태:', sessionData?.session ? '로그인됨' : '로그인되지 않음');
+        
+        // 사용자 데이터 준비
+        const userData = {
+          email: formData.email,
+          name: formData.name,
+          phone: formData.phone,
+          marketing_agree: formData.agreeMarketing,
+          is_admin: false
+        };
+        
+        console.log('저장할 사용자 데이터:', userData);
+        
+        try {
+          // 서버 API를 통해 사용자 생성 (서비스 역할 사용)
+          const response = await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: data.user.id,
+              userData
+            }),
+          });
+          
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.error || '사용자 데이터 저장에 실패했습니다.');
+          }
+          
+          console.log('사용자 데이터 저장 성공:', result.user);
+        } catch (error: any) {
+          console.error('사용자 데이터 저장 API 오류:', error);
+          // 사용자 데이터 저장 실패해도 계속 진행
         }
         
         // 이메일 인증 없이 바로 로그인 처리
