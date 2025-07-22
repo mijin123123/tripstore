@@ -19,6 +19,8 @@ type Hotel = {
   address: string | null
   is_featured: boolean
   room_types: string[] | null
+  created_at: string
+  updated_at: string
   regions?: {
     name: string
     name_ko: string

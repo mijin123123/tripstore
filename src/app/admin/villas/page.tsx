@@ -20,6 +20,8 @@ type Villa = {
   bed_count: number | null
   bath_count: number | null
   is_featured: boolean
+  created_at: string
+  updated_at: string
   regions?: {
     name: string
     name_ko: string

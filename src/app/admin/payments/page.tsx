@@ -9,7 +9,7 @@ type Payment = {
   id: string
   booking_id: string | null
   amount: number
-  status: 'pending' | 'completed' | 'failed' | 'refunded'
+  status: string
   payment_method: string
   created_at: string
   updated_at: string
@@ -19,17 +19,19 @@ type Payment = {
     user_id: string
     package_id: string | null
     villa_id: string | null
-    hotel_id: string | null
-    start_date: string
-    end_date: string
+    start_date: string | null
+    end_date: string | null
     status: string
     created_at: string
+    booking_date: string
+    cost: number
+    quantity: number | null
     users?: {
-      name: string
+      name: string | null
       email: string
     }
     packages?: {
-      title: string
+      name: string
     } | null
     villas?: {
       name: string
