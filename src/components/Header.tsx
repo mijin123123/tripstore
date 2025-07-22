@@ -17,10 +17,11 @@ const Header = () => {
 
   // 로그인 상태 확인
   useEffect(() => {
+    const supabase = createClient()
+    
     const checkAuth = async () => {
       try {
         setIsLoading(true)
-        const supabase = createClient()
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
@@ -34,6 +35,7 @@ const Header = () => {
             .eq('id', session.user.id)
             .single()
           
+          console.log('사용자 데이터 조회 결과:', userData)
           setUser(userData || { email: session.user.email })
         } else {
           setUser(null)
@@ -46,7 +48,35 @@ const Header = () => {
       }
     }
     
+    // 초기 인증 상태 확인
     checkAuth()
+    
+    // 인증 상태 변화 이벤트 구독
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('인증 상태 변경:', event, session?.user?.id)
+        
+        if (event === 'SIGNED_IN' && session) {
+          // 로그인 이벤트
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          
+          console.log('로그인 후 사용자 데이터:', userData)
+          setUser(userData || { email: session.user.email })
+        } else if (event === 'SIGNED_OUT') {
+          // 로그아웃 이벤트
+          setUser(null)
+        }
+      }
+    )
+    
+    // 클린업 함수
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
   }, [])
   
   // 컴포넌트 언마운트 시 타이머 정리

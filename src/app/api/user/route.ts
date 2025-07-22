@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
   try {
@@ -12,13 +13,17 @@ export async function POST(request: Request) {
       );
     }
     
-    // 서버 사이드 Supabase 클라이언트 생성 (서비스 역할 사용)
-    const supabase = createServerClient();
+    // 서비스 롤을 사용하는 Admin Supabase 클라이언트 생성
+    // 이 방법은 RLS 우회가 가능하여 데이터 추가 권한이 확실함
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_KEY || ''
+    );
     
     console.log('서버에서 사용자 생성 시도:', userId, userData);
     
-    // users 테이블에 사용자 추가
-    const { data, error } = await supabase
+    // users 테이블에 사용자 추가 (서비스 롤 사용)
+    const { data, error } = await supabaseAdmin
       .from('users')
       .insert({
         id: userId,
