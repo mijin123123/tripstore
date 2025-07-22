@@ -387,10 +387,23 @@ export default function CreatePackage() {
     
     // 필수 입력값 검증
     if (!formData.title || !formData.price || !formData.description || 
-        !formData.duration || !formData.region || !formData.type || !formData.departure) {
+        !formData.duration || !formData.type || !formData.departure || !formData.category_id) {
       setError('필수 입력 필드를 모두 채워주세요.')
       setIsSaving(false)
       return
+    }
+    
+    // 카테고리 선택 후에도 지역명이 없는 경우 - 타입 정보로 기본값 설정
+    if (!formData.region || !formData.region_ko) {
+      if (formData.type && typeRegionMap[formData.type]) {
+        const typeInfo = typeRegionMap[formData.type];
+        formData.region = typeInfo.region;
+        formData.region_ko = typeInfo.regionKo;
+      } else {
+        setError('지역 정보가 설정되지 않았습니다. 다른 카테고리를 선택해 보세요.')
+        setIsSaving(false)
+        return
+      }
     }
     
     // 빈 배열 항목 필터링
@@ -522,6 +535,9 @@ export default function CreatePackage() {
                   </option>
                 ))}
               </select>
+              <div className="mt-1 text-xs text-gray-500">
+                카테고리 선택 시 지역명이 자동으로 설정됩니다.
+              </div>
             </div>
             
             <div>
@@ -541,21 +557,20 @@ export default function CreatePackage() {
               </select>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">지역명(영문) <span className="text-red-500">*</span></label>
+            <div className="hidden">
+              <label className="block text-sm font-medium text-gray-700 mb-1">지역명(영문)</label>
               <input
                 type="text"
                 name="region"
                 value={formData.region}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="예: europe, japan, southeast-asia"
-                required
+                placeholder="자동 설정됩니다"
               />
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">지역명(한글) <span className="text-red-500">*</span></label>
+            <div className="hidden">
+              <label className="block text-sm font-medium text-gray-700 mb-1">지역명(한글)</label>
               <input
                 type="text"
                 name="region_ko"
