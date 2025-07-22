@@ -89,9 +89,8 @@ const Reviews = () => {
               <p className="text-gray-500 mt-2">여행을 다녀오신 후 첫 번째 리뷰를 작성해 주세요!</p>
             </div>
           )}
-        </div>
-
-        {reviews.length > 5 && (
+          
+          {reviews.length > 5 && (
             <>
               {/* Navigation Buttons */}
               <button 
