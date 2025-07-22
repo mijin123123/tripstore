@@ -5,23 +5,8 @@ import { Clock, Users, Star, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { getAllPackages } from '@/lib/api'
 
-interface Package {
-  id: string
-  title: string
-  description: string
-  image: string
-  duration: string
-  min_people: number
-  max_people: number
-  rating: number
-  price: string
-  badge?: string
-  region_ko: string
-  type: string
-  region: string
-  departure: string
-  is_featured?: boolean
-}
+// API로 가져오는 Package 타입을 바로 사용
+import { Package } from '@/types'
 
 const FeaturedPackages = () => {
   const router = useRouter()

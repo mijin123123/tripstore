@@ -2,15 +2,20 @@ export interface Package {
   id: string;
   type: string;
   region: string;
-  regionKo: string;
+  region_ko: string; // snake_case로 변경 (Supabase 컬럼명과 일치)
   title: string;
   price: string;
   duration: string;
   rating: number;
   image: string;
+  images?: string[]; // 여러 이미지 URL 배열
   highlights: string[];
   departure: string;
   description: string;
+  min_people?: number; // 최소 인원
+  max_people?: number; // 최대 인원
+  category_id?: number; // 카테고리 ID
+  is_featured?: boolean; // 추천 패키지 여부
   itinerary?: {
     day: number;
     title: string;
