@@ -27,7 +27,10 @@ export async function POST(request: Request) {
       .from('users')
       .insert({
         id: userId,
-        ...userData,
+        email: userData.email,
+        name: userData.name,
+        phone: userData.phone,
+        is_admin: userData.is_admin || false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })

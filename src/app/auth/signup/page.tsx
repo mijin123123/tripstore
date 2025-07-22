@@ -132,7 +132,6 @@ export default function SignupPage() {
           email: formData.email,
           name: formData.name,
           phone: formData.phone,
-          marketing_agree: formData.agreeMarketing,
           is_admin: false
         };
         
@@ -147,7 +146,12 @@ export default function SignupPage() {
             },
             body: JSON.stringify({
               userId: data.user.id,
-              userData
+              userData: {
+                email: formData.email,
+                name: formData.name,
+                phone: formData.phone,
+                is_admin: false
+              }
             }),
           });
           
