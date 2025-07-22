@@ -103,11 +103,6 @@ const Footer = async () => {
             <h4 className="text-lg font-semibold mb-4">문의하기</h4>
             <div className="space-y-4">
               <div>
-                <p className="font-medium text-white">전화 상담</p>
-                <p className="font-medium text-gray-300">02-1234-5678</p>
-                <p className="text-sm text-gray-400">평일 09:00-18:00</p>
-              </div>
-              <div>
                 <p className="font-medium text-white">1:1 채팅 상담</p>
                 <div className="mt-2 bg-white p-2 rounded-lg w-24 h-24 flex items-center justify-center">
                   {footerSettings.footer_kakao_qr ? (
