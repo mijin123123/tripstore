@@ -14,7 +14,7 @@ type Payment = {
   created_at: string
   updated_at: string
   transaction_id: string | null
-  bookings?: {
+  bookings?: null | {
     id: string
     user_id: string
     package_id: string | null
