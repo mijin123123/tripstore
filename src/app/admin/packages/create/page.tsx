@@ -462,13 +462,27 @@ export default function CreatePackage() {
         .from('packages')
         .insert({
           // 데이터베이스 스키마에 있는 필드만 사용
-          name: formData.title,
-          price: Number(formData.price),
-          location: formData.regionKo || '',
+          id: formData.id,
+          type: formData.type,
+          region_id: formData.region_id || null,
           region: formData.region,
-          category: formData.type, // 카테고리 필드 사용
+          region_ko: formData.regionKo,
+          title: formData.title,
+          price: formData.price.toString(),
+          duration: formData.duration,
+          rating: formData.rating,
+          image: filteredImages.length > 0 ? filteredImages[0] : '',
+          highlights: filteredHighlights,
+          departure: formData.departure,
           description: formData.description,
-          image: filteredImages.length > 0 ? filteredImages[0] : null,
+          itinerary: formData.itinerary,
+          included: filteredIncluded,
+          excluded: filteredExcluded,
+          notes: filteredNotes,
+          features: filteredFeatures,
+          max_people: formData.max_people,
+          min_people: formData.min_people,
+          category_id: formData.category_id || null,
           is_featured: formData.is_featured
         })
       
