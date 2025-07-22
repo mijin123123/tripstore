@@ -161,8 +161,11 @@ export default function CreatePackage() {
   
   // 메인 카테고리 선택에 따라 서브 카테고리 필터링
   useEffect(() => {
+    console.log('카테고리 필터링:', { categoryId: formData.category_id, categoryIdType: typeof formData.category_id, subCategories })
     if (formData.category_id) {
-      const filtered = subCategories.filter(cat => cat.parent_id === formData.category_id)
+      const categoryIdNum = typeof formData.category_id === 'string' ? parseInt(formData.category_id, 10) : formData.category_id
+      const filtered = subCategories.filter(cat => cat.parent_id === categoryIdNum)
+      console.log('필터링된 서브 카테고리:', filtered)
       setFilteredSubCategories(filtered)
     } else {
       setFilteredSubCategories([])
@@ -190,10 +193,14 @@ export default function CreatePackage() {
     // 메인 카테고리 선택 시 처리
     if (name === 'category_id' && value) {
       const categoryId = parseInt(value, 10)
+      console.log('메인 카테고리 선택:', categoryId)
       
       // 선택한 카테고리 찾기
       const selectedCategory = categories.find(cat => cat.id === categoryId)
       const regionInfo = categoryRegionMap[categoryId]
+      
+      console.log('선택된 카테고리:', selectedCategory)
+      console.log('지역 정보:', regionInfo)
       
       // 서브 카테고리 ID 초기화
       setFormData(prev => ({

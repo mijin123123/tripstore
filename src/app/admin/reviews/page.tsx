@@ -31,7 +31,7 @@ export default function ReviewsManagement() {
         .select(`
           *,
           users:user_id (name, email),
-          packages:package_id (name)
+          packages:package_id (title)
         `)
         .order('created_at', { ascending: false })
       
@@ -45,7 +45,7 @@ export default function ReviewsManagement() {
         comment: item.comment,
         created_at: new Date(item.created_at).toLocaleDateString('ko-KR'),
         user_name: item.users?.name || '알 수 없음',
-        package_title: item.packages?.name || '삭제된 패키지'
+        package_title: item.packages?.title || '삭제된 패키지'
       })) || []
       
       setReviews(formattedReviews)
