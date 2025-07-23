@@ -54,20 +54,20 @@ export default function ProfilePage() {
           }
         }
         
-        // 예약 정보 가져오기 (임시로 모든 예약 표시)
-        const { data: bookingsData, error: bookingsError } = await supabase
-          .from('bookings')
-          .select(`
-            *,
-            packages (id, title, image_url, price)
-          `)
-          .order('booking_date', { ascending: false })
-        
-        if (bookingsError) {
-          console.error('예약 데이터 가져오기 오류:', bookingsError)
-        } else {
-          console.log('가져온 예약 데이터:', bookingsData)
-          setBookings(bookingsData || [])
+        // 예약 정보 가져오기 - API 사용
+        try {
+          const response = await fetch('/api/bookings');
+          if (response.ok) {
+            const result = await response.json();
+            console.log('API로 가져온 예약 데이터:', result);
+            setBookings(result.bookings || []);
+          } else {
+            console.error('예약 API 오류:', response.status);
+            setBookings([]);
+          }
+        } catch (error) {
+          console.error('예약 데이터 가져오기 실패:', error);
+          setBookings([]);
         }
         
         // 위시리스트 정보 가져오기 (임시로 비활성화)
