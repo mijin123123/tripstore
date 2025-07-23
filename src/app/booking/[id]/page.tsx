@@ -171,14 +171,20 @@ export default function BookingPage() {
     if (count < 1) count = 1;
     if (count > 10) count = 10;
     
+    // 예약자 정보는 항상 유지
     let travelers = [...bookingInfo.travelers];
     
-    // 여행자 수가 줄어들면 배열에서 제거
-    if (count < travelers.length) {
-      travelers = travelers.slice(0, count);
+    // 첫 번째 여행자(예약자)가 없으면 빈 객체로 생성
+    if (travelers.length === 0) {
+      travelers = [{ name: "", birthdate: "", gender: "", phone: "", email: "" }];
     }
     
-    // 여행자 수가 늘어나면 배열에 추가
+    // 여행자 수가 줄어들면 예약자는 유지하고 나머지만 제거
+    if (count < travelers.length) {
+      travelers = [travelers[0]]; // 예약자만 유지
+    }
+    
+    // 여행자 수만큼 배열 크기 조정 (예약자 정보는 항상 첫 번째에 유지)
     while (travelers.length < count) {
       travelers.push({ name: "", birthdate: "", gender: "", phone: "", email: "" });
     }
@@ -226,12 +232,21 @@ export default function BookingPage() {
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 폼 유효성 검사
-    const isFormValid = bookingInfo.departureDate && 
-                       bookingInfo.travelers.every(traveler => 
-                         traveler.name && traveler.birthdate && traveler.gender && 
-                         traveler.phone && traveler.email) &&
-                       bookingInfo.agreeTerms;
+    // 폼 유효성 검사 (예약자 1명만 확인)
+    const mainTraveler = bookingInfo.travelers[0];
+    let isFormValid = bookingInfo.departureDate && 
+                     mainTraveler && 
+                     mainTraveler.name && 
+                     mainTraveler.birthdate && 
+                     mainTraveler.gender && 
+                     mainTraveler.phone && 
+                     mainTraveler.email &&
+                     bookingInfo.agreeTerms;
+    
+    // 해외 여행인 경우 여권 정보도 확인
+    if ((packageData?.type === 'overseas' || packageData?.type === 'luxury') && mainTraveler) {
+      isFormValid = isFormValid && !!mainTraveler.passportNumber && !!mainTraveler.passportExpiry;
+    }
     
     if (!isFormValid) {
       alert("모든 필수 항목을 입력해주세요.");
@@ -566,120 +581,119 @@ export default function BookingPage() {
                     </div>
                   </div>
                   
-                  {/* 여행자 정보 입력 폼 */}
-                  {bookingInfo.travelers.map((traveler, index) => (
-                    <div key={index} className="mb-6 pb-6 border-b border-dashed last:border-b-0 last:pb-0 last:mb-0">
-                      <h3 className="font-medium mb-3">여행자 {index + 1}</h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            이름 <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            type="text"
-                            className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                            placeholder="여권 상의 이름 (예: 홍길동)"
-                            value={traveler.name}
-                            onChange={(e) => handleTravelerChange(index, 'name', e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            생년월일 <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            type="date"
-                            className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                            value={traveler.birthdate}
-                            onChange={(e) => handleTravelerChange(index, 'birthdate', e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            성별 <span className="text-red-500">*</span>
-                          </label>
-                          <select
-                            className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                            value={traveler.gender}
-                            onChange={(e) => handleTravelerChange(index, 'gender', e.target.value)}
-                            required
-                          >
-                            <option value="">선택</option>
-                            <option value="male">남성</option>
-                            <option value="female">여성</option>
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            휴대폰 번호 <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            type="tel"
-                            className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                            placeholder="연락 가능한 번호 (예: 010-1234-5678)"
-                            value={traveler.phone}
-                            onChange={(e) => handleTravelerChange(index, 'phone', e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            이메일 <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            type="email"
-                            className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                            placeholder="예약 확인 및 알림을 받을 이메일"
-                            value={traveler.email}
-                            onChange={(e) => handleTravelerChange(index, 'email', e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        {/* 해외 여행인 경우에만 여권 정보 입력 */}
-                        {(packageData.type === 'overseas' || packageData.type === 'luxury') && (
-                          <>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                여권 번호 <span className="text-red-500">*</span>
-                              </label>
-                              <input 
-                                type="text"
-                                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                                placeholder="여권 번호 입력"
-                                value={traveler.passportNumber || ''}
-                                onChange={(e) => handleTravelerChange(index, 'passportNumber', e.target.value)}
-                                required
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                여권 만료일 <span className="text-red-500">*</span>
-                              </label>
-                              <input 
-                                type="date"
-                                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                                value={traveler.passportExpiry || ''}
-                                onChange={(e) => handleTravelerChange(index, 'passportExpiry', e.target.value)}
-                                required
-                              />
-                              <p className="mt-1 text-xs text-gray-500">
-                                여행 종료일 기준 6개월 이상 유효기간이 남아있어야 합니다.
-                              </p>
-                            </div>
-                          </>
-                        )}
+                  {/* 예약자 정보 입력 폼 (1명만) */}
+                  <div className="mb-6">
+                    <h3 className="font-medium mb-3">예약자 정보</h3>
+                    <p className="text-sm text-gray-600 mb-4">대표 예약자의 정보를 입력해주세요. 모든 여행자를 대표하여 예약하게 됩니다.</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          이름 <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                          type="text"
+                          className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                          placeholder="여권 상의 이름 (예: 홍길동)"
+                          value={bookingInfo.travelers[0]?.name || ''}
+                          onChange={(e) => handleTravelerChange(0, 'name', e.target.value)}
+                          required
+                        />
                       </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          생년월일 <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                          type="date"
+                          className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                          value={bookingInfo.travelers[0]?.birthdate || ''}
+                          onChange={(e) => handleTravelerChange(0, 'birthdate', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          성별 <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                          value={bookingInfo.travelers[0]?.gender || ''}
+                          onChange={(e) => handleTravelerChange(0, 'gender', e.target.value)}
+                          required
+                        >
+                          <option value="">선택</option>
+                          <option value="male">남성</option>
+                          <option value="female">여성</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          휴대폰 번호 <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                          type="tel"
+                          className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                          placeholder="연락 가능한 번호 (예: 010-1234-5678)"
+                          value={bookingInfo.travelers[0]?.phone || ''}
+                          onChange={(e) => handleTravelerChange(0, 'phone', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          이메일 <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                          type="email"
+                          className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                          placeholder="예약 확인 및 알림을 받을 이메일"
+                          value={bookingInfo.travelers[0]?.email || ''}
+                          onChange={(e) => handleTravelerChange(0, 'email', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      {/* 해외 여행인 경우에만 여권 정보 입력 */}
+                      {(packageData.type === 'overseas' || packageData.type === 'luxury') && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              여권 번호 <span className="text-red-500">*</span>
+                            </label>
+                            <input 
+                              type="text"
+                              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                              placeholder="여권 번호 입력"
+                              value={bookingInfo.travelers[0]?.passportNumber || ''}
+                              onChange={(e) => handleTravelerChange(0, 'passportNumber', e.target.value)}
+                              required
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              여권 만료일 <span className="text-red-500">*</span>
+                            </label>
+                            <input 
+                              type="date"
+                              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                              value={bookingInfo.travelers[0]?.passportExpiry || ''}
+                              onChange={(e) => handleTravelerChange(0, 'passportExpiry', e.target.value)}
+                              required
+                            />
+                            <p className="mt-1 text-xs text-gray-500">
+                              여행 종료일 기준 6개월 이상 유효기간이 남아있어야 합니다.
+                            </p>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  ))}
+                  </div>
                   
                   {/* 특별 요청 사항 */}
                   <div className="mt-4">
