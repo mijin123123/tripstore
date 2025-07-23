@@ -125,30 +125,76 @@ export default function AdminBookings() {
   // 상태 업데이트 함수
   const updateBookingStatus = async (bookingId: string, newStatus: string) => {
     try {
+      console.log(`예약 ${bookingId} 상태를 ${newStatus}로 변경 시도`);
+      
+      const response = await fetch('/api/bookings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: bookingId,
+          status: newStatus
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '상태 업데이트 실패');
+      }
+
+      const result = await response.json();
+      console.log('상태 업데이트 성공:', result);
+
+      // 로컬 상태 업데이트
       setBookings(bookings.map(booking =>
         booking.id === bookingId
           ? { ...booking, status: newStatus }
           : booking
       ));
+      
       alert('예약 상태가 업데이트되었습니다.');
     } catch (error) {
       console.error('상태 업데이트 오류:', error);
-      alert('상태 업데이트에 실패했습니다.');
+      alert(`상태 업데이트에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   };
 
   // 결제 상태 업데이트 함수
   const updatePaymentStatus = async (bookingId: string, newPaymentStatus: string) => {
     try {
+      console.log(`예약 ${bookingId} 결제 상태를 ${newPaymentStatus}로 변경 시도`);
+      
+      const response = await fetch('/api/bookings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: bookingId,
+          payment_status: newPaymentStatus
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '결제 상태 업데이트 실패');
+      }
+
+      const result = await response.json();
+      console.log('결제 상태 업데이트 성공:', result);
+
+      // 로컬 상태 업데이트
       setBookings(bookings.map(booking =>
         booking.id === bookingId
           ? { ...booking, payment_status: newPaymentStatus }
           : booking
       ));
+      
       alert('결제 상태가 업데이트되었습니다.');
     } catch (error) {
       console.error('결제 상태 업데이트 오류:', error);
-      alert('결제 상태 업데이트에 실패했습니다.');
+      alert(`결제 상태 업데이트에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   };
 

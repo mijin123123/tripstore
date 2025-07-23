@@ -145,3 +145,69 @@ export async function GET(request: Request) {
     )
   }
 }
+
+export async function PATCH(request: Request) {
+  try {
+    console.log('예약 업데이트 API 호출됨')
+    
+    const body = await request.json()
+    console.log('받은 업데이트 데이터:', JSON.stringify(body, null, 2))
+
+    // 필수 필드 검증
+    if (!body.id) {
+      return NextResponse.json(
+        { error: '예약 ID는 필수입니다.' },
+        { status: 400 }
+      )
+    }
+
+    // 업데이트할 필드만 추출
+    const updateData: any = {}
+    if (body.status !== undefined) updateData.status = body.status
+    if (body.payment_status !== undefined) updateData.payment_status = body.payment_status
+    if (body.special_requests !== undefined) updateData.special_requests = body.special_requests
+
+    console.log('업데이트할 데이터:', JSON.stringify(updateData, null, 2))
+
+    // Supabase에서 예약 업데이트
+    const { data, error } = await supabase
+      .from('bookings')
+      .update(updateData)
+      .eq('id', body.id)
+      .select()
+
+    if (error) {
+      console.error('데이터베이스 업데이트 오류:', error)
+      return NextResponse.json(
+        { error: '예약 업데이트 중 오류가 발생했습니다.', details: error.message },
+        { status: 500 }
+      )
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { error: '해당 예약을 찾을 수 없습니다.' },
+        { status: 404 }
+      )
+    }
+
+    console.log('업데이트 성공:', data[0])
+    return NextResponse.json(
+      { 
+        message: '예약이 성공적으로 업데이트되었습니다.',
+        booking: data[0]
+      },
+      { status: 200 }
+    )
+
+  } catch (error) {
+    console.error('예약 업데이트 API 오류:', error)
+    return NextResponse.json(
+      { 
+        error: '서버 오류가 발생했습니다.', 
+        details: error instanceof Error ? error.message : String(error)
+      },
+      { status: 500 }
+    )
+  }
+}
