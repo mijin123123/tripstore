@@ -358,7 +358,6 @@ export default function BookingDetailPage() {
                   </h3>
                   <div className="bg-blue-50 rounded-lg p-4 space-y-3">
                     <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                      <MessageCircle className="h-4 w-4 mr-2" />
                       <span>1:1 채팅문의</span>
                     </button>
                     <div className="flex items-center text-sm text-blue-700 justify-center">

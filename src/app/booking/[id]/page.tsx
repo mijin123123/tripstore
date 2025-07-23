@@ -46,7 +46,7 @@ export default function BookingPage() {
     travelers: [{ name: "", birthdate: "", gender: "", phone: "", email: "" }],
     specialRequests: "",
     agreeTerms: false,
-    bankAccount: "신한은행 123-456-789012 (주)트립스토어"
+    bankAccount: "로딩 중..."
   });
   
   // 패키지에 포함된 추천 출발일 (동적으로 설정될 예정)
@@ -145,6 +145,47 @@ export default function BookingPage() {
     
     fetchPackage();
   }, [params]);
+
+  // 사이트 설정에서 계좌정보 가져오기
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        console.log('사이트 설정 조회 시작...')
+        const response = await fetch('/api/site-settings')
+        
+        if (!response.ok) {
+          throw new Error('사이트 설정을 불러오는데 실패했습니다.')
+        }
+
+        const result = await response.json()
+        console.log('사이트 설정 조회 결과:', result)
+        
+        // payment 그룹에서 bank_account 설정 찾기
+        if (result.grouped && result.grouped.payment && result.grouped.payment.bank_account) {
+          setBookingInfo(prev => ({
+            ...prev,
+            bankAccount: result.grouped.payment.bank_account
+          }))
+          console.log('계좌정보 업데이트됨:', result.grouped.payment.bank_account)
+        } else {
+          console.log('계좌정보를 찾을 수 없음, 기본값 사용')
+          setBookingInfo(prev => ({
+            ...prev,
+            bankAccount: "신한은행 123-456-789012 (주)트립스토어"
+          }))
+        }
+      } catch (error) {
+        console.error('사이트 설정 조회 오류:', error)
+        // 오류 시 기본값 사용
+        setBookingInfo(prev => ({
+          ...prev,
+          bankAccount: "신한은행 123-456-789012 (주)트립스토어"
+        }))
+      }
+    }
+
+    fetchSiteSettings()
+  }, [])
   
   // 여행자 정보 변경 핸들러
   const handleTravelerChange = (index: number, field: keyof Traveler, value: string) => {
@@ -741,7 +782,7 @@ export default function BookingPage() {
                           <p className="font-medium text-gray-800">{bookingInfo.bankAccount}</p>
                         </div>
                         <p className="text-xs text-gray-500">
-                          입금 후 1~2일 내에 예약 확정 문자가 발송됩니다. 나머지 금액은 출발 14일 전까지 입금해 주세요.
+                          입금 후 1~2일 내에 예약 확정 문자가 발송됩니다.
                         </p>
                       </div>
                     </div>
@@ -824,9 +865,7 @@ export default function BookingPage() {
                   <div className="flex items-start">
                     <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 mr-2" />
                     <div className="text-xs text-blue-800">
-                      <p className="mb-1">예약금 10%(총 {formatPrice(Math.round(calculateTotalAmount() * 0.1))})을 입금하시면 예약이 진행됩니다.</p>
-                      <p>나머지 금액은 출발 14일 전까지 입금해 주세요.</p>
-                      <p className="mt-1">문의사항은 고객센터(02-1234-5678)로 연락주세요.</p>
+                      <p>예약 시 유의사항을 확인해 주세요.</p>
                     </div>
                   </div>
                 </div>
