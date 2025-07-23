@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
+
+// Supabase 클라이언트 생성
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ihhnvmzizaiokrfkatwt.supabase.co'
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImloaG52bXppemFpb2tyZmthdHd0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA4ODU5OSwiZXhwIjoyMDY4NjY0NTk5fQ.C9CmGqD7p4n6BjsLX_wbUoTvpyLKWWpOJOmCnFhE4zQ'
 
 export async function POST(request: Request) {
   try {
@@ -16,10 +20,33 @@ export async function POST(request: Request) {
 
     console.log('예약 요청 데이터:', body)
 
-    const supabase = createServerClient()
+    // Service role key로 클라이언트 생성 (RLS 우회)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
-    // 임시 사용자 ID 생성 (실제로는 인증된 사용자 ID를 사용해야 함)
+    // 임시 사용자 ID 생성
     const tempUserId = userId || '00000000-0000-0000-0000-000000000000'
+
+    // 먼저 bookings 테이블이 존재하는지 확인
+    const { data: tableExists, error: tableError } = await supabase
+      .from('bookings')
+      .select('id')
+      .limit(1)
+
+    if (tableError && tableError.message.includes('relation "public.bookings" does not exist')) {
+      console.error('bookings 테이블이 존재하지 않습니다.')
+      return NextResponse.json(
+        { 
+          error: 'bookings 테이블이 존재하지 않습니다. Supabase SQL Editor에서 테이블을 생성해주세요.',
+          sql: 'database/create-simple-bookings.sql 파일을 실행하세요.'
+        },
+        { status: 500 }
+      )
+    }
 
     // 예약 데이터 삽입
     const { data, error } = await supabase
@@ -34,7 +61,7 @@ export async function POST(request: Request) {
           cost: totalAmount,
           status: 'pending',
           payment_status: 'pending',
-          special_requests: specialRequests,
+          special_requests: specialRequests || '',
           people_count: travelerCount,
           total_price: totalAmount,
           traveler_info: JSON.stringify(travelerInfo) // 여행자 정보를 JSON으로 저장
@@ -63,7 +90,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('예약 API 오류:', error)
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다.' },
+      { error: '서버 오류가 발생했습니다.', details: String(error) },
       { status: 500 }
     )
   }
@@ -71,7 +98,13 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const supabase = createServerClient()
+    // Service role key로 클라이언트 생성 (RLS 우회)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
     const { data, error } = await supabase
       .from('bookings')
