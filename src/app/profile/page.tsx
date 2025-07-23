@@ -313,7 +313,7 @@ export default function ProfilePage() {
                               
                             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end space-x-2">
                               <Link
-                                href={`/booking/${booking.id}`}
+                                href={`/booking/detail/${booking.id}`}
                                 className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
                               >
                                 상세보기
