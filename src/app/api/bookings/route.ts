@@ -42,6 +42,7 @@ export async function POST(request: Request) {
     const insertData = {
       user_id: '00000000-0000-0000-0000-000000000000', // 기본 UUID
       package_id: body.packageId || 'unknown',
+      booking_date: new Date().toISOString(), // 현재 시간
       total_price: parseFloat(body.totalPrice || body.cost) || 0
     }
 
