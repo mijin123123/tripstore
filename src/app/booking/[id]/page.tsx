@@ -229,7 +229,7 @@ export default function BookingPage() {
   };
   
   // 예약 제출 핸들러
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // 폼 유효성 검사 (예약자 1명만 확인)
@@ -248,9 +248,40 @@ export default function BookingPage() {
       return;
     }
     
-    // 여기에 예약 제출 로직 추가 (API 호출 등)
-    alert("예약이 완료되었습니다. 예약 확인 메일이 곧 발송됩니다.");
-    router.push(`/`); // 홈 페이지로 이동
+    try {
+      // 예약 데이터 준비
+      const bookingData = {
+        packageId: packageData?.id,
+        departureDate: bookingInfo.departureDate,
+        travelerCount: bookingInfo.travelerCount,
+        travelerInfo: mainTraveler, // 예약자 정보만 저장
+        specialRequests: bookingInfo.specialRequests,
+        totalAmount: calculateTotalAmount(),
+        userId: null // 현재는 인증 시스템이 없으므로 null
+      };
+
+      // API 호출하여 예약 생성
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("예약이 완료되었습니다. 예약 확인 메일이 곧 발송됩니다.");
+        router.push(`/`); // 홈 페이지로 이동
+      } else {
+        console.error('예약 실패:', result);
+        alert(`예약 중 오류가 발생했습니다: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('예약 API 호출 오류:', error);
+      alert("예약 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
   
   // 금액 계산 함수
