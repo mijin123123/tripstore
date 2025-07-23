@@ -234,19 +234,14 @@ export default function BookingPage() {
     
     // 폼 유효성 검사 (예약자 1명만 확인)
     const mainTraveler = bookingInfo.travelers[0];
-    let isFormValid = bookingInfo.departureDate && 
-                     mainTraveler && 
-                     mainTraveler.name && 
-                     mainTraveler.birthdate && 
-                     mainTraveler.gender && 
-                     mainTraveler.phone && 
-                     mainTraveler.email &&
-                     bookingInfo.agreeTerms;
-    
-    // 해외 여행인 경우 여권 정보도 확인
-    if ((packageData?.type === 'overseas' || packageData?.type === 'luxury') && mainTraveler) {
-      isFormValid = isFormValid && !!mainTraveler.passportNumber && !!mainTraveler.passportExpiry;
-    }
+    const isFormValid = bookingInfo.departureDate && 
+                       mainTraveler && 
+                       mainTraveler.name && 
+                       mainTraveler.birthdate && 
+                       mainTraveler.gender && 
+                       mainTraveler.phone && 
+                       mainTraveler.email &&
+                       bookingInfo.agreeTerms;
     
     if (!isFormValid) {
       alert("모든 필수 항목을 입력해주세요.");
@@ -657,41 +652,6 @@ export default function BookingPage() {
                           required
                         />
                       </div>
-                      
-                      {/* 해외 여행인 경우에만 여권 정보 입력 */}
-                      {(packageData.type === 'overseas' || packageData.type === 'luxury') && (
-                        <>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              여권 번호 <span className="text-red-500">*</span>
-                            </label>
-                            <input 
-                              type="text"
-                              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                              placeholder="여권 번호 입력"
-                              value={bookingInfo.travelers[0]?.passportNumber || ''}
-                              onChange={(e) => handleTravelerChange(0, 'passportNumber', e.target.value)}
-                              required
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              여권 만료일 <span className="text-red-500">*</span>
-                            </label>
-                            <input 
-                              type="date"
-                              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                              value={bookingInfo.travelers[0]?.passportExpiry || ''}
-                              onChange={(e) => handleTravelerChange(0, 'passportExpiry', e.target.value)}
-                              required
-                            />
-                            <p className="mt-1 text-xs text-gray-500">
-                              여행 종료일 기준 6개월 이상 유효기간이 남아있어야 합니다.
-                            </p>
-                          </div>
-                        </>
-                      )}
                     </div>
                   </div>
                   
