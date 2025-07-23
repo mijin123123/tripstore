@@ -90,9 +90,9 @@ export default function PackageDetail() {
                 {packageData.regionKo} 여행 패키지 목록으로
               </Link>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{packageData.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{packageData.title || packageData.name}</h1>
             <p className="text-xl mb-6 max-w-3xl">
-              {packageData.description.split('.')[0]}.
+              {packageData.description ? packageData.description.split('.')[0] + '.' : '패키지 상세 정보가 준비 중입니다.'}
             </p>
             <div className="flex items-center gap-4 text-sm flex-wrap">
               <span className="flex items-center gap-1">
@@ -133,11 +133,15 @@ export default function PackageDetail() {
               </p>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {packageData.highlights.map((highlight, index) => (
+                {packageData.highlights ? packageData.highlights.map((highlight, index) => (
                   <div key={index} className="bg-blue-50 rounded-lg p-3 text-center">
                     <span className="block text-blue-700 font-medium">{highlight}</span>
                   </div>
-                ))}
+                )) : (
+                  <div className="col-span-full text-center text-gray-500">
+                    하이라이트 정보가 준비 중입니다.
+                  </div>
+                )}
               </div>
             </section>
 
@@ -383,11 +387,19 @@ export default function PackageDetail() {
                 <div className="mb-5">
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-medium">총액</span>
-                    <span className="text-xl font-bold text-blue-700">{packageData.price}원</span>
+                    <span className="text-xl font-bold text-blue-700">
+                      {typeof packageData.price === 'number' 
+                        ? packageData.price.toLocaleString() 
+                        : packageData.price}원
+                    </span>
                   </div>
                   <div className="flex justify-between items-center text-xs text-gray-500">
                     <span>예약금</span>
-                    <span>{parseInt(packageData.price.replace(/,/g, '')) * 0.1}원</span>
+                    <span>
+                      {(typeof packageData.price === 'string' 
+                        ? parseInt((packageData.price || "0").replace(/,/g, ''))
+                        : packageData.price) * 0.1}원
+                    </span>
                   </div>
                 </div>
                 

@@ -17,9 +17,20 @@ const FeaturedPackages = () => {
     async function fetchPackages() {
       try {
         const allPackages = await getAllPackages()
-        // 추천 패키지만 필터링
-        const featuredPackages = allPackages.filter(pkg => pkg.is_featured)
-        setPackages(featuredPackages)
+        // 추천 패키지만 필터링 (is_featured가 명시적으로 true인 패키지)
+        console.log('모든 패키지:', allPackages.length, '개')
+        console.log('패키지 is_featured 샘플:', allPackages.map(pkg => ({ id: pkg.id, is_featured: pkg.is_featured })))
+        
+        const featuredPackages = allPackages.filter(pkg => pkg.is_featured === true)
+        console.log('추천 패키지:', featuredPackages.length, '개')
+        
+        // 데이터가 없으면 임시로 최소 3개의 패키지를 표시 (테스트용)
+        if (featuredPackages.length === 0 && allPackages.length > 0) {
+          setPackages(allPackages.slice(0, 3))
+          console.log('추천 패키지가 없어 상위 3개 패키지를 표시합니다')
+        } else {
+          setPackages(featuredPackages)
+        }
       } catch (error) {
         console.error('패키지를 가져오는 데 실패했습니다:', error)
       } finally {
@@ -87,7 +98,7 @@ const FeaturedPackages = () => {
                   />
                   <div className="absolute top-4 right-4">
                     <span className="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      {pkg.type === 'overseas' ? '해외' : pkg.type === 'domestic' ? '국내' : pkg.type === 'luxury' ? '럭셔리' : '호텔'}
+                      {pkg.category === 'overseas' ? '해외' : pkg.category === 'domestic' ? '국내' : pkg.category === 'luxury' ? '럭셔리' : '패키지'}
                     </span>
                   </div>
                 </div>
@@ -98,33 +109,33 @@ const FeaturedPackages = () => {
                   
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
                     <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{pkg.regionKo}</span>
+                    <span className="text-sm">{pkg.regionKo || pkg.region || '지역 정보 없음'}</span>
                   </div>
 
                   <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
-                    {pkg.description}
+                    {pkg.description || "패키지 상세 정보가 준비 중입니다."}
                   </p>
 
                   {/* Details */}
                   <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>{pkg.duration}</span>
+                      <span>{pkg.duration || "준비중"}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
-                      <span>최대 {pkg.max_people}명</span>
+                      <span>최대 {pkg.max_people || 2}명</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span>{pkg.rating}</span>
+                      <span>{pkg.rating || 5}</span>
                     </div>
                   </div>
 
                   {/* Price */}
                   <div className="flex justify-between items-center">
                     <div className="text-xl font-bold text-blue-500">
-                      {parseInt(pkg.price).toLocaleString()}
+                      {(typeof pkg.price === 'string' ? parseInt(pkg.price) : pkg.price).toLocaleString()}
                       <span className="text-xs text-gray-500 ml-1">원</span>
                     </div>
                     <button 

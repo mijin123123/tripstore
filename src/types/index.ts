@@ -1,22 +1,25 @@
 export interface Package {
   id: string;
-  type: string;
-  region: string;
-  regionKo: string; // camelCase 사용 (database.types.ts와 일치시킴)
+  type?: string;
+  category?: string; // 데이터베이스 스키마에 있는 category 필드
+  region?: string;
+  regionKo?: string; // camelCase 사용 (database.types.ts와 일치시킴)
   region_ko?: string; // 호환성을 위한 별칭
-  title: string;
-  price: string;
-  duration: string;
-  rating: number;
-  image: string;
+  title?: string;
+  name?: string; // 데이터베이스 스키마에 있는 name 필드
+  price: number | string;
+  duration?: string;
+  rating?: number;
+  image?: string;
   images?: string[]; // 여러 이미지 URL 배열
-  highlights: string[];
-  departure: string;
-  description: string;
+  highlights?: string[];
+  departure?: string;
+  description?: string;
   min_people?: number; // 최소 인원
   max_people?: number; // 최대 인원
   category_id?: number; // 카테고리 ID
   is_featured?: boolean; // 추천 패키지 여부
+  location?: string; // 데이터베이스 스키마에 있는 location 필드
   itinerary?: {
     day: number;
     title: string;

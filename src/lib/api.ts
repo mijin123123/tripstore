@@ -4,16 +4,40 @@ import { Package, Villa, PackageTable, VillaTable } from '@/types';
 // 모든 패키지 가져오기
 export async function getAllPackages(): Promise<Package[]> {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from('packages')
-    .select('*');
+  console.log('Supabase 클라이언트 생성');
   
-  if (error) {
-    console.error('패키지를 가져오는 중 오류 발생:', error);
+  try {
+    const { data, error } = await supabase
+      .from('packages')
+      .select('*');
+    
+    if (error) {
+      console.error('패키지를 가져오는 중 오류 발생:', error);
+      return [];
+    }
+    
+    // is_featured 필드 확인
+    console.log(`총 ${data?.length || 0}개의 패키지를 가져왔습니다.`);
+    if (data && data.length > 0) {
+      console.log('첫 번째 패키지 데이터 샘플:', {
+        id: data[0].id,
+        name: data[0].name,
+        is_featured: data[0].is_featured
+      });
+    }
+    
+    // 데이터베이스 스키마와 UI 간의 필드 매핑
+    const mappedData = data?.map(pkg => ({
+      ...pkg,
+      title: pkg.name, // name 필드를 title로 매핑
+      regionKo: pkg.region, // region 필드를 regionKo로 매핑
+    })) || [];
+    
+    return mappedData as any;
+  } catch (err) {
+    console.error('API 호출 중 예외 발생:', err);
     return [];
   }
-  
-  return data as any;
 }
 
 // 특정 타입과 지역의 패키지 가져오기
