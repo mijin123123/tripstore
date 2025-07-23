@@ -1,7 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'n      catch (error) {
+        console.error('관리자 확인 중 오류:', error)
+        if (!mounted) return;
+        setIsLoading(false)
+        router.push('/auth/login?redirect=/admin')
+      }
+    }
+
+    checkAdmin()
+    
+    return () => {
+      mounted = false
+    }n'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 import { 
@@ -27,7 +39,11 @@ export default function AdminLayout({
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
+    let mounted = true;
+    
     const checkAdmin = async () => {
+      if (!mounted) return;
+      
       try {
         setIsLoading(true)
         const supabase = createClient()
@@ -35,7 +51,7 @@ export default function AdminLayout({
         // 먼저 현재 세션을 확인
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        console.log('세션 확인 시도:', session ? '세션 있음' : '세션 없음')
+        if (!mounted) return;
         
         if (sessionError) {
           console.error('세션 확인 오류:', sessionError)
