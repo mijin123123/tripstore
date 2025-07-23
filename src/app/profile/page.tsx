@@ -275,70 +275,54 @@ export default function ProfilePage() {
                 {bookings.length > 0 ? (
                   <div className="space-y-6">
                     {bookings.map((booking) => {
-                      // 예약 종류에 따라 데이터 결정
-                      const item = booking.packages || booking.hotels || booking.villas
-                      const itemType = booking.packages ? '패키지' : booking.hotels ? '호텔' : '빌라'
-                      const title = item?.title || item?.name || '이름 정보 없음'
-                      const imageUrl = item?.image_url || '/images/placeholder.jpg'
-                      const price = item?.price || item?.price_per_night || 0
-                      
                       return (
                         <div key={booking.id} className="border rounded-lg overflow-hidden">
-                          <div className="flex flex-col sm:flex-row">
-                            <div className="sm:w-1/3 relative h-48 sm:h-auto">
-                              <Image
-                                src={imageUrl}
-                                alt={title}
-                                className="object-cover"
-                                fill
-                              />
+                          <div className="p-4 sm:p-6">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <span className="text-xs font-medium text-gray-500">패키지</span>
+                                <h2 className="text-xl font-bold">패키지 ID: {booking.package_id}</h2>
+                              </div>
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(booking.status)}`}>
+                                {getStatusText(booking.status)}
+                              </span>
                             </div>
-                            <div className="sm:w-2/3 p-4 sm:p-6">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <span className="text-xs font-medium text-gray-500">{itemType}</span>
-                                  <h2 className="text-xl font-bold">{title}</h2>
-                                </div>
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(booking.status)}`}>
-                                  {getStatusText(booking.status)}
-                                </span>
-                              </div>
                               
-                              <div className="mb-4">
-                                <div className="flex items-center text-sm text-gray-600 mb-2">
-                                  <CalendarDays className="h-4 w-4 mr-2" />
-                                  {new Date(booking.check_in_date).toLocaleDateString()} ~ {new Date(booking.check_out_date).toLocaleDateString()}
-                                </div>
-                                <div className="flex items-center text-sm text-gray-600">
-                                  <MapPin className="h-4 w-4 mr-2" />
-                                  {booking.destination || item?.location || '장소 정보 없음'}
-                                </div>
+                            <div className="mb-4">
+                              <div className="flex items-center text-sm text-gray-600 mb-2">
+                                <CalendarDays className="h-4 w-4 mr-2" />
+                                {booking.start_date ? new Date(booking.start_date).toLocaleDateString() : '출발일 미정'} 
+                                {booking.end_date && ` ~ ${new Date(booking.end_date).toLocaleDateString()}`}
                               </div>
+                              <div className="flex items-center text-sm text-gray-600">
+                                <MapPin className="h-4 w-4 mr-2" />
+                                {booking.destination || '목적지 정보 없음'}
+                              </div>
+                            </div>
                               
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <span className="text-sm text-gray-500">예약일</span>
-                                  <p className="text-sm">{new Date(booking.created_at).toLocaleDateString()}</p>
-                                </div>
-                                <div className="text-right">
-                                  <span className="text-sm text-gray-500">금액</span>
-                                  <p className="text-lg font-bold">₩{(booking.total_price || price).toLocaleString()}</p>
-                                </div>
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <span className="text-sm text-gray-500">예약일</span>
+                                <p className="text-sm">{new Date(booking.created_at).toLocaleDateString()}</p>
                               </div>
+                              <div className="text-right">
+                                <span className="text-sm text-gray-500">금액</span>
+                                <p className="text-lg font-bold">₩{booking.total_price.toLocaleString()}</p>
+                              </div>
+                            </div>
                               
-                              <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end space-x-2">
-                                <Link
-                                  href={`/booking/${booking.id}`}
-                                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
-                                >
-                                  상세보기
-                                </Link>
-                                {booking.status === 'pending' && (
-                                  <button className="px-4 py-2 border border-red-600 text-red-600 text-sm rounded-md hover:bg-red-50 transition-colors">
-                                    취소하기
-                                  </button>
-                                )}
-                              </div>
+                            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end space-x-2">
+                              <Link
+                                href={`/booking/${booking.id}`}
+                                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                              >
+                                상세보기
+                              </Link>
+                              {booking.status === 'pending' && (
+                                <button className="px-4 py-2 border border-red-600 text-red-600 text-sm rounded-md hover:bg-red-50 transition-colors">
+                                  취소하기
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
