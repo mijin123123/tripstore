@@ -186,10 +186,10 @@ export default function EditPackage() {
           // 폼 데이터 설정 (데이터베이스에 없는 필드는 기본값 설정)
           setFormData({
             id: pkg.id || '',
-            name: pkg.name || '',
+            name: pkg.title || '', // 데이터베이스의 title 필드를 name으로 매핑
             price: pkg.price || 0,
             region: pkg.region || '',
-            regionKo: '', // 나중에 매핑
+            regionKo: pkg.region_ko || '', // 데이터베이스의 region_ko 필드 사용
             region_id: 0, // 나중에 설정
             category_id: 0, // 나중에 설정
             subcategory_id: 0, // 나중에 설정
@@ -197,7 +197,7 @@ export default function EditPackage() {
             image: pkg.image || '',
             highlights: Array.isArray(pkg.highlights) ? pkg.highlights : [''],
             departure: pkg.departure || '',
-            type: pkg.type || pkg.category || '',
+            type: pkg.type || '', // 데이터베이스의 type 필드 사용
             min_people: pkg.min_people || 1,
             max_people: pkg.max_people || 10,
             itinerary: Array.isArray(pkg.itinerary) ? pkg.itinerary : [{
@@ -219,9 +219,9 @@ export default function EditPackage() {
           })
           
           // 지역 및 카테고리 설정
-          if (packageData.category) {
-            // 카테고리로 메인 카테고리 찾기
-            const mainType = packageData.category;
+          if (pkg.type) {
+            // type으로 메인 카테고리 찾기
+            const mainType = pkg.type;
             
             // 메인 카테고리에 대한 ID 설정
             let mainCategoryId = 0;
@@ -241,9 +241,9 @@ export default function EditPackage() {
               setFilteredSubCategories(subs)
               
               // 지역으로 서브 카테고리 찾기
-              if (packageData.region) {
+              if (pkg.region) {
                 const subCat = Object.entries(categoryRegionMap).find(([id, info]) => {
-                  return info.region === packageData.region && Number(id) > 10 && Math.floor(Number(id) / 10) === mainCategoryId
+                  return info.region === pkg.region && Number(id) > 10 && Math.floor(Number(id) / 10) === mainCategoryId
                 })
                 
                 if (subCat) {

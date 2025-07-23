@@ -8,11 +8,11 @@ import { PlusCircle, Search, Edit, Trash2, Star, Eye } from 'lucide-react'
 
 type Package = {
   id: string
-  name: string // title 대신 name 필드 사용
+  title: string // 데이터베이스의 title 필드와 일치
   region: string | null
-  location: string // region_ko 대신 location 필드 사용
-  price: number // 데이터베이스에서는 number 타입
-  category?: string | null // type 대신 category 필드 사용
+  region_ko: string | null // 데이터베이스의 region_ko 필드 사용
+  price: string // 데이터베이스에서는 TEXT 타입
+  type?: string | null // 데이터베이스의 type 필드 사용
   description?: string | null
   image: string | null
   is_featured: boolean
@@ -53,8 +53,8 @@ export default function AdminPackages() {
   }, [])
   
   const filteredPackages = packages.filter(pkg => 
-    (pkg.name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (pkg.location?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (pkg.title?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (pkg.region_ko?.toLowerCase().includes(searchQuery.toLowerCase())) ||
     pkg.id.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
@@ -161,7 +161,7 @@ export default function AdminPackages() {
                         <div className="h-12 w-16 relative overflow-hidden rounded-md">
                           <Image
                             src={pkg.image}
-                            alt={pkg.name || '패키지 이미지'}
+                            alt={pkg.title || '패키지 이미지'}
                             fill
                             style={{ objectFit: "cover" }}
                           />
@@ -169,8 +169,8 @@ export default function AdminPackages() {
                       )}
                     </td>
                     <td className="px-6 py-3 font-mono text-sm">{pkg.id}</td>
-                    <td className="px-6 py-3 font-medium">{pkg.name}</td>
-                    <td className="px-6 py-3">{pkg.location}</td>
+                    <td className="px-6 py-3 font-medium">{pkg.title}</td>
+                    <td className="px-6 py-3">{pkg.region_ko}</td>
                     <td className="px-6 py-3">{pkg.price}</td>
                     <td className="px-6 py-3">{pkg.start_date && pkg.end_date ? `${pkg.start_date} ~ ${pkg.end_date}` : '기간 미지정'}</td>
                     <td className="px-6 py-3">
@@ -181,7 +181,7 @@ export default function AdminPackages() {
                     </td>
                     <td className="px-6 py-3">
                       <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
-                        {pkg.category || '분류 없음'}
+                        {pkg.type || '분류 없음'}
                       </span>
                     </td>
                     <td className="px-6 py-3">
