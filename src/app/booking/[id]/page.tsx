@@ -160,13 +160,15 @@ export default function BookingPage() {
         const result = await response.json()
         console.log('사이트 설정 조회 결과:', result)
         
-        // payment 그룹에서 bank_account 설정 찾기
-        if (result.grouped && result.grouped.payment && result.grouped.payment.bank_account) {
+        // payment 객체에서 계좌정보 가져오기
+        if (result.payment) {
+          const bankInfo = `${result.payment.payment_bank_name} ${result.payment.payment_account_number} ${result.payment.payment_account_holder}`
+          
           setBookingInfo(prev => ({
             ...prev,
-            bankAccount: result.grouped.payment.bank_account
+            bankAccount: bankInfo
           }))
-          console.log('계좌정보 업데이트됨:', result.grouped.payment.bank_account)
+          console.log('계좌정보 업데이트됨:', bankInfo)
         } else {
           console.log('계좌정보를 찾을 수 없음, 기본값 사용')
           setBookingInfo(prev => ({
