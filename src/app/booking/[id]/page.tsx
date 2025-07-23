@@ -159,6 +159,8 @@ export default function BookingPage() {
 
         const result = await response.json()
         console.log('사이트 설정 조회 결과:', result)
+        console.log('result.payment 존재:', !!result.payment)
+        console.log('result.settings 존재:', !!result.settings)
         
         // payment 객체에서 계좌정보 가져오기
         if (result.payment) {
@@ -169,6 +171,26 @@ export default function BookingPage() {
             bankAccount: bankInfo
           }))
           console.log('계좌정보 업데이트됨:', bankInfo)
+        } else if (result.settings) {
+          // settings 배열에서 payment 관련 정보 찾기
+          const paymentBankName = result.settings.find(s => s.setting_key === 'payment_bank_name')?.setting_value
+          const paymentAccountNumber = result.settings.find(s => s.setting_key === 'payment_account_number')?.setting_value  
+          const paymentAccountHolder = result.settings.find(s => s.setting_key === 'payment_account_holder')?.setting_value
+          
+          if (paymentBankName && paymentAccountNumber && paymentAccountHolder) {
+            const bankInfo = `${paymentBankName} ${paymentAccountNumber} ${paymentAccountHolder}`
+            setBookingInfo(prev => ({
+              ...prev,
+              bankAccount: bankInfo
+            }))
+            console.log('설정 배열에서 계좌정보 업데이트됨:', bankInfo)
+          } else {
+            console.log('설정 배열에서 계좌정보를 찾을 수 없음, 기본값 사용')
+            setBookingInfo(prev => ({
+              ...prev,
+              bankAccount: "신한은행 123-456-789012 (주)트립스토어"
+            }))
+          }
         } else {
           console.log('계좌정보를 찾을 수 없음, 기본값 사용')
           setBookingInfo(prev => ({
