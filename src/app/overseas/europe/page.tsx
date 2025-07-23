@@ -15,7 +15,10 @@ export default function EuropePage() {
     const fetchPackages = async () => {
       try {
         setIsLoading(true);
+        console.log('유럽 페이지: 패키지 조회 시작 (type: overseas, region: europe)');
         const packages = await getPackagesByTypeAndRegion('overseas', 'europe');
+        console.log('유럽 페이지: 조회된 패키지 개수:', packages.length);
+        console.log('유럽 페이지: 조회된 패키지 목록:', packages);
         setEuropePackages(packages);
       } catch (error) {
         console.error('유럽 패키지를 가져오는데 실패했습니다:', error);

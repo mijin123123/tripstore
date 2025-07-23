@@ -42,6 +42,8 @@ export async function getAllPackages(): Promise<Package[]> {
 // 특정 타입과 지역의 패키지 가져오기
 export async function getPackagesByTypeAndRegion(type: string, region: string): Promise<Package[]> {
   const supabase = createClient();
+  console.log(`API: 패키지 조회 - type: "${type}", region: "${region}"`);
+  
   const { data, error } = await supabase
     .from('packages')
     .select('*')
@@ -53,7 +55,21 @@ export async function getPackagesByTypeAndRegion(type: string, region: string): 
     return [];
   }
   
-  return data as any;
+  console.log(`API: 조회 결과 - ${data?.length || 0}개 패키지 발견`);
+  if (data && data.length > 0) {
+    console.log('API: 첫 번째 패키지 샘플:', data[0]);
+  }
+  
+  // 데이터베이스 스키마와 UI 간의 필드 매핑
+  const mappedData = data?.map((pkg: any) => ({
+    ...pkg,
+    title: pkg.title || pkg.name,
+    regionKo: pkg.region_ko || pkg.region,
+    name: pkg.title || pkg.name,
+    category: pkg.type || pkg.category,
+  })) || [];
+  
+  return mappedData as Package[];
 }
 
 // ID로 패키지 가져오기
