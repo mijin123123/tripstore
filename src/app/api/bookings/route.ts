@@ -43,7 +43,6 @@ export async function POST(request: Request) {
       package_id: body.packageId,
       start_date: body.startDate,
       quantity: body.quantity || body.peopleCount || 1,
-      cost: parseFloat(body.cost || body.totalPrice) || 0,
       total_price: parseFloat(body.totalPrice || body.cost) || 0,
       people_count: body.peopleCount || body.quantity || 1,
       traveler_info: JSON.stringify(body.travelerInfo),
