@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     // 데이터 변환 - 최소한의 필드만 사용
     const insertData = {
-      user_id: '00000000-0000-0000-0000-000000000000', // 기본 UUID
+      user_id: null, // NULL로 변경 (외래키 제약조건 회피)
       package_id: body.packageId || 'unknown',
       booking_date: new Date().toISOString(), // 현재 시간
       start_date: body.startDate || '2025-08-01', // 출발일
