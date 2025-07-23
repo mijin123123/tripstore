@@ -396,28 +396,44 @@ export default function EditPackage() {
       // 데이터베이스 업데이트 준비
       const supabase = createClient()
       
-      // 패키지 ID를 사용하여 업데이트
+      // console.log로 실제 데이터베이스 구조 확인
+      console.log("패키지 데이터 업데이트 시도:", {
+        title: formData.name, // 데이터베이스에서는 title이지만 폼에서는 name으로 사용
+        price: formData.price,
+        region: formData.region,
+        region_ko: formData.regionKo,
+        type: formData.category || formData.type, // 데이터베이스에는 type 필드가 있음
+        description: formData.description,
+        image: formData.image,
+        is_featured: formData.is_featured,
+        location: formData.location,
+        duration: formData.duration,
+        departure: formData.departure,
+        highlights: formData.highlights
+      });
+      
+      // 패키지 ID를 사용하여 업데이트 (데이터베이스 스키마에 맞게 조정)
       const { error } = await supabase
         .from('packages')
         .update({
-          name: formData.name,
-          price: formData.price,
+          title: formData.name, // 데이터베이스에서는 title 필드 사용
+          price: formData.price ? formData.price.toString() : '0', // 데이터베이스에서는 price가 TEXT 타입
           region: formData.region,
-          category: formData.type || formData.category,
-          description: formData.description,
-          image: formData.image,
-          highlights,
-          departure: formData.departure,
-          itinerary,
-          included,
-          excluded,
-          notes,
+          region_ko: formData.regionKo || '',
+          type: formData.category || formData.type, // 데이터베이스에는 type 필드가 있음
+          description: formData.description || '',
+          image: formData.image || '',
           is_featured: formData.is_featured,
-          start_date: formData.start_date || null,
-          end_date: formData.end_date || null,
-          min_people: formData.min_people,
-          max_people: formData.max_people,
-          location: formData.location,
+          duration: formData.duration || '',
+          location: formData.location || '',
+          departure: formData.departure || '',
+          highlights: highlights.length ? highlights : [''], // 배열이 비어있지 않게
+          itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
+          included: included.length ? included : [''],
+          excluded: excluded.length ? excluded : [''],
+          notes: notes.length ? notes : [''],
+          min_people: formData.min_people || 1,
+          max_people: formData.max_people || 10
         })
         .eq('id', packageId)
       
