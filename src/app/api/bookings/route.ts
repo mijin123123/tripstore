@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       package_id: body.packageId || 'unknown',
       booking_date: new Date().toISOString(), // 현재 시간
       start_date: body.startDate || '2025-08-01', // 출발일
+      people_count: body.peopleCount || body.quantity || 1, // 인원수
       total_price: parseFloat(body.totalPrice || body.cost) || 0
     }
 
