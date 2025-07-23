@@ -38,12 +38,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // 데이터 변환 - 기본 필드만 사용
+    // 데이터 변환 - 최소한의 필드만 사용
     const insertData = {
       package_id: body.packageId || 'unknown',
-      total_price: parseFloat(body.totalPrice || body.cost) || 0,
-      traveler_info: JSON.stringify(body.travelerInfo || {}),
-      status: 'pending'
+      total_price: parseFloat(body.totalPrice || body.cost) || 0
     }
 
     console.log('최종 삽입할 데이터:', JSON.stringify(insertData, null, 2))
