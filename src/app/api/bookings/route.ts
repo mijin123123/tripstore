@@ -38,20 +38,15 @@ export async function POST(request: Request) {
       )
     }
 
-    // 데이터 변환
+    // 데이터 변환 - 기본 필드만 사용
     const insertData = {
-      package_id: body.packageId,
-      start_date: body.startDate,
-      quantity: body.quantity || body.peopleCount || 1,
+      package_id: body.packageId || 'unknown',
       total_price: parseFloat(body.totalPrice || body.cost) || 0,
-      people_count: body.peopleCount || body.quantity || 1,
-      traveler_info: JSON.stringify(body.travelerInfo),
-      special_requests: body.specialRequests || null,
-      status: 'pending',
-      payment_status: 'pending'
+      traveler_info: JSON.stringify(body.travelerInfo || {}),
+      status: 'pending'
     }
 
-    console.log('삽입할 데이터:', JSON.stringify(insertData, null, 2))
+    console.log('최종 삽입할 데이터:', JSON.stringify(insertData, null, 2))
 
     // Supabase에 실제 예약 데이터 저장
     const { data, error } = await supabase
