@@ -75,6 +75,8 @@ export async function getPackagesByTypeAndRegion(type: string, region: string): 
 // ID로 패키지 가져오기
 export async function getPackageById(id: string): Promise<Package | null> {
   const supabase = createClient();
+  console.log(`API: 패키지 조회 - ID: "${id}"`);
+  
   const { data, error } = await supabase
     .from('packages')
     .select('*')
@@ -86,7 +88,22 @@ export async function getPackageById(id: string): Promise<Package | null> {
     return null;
   }
   
-  return data as any;
+  if (!data) {
+    console.log('API: 해당 ID의 패키지를 찾을 수 없음');
+    return null;
+  }
+  
+  console.log('API: 패키지 조회 성공:', (data as any).title || data.name);
+  
+  // 데이터베이스 스키마와 UI 간의 필드 매핑
+  const mappedData = {
+    ...data,
+    title: (data as any).title || data.name,
+    regionKo: (data as any).region_ko || data.region,
+    category: (data as any).type || data.category,
+  };
+  
+  return mappedData as Package;
 }
 
 // 모든 빌라 가져오기

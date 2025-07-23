@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Calendar, Users, ArrowLeft, CreditCard, Briefcase, AlertCircle, Check, ChevronDown, ChevronUp } from 'lucide-react'
-import { Package, getPackageById } from '@/data/packages'
+import { Package } from '@/types'
+import { getPackageById } from '@/lib/api'
 
 // 여행자 정보 타입 정의
 interface Traveler {
@@ -52,85 +53,97 @@ export default function BookingPage() {
   const [availableDates, setAvailableDates] = useState<{date: string, day: string}[]>([]);
   
   useEffect(() => {
-    if (params?.id) {
-      const id = params.id as string;
-      console.log('Booking page - ID received:', id);
-      const packageInfo = getPackageById(id);
-      console.log('Booking page - Package found:', !!packageInfo);
-      
-      if (packageInfo) {
-        console.log('Booking page - Package data:', packageInfo.title);
-        setPackageData(packageInfo);
+    const fetchPackage = async () => {
+      if (params?.id) {
+        const id = params.id as string;
+        console.log('Booking page - ID received:', id);
         
-        // 현재 날짜로부터 향후 3개월간의 추천 출발일 생성 (예시)
-        const today = new Date();
-        const recommendedDates = [];
-        
-        // 패키지 유형에 따라 적절한 출발일 설정
-        if (packageInfo.departure === '매주 화/금 출발') {
-          // 앞으로 3개월 내의 모든 화요일과 금요일 찾기
-          for (let i = 0; i < 90; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const day = date.getDay(); // 0: 일요일, 1: 월요일, ..., 6: 토요일
+        try {
+          const packageInfo = await getPackageById(id);
+          console.log('Booking page - Package found:', !!packageInfo);
+          
+          if (packageInfo) {
+            console.log('Booking page - Package data:', packageInfo.title);
+            setPackageData(packageInfo);
             
-            // 화요일(2) 또는 금요일(5)인 경우
-            if (day === 2 || day === 5) {
-              const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD 형식
-              const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-              recommendedDates.push({
-                date: dateStr,
-                day: dayNames[day]
-              });
-              
-              // 최대 8개의 추천 날짜만 제공
-              if (recommendedDates.length >= 8) break;
-            }
-          }
-        } else if (packageInfo.departure === '매주 월/금 출발') {
-          // 앞으로 3개월 내의 모든 월요일과 금요일 찾기
-          for (let i = 0; i < 90; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const day = date.getDay();
+            // 현재 날짜로부터 향후 3개월간의 추천 출발일 생성 (예시)
+            const today = new Date();
+            const recommendedDates = [];
             
-            // 월요일(1) 또는 금요일(5)인 경우
-            if (day === 1 || day === 5) {
-              const dateStr = date.toISOString().split('T')[0];
-              const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-              recommendedDates.push({
-                date: dateStr,
-                day: dayNames[day]
-              });
-              
-              if (recommendedDates.length >= 8) break;
+            // 패키지 유형에 따라 적절한 출발일 설정
+            if (packageInfo.departure === '매주 화/금 출발') {
+              // 앞으로 3개월 내의 모든 화요일과 금요일 찾기
+              for (let i = 0; i < 90; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const day = date.getDay(); // 0: 일요일, 1: 월요일, ..., 6: 토요일
+                
+                // 화요일(2) 또는 금요일(5)인 경우
+                if (day === 2 || day === 5) {
+                  const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+                  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+                  recommendedDates.push({
+                    date: dateStr,
+                    day: dayNames[day]
+                  });
+                  
+                  // 최대 8개의 추천 날짜만 제공
+                  if (recommendedDates.length >= 8) break;
+                }
+              }
+            } else if (packageInfo.departure === '매주 월/금 출발') {
+              // 앞으로 3개월 내의 모든 월요일과 금요일 찾기
+              for (let i = 0; i < 90; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const day = date.getDay();
+                
+                // 월요일(1) 또는 금요일(5)인 경우
+                if (day === 1 || day === 5) {
+                  const dateStr = date.toISOString().split('T')[0];
+                  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+                  recommendedDates.push({
+                    date: dateStr,
+                    day: dayNames[day]
+                  });
+                  
+                  if (recommendedDates.length >= 8) break;
+                }
+              }
+            } else {
+              // 기본적으로 앞으로 3개월 내의 모든 월요일, 수요일, 금요일 제공
+              for (let i = 0; i < 90; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const day = date.getDay();
+                
+                // 월요일(1), 수요일(3), 금요일(5)인 경우
+                if (day === 1 || day === 3 || day === 5) {
+                  const dateStr = date.toISOString().split('T')[0];
+                  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+                  recommendedDates.push({
+                    date: dateStr,
+                    day: dayNames[day]
+                  });
+                  
+                  if (recommendedDates.length >= 8) break;
+                }
+              }
             }
-          }
-        } else {
-          // 기본적으로 앞으로 3개월 내의 모든 월요일, 수요일, 금요일 제공
-          for (let i = 0; i < 90; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const day = date.getDay();
             
-            // 월요일(1), 수요일(3), 금요일(5)인 경우
-            if (day === 1 || day === 3 || day === 5) {
-              const dateStr = date.toISOString().split('T')[0];
-              const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-              recommendedDates.push({
-                date: dateStr,
-                day: dayNames[day]
-              });
-              
-              if (recommendedDates.length >= 8) break;
-            }
+            setAvailableDates(recommendedDates);
+          } else {
+            console.error('패키지를 찾을 수 없습니다');
           }
+        } catch (error) {
+          console.error('패키지 로딩 중 오류 발생:', error);
+        } finally {
+          setIsLoading(false);
         }
-        
-        setAvailableDates(recommendedDates);
       }
-      setIsLoading(false);
-    }
+    };
+    
+    fetchPackage();
   }, [params]);
   
   // 여행자 정보 변경 핸들러
@@ -234,8 +247,8 @@ export default function BookingPage() {
   const calculateTotalAmount = () => {
     if (!packageData) return 0;
     
-    // 패키지 가격에서 쉼표 제거 후 숫자로 변환
-    const basePrice = parseInt(packageData.price.replace(/,/g, ''));
+    // 패키지 가격이 이미 숫자 타입
+    const basePrice = typeof packageData.price === 'number' ? packageData.price : parseInt(String(packageData.price).replace(/,/g, ''));
     return basePrice * bookingInfo.travelerCount;
   };
   
