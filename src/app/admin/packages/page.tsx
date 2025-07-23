@@ -98,6 +98,12 @@ export default function AdminPackages() {
     pkg.id.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
+  // 숫자를 천 단위 콤마 형식으로 변환하는 함수
+  const formatPrice = (price: string | number): string => {
+    const numPrice = typeof price === 'string' ? parseInt(price) || 0 : price
+    return numPrice.toLocaleString('ko-KR')
+  }
+  
   const handleToggleFeatured = async (id: string, currentStatus: boolean) => {
     try {
       const supabase = createClient()
@@ -211,7 +217,7 @@ export default function AdminPackages() {
                     <td className="px-6 py-3 font-mono text-sm">{pkg.id}</td>
                     <td className="px-6 py-3 font-medium">{pkg.title}</td>
                     <td className="px-6 py-3">{pkg.region_ko}</td>
-                    <td className="px-6 py-3">{pkg.price}</td>
+                    <td className="px-6 py-3">{formatPrice(pkg.price)}원</td>
                     <td className="px-6 py-3">{pkg.start_date && pkg.end_date ? `${pkg.start_date} ~ ${pkg.end_date}` : '기간 미지정'}</td>
                     <td className="px-6 py-3">
                       <div className="flex items-center">

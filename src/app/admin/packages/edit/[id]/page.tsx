@@ -231,11 +231,18 @@ export default function EditPackage() {
     fetchPackage()
   }, [packageId])
   
+  // 숫자를 천 단위 콤마 형식으로 변환하는 함수
+  const formatNumber = (num: number): string => {
+    return num.toLocaleString('ko-KR')
+  }
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     
     if (name === 'price') {
-      setFormData({ ...formData, [name]: parseInt(value) || 0 })
+      // 콤마 제거 후 숫자만 추출
+      const numericValue = value.replace(/[^\d]/g, '')
+      setFormData({ ...formData, [name]: parseInt(numericValue) || 0 })
     } else if (name === 'min_people' || name === 'max_people') {
       setFormData({ ...formData, [name]: parseInt(value) || 0 })
     } else if ((e.target as HTMLInputElement).type === 'checkbox') {
@@ -542,13 +549,13 @@ export default function EditPackage() {
               </label>
               <div className="relative">
                 <input
-                  type="number"
+                  type="text"
                   name="price"
-                  value={formData.price}
+                  value={formatNumber(formData.price)}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
-                  min="0"
+                  placeholder="0"
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                   원

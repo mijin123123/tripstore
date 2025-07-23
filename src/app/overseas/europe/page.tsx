@@ -11,6 +11,12 @@ export default function EuropePage() {
   const [europePackages, setEuropePackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // 숫자를 천 단위 콤마 형식으로 변환하는 함수
+  const formatPrice = (price: string | number): string => {
+    const numPrice = typeof price === 'string' ? parseInt(price) || 0 : price
+    return numPrice.toLocaleString('ko-KR')
+  }
+  
   useEffect(() => {
     const fetchPackages = async () => {
       try {
@@ -159,7 +165,7 @@ export default function EuropePage() {
                   {/* 가격 및 예약 */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xl font-bold text-blue-600">{pkg.price}원</span>
+                      <span className="text-xl font-bold text-blue-600">{formatPrice(pkg.price)}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 
