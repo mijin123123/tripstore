@@ -19,6 +19,18 @@ type Package = {
   created_at?: string
   start_date?: string | null
   end_date?: string | null
+  duration?: string | null
+  departure?: string | null
+  highlights?: any
+  itinerary?: any
+  included?: any
+  excluded?: any
+  notes?: any
+  category_id?: number | null
+  region_id?: number | null
+  rating?: number | null
+  min_people?: number | null
+  max_people?: number | null
 }
 
 export default function AdminPackages() {
@@ -41,7 +53,35 @@ export default function AdminPackages() {
           throw error
         }
         
-        setPackages(data || [])
+        // 데이터베이스에서 받은 데이터를 Package 타입에 맞게 변환
+        const mappedPackages: Package[] = (data || []).map((pkg: any) => ({
+          id: pkg.id,
+          title: pkg.title,
+          region: pkg.region,
+          region_ko: pkg.region_ko,
+          price: pkg.price,
+          type: pkg.type,
+          description: pkg.description,
+          image: pkg.image,
+          is_featured: pkg.is_featured,
+          created_at: pkg.created_at,
+          start_date: pkg.start_date,
+          end_date: pkg.end_date,
+          duration: pkg.duration,
+          departure: pkg.departure,
+          highlights: pkg.highlights,
+          itinerary: pkg.itinerary,
+          included: pkg.included,
+          excluded: pkg.excluded,
+          notes: pkg.notes,
+          category_id: pkg.category_id,
+          region_id: pkg.region_id,
+          rating: pkg.rating,
+          min_people: pkg.min_people,
+          max_people: pkg.max_people
+        }))
+        
+        setPackages(mappedPackages)
       } catch (error) {
         console.error('패키지를 가져오는 데 실패했습니다:', error)
       } finally {
