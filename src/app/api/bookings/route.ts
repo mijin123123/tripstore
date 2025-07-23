@@ -40,7 +40,6 @@ export async function POST(request: Request) {
 
     // 데이터 변환 - 실제 테이블 구조에 맞춤
     const insertData = {
-      user_id: null, // NULL 허용
       package_id: body.packageId || 'unknown',
       villa_id: null, // NULL 허용
       booking_date: new Date().toISOString().split('T')[0], // DATE 형식
