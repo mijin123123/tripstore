@@ -1,4 +1,4 @@
--- 간단한 예약 테이블 생성 (테스트용)
+-- Simple bookings table for testing
 CREATE TABLE IF NOT EXISTS bookings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID,
@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS bookings (
   special_requests TEXT,
   people_count INTEGER DEFAULT 1,
   total_price DECIMAL(10,2),
-  traveler_info TEXT, -- 간단히 TEXT로 저장
+  traveler_info TEXT, -- Store as JSON string
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- RLS 비활성화 (테스트용)
+-- Disable RLS for testing
 ALTER TABLE bookings DISABLE ROW LEVEL SECURITY;
