@@ -22,16 +22,16 @@ export async function POST(request: Request) {
     console.log('받은 데이터:', JSON.stringify(body, null, 2))
 
     // 사용자 세션 확인 (임시로 간단하게 처리)
-    let userId = 'temp-user' // 모든 예약을 temp-user로 설정
+    let userId = null // UUID 타입 오류 방지를 위해 null로 설정
     try {
       // Authorization 헤더에서 사용자 정보 확인
       const authHeader = request.headers.get('authorization')
       if (authHeader && authHeader.includes('Bearer')) {
         // 실제 구현에서는 JWT 토큰을 디코드해야 함
-        userId = 'authenticated-user' // 인증된 사용자 ID
+        // userId = 'authenticated-user' // UUID가 아니므로 주석 처리
       }
     } catch (error) {
-      console.log('사용자 인증 실패, 기본 사용자로 처리')
+      console.log('사용자 인증 실패, null로 처리')
     }
 
     // 필수 필드 검증

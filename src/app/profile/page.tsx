@@ -58,14 +58,14 @@ export default function ProfilePage() {
         
         setUser(currentUser)
         
-        // 예약 정보 가져오기 - 사용자별 조회
+        // 예약 정보 가져오기 - 임시로 모든 예약 표시 (user_id가 모두 null이므로)
         try {
-          const userId = currentUser?.id || 'temp-user';
-          const response = await fetch(`/api/bookings?userId=${userId}`);
+          const response = await fetch('/api/bookings');
           if (response.ok) {
             const result = await response.json();
             console.log('API로 가져온 예약 데이터:', result);
-            setBookings(result.bookings || []);
+            // 최신 3개 예약만 표시
+            setBookings((result.bookings || []).slice(0, 3));
           } else {
             console.error('예약 API 오류:', response.status);
             setBookings([]);
