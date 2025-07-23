@@ -17,7 +17,8 @@ import {
   Mail,
   User,
   CalendarDays,
-  DollarSign
+  DollarSign,
+  MessageCircle
 } from 'lucide-react'
 
 // 예약 정보 타입 정의
@@ -349,18 +350,18 @@ export default function BookingDetailPage() {
                   </div>
                 </div>
 
-                {/* 연락처 정보 */}
+                {/* 고객 지원 */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Phone className="h-5 w-5 mr-2 text-blue-600" />
+                    <MessageCircle className="h-5 w-5 mr-2 text-blue-600" />
                     고객 지원
                   </h3>
-                  <div className="bg-blue-50 rounded-lg p-4 space-y-2">
-                    <div className="flex items-center text-sm text-blue-700">
-                      <Phone className="h-4 w-4 mr-2" />
-                      <span>고객센터: 1588-0000</span>
-                    </div>
-                    <div className="flex items-center text-sm text-blue-700">
+                  <div className="bg-blue-50 rounded-lg p-4 space-y-3">
+                    <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      <span>1:1 채팅문의</span>
+                    </button>
+                    <div className="flex items-center text-sm text-blue-700 justify-center">
                       <Mail className="h-4 w-4 mr-2" />
                       <span>이메일: support@tripstore.com</span>
                     </div>
