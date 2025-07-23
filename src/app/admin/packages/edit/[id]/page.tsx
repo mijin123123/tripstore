@@ -117,6 +117,7 @@ export default function EditPackage() {
     regionKo: '',
     description: '',
     image: '',
+    images: [''], // 여러 이미지를 위한 배열 추가
     highlights: [''],
     departure: '',
     type: '',
@@ -194,6 +195,7 @@ export default function EditPackage() {
             regionKo: pkg.region_ko || '', // 데이터베이스의 region_ko 필드 사용
             description: pkg.description || '',
             image: pkg.image || '',
+            images: Array.isArray(pkg.images) ? pkg.images : pkg.image ? [pkg.image] : [''], // 기존 image를 images 배열로 변환
             highlights: Array.isArray(pkg.highlights) ? pkg.highlights : [''],
             departure: pkg.departure || '',
             type: pkg.type || '', // 데이터베이스의 type 필드 사용
@@ -323,18 +325,22 @@ export default function EditPackage() {
     }
   }
   
-  const handleArrayChange = (index: number, value: string, field: 'highlights' | 'included' | 'excluded' | 'notes') => {
+  const handleArrayChange = (index: number, value: string, field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     const newArray = [...formData[field]]
     newArray[index] = value
     setFormData({ ...formData, [field]: newArray })
   }
   
-  const addArrayItem = (field: 'highlights' | 'included' | 'excluded' | 'notes') => {
+  const addArrayItem = (field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
+    if (field === 'images' && formData.images.length >= 10) {
+      alert('이미지는 최대 10개까지만 추가할 수 있습니다.');
+      return;
+    }
     const newArray = [...formData[field], '']
     setFormData({ ...formData, [field]: newArray })
   }
   
-  const removeArrayItem = (index: number, field: 'highlights' | 'included' | 'excluded' | 'notes') => {
+  const removeArrayItem = (index: number, field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     const newArray = formData[field].filter((_, i) => i !== index)
     setFormData({ ...formData, [field]: newArray })
   }
@@ -391,6 +397,7 @@ export default function EditPackage() {
       const included = formData.included.filter(item => item.trim() !== '')
       const excluded = formData.excluded.filter(item => item.trim() !== '')
       const notes = formData.notes.filter(item => item.trim() !== '')
+      const images = formData.images.filter(item => item.trim() !== '') // 이미지 배열 필터링
       
       // 여행 일정 검증
       const itinerary = formData.itinerary.map(day => ({
@@ -421,7 +428,8 @@ export default function EditPackage() {
           region_ko: formData.regionKo || '',
           type: formData.type, // type 필드를 올바르게 저장 (overseas, hotel, domestic, luxury)
           description: formData.description || '',
-          image: formData.image || '',
+          image: images.length > 0 ? images[0] : '', // 첫 번째 이미지를 메인 이미지로 사용
+          images: images.length > 0 ? images : [''], // 이미지 배열 저장
           is_featured: formData.is_featured,
           duration: formData.duration || '',
           departure: formData.departure || '',
@@ -678,33 +686,68 @@ export default function EditPackage() {
             </div>
             
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                대표 이미지 URL
-              </label>
-              <div className="flex">
-                <input
-                  type="url"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleInputChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/image.jpg"
-                />
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  패키지 이미지 URL
+                </label>
+                <button
+                  type="button"
+                  onClick={() => addArrayItem('images')}
+                  disabled={formData.images.length >= 10}
+                  className={`flex items-center text-sm ${
+                    formData.images.length >= 10 
+                      ? 'text-gray-400 cursor-not-allowed' 
+                      : 'text-blue-600 hover:text-blue-800'
+                  }`}
+                >
+                  <Plus size={16} className="mr-1" /> 이미지 추가
+                </button>
               </div>
               
-              {formData.image && (
-                <div className="mt-2 relative h-40 w-full md:w-1/3 border rounded-md overflow-hidden">
-                  <img
-                    src={formData.image}
-                    alt="패키지 미리보기"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement
-                      target.src = "https://via.placeholder.com/300x200?text=이미지+오류"
-                    }}
-                  />
+              {formData.images.map((imageUrl, index) => (
+                <div key={index} className="mb-4">
+                  <div className="flex mb-2">
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem(index, 'images')}
+                      className="px-3 py-2 border border-l-0 border-gray-300 rounded-r-md text-red-600 hover:text-red-800 hover:bg-red-50"
+                      disabled={formData.images.length <= 1}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  
+                  {imageUrl && (
+                    <div className="relative h-32 w-full md:w-1/2 border rounded-md overflow-hidden bg-gray-50">
+                      <img
+                        src={imageUrl}
+                        alt={`패키지 이미지 ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = "https://via.placeholder.com/300x200?text=이미지+오류"
+                        }}
+                      />
+                      {index === 0 && (
+                        <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                          메인 이미지
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
+              
+              <p className="text-xs text-gray-500 mt-2">
+                첫 번째 이미지가 메인 이미지로 사용됩니다. 이미지는 최대 10개까지 추가 가능합니다.
+              </p>
             </div>
             
             <div className="md:col-span-2 flex items-center">

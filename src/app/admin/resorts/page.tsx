@@ -22,15 +22,18 @@ type Resort = {
   is_featured: boolean
   regions?: {
     name: string
-    name_ko: string
   }
 }
 
 type Region = {
   id: number
   name: string
-  name_ko: string
   slug: string
+  description: string | null
+  image: string | null
+  parent_id: number | null
+  created_at: string
+  updated_at: string
 }
 
 export default function AdminResorts() {
@@ -73,16 +76,17 @@ export default function AdminResorts() {
       // 리조트 데이터 가져오기
       const { data: resortData, error: resortError } = await supabase
         .from('resorts')
-        .select('*, regions!resorts_region_id_fkey(name, name_ko)')
+        .select('*, regions!resorts_region_id_fkey(name)')
         .order('created_at', { ascending: false })
       
       if (resortError) throw resortError
       
-      // 지역 데이터 가져오기
+      // 국내 카테고리 데이터 가져오기 (국내와 그 하위 카테고리들)
       const { data: regionData, error: regionError } = await supabase
-        .from('regions')
-        .select('id, name, name_ko, slug')
-        .order('name', { ascending: true })
+        .from('categories')
+        .select('id, name, slug, description, image, parent_id, created_at, updated_at')
+        .in('id', [3, 31, 32, 33]) // 국내(3) + 국내 서브카테고리(31~33: 호텔, 리조트, 풀빌라)
+        .order('id', { ascending: true })
       
       if (regionError) throw regionError
       
@@ -98,7 +102,7 @@ export default function AdminResorts() {
   const filteredResorts = resorts.filter(resort => 
     resort.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     resort.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    resort.regions?.name_ko.toLowerCase().includes(searchQuery.toLowerCase())
+    resort.regions?.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -380,7 +384,7 @@ export default function AdminResorts() {
                           {resort.location}
                         </p>
                         <p className="text-gray-600 text-sm mb-2">
-                          {resort.regions?.name_ko || '지역 정보 없음'}
+                          {resort.regions?.name || '지역 정보 없음'}
                         </p>
                       </div>
                       
@@ -496,8 +500,8 @@ export default function AdminResorts() {
                   <div>
                     <label className="block text-gray-700 mb-1">지역 *</label>
                     <select
-                      name="region_id"
-                      value={formData.region_id}
+                      name="category_id"
+                      value={formData.category_id}
                       onChange={handleInputChange}
                       className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                       required
@@ -505,7 +509,7 @@ export default function AdminResorts() {
                       <option value="">지역을 선택하세요</option>
                       {regions.map(region => (
                         <option key={region.id} value={region.id}>
-                          {region.name_ko} ({region.name})
+                          {region.name}
                         </option>
                       ))}
                     </select>
@@ -744,8 +748,8 @@ export default function AdminResorts() {
                   <div>
                     <label className="block text-gray-700 mb-1">지역 *</label>
                     <select
-                      name="region_id"
-                      value={formData.region_id}
+                      name="category_id"
+                      value={formData.category_id}
                       onChange={handleInputChange}
                       className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                       required
@@ -753,7 +757,7 @@ export default function AdminResorts() {
                       <option value="">지역을 선택하세요</option>
                       {regions.map(region => (
                         <option key={region.id} value={region.id}>
-                          {region.name_ko} ({region.name})
+                          {region.name}
                         </option>
                       ))}
                     </select>

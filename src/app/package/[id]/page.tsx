@@ -14,6 +14,7 @@ export default function PackageDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
+  const [selectedPeople, setSelectedPeople] = useState<number>(1); // 인원 선택 상태 추가
   
   // 패키지에 포함된 추천 출발일
   const availableDates = [
@@ -41,6 +42,23 @@ export default function PackageDetail() {
     
     loadPackageData();
   }, [params]);
+
+  // 총 금액 계산 함수
+  const calculateTotalPrice = () => {
+    if (!packageData) return 0;
+    const basePrice = typeof packageData.price === 'number' ? packageData.price : parseInt(String(packageData.price).replace(/,/g, ''));
+    return basePrice * selectedPeople;
+  };
+
+  // 예약금 계산 함수 (10%)
+  const calculateDeposit = () => {
+    return Math.floor(calculateTotalPrice() * 0.1);
+  };
+
+  // 가격 포맷팅 함수
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('ko-KR');
+  };
 
   if (isLoading) {
     return (
@@ -249,7 +267,7 @@ export default function PackageDetail() {
                 <div className="mb-5">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-gray-600">가격</span>
-                    <span className="text-xl font-bold text-blue-600">{packageData.price}원</span>
+                    <span className="text-xl font-bold text-blue-600">{formatPrice(typeof packageData.price === 'number' ? packageData.price : parseInt(String(packageData.price).replace(/,/g, '')))}원</span>
                   </div>
                   <div className="flex justify-between items-center text-xs text-gray-500">
                     <span>1인 기준 (VAT 포함)</span>
@@ -369,11 +387,19 @@ export default function PackageDetail() {
                       인원
                     </label>
                     <div className="relative">
-                      <select className="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors">
+                      <select 
+                        className="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors"
+                        value={selectedPeople}
+                        onChange={(e) => setSelectedPeople(parseInt(e.target.value))}
+                      >
                         <option value="1">성인 1명</option>
                         <option value="2">성인 2명</option>
                         <option value="3">성인 3명</option>
                         <option value="4">성인 4명</option>
+                        <option value="5">성인 5명</option>
+                        <option value="6">성인 6명</option>
+                        <option value="7">성인 7명</option>
+                        <option value="8">성인 8명</option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -388,31 +414,32 @@ export default function PackageDetail() {
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-medium">총액</span>
                     <span className="text-xl font-bold text-blue-700">
-                      {typeof packageData.price === 'number' 
-                        ? packageData.price.toLocaleString() 
-                        : packageData.price}원
+                      {formatPrice(calculateTotalPrice())}원
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-xs text-gray-500">
-                    <span>예약금</span>
+                    <span>예약금 (10%)</span>
                     <span>
-                      {(typeof packageData.price === 'string' 
-                        ? parseInt((packageData.price || "0").replace(/,/g, ''))
-                        : packageData.price) * 0.1}원
+                      {formatPrice(calculateDeposit())}원
                     </span>
                   </div>
+                  {selectedPeople > 1 && (
+                    <div className="flex justify-between items-center text-xs text-gray-400 mt-1">
+                      <span>{formatPrice(typeof packageData.price === 'number' ? packageData.price : parseInt(String(packageData.price).replace(/,/g, '')))}원 × {selectedPeople}명</span>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
                   <button 
                     className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
-                    onClick={() => router.push(`/booking/${packageData.id}`)}
+                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}`)}
                   >
                     예약하기
                   </button>
                   <button 
                     className="w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors flex justify-center items-center text-sm"
-                    onClick={() => router.push(`/booking/${packageData.id}`)}
+                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}`)}
                   >
                     <CreditCard className="w-4 h-4 mr-1" />
                     결제하기

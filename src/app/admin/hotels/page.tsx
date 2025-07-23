@@ -27,9 +27,12 @@ type Hotel = {
 type Category = {
   id: number
   name: string
-  name_ko: string
   slug: string
+  description: string | null
+  image: string | null
   parent_id: number | null
+  created_at: string
+  updated_at: string
 }
 
 export default function AdminHotels() {
@@ -76,11 +79,12 @@ export default function AdminHotels() {
       
       if (hotelError) throw hotelError
       
-      // 지역(나라) 데이터 가져오기
+      // 호텔과 국내 카테고리 데이터 가져오기
       const { data: categoryData, error: categoryError } = await supabase
-        .from('regions')
+        .from('categories')
         .select('*')
-        .order('name_ko', { ascending: true })
+        .in('id', [2, 3, 21, 22, 23, 24, 25, 26, 31, 32, 33]) // 호텔(2) + 호텔 서브(21~26) + 국내(3) + 국내 서브(31~33)
+        .order('id', { ascending: true })
       
       if (categoryError) throw categoryError
       
@@ -351,7 +355,7 @@ export default function AdminHotels() {
                   <td className="px-6 py-3 font-mono text-sm">{hotel.id}</td>
                   <td className="px-6 py-3 font-medium">{hotel.name}</td>
                   <td className="px-6 py-3">{hotel.location}</td>
-                  <td className="px-6 py-3">{categories.find(cat => cat.id === hotel.category_id)?.name_ko || '알 수 없음'}</td>
+                  <td className="px-6 py-3">{categories.find(cat => cat.id === hotel.category_id)?.name || '알 수 없음'}</td>
                   <td className="px-6 py-3">{hotel.price}</td>
                   <td className="px-6 py-3">
                     <div className="flex items-center">
@@ -459,7 +463,7 @@ export default function AdminHotels() {
                     <option value="">국가/지역 선택</option>
                     {categories.map(category => (
                       <option key={category.id} value={category.id}>
-                        {category.name_ko || category.name}
+                        {category.name}
                       </option>
                     ))}
                   </select>
