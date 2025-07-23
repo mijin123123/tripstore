@@ -8,9 +8,9 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Next.js는 자체적으로 라우팅을 처리하므로 리다이렉트 설정 단순화
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
+# Next.js는 자체적으로 라우팅을 처리하므로 리다이렉트가 필요하지 않음
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200
+#   force = false
