@@ -40,6 +40,7 @@ export async function POST(request: Request) {
 
     // 데이터 변환 - 최소한의 필드만 사용
     const insertData = {
+      user_id: '00000000-0000-0000-0000-000000000000', // 기본 UUID
       package_id: body.packageId || 'unknown',
       total_price: parseFloat(body.totalPrice || body.cost) || 0
     }
