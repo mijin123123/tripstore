@@ -173,9 +173,9 @@ export default function BookingPage() {
           console.log('계좌정보 업데이트됨:', bankInfo)
         } else if (result.settings) {
           // settings 배열에서 payment 관련 정보 찾기
-          const paymentBankName = result.settings.find(s => s.setting_key === 'payment_bank_name')?.setting_value
-          const paymentAccountNumber = result.settings.find(s => s.setting_key === 'payment_account_number')?.setting_value  
-          const paymentAccountHolder = result.settings.find(s => s.setting_key === 'payment_account_holder')?.setting_value
+          const paymentBankName = result.settings.find((s: any) => s.setting_key === 'payment_bank_name')?.setting_value
+          const paymentAccountNumber = result.settings.find((s: any) => s.setting_key === 'payment_account_number')?.setting_value  
+          const paymentAccountHolder = result.settings.find((s: any) => s.setting_key === 'payment_account_holder')?.setting_value
           
           if (paymentBankName && paymentAccountNumber && paymentAccountHolder) {
             const bankInfo = `${paymentBankName} ${paymentAccountNumber} ${paymentAccountHolder}`
