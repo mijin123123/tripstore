@@ -19,21 +19,20 @@ export async function getAllPackages(): Promise<Package[]> {
     // is_featured 필드 확인
     console.log(`총 ${data?.length || 0}개의 패키지를 가져왔습니다.`);
     if (data && data.length > 0) {
-      console.log('첫 번째 패키지 데이터 샘플:', {
-        id: data[0].id,
-        name: data[0].name,
-        is_featured: data[0].is_featured
-      });
+      console.log('첫 번째 패키지 데이터 샘플:', data[0]);
     }
     
     // 데이터베이스 스키마와 UI 간의 필드 매핑
-    const mappedData = data?.map(pkg => ({
+    const mappedData = data?.map((pkg: any) => ({
       ...pkg,
-      title: pkg.name, // name 필드를 title로 매핑
-      regionKo: pkg.region, // region 필드를 regionKo로 매핑
+      // 데이터베이스의 실제 필드 구조 사용
+      title: pkg.title || pkg.name, // title 필드가 있으면 사용, 없으면 name 사용
+      regionKo: pkg.region_ko || pkg.region, // region_ko 필드가 있으면 사용, 없으면 region 사용
+      name: pkg.title || pkg.name, // UI 호환성을 위해 name도 추가
+      category: pkg.type || pkg.category, // type 필드를 category로 매핑
     })) || [];
     
-    return mappedData as any;
+    return mappedData as Package[];
   } catch (err) {
     console.error('API 호출 중 예외 발생:', err);
     return [];
