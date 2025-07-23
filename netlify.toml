@@ -4,13 +4,23 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  NETLIFY = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Next.js는 자체적으로 라우팅을 처리하므로 리다이렉트가 필요하지 않음
-# [[redirects]]
-#   from = "/*"
-#   to = "/index.html"
-#   status = 200
-#   force = false
+# Next.js App Router에 필요한 리다이렉트 설정
+[[redirects]]
+  from = "/_next/static/*"
+  to = "/_next/static/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/_next/image*"
+  to = "/_next/image:splat"
+  status = 200
+
+[[redirects]]
+  from = "/_next/data/*"
+  to = "/_next/data/:splat"
+  status = 200

@@ -12,21 +12,60 @@ export function createServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
-  return createSupabaseServerClient<Database>(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        get(name) {
-          return cookieStore.get(name)?.value;
+  try {
+    return createSupabaseServerClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: {
+          get(name) {
+            try {
+              return cookieStore.get(name)?.value;
+            } catch (e) {
+              console.error('Cookie get error:', e);
+              return undefined;
+            }
+          },
+          set(name, value, options) {
+            try {
+              // Netlify 환경에서 쿠키 설정 에러 방지
+              if (process.env.NETLIFY) {
+                console.log('Netlify 환경에서 쿠키 설정 무시:', name);
+                return;
+              }
+              cookieStore.set({ name, value, ...options });
+            } catch (e) {
+              console.error('Cookie set error:', e);
+            }
+          },
+          remove(name, options) {
+            try {
+              // Netlify 환경에서 쿠키 삭제 에러 방지
+              if (process.env.NETLIFY) {
+                console.log('Netlify 환경에서 쿠키 삭제 무시:', name);
+                return;
+              }
+              cookieStore.set({ name, value: '', ...options, maxAge: 0 });
+            } catch (e) {
+              console.error('Cookie remove error:', e);
+            }
+          },
         },
-        set(name, value, options) {
-          cookieStore.set({ name, value, ...options });
+      }
+    );
+  } catch (e) {
+    console.error('Supabase server client creation error:', e);
+    // 에러가 발생해도 기본 클라이언트 반환 시도
+    return createSupabaseServerClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: {
+          get: () => undefined,
+          set: () => {},
+          remove: () => {},
         },
-        remove(name, options) {
-          cookieStore.set({ name, value: '', ...options, maxAge: 0 });
-        },
-      },
-    }
-  );
+      }
+    );
+  }
 }
