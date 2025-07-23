@@ -17,7 +17,7 @@ type Category = {
 type Package = {
   id: string
   name: string
-  price: number
+  price: string | number // price는 데이터베이스에서 TEXT 타입이므로 string도 허용
   region: string | null
   category: string | null
   location: string
@@ -396,28 +396,20 @@ export default function EditPackage() {
       // 데이터베이스 업데이트 준비
       const supabase = createClient()
       
-      // console.log로 실제 데이터베이스 구조 확인
+      // 데이터베이스 업데이트 시도 로그
       console.log("패키지 데이터 업데이트 시도:", {
-        title: formData.name, // 데이터베이스에서는 title이지만 폼에서는 name으로 사용
-        price: formData.price,
+        title: formData.name, 
+        price: String(formData.price || 0), // 문자열로 변환
         region: formData.region,
-        region_ko: formData.regionKo,
-        type: formData.category || formData.type, // 데이터베이스에는 type 필드가 있음
-        description: formData.description,
-        image: formData.image,
-        is_featured: formData.is_featured,
-        location: formData.location,
-        duration: formData.duration,
-        departure: formData.departure,
-        highlights: formData.highlights
+        type: formData.category || formData.type
       });
       
-      // 패키지 ID를 사용하여 업데이트 (데이터베이스 스키마에 맞게 조정)
+      // 패키지 ID를 사용하여 업데이트
       const { error } = await supabase
         .from('packages')
         .update({
           title: formData.name, // 데이터베이스에서는 title 필드 사용
-          price: formData.price ? formData.price.toString() : '0', // 데이터베이스에서는 price가 TEXT 타입
+          price: String(formData.price || 0), // 문자열로 명시적 변환
           region: formData.region,
           region_ko: formData.regionKo || '',
           type: formData.category || formData.type, // 데이터베이스에는 type 필드가 있음
@@ -427,7 +419,7 @@ export default function EditPackage() {
           duration: formData.duration || '',
           location: formData.location || '',
           departure: formData.departure || '',
-          highlights: highlights.length ? highlights : [''], // 배열이 비어있지 않게
+          highlights: highlights.length ? highlights : [''],
           itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
           included: included.length ? included : [''],
           excluded: excluded.length ? excluded : [''],
