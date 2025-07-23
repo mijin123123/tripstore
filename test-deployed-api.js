@@ -60,7 +60,7 @@ function testDeployedAPI() {
 
 function testPostRequest() {
   const testData = {
-    packageId: 'test-package-terminal',
+    packageId: 'OVE-EU-514125', // 실제 존재하는 패키지 ID 사용
     startDate: '2025-08-01',
     quantity: 1,
     peopleCount: 1,
