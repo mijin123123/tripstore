@@ -21,6 +21,19 @@ export async function POST(request: Request) {
     const body = await request.json()
     console.log('받은 데이터:', JSON.stringify(body, null, 2))
 
+    // 사용자 세션 확인 (임시로 간단하게 처리)
+    let userId = 'temp-user' // 모든 예약을 temp-user로 설정
+    try {
+      // Authorization 헤더에서 사용자 정보 확인
+      const authHeader = request.headers.get('authorization')
+      if (authHeader && authHeader.includes('Bearer')) {
+        // 실제 구현에서는 JWT 토큰을 디코드해야 함
+        userId = 'authenticated-user' // 인증된 사용자 ID
+      }
+    } catch (error) {
+      console.log('사용자 인증 실패, 기본 사용자로 처리')
+    }
+
     // 필수 필드 검증
     if (!body.packageId) {
       console.error('packageId가 없습니다')
@@ -40,6 +53,7 @@ export async function POST(request: Request) {
 
     // 데이터 변환 - 실제 테이블 구조에 맞춤
     const insertData = {
+      user_id: userId, // 사용자 ID 추가
       package_id: body.packageId || 'unknown',
       villa_id: null, // NULL 허용
       booking_date: new Date().toISOString().split('T')[0], // DATE 형식
@@ -86,15 +100,27 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     console.log('예약 목록 조회 API 호출됨')
     
-    // Supabase에서 실제 예약 데이터 가져오기
-    const { data, error } = await supabase
+    // URL에서 사용자 ID 파라미터 확인
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get('userId')
+    
+    let query = supabase
       .from('bookings')
       .select('*')
       .order('created_at', { ascending: false })
+    
+    // 사용자 ID가 있으면 해당 사용자의 예약만 조회
+    if (userId) {
+      query = query.eq('user_id', userId)
+      console.log(`사용자 ${userId}의 예약만 조회`)
+    }
+    
+    // Supabase에서 실제 예약 데이터 가져오기
+    const { data, error } = await query
 
     if (error) {
       console.error('데이터베이스 조회 오류:', error)

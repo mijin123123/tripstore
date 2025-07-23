@@ -21,18 +21,20 @@ export default function ProfilePage() {
         setIsLoading(true)
         const supabase = createClient()
         
+        let currentUser = null
+        
         // 로그인 상태 확인 (임시로 비활성화)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
         // 세션이 없어도 임시 사용자로 진행
         if (!session) {
           console.log('세션이 없음: 임시 사용자로 진행')
-          setUser({ 
+          currentUser = { 
             id: 'temp-user',
             email: 'admin@tripstore.com',
             name: 'admin',
             created_at: new Date().toISOString()
-          })
+          }
         } else {
           // 실제 사용자 정보 가져오기
           const { data: userData, error: userError } = await supabase
@@ -43,20 +45,23 @@ export default function ProfilePage() {
           
           if (userError || !userData) {
             console.error('사용자 데이터 가져오기 오류:', userError)
-            setUser({ 
+            currentUser = { 
               id: session.user.id,
               email: session.user.email,
               name: '사용자',
               created_at: session.user.created_at
-            })
+            }
           } else {
-            setUser(userData)
+            currentUser = userData
           }
         }
         
-        // 예약 정보 가져오기 - API 사용
+        setUser(currentUser)
+        
+        // 예약 정보 가져오기 - 사용자별 조회
         try {
-          const response = await fetch('/api/bookings');
+          const userId = currentUser?.id || 'temp-user';
+          const response = await fetch(`/api/bookings?userId=${userId}`);
           if (response.ok) {
             const result = await response.json();
             console.log('API로 가져온 예약 데이터:', result);
