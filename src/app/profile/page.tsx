@@ -21,68 +21,72 @@ export default function ProfilePage() {
         setIsLoading(true)
         const supabase = createClient()
         
-        // 로그인 상태 확인
+        // 로그인 상태 확인 (임시로 비활성화)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        if (sessionError || !session) {
-          console.log('세션이 없음: 로그인 페이지로 리다이렉트')
-          router.push('/auth/login?redirect=/profile')
-          return
-        }
-        
-        // 사용자 정보 가져오기
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        
-        if (userError || !userData) {
-          console.error('사용자 데이터 가져오기 오류:', userError)
+        // 세션이 없어도 임시 사용자로 진행
+        if (!session) {
+          console.log('세션이 없음: 임시 사용자로 진행')
           setUser({ 
-            id: session.user.id,
-            email: session.user.email,
-            name: '사용자',
-            created_at: session.user.created_at
+            id: 'temp-user',
+            email: 'admin@tripstore.com',
+            name: 'admin',
+            created_at: new Date().toISOString()
           })
         } else {
-          setUser(userData)
+          // 실제 사용자 정보 가져오기
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          
+          if (userError || !userData) {
+            console.error('사용자 데이터 가져오기 오류:', userError)
+            setUser({ 
+              id: session.user.id,
+              email: session.user.email,
+              name: '사용자',
+              created_at: session.user.created_at
+            })
+          } else {
+            setUser(userData)
+          }
         }
         
-        // 예약 정보 가져오기
+        // 예약 정보 가져오기 (임시로 모든 예약 표시)
         const { data: bookingsData, error: bookingsError } = await supabase
           .from('bookings')
           .select(`
             *,
-            packages (id, title, image_url, price),
-            hotels (id, name, image_url, price_per_night),
-            villas (id, name, image_url, price_per_night)
+            packages (id, title, image_url, price)
           `)
-          .eq('user_id', session.user.id)
-          .order('created_at', { ascending: false })
+          .order('booking_date', { ascending: false })
         
         if (bookingsError) {
           console.error('예약 데이터 가져오기 오류:', bookingsError)
         } else {
+          console.log('가져온 예약 데이터:', bookingsData)
           setBookings(bookingsData || [])
         }
         
-        // 위시리스트 정보 가져오기
-        const { data: wishlistData, error: wishlistError } = await supabase
-          .from('wishlists')
-          .select(`
-            *,
-            packages (id, title, image_url, price, destination),
-            hotels (id, name, image_url, price_per_night, location),
-            villas (id, name, image_url, price_per_night, location)
-          `)
-          .eq('user_id', session.user.id)
+        // 위시리스트 정보 가져오기 (임시로 비활성화)
+        // const { data: wishlistData, error: wishlistError } = await supabase
+        //   .from('wishlists')
+        //   .select(`
+        //     *,
+        //     packages (id, title, image_url, price, destination),
+        //     hotels (id, name, image_url, price_per_night, location),
+        //     villas (id, name, image_url, price_per_night, location)
+        //   `)
+        //   .eq('user_id', session?.user?.id)
         
-        if (wishlistError) {
-          console.error('위시리스트 데이터 가져오기 오류:', wishlistError)
-        } else {
-          setWishlist(wishlistData || [])
-        }
+        // if (wishlistError) {
+        //   console.error('위시리스트 데이터 가져오기 오류:', wishlistError)
+        // } else {
+        //   setWishlist(wishlistData || [])
+        // }
+        setWishlist([])
       } catch (error) {
         console.error('사용자 데이터 가져오기 중 오류:', error)
       } finally {
