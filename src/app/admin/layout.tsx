@@ -1,19 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'n      catch (error) {
-        console.error('관리자 확인 중 오류:', error)
-        if (!mounted) return;
-        setIsLoading(false)
-        router.push('/auth/login?redirect=/admin')
-      }
-    }
-
-    checkAdmin()
-    
-    return () => {
-      mounted = false
-    }n'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 import { 
