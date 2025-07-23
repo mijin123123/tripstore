@@ -1,35 +1,63 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-)
+// 환경변수 확인
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+
+console.log('Supabase URL:', supabaseUrl ? 'SET' : 'NOT SET')
+console.log('Supabase Key:', supabaseKey ? 'SET' : 'NOT SET')
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Supabase 환경변수가 설정되지 않았습니다')
+}
+
+const supabase = createClient(supabaseUrl!, supabaseKey!)
 
 export async function POST(request: Request) {
   try {
     console.log('예약 API 호출됨')
     
     const body = await request.json()
-    console.log('받은 데이터:', body)
+    console.log('받은 데이터:', JSON.stringify(body, null, 2))
+
+    // 필수 필드 검증
+    if (!body.packageId) {
+      console.error('packageId가 없습니다')
+      return NextResponse.json(
+        { error: 'packageId는 필수입니다.' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.totalPrice && !body.cost) {
+      console.error('가격 정보가 없습니다')
+      return NextResponse.json(
+        { error: '가격 정보는 필수입니다.' },
+        { status: 400 }
+      )
+    }
+
+    // 데이터 변환
+    const insertData = {
+      package_id: body.packageId,
+      start_date: body.startDate,
+      quantity: body.quantity || body.peopleCount || 1,
+      cost: parseFloat(body.cost || body.totalPrice) || 0,
+      total_price: parseFloat(body.totalPrice || body.cost) || 0,
+      people_count: body.peopleCount || body.quantity || 1,
+      traveler_info: JSON.stringify(body.travelerInfo),
+      special_requests: body.specialRequests || null,
+      status: 'pending',
+      payment_status: 'pending'
+    }
+
+    console.log('삽입할 데이터:', JSON.stringify(insertData, null, 2))
 
     // Supabase에 실제 예약 데이터 저장
     const { data, error } = await supabase
       .from('bookings')
-      .insert([
-        {
-          package_id: body.packageId,
-          start_date: body.startDate,
-          quantity: body.quantity || body.peopleCount || 1,
-          cost: parseFloat(body.cost || body.totalPrice) || 0,
-          total_price: parseFloat(body.totalPrice || body.cost) || 0,
-          people_count: body.peopleCount || body.quantity || 1,
-          traveler_info: JSON.stringify(body.travelerInfo),
-          special_requests: body.specialRequests || null,
-          status: 'pending',
-          payment_status: 'pending'
-        }
-      ])
+      .insert([insertData])
       .select()
 
     if (error) {
@@ -40,6 +68,7 @@ export async function POST(request: Request) {
       )
     }
 
+    console.log('저장 성공:', data)
     return NextResponse.json(
       { 
         message: '예약이 성공적으로 생성되었습니다.',
