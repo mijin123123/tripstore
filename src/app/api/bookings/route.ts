@@ -38,12 +38,14 @@ export async function POST(request: Request) {
       )
     }
 
-    // 데이터 변환 - 최소한의 필드만 사용
+    // 데이터 변환 - 실제 테이블 구조에 맞춤
     const insertData = {
-      user_id: null, // NULL로 변경 (외래키 제약조건 회피)
+      user_id: null, // NULL 허용
       package_id: body.packageId || 'unknown',
-      booking_date: new Date().toISOString(), // 현재 시간
+      villa_id: null, // NULL 허용
+      booking_date: new Date().toISOString().split('T')[0], // DATE 형식
       start_date: body.startDate || '2025-08-01', // 출발일
+      end_date: null, // NULL 허용
       people_count: body.peopleCount || body.quantity || 1, // 인원수
       total_price: parseFloat(body.totalPrice || body.cost) || 0
     }
