@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       user_id: '00000000-0000-0000-0000-000000000000', // 기본 UUID
       package_id: body.packageId || 'unknown',
       booking_date: new Date().toISOString(), // 현재 시간
+      start_date: body.startDate || '2025-08-01', // 출발일
       total_price: parseFloat(body.totalPrice || body.cost) || 0
     }
 
