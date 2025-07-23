@@ -31,24 +31,29 @@ export default function AdminLayout({
       try {
         setIsLoading(true)
         const supabase = createClient()
+        
+        // 먼저 현재 세션을 확인
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        console.log('세션 확인 시도:', session)
+        console.log('세션 확인 시도:', session ? '세션 있음' : '세션 없음')
         
         if (sessionError) {
           console.error('세션 확인 오류:', sessionError)
+          setIsLoading(false)
           router.push('/auth/login?redirect=/admin')
           return
         }
         
         if (!session) {
           console.log('세션이 없음: 로그인 페이지로 리다이렉트')
+          setIsLoading(false)
           router.push('/auth/login?redirect=/admin')
           return
         }
 
         console.log('세션 확인됨:', session.user.id)
 
+        // 사용자 데이터 조회 (옵션으로 처리)
         const { data: userData, error } = await supabase
           .from('users')
           .select('*')
@@ -56,35 +61,60 @@ export default function AdminLayout({
           .single()
 
         if (error) {
-          console.error('사용자 데이터 오류:', error)
-          router.push('/')
-          return
+          console.log('사용자 데이터 오류 (무시하고 계속):', error)
+          // 사용자 데이터가 없어도 세션이 있으면 관리자로 간주
+          setUser({ 
+            id: session.user.id, 
+            email: session.user.email, 
+            name: session.user.email 
+          })
+        } else {
+          setUser(userData)
         }
 
-        if (!userData) {
-          console.log('사용자 데이터가 없음')
-          router.push('/')
-          return
-        }
-
-        // 역할이 admin인지 확인 - 임시로 비활성화
-        const isAdmin = true // userData.role === 'admin' || userData.is_admin === true
+        // 관리자 권한 체크 (현재는 모든 로그인된 사용자를 관리자로 처리)
+        const isAdmin = true // 임시로 모든 사용자를 관리자로 처리
         
         if (!isAdmin) {
           console.log('관리자 권한이 없음')
+          setIsLoading(false)
           router.push('/')
           return
         }
 
-        setUser(userData)
         setIsLoading(false)
       } catch (error) {
         console.error('관리자 확인 중 오류:', error)
-        router.push('/auth/login?redirect=/admin')
+        setIsLoading(false)
+        // 심각한 오류가 아니면 로그인 페이지로 보내지 않음
+        if (error instanceof Error && error.message.includes('network')) {
+          // 네트워크 오류인 경우 재시도
+          setTimeout(() => {
+            checkAdmin()
+          }, 2000)
+        } else {
+          router.push('/auth/login?redirect=/admin')
+        }
       }
     }
 
     checkAdmin()
+
+    // 인증 상태 변화 감지
+    const supabase = createClient()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('인증 상태 변화:', event, session ? '세션 있음' : '세션 없음')
+        
+        if (event === 'SIGNED_OUT') {
+          router.push('/auth/login')
+        } else if (event === 'SIGNED_IN') {
+          checkAdmin()
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const handleLogout = async () => {
