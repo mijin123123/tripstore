@@ -409,7 +409,7 @@ export default function EditPackage() {
         .from('packages')
         .update({
           title: formData.name, // 데이터베이스에서는 title 필드 사용
-          price: String(formData.price || 0), // 문자열로 명시적 변환
+          price: String(formData.price || 0) as any, // 타입 단언으로 문자열 허용
           region: formData.region,
           region_ko: formData.regionKo || '',
           type: formData.category || formData.type, // 데이터베이스에는 type 필드가 있음
