@@ -303,6 +303,18 @@ export default function EditPackage() {
         newType = 'hotel';
         newRegion = 'southeast-asia';
         newRegionKo = '동남아';
+      } else if (value === 'hotel-americas') {
+        newType = 'hotel';
+        newRegion = 'americas';
+        newRegionKo = '미주/캐나다/하와이';
+      } else if (value === 'hotel-china-hongkong') {
+        newType = 'hotel';
+        newRegion = 'china-hongkong';
+        newRegionKo = '대만/홍콩/마카오';
+      } else if (value === 'hotel-guam-saipan') {
+        newType = 'hotel';
+        newRegion = 'guam-saipan';
+        newRegionKo = '괌/사이판';
       } else if (value === 'luxury-europe') {
         newType = 'luxury';
         newRegion = 'europe';
@@ -311,6 +323,18 @@ export default function EditPackage() {
         newType = 'luxury';
         newRegion = 'japan';
         newRegionKo = '일본';
+      } else if (value === 'luxury-southeast-asia') {
+        newType = 'luxury';
+        newRegion = 'southeast-asia';
+        newRegionKo = '동남아';
+      } else if (value === 'luxury-cruise') {
+        newType = 'luxury';
+        newRegion = 'cruise';
+        newRegionKo = '크루즈';
+      } else if (value === 'luxury-special-theme') {
+        newType = 'luxury';
+        newRegion = 'special-theme';
+        newRegionKo = '이색테마';
       }
       
       setFormData({ 
@@ -543,10 +567,16 @@ export default function EditPackage() {
                   <option value="hotel-europe">유럽</option>
                   <option value="hotel-japan">일본</option>
                   <option value="hotel-southeast-asia">동남아</option>
+                  <option value="hotel-americas">미주/캐나다/하와이</option>
+                  <option value="hotel-china-hongkong">대만/홍콩/마카오</option>
+                  <option value="hotel-guam-saipan">괌/사이판</option>
                 </optgroup>
                 <optgroup label="럭셔리">
                   <option value="luxury-europe">유럽</option>
                   <option value="luxury-japan">일본</option>
+                  <option value="luxury-southeast-asia">동남아</option>
+                  <option value="luxury-cruise">크루즈</option>
+                  <option value="luxury-special-theme">이색테마</option>
                 </optgroup>
               </select>
             </div>
