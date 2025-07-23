@@ -417,12 +417,6 @@ export default function PackageDetail() {
                       {formatPrice(calculateTotalPrice())}원
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-xs text-gray-500">
-                    <span>예약금 (10%)</span>
-                    <span>
-                      {formatPrice(calculateDeposit())}원
-                    </span>
-                  </div>
                   {selectedPeople > 1 && (
                     <div className="flex justify-between items-center text-xs text-gray-400 mt-1">
                       <span>{formatPrice(typeof packageData.price === 'number' ? packageData.price : parseInt(String(packageData.price).replace(/,/g, '')))}원 × {selectedPeople}명</span>
@@ -444,10 +438,6 @@ export default function PackageDetail() {
                     <CreditCard className="w-4 h-4 mr-1" />
                     결제하기
                   </button>
-                </div>
-                
-                <div className="mt-4 text-center text-xs text-gray-500">
-                  7일 전 취소 시 100% 환불
                 </div>
               </div>
             </div>
