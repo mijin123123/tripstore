@@ -14,7 +14,7 @@ type Villa = {
   rating: number
   price: string
   features: string[]
-  category_id: number
+  region_id: number
   description: string | null
   max_people: number | null
   bed_count: number | null
@@ -22,12 +22,12 @@ type Villa = {
   is_featured: boolean
   created_at: string
   updated_at: string
-  categories?: {
+  regions?: {
     name: string
   }
 }
 
-type Category = {
+type Region = {
   id: number
   name: string
   slug: string
@@ -35,7 +35,7 @@ type Category = {
 
 export default function AdminVillas() {
   const [villas, setVillas] = useState<Villa[]>([])
-  const [regions, setRegions] = useState<Category[]>([])
+  const [regions, setRegions] = useState<Region[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
@@ -53,7 +53,7 @@ export default function AdminVillas() {
     rating: 4.5,
     price: '',
     features: [''],
-    category_id: 0,
+    region_id: 0,
     description: '',
     max_people: 2,
     bed_count: 1,
@@ -73,16 +73,15 @@ export default function AdminVillas() {
       // 빌라 데이터 가져오기
       const { data: villaData, error: villaError } = await supabase
         .from('villas')
-        .select('*, categories(name)')
+        .select('*, regions(name)')
         .order('created_at', { ascending: false })
       
       if (villaError) throw villaError
       
-      // 국내 카테고리 데이터 가져오기 (국내=3, 국내 서브카테고리=31-33)
+      // 지역 데이터 가져오기
       const { data: regionData, error: regionError } = await supabase
-        .from('categories')
+        .from('regions')
         .select('id, name, slug')
-        .in('id', [3, 31, 32, 33])
         .order('name', { ascending: true })
       
       if (regionError) throw regionError
@@ -100,7 +99,7 @@ export default function AdminVillas() {
     villa.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     villa.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
     villa.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (villa.categories?.name && villa.categories.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    (villa.regions?.name && villa.regions.name.toLowerCase().includes(searchQuery.toLowerCase()))
   )
   
   const handleToggleFeatured = async (id: string, currentStatus: boolean) => {
@@ -170,7 +169,7 @@ export default function AdminVillas() {
       rating: 4.5,
       price: '',
       features: [''],
-      category_id: 0,
+      region_id: 0,
       description: '',
       max_people: 2,
       bed_count: 1,
@@ -195,7 +194,7 @@ export default function AdminVillas() {
       rating: villa.rating,
       price: villa.price,
       features: villa.features || [''],
-      category_id: villa.category_id,
+      region_id: villa.region_id,
       description: villa.description || '',
       max_people: villa.max_people || 2,
       bed_count: villa.bed_count || 1,
@@ -304,7 +303,7 @@ export default function AdminVillas() {
           rating: formData.rating,
           price: formData.price,
           features: filteredFeatures,
-          category_id: formData.category_id,
+          region_id: formData.region_id,
           description: formData.description || null,
           max_people: formData.max_people || null,
           bed_count: formData.bed_count || null,
@@ -355,7 +354,7 @@ export default function AdminVillas() {
           rating: formData.rating,
           price: formData.price,
           features: filteredFeatures,
-          category_id: formData.category_id,
+          region_id: formData.region_id,
           description: formData.description || null,
           max_people: formData.max_people || null,
           bed_count: formData.bed_count || null,
@@ -450,7 +449,7 @@ export default function AdminVillas() {
                     <td className="px-6 py-3 font-mono text-sm">{villa.id}</td>
                     <td className="px-6 py-3 font-medium">{villa.name}</td>
                     <td className="px-6 py-3">{villa.location}</td>
-                    <td className="px-6 py-3">{villa.categories?.name || '알 수 없음'}</td>
+                    <td className="px-6 py-3">{villa.regions?.name || '알 수 없음'}</td>
                     <td className="px-6 py-3">{villa.price}</td>
                     <td className="px-6 py-3">
                       <div className="flex items-center">
@@ -583,8 +582,8 @@ export default function AdminVillas() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">지역 <span className="text-red-500">*</span></label>
                     <select
-                      name="category_id"
-                      value={formData.category_id}
+                      name="region_id"
+                      value={formData.region_id}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
@@ -850,8 +849,8 @@ export default function AdminVillas() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">지역 <span className="text-red-500">*</span></label>
                     <select
-                      name="category_id"
-                      value={formData.category_id}
+                      name="region_id"
+                      value={formData.region_id}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required

@@ -500,8 +500,8 @@ export default function AdminResorts() {
                   <div>
                     <label className="block text-gray-700 mb-1">지역 *</label>
                     <select
-                      name="category_id"
-                      value={formData.category_id}
+                      name="region_id"
+                      value={formData.region_id}
                       onChange={handleInputChange}
                       className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                       required
@@ -748,8 +748,8 @@ export default function AdminResorts() {
                   <div>
                     <label className="block text-gray-700 mb-1">지역 *</label>
                     <select
-                      name="category_id"
-                      value={formData.category_id}
+                      name="region_id"
+                      value={formData.region_id}
                       onChange={handleInputChange}
                       className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                       required
