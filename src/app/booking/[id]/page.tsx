@@ -252,11 +252,13 @@ export default function BookingPage() {
       // 예약 데이터 준비
       const bookingData = {
         packageId: packageData?.id,
-        departureDate: bookingInfo.departureDate,
-        travelerCount: bookingInfo.travelerCount,
+        startDate: bookingInfo.departureDate, // departureDate → startDate로 변경
+        quantity: bookingInfo.travelerCount,
+        peopleCount: bookingInfo.travelerCount, // travelerCount → peopleCount로 변경
         travelerInfo: mainTraveler, // 예약자 정보만 저장
         specialRequests: bookingInfo.specialRequests,
-        totalAmount: calculateTotalAmount(),
+        totalPrice: calculateTotalAmount(), // totalAmount → totalPrice로 변경
+        cost: calculateTotalAmount(), // cost 필드도 추가
         userId: null // 현재는 인증 시스템이 없으므로 null
       };
 
