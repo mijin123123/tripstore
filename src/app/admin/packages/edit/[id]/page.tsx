@@ -417,7 +417,6 @@ export default function EditPackage() {
           image: formData.image || '',
           is_featured: formData.is_featured,
           duration: formData.duration || '',
-          location: formData.location || '',
           departure: formData.departure || '',
           highlights: highlights.length ? highlights : [''],
           itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
