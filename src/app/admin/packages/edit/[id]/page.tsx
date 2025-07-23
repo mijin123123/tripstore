@@ -281,7 +281,7 @@ export default function EditPackage() {
       if (regionInfo) {
         setFormData(prev => ({
           ...prev,
-          type: regionInfo.region,
+          type: regionInfo.region, // 메인 카테고리에 따라 type 설정 (overseas, hotel, domestic, luxury)
           region: regionInfo.region,
           regionKo: regionInfo.regionKo
         }))
@@ -401,7 +401,8 @@ export default function EditPackage() {
         title: formData.name, 
         price: String(formData.price || 0), // 문자열로 변환
         region: formData.region,
-        type: formData.category || formData.type
+        region_ko: formData.regionKo,
+        type: formData.type // type 필드를 올바르게 저장
       });
       
       // 패키지 ID를 사용하여 업데이트
@@ -412,7 +413,7 @@ export default function EditPackage() {
           price: String(formData.price || 0) as any, // 타입 단언으로 문자열 허용
           region: formData.region,
           region_ko: formData.regionKo || '',
-          type: formData.category || formData.type, // 데이터베이스에는 type 필드가 있음
+          type: formData.type, // type 필드를 올바르게 저장 (overseas, hotel, domestic, luxury)
           description: formData.description || '',
           image: formData.image || '',
           is_featured: formData.is_featured,

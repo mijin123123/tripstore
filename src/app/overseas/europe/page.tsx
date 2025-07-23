@@ -2,13 +2,32 @@
 
 import { MapPin, Calendar, Users, Star, Clock, Plane } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { getPackagesByRegion } from '@/data/packages'
+import { useEffect, useState } from 'react'
+import { getPackagesByTypeAndRegion } from '@/lib/api'
+import { Package } from '@/types'
 
 export default function EuropePage() {
   const router = useRouter();
-  const europePackages = getPackagesByRegion('overseas', 'europe');
+  const [europePackages, setEuropePackages] = useState<Package[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // 패키지 데이터에 추가할 패키지들
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setIsLoading(true);
+        const packages = await getPackagesByTypeAndRegion('overseas', 'europe');
+        setEuropePackages(packages);
+      } catch (error) {
+        console.error('유럽 패키지를 가져오는데 실패했습니다:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
+  
+  // 패키지 데이터에 추가할 패키지들 (백업/데모 데이터)
   const additionalPackages = [
     {
       id: 'europe-4',
@@ -40,8 +59,16 @@ export default function EuropePage() {
     }
   ];
   
-  // 모든 패키지 병합
-  const packages = [...europePackages, ...additionalPackages];
+  // 모든 패키지 병합 (실제 데이터베이스 패키지를 우선하고, 데이터가 없으면 데모 데이터 표시)
+  const packages = europePackages.length > 0 ? europePackages : additionalPackages;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-20">
@@ -104,7 +131,7 @@ export default function EuropePage() {
                   {/* 여행 정보 */}
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-2">
-                      {pkg.highlights.slice(0, 2).map((highlight, index) => (
+                      {(pkg.highlights || []).slice(0, 2).map((highlight, index) => (
                         <span 
                           key={index}
                           className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full"
