@@ -115,9 +115,6 @@ export default function EditPackage() {
     duration: '',
     region: '',
     regionKo: '',
-    region_id: 0,
-    category_id: 0,
-    subcategory_id: 0,
     description: '',
     image: '',
     highlights: [''],
@@ -184,15 +181,17 @@ export default function EditPackage() {
           console.log('불러온 패키지 데이터:', pkg);
           
           // 폼 데이터 설정 (데이터베이스에 없는 필드는 기본값 설정)
+          let categoryValue = '';
+          if (pkg.type && pkg.region) {
+            categoryValue = `${pkg.type}-${pkg.region}`;
+          }
+          
           setFormData({
             id: pkg.id || '',
             name: pkg.title || '', // 데이터베이스의 title 필드를 name으로 매핑
             price: pkg.price || 0,
             region: pkg.region || '',
             regionKo: pkg.region_ko || '', // 데이터베이스의 region_ko 필드 사용
-            region_id: 0, // 나중에 설정
-            category_id: 0, // 나중에 설정
-            subcategory_id: 0, // 나중에 설정
             description: pkg.description || '',
             image: pkg.image || '',
             highlights: Array.isArray(pkg.highlights) ? pkg.highlights : [''],
@@ -215,46 +214,8 @@ export default function EditPackage() {
             end_date: pkg.end_date || '',
             duration: pkg.duration || '',
             location: pkg.location || '',
-            category: pkg.category || ''
+            category: categoryValue // type-region 조합으로 카테고리 설정
           })
-          
-          // 지역 및 카테고리 설정
-          if (pkg.type) {
-            // type으로 메인 카테고리 찾기
-            const mainType = pkg.type;
-            
-            // 메인 카테고리에 대한 ID 설정
-            let mainCategoryId = 0;
-            if (mainType === 'overseas') mainCategoryId = 1;
-            else if (mainType === 'hotel') mainCategoryId = 2;
-            else if (mainType === 'domestic') mainCategoryId = 3;
-            else if (mainType === 'luxury') mainCategoryId = 4;
-            
-            if (mainCategoryId > 0) {
-              setFormData(prev => ({
-                ...prev,
-                category_id: mainCategoryId
-              }))
-              
-              // 서브 카테고리 필터링
-              const subs = subCategories.filter(cat => cat.parent_id === mainCategoryId)
-              setFilteredSubCategories(subs)
-              
-              // 지역으로 서브 카테고리 찾기
-              if (pkg.region) {
-                const subCat = Object.entries(categoryRegionMap).find(([id, info]) => {
-                  return info.region === pkg.region && Number(id) > 10 && Math.floor(Number(id) / 10) === mainCategoryId
-                })
-                
-                if (subCat) {
-                  setFormData(prev => ({
-                    ...prev,
-                    subcategory_id: Number(subCat[0])
-                  }))
-                }
-              }
-            }
-          }
           
           setPackageLoaded(true)
         }
@@ -270,48 +231,86 @@ export default function EditPackage() {
     fetchPackage()
   }, [packageId])
   
-  // 메인 카테고리 변경 시 서브 카테고리 필터링
-  useEffect(() => {
-    if (formData.category_id) {
-      const filtered = subCategories.filter(cat => cat.parent_id === formData.category_id)
-      setFilteredSubCategories(filtered)
-      
-      // 지역 정보 업데이트
-      const regionInfo = categoryRegionMap[formData.category_id]
-      if (regionInfo) {
-        setFormData(prev => ({
-          ...prev,
-          type: regionInfo.region, // 메인 카테고리에 따라 type 설정 (overseas, hotel, domestic, luxury)
-          region: regionInfo.region,
-          regionKo: regionInfo.regionKo
-        }))
-      }
-    }
-  }, [formData.category_id, subCategories])
-  
-  // 서브 카테고리 변경 시 지역 정보 업데이트
-  useEffect(() => {
-    if (formData.subcategory_id) {
-      const regionInfo = categoryRegionMap[formData.subcategory_id]
-      if (regionInfo) {
-        setFormData(prev => ({
-          ...prev,
-          region: regionInfo.region,
-          regionKo: regionInfo.regionKo
-        }))
-      }
-    }
-  }, [formData.subcategory_id])
-  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     
     if (name === 'price') {
       setFormData({ ...formData, [name]: parseInt(value) || 0 })
-    } else if (name === 'category_id' || name === 'subcategory_id' || name === 'min_people' || name === 'max_people') {
+    } else if (name === 'min_people' || name === 'max_people') {
       setFormData({ ...formData, [name]: parseInt(value) || 0 })
     } else if ((e.target as HTMLInputElement).type === 'checkbox') {
       setFormData({ ...formData, [name]: (e.target as HTMLInputElement).checked })
+    } else if (name === 'category') {
+      // 카테고리 변경 시 type과 region 자동 설정
+      let newType = '';
+      let newRegion = '';
+      let newRegionKo = '';
+      
+      if (value === 'overseas-europe') {
+        newType = 'overseas';
+        newRegion = 'europe';
+        newRegionKo = '유럽';
+      } else if (value === 'overseas-japan') {
+        newType = 'overseas';
+        newRegion = 'japan';
+        newRegionKo = '일본';
+      } else if (value === 'overseas-southeast-asia') {
+        newType = 'overseas';
+        newRegion = 'southeast-asia';
+        newRegionKo = '동남아';
+      } else if (value === 'overseas-americas') {
+        newType = 'overseas';
+        newRegion = 'americas';
+        newRegionKo = '미주/캐나다/하와이';
+      } else if (value === 'overseas-china-hongkong') {
+        newType = 'overseas';
+        newRegion = 'china-hongkong';
+        newRegionKo = '대만/홍콩/마카오';
+      } else if (value === 'overseas-guam-saipan') {
+        newType = 'overseas';
+        newRegion = 'guam-saipan';
+        newRegionKo = '괌/사이판';
+      } else if (value === 'domestic-hotel') {
+        newType = 'domestic';
+        newRegion = 'hotel';
+        newRegionKo = '호텔';
+      } else if (value === 'domestic-resort') {
+        newType = 'domestic';
+        newRegion = 'resort';
+        newRegionKo = '리조트';
+      } else if (value === 'domestic-pool-villa') {
+        newType = 'domestic';
+        newRegion = 'pool-villa';
+        newRegionKo = '풀빌라';
+      } else if (value === 'hotel-europe') {
+        newType = 'hotel';
+        newRegion = 'europe';
+        newRegionKo = '유럽';
+      } else if (value === 'hotel-japan') {
+        newType = 'hotel';
+        newRegion = 'japan';
+        newRegionKo = '일본';
+      } else if (value === 'hotel-southeast-asia') {
+        newType = 'hotel';
+        newRegion = 'southeast-asia';
+        newRegionKo = '동남아';
+      } else if (value === 'luxury-europe') {
+        newType = 'luxury';
+        newRegion = 'europe';
+        newRegionKo = '유럽';
+      } else if (value === 'luxury-japan') {
+        newType = 'luxury';
+        newRegion = 'japan';
+        newRegionKo = '일본';
+      }
+      
+      setFormData({ 
+        ...formData, 
+        [name]: value,
+        type: newType,
+        region: newRegion,
+        regionKo: newRegionKo
+      })
     } else {
       setFormData({ ...formData, [name]: value })
     }
@@ -376,7 +375,7 @@ export default function EditPackage() {
     
     try {
       // 필수 필드 검증
-      if (!formData.name || !formData.price || !formData.category_id) {
+      if (!formData.name || !formData.price || !formData.category) {
         throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 카테고리)')
       }
       
@@ -502,37 +501,38 @@ export default function EditPackage() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                메인 카테고리 <span className="text-red-500">*</span>
+                카테고리 <span className="text-red-500">*</span>
               </label>
               <select
-                name="category_id"
-                value={formData.category_id}
+                name="category"
+                value={formData.category}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
                 <option value="">카테고리 선택</option>
-                {mainCategories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                서브 카테고리
-              </label>
-              <select
-                name="subcategory_id"
-                value={formData.subcategory_id}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={!formData.category_id}
-              >
-                <option value="">서브 카테고리 선택</option>
-                {filteredSubCategories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
+                <optgroup label="해외여행">
+                  <option value="overseas-europe">유럽</option>
+                  <option value="overseas-japan">일본</option>
+                  <option value="overseas-southeast-asia">동남아</option>
+                  <option value="overseas-americas">미주/캐나다/하와이</option>
+                  <option value="overseas-china-hongkong">대만/홍콩/마카오</option>
+                  <option value="overseas-guam-saipan">괌/사이판</option>
+                </optgroup>
+                <optgroup label="국내여행">
+                  <option value="domestic-hotel">호텔</option>
+                  <option value="domestic-resort">리조트</option>
+                  <option value="domestic-pool-villa">풀빌라</option>
+                </optgroup>
+                <optgroup label="호텔">
+                  <option value="hotel-europe">유럽</option>
+                  <option value="hotel-japan">일본</option>
+                  <option value="hotel-southeast-asia">동남아</option>
+                </optgroup>
+                <optgroup label="럭셔리">
+                  <option value="luxury-europe">유럽</option>
+                  <option value="luxury-japan">일본</option>
+                </optgroup>
               </select>
             </div>
             
