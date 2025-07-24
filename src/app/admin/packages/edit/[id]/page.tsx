@@ -192,11 +192,31 @@ export default function EditPackage() {
             categoryValue = `${pkg.type}-${pkg.region}`;
           }
           
-          // features에서 이미지 배열과 location 정보 추출
-          const featuresImages = pkg.features?.images || [];
+          // features에서 이미지 배열과 location 정보 추출 (개선된 방식)
+          const featuresImages = pkg.features?.images || pkg.features?.all_images || pkg.features?.additional_images || [];
           const mainImage = pkg.image || '';
-          const allImages = mainImage ? [mainImage, ...featuresImages] : featuresImages;
+          
+          // 이미지 배열 구성: 메인 이미지가 있으면 featuresImages에 포함되어 있는지 확인
+          let allImages = [];
+          if (featuresImages.length > 0) {
+            // features에 이미지들이 저장되어 있는 경우
+            allImages = featuresImages;
+          } else if (mainImage) {
+            // 메인 이미지만 있는 경우
+            allImages = [mainImage];
+          } else {
+            // 이미지가 없는 경우
+            allImages = [''];
+          }
+          
           const location = pkg.features?.location || '';
+          
+          console.log('이미지 로딩 상황:', {
+            mainImage,
+            featuresImages,
+            allImages,
+            features: pkg.features
+          });
           
           setFormData({
             id: pkg.id || '',
@@ -456,7 +476,7 @@ export default function EditPackage() {
       // 기존 패키지의 category_id 유지 (변경하지 않음)
       // 나중에 실제 카테고리 테이블 확인 후 올바른 매핑 적용
 
-      // 데이터베이스 업데이트 데이터 준비 (category_id는 일단 제외)
+      // 데이터베이스 업데이트 데이터 준비 (이미지 처리 방식 변경)
       const updateData = {
         title: formData.name,
         price: String(formData.price || 0) as any, // 타입 단언 추가
@@ -465,10 +485,12 @@ export default function EditPackage() {
         type: formData.type,
         // category_id: categoryId, // 외래 키 제약 조건 문제로 일단 제외
         description: formData.description || '',
-        image: images.length > 0 ? images[0] : (formData.image || ''),
+        image: images.length > 0 ? images[0] : (formData.image || ''), // 메인 이미지
         features: { 
           location: formData.location || '',
-          images: images.length > 1 ? images.slice(1) : []
+          images: images, // 모든 이미지를 features.images에 저장 (메인 이미지 포함)
+          additional_images: images.length > 1 ? images.slice(1) : [], // 추가 이미지들만 따로 저장
+          all_images: images // 백업용으로 모든 이미지 저장
         },
         is_featured: formData.is_featured,
         duration: formData.duration || '',
