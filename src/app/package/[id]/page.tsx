@@ -90,14 +90,111 @@ export default function PackageDetail() {
     return '/'; // 기본값으로 홈페이지로 이동
   };
 
+  // 이미지 배열 생성 함수
+  const getPackageImages = () => {
+    const images: string[] = [];
+    
+    // 메인 이미지 추가
+    if (packageData.image) {
+      images.push(packageData.image);
+    }
+    
+    // features에 있는 이미지들 추가
+    if (typeof packageData.features === 'object' && !Array.isArray(packageData.features)) {
+      if (packageData.features.images && Array.isArray(packageData.features.images)) {
+        // 중복 이미지는 추가하지 않음
+        packageData.features.images.forEach(img => {
+          if (!images.includes(img)) {
+            images.push(img);
+          }
+        });
+      }
+      
+      if (packageData.features.additional_images && Array.isArray(packageData.features.additional_images)) {
+        packageData.features.additional_images.forEach(img => {
+          if (!images.includes(img)) {
+            images.push(img);
+          }
+        });
+      }
+      
+      if (packageData.features.all_images && Array.isArray(packageData.features.all_images)) {
+        packageData.features.all_images.forEach(img => {
+          if (!images.includes(img)) {
+            images.push(img);
+          }
+        });
+      }
+    }
+    
+    // 만약 images 배열이 있으면 추가
+    if (packageData.images && Array.isArray(packageData.images)) {
+      packageData.images.forEach(img => {
+        if (!images.includes(img)) {
+          images.push(img);
+        }
+      });
+    }
+    
+    return images.length > 0 ? images : [packageData.image || ''];
+  };
+  
+  const packageImages = getPackageImages();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // 이미지 슬라이더 제어 함수
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % packageImages.length);
+  };
+  
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + packageImages.length) % packageImages.length);
+  };
+
   return (
     <div className="min-h-screen pt-20">
-      {/* 헤더 섹션 */}
-      <section 
-        className="relative h-96 bg-cover bg-center"
-        style={{ backgroundImage: `url(${packageData.image})` }}
-      >
+      {/* 헤더 섹션 - 이미지 슬라이더로 변경 */}
+      <section className="relative h-96">
+        {packageImages.map((imageUrl, index) => (
+          <div 
+            key={index} 
+            className={`absolute inset-0 transition-opacity duration-500 bg-cover bg-center ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
+            style={{ backgroundImage: `url(${imageUrl})` }}
+          >
+          </div>
+        ))}
+        
         <div className="absolute inset-0 bg-black/50"></div>
+        
+        {/* 이미지가 여러 개일 경우에만 네비게이션 버튼 표시 */}
+        {packageImages.length > 1 && (
+          <>
+            <button 
+              onClick={prevImage} 
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-2 text-white z-10"
+              aria-label="이전 이미지"
+            >
+              &lt;
+            </button>
+            <button 
+              onClick={nextImage} 
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-2 text-white z-10"
+              aria-label="다음 이미지"
+            >
+              &gt;
+            </button>
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+              {packageImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`w-2 h-2 rounded-full ${index === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
+                  aria-label={`${index + 1}번 이미지로 이동`}
+                />
+              ))}
+            </div>
+          </>
+        )}
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
             <div className="mb-4">
