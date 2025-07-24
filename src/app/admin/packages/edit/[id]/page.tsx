@@ -473,7 +473,7 @@ export default function EditPackage() {
       // 데이터베이스 업데이트 데이터 준비
       const updateData = {
         title: formData.name,
-        price: String(formData.price || 0),
+        price: String(formData.price || 0) as any, // 타입 단언 추가
         region: formData.region,
         region_ko: formData.regionKo || '',
         type: formData.type,
