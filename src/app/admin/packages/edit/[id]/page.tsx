@@ -501,7 +501,7 @@ export default function EditPackage() {
         .from('packages')
         .update({
           title: formData.name,
-          price: String(formData.price || 0),
+          price: String(formData.price || 0) as any, // 타입 단언으로 문자열 허용
           region: formData.region,
           region_ko: formData.regionKo || '',
           type: formData.type,
