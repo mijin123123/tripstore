@@ -62,6 +62,7 @@ export default function EditPackage() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const [packageLoaded, setPackageLoaded] = useState(false)
+  const [uploadingImages, setUploadingImages] = useState<number[]>([])
   
   // 카테고리 ID와 지역명 매핑 정의
   const categoryRegionMap: Record<number, { region: string, regionKo: string }> = {
@@ -398,6 +399,64 @@ export default function EditPackage() {
   const removeArrayItem = (index: number, field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     const newArray = formData[field].filter((_, i) => i !== index)
     setFormData({ ...formData, [field]: newArray })
+  }
+
+  // 파일 업로드 처리 함수
+  const handleFileUpload = async (file: File, index: number) => {
+    if (!file) return
+
+    // 파일 크기 체크 (5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('파일 크기는 5MB 이하로 제한됩니다.')
+      return
+    }
+
+    // 파일 타입 체크
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.')
+      return
+    }
+
+    try {
+      setUploadingImages(prev => [...prev, index])
+      
+      const supabase = createClient()
+      
+      // 파일명 생성 (타임스탬프 + 원본 파일명)
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = `packages/${fileName}`
+
+      // Supabase Storage에 파일 업로드
+      const { data, error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (error) {
+        console.error('파일 업로드 실패:', error)
+        alert('파일 업로드에 실패했습니다.')
+        return
+      }
+
+      // 업로드된 파일의 공개 URL 가져오기
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath)
+
+      // 폼 데이터 업데이트
+      const newImages = [...formData.images]
+      newImages[index] = publicUrl
+      setFormData({ ...formData, images: newImages })
+
+    } catch (error) {
+      console.error('파일 업로드 중 오류:', error)
+      alert('파일 업로드 중 오류가 발생했습니다.')
+    } finally {
+      setUploadingImages(prev => prev.filter(i => i !== index))
+    }
   }
   
   const handleItineraryChange = (index: number, field: string, value: any) => {
@@ -778,7 +837,7 @@ export default function EditPackage() {
             <div className="md:col-span-2">
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  패키지 이미지 URL
+                  패키지 이미지
                 </label>
                 <button
                   type="button"
@@ -796,22 +855,48 @@ export default function EditPackage() {
               
               {formData.images.map((imageUrl, index) => (
                 <div key={index} className="mb-4">
-                  <div className="flex mb-2">
-                    <input
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://example.com/image.jpg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem(index, 'images')}
-                      className="px-3 py-2 border border-l-0 border-gray-300 rounded-r-md text-red-600 hover:text-red-800 hover:bg-red-50"
-                      disabled={formData.images.length <= 1}
-                    >
-                      <X size={16} />
-                    </button>
+                  <div className="mb-2">
+                    <div className="flex items-center space-x-2">
+                      {/* 파일 업로드 입력 */}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              handleFileUpload(file, index)
+                            }
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          disabled={uploadingImages.includes(index)}
+                        />
+                        {uploadingImages.includes(index) && (
+                          <div className="text-sm text-blue-600 mt-1">업로드 중...</div>
+                        )}
+                      </div>
+                      
+                      {/* URL 직접 입력 (선택사항) */}
+                      <div className="flex-1">
+                        <input
+                          type="url"
+                          value={imageUrl}
+                          onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
+                          className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="또는 이미지 URL 직접 입력"
+                        />
+                      </div>
+                      
+                      {/* 삭제 버튼 */}
+                      <button
+                        type="button"
+                        onClick={() => removeArrayItem(index, 'images')}
+                        className="px-3 py-2 border border-gray-300 rounded-r-md text-red-600 hover:text-red-800 hover:bg-red-50"
+                        disabled={formData.images.length <= 1}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
                   </div>
                   
                   {imageUrl && (
@@ -836,7 +921,10 @@ export default function EditPackage() {
               ))}
               
               <p className="text-xs text-gray-500 mt-2">
-                첫 번째 이미지가 메인 이미지로 사용됩니다. 이미지는 최대 10개까지 추가 가능합니다.
+                • 첫 번째 이미지가 메인 이미지로 사용됩니다.<br/>
+                • 파일 업로드 또는 URL 직접 입력이 가능합니다.<br/>
+                • 이미지 파일 크기는 5MB 이하로 제한됩니다.<br/>
+                • 이미지는 최대 10개까지 추가 가능합니다.
               </p>
             </div>
             

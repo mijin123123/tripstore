@@ -53,16 +53,18 @@ function LoginForm() {
             .single();
             
           if (userData?.role === 'admin') {
-            router.push('/admin');
+            window.location.href = '/admin';
+          } else {
+            setLoginError('관리자 권한이 없습니다.');
           }
         } else {
-          router.push(redirectTo);
+          window.location.href = redirectTo;
         }
       }
     };
     
     checkAuth();
-  }, [redirectTo, router]);
+  }, [redirectTo]);
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {}
@@ -155,9 +157,11 @@ function LoginForm() {
         
         // 권한에 따른 리디렉션
         if (userData?.role === 'admin' && !redirectTo.includes('/admin')) {
-          router.push('/admin')
+          console.log('관리자로 리디렉션 중...')
+          window.location.href = '/admin'
         } else {
-          router.push(redirectTo)
+          console.log('지정된 경로로 리디렉션 중:', redirectTo)
+          window.location.href = redirectTo
         }
       } else {
         setLoginError('로그인 처리 중 오류가 발생했습니다.')
