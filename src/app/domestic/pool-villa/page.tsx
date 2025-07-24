@@ -3,35 +3,29 @@
 import { useState, useEffect } from 'react'
 import { MapPin, Star, Calendar, Home, Palmtree, Umbrella, Wifi, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { Villa } from '@/types'
-import { getAllVillas } from '@/lib/api'
+import { Package } from '@/types'
+import { getPackagesByTypeAndRegion } from '@/lib/api'
 
 export default function DomesticPoolVillaPage() {
   const router = useRouter();
-  const [villas, setVillas] = useState<Villa[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    async function fetchVillas() {
+    async function fetchPoolVillas() {
       try {
-        const villaData = await getAllVillas();
-        // 국내 풀빌라 데이터만 필터링 (필요한 경우)
-        const domesticVillas = villaData.filter(villa => 
-          villa.location.includes('제주도') || 
-          villa.location.includes('강원도') || 
-          villa.location.includes('경기도') ||
-          villa.location.includes('전라남도') ||
-          villa.location.includes('경상남도')
-        );
-        setVillas(domesticVillas);
+        console.log('풀빌라 패키지 조회 시작: type=domestic, region=pool-villa');
+        const poolVillaData = await getPackagesByTypeAndRegion('domestic', 'pool-villa');
+        console.log('풀빌라 패키지 조회 결과:', poolVillaData);
+        setPackages(poolVillaData);
       } catch (error) {
-        console.error('빌라 데이터를 가져오는 중 오류 발생:', error);
+        console.error('풀빌라 패키지 데이터를 가져오는 중 오류 발생:', error);
       } finally {
         setIsLoading(false);
       }
     }
     
-    fetchVillas();
+    fetchPoolVillas();
   }, []);
 
   // 로딩 상태 표시
@@ -77,48 +71,50 @@ export default function DomesticPoolVillaPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {villas.map((villa) => (
-              <div 
-                key={villa.id} 
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full cursor-pointer"
-                onClick={() => router.push(`/package/domestic-villa-${villa.id}`)}
-              >
-                <div className="relative h-48 bg-gradient-to-r from-teal-500 to-emerald-600 flex-shrink-0">
-                  <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                  <div className="absolute top-4 right-4 bg-white bg-opacity-90 px-3 py-1 rounded-full">
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-medium">{villa.rating}</span>
+            {packages.length > 0 ? (
+              packages.map((packageItem) => (
+                <div 
+                  key={packageItem.id} 
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full cursor-pointer"
+                  onClick={() => router.push(`/package/${packageItem.id}`)}
+                >
+                  <div className="relative h-48 bg-gradient-to-r from-teal-500 to-emerald-600 flex-shrink-0">
+                    {packageItem.image && (
+                      <img 
+                        src={packageItem.image} 
+                        alt={packageItem.title || packageItem.name}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                    <div className="absolute top-4 right-4 bg-white bg-opacity-90 px-3 py-1 rounded-full">
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-sm font-medium">5</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{villa.name}</h3>
-                  <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{villa.location}</span>
+                  
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                    <div className="flex items-center gap-1 text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{packageItem.features?.location || packageItem.location || '위치 정보 없음'}</span>
+                    </div>
                   </div>
                   
                   <div className="mb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {villa.features.map((feature, index) => (
-                        <span 
-                          key={index}
-                          className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm"
-                        >
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
+                    <p className="text-gray-600 text-sm line-clamp-3">
+                      {packageItem.description || '특별한 풀빌라에서의 프라이빗한 휴식을 즐기세요.'}
+                    </p>
                   </div>
                   
                   <div className="flex items-center justify-between mt-4">
                     <div>
                       <span className="text-xl font-bold text-teal-600">
-                        {villa.price}원
+                        {Number(packageItem.price).toLocaleString()}원
                       </span>
-                      <span className="text-gray-500 text-xs">/ 1박</span>
+                      <span className="text-gray-500 text-xs">/ {packageItem.duration || '1박'}</span>
                     </div>
                     <div className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors">
                       상세보기
@@ -126,7 +122,12 @@ export default function DomesticPoolVillaPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            ))) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">등록된 풀빌라 패키지가 없습니다.</p>
+                <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
