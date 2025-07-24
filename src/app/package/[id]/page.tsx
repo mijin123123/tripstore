@@ -132,7 +132,7 @@ export default function PackageDetail() {
             const images: string[] = [];
             
             console.log('패키지 이미지 정보:', {
-              image: packageInfo.image?.substring(0, 50) + (packageInfo.image?.length > 50 ? '...' : ''),
+              image: packageInfo.image?.substring(0, 50) + ((packageInfo.image?.length || 0) > 50 ? '...' : ''),
               images: packageInfo.images,
               type: packageInfo.type,
               region: packageInfo.region
