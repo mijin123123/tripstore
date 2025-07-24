@@ -52,8 +52,8 @@ export default function BookingPage() {
 
   // 사이트 설정 상태 관리
   const [siteSettings, setSiteSettings] = useState({
-    paymentInstruction: "아래 계좌로 예약금(총 결제금액의 10%)을 먼저 입금해 주세요.",
-    paymentConfirmationTime: "입금 후 1~2일 내에 예약 확정 문자가 발송됩니다."
+    paymentInstruction: "입금 시 예약자분 성함으로 부탁하며, 예약자분 변경을 원하시면 1:1 채팅 상담으로 문의 부탁합니다.",
+    paymentConfirmationTime: "입금 확인 소요시간은 순차적으로 확인되며 최대 1일 ~ 2일 소요되며, 가입시 작성해주신 이메일로 안내 도움 드립니다."
   });
   
   // 패키지에 포함된 추천 출발일 (동적으로 설정될 예정)
@@ -215,8 +215,8 @@ export default function BookingPage() {
           
           // 입금 안내 및 확인 시간도 업데이트
           setSiteSettings({
-            paymentInstruction: result.payment.payment_instruction || "아래 계좌로 예약금(총 결제금액의 10%)을 먼저 입금해 주세요.",
-            paymentConfirmationTime: result.payment.payment_confirmation_time || "입금 후 1~2일 내에 예약 확정 문자가 발송됩니다."
+            paymentInstruction: result.payment.payment_instruction || "입금 시 예약자분 성함으로 부탁하며, 예약자분 변경을 원하시면 1:1 채팅 상담으로 문의 부탁합니다.",
+            paymentConfirmationTime: result.payment.payment_confirmation_time || "입금 확인 소요시간은 순차적으로 확인되며 최대 1일 ~ 2일 소요되며, 가입시 작성해주신 이메일로 안내 도움 드립니다."
           })
           
           console.log('계좌정보 업데이트됨:', bankInfo)
