@@ -588,7 +588,7 @@ export default function CreatePackage() {
               </div>
               
               {formData.images.map((imageUrl, index) => (
-                <div key={index} className="mb-4">
+                <div key={index} className="mb-3">
                   <div className="mb-2">
                     <div className="flex items-center space-x-2">
                       {/* 파일 업로드 입력 */}
@@ -610,17 +610,6 @@ export default function CreatePackage() {
                         )}
                       </div>
                       
-                      {/* URL 직접 입력 (선택사항) */}
-                      <div className="flex-1">
-                        <input
-                          type="url"
-                          value={imageUrl}
-                          onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
-                          className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="또는 이미지 URL 직접 입력"
-                        />
-                      </div>
-                      
                       {/* 삭제 버튼 */}
                       <button
                         type="button"
@@ -631,10 +620,24 @@ export default function CreatePackage() {
                         <X size={16} />
                       </button>
                     </div>
+                    
+                    {/* 업로드된 이미지가 있는 경우에만 URL 표시 (편집용) */}
+                    {imageUrl && (
+                      <div className="mt-1">
+                        <input
+                          type="url"
+                          value={imageUrl}
+                          onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
+                          className="w-full px-2 py-1 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                          placeholder="이미지 URL (편집 가능)"
+                          readOnly={uploadingImages.includes(index)}
+                        />
+                      </div>
+                    )}
                   </div>
                   
                   {imageUrl && (
-                    <div className="relative h-32 w-full md:w-1/2 border rounded-md overflow-hidden bg-gray-50">
+                    <div className="relative h-24 w-32 border rounded-md overflow-hidden bg-gray-50">
                       <img
                         src={imageUrl}
                         alt={`패키지 이미지 ${index + 1}`}
@@ -645,8 +648,8 @@ export default function CreatePackage() {
                         }}
                       />
                       {index === 0 && (
-                        <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                          메인 이미지
+                        <div className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
+                          메인
                         </div>
                       )}
                     </div>
@@ -656,8 +659,8 @@ export default function CreatePackage() {
               
               <p className="text-xs text-gray-500 mt-2">
                 • 첫 번째 이미지가 메인 이미지로 사용됩니다.<br/>
-                • 파일 업로드 또는 URL 직접 입력이 가능합니다.<br/>
                 • 이미지 파일 크기는 5MB 이하로 제한됩니다.<br/>
+                • 지원 형식: JPEG, PNG, WebP, GIF<br/>
                 • 이미지는 최대 10개까지 추가 가능합니다.
               </p>
             </div>

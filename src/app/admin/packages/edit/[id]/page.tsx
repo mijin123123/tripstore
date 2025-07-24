@@ -496,6 +496,43 @@ export default function EditPackage() {
     setFormData({ ...formData, itinerary: newItinerary })
   }
 
+  const handleItineraryChange = (index: number, field: string, value: any) => {
+    const newItinerary = [...formData.itinerary]
+    
+    if (field === 'breakfast' || field === 'lunch' || field === 'dinner') {
+      newItinerary[index].meals = {
+        ...newItinerary[index].meals,
+        [field]: value
+      }
+    } else {
+      // @ts-ignore
+      newItinerary[index][field] = value
+    }
+    
+    setFormData({ ...formData, itinerary: newItinerary })
+  }
+  
+  const addItineraryDay = () => {
+    const lastDay = formData.itinerary[formData.itinerary.length - 1].day
+    const newDay = {
+      day: lastDay + 1,
+      title: '',
+      description: '',
+      accommodation: '',
+      meals: { breakfast: false, lunch: false, dinner: false }
+    }
+    
+    setFormData({ ...formData, itinerary: [...formData.itinerary, newDay] })
+  }
+  
+  const removeItineraryDay = (index: number) => {
+    const newItinerary = formData.itinerary
+      .filter((_, i) => i !== index)
+      .map((day, i) => ({ ...day, day: i + 1 }))
+      
+    setFormData({ ...formData, itinerary: newItinerary })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
@@ -854,7 +891,7 @@ export default function EditPackage() {
               </div>
               
               {formData.images.map((imageUrl, index) => (
-                <div key={index} className="mb-4">
+                <div key={index} className="mb-3">
                   <div className="mb-2">
                     <div className="flex items-center space-x-2">
                       {/* 파일 업로드 입력 */}
@@ -876,17 +913,6 @@ export default function EditPackage() {
                         )}
                       </div>
                       
-                      {/* URL 직접 입력 (선택사항) */}
-                      <div className="flex-1">
-                        <input
-                          type="url"
-                          value={imageUrl}
-                          onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
-                          className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="또는 이미지 URL 직접 입력"
-                        />
-                      </div>
-                      
                       {/* 삭제 버튼 */}
                       <button
                         type="button"
@@ -897,10 +923,24 @@ export default function EditPackage() {
                         <X size={16} />
                       </button>
                     </div>
+                    
+                    {/* 기존 이미지가 있는 경우에만 URL 표시 (편집용) */}
+                    {imageUrl && (
+                      <div className="mt-1">
+                        <input
+                          type="url"
+                          value={imageUrl}
+                          onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
+                          className="w-full px-2 py-1 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                          placeholder="이미지 URL (편집 가능)"
+                          readOnly={uploadingImages.includes(index)}
+                        />
+                      </div>
+                    )}
                   </div>
                   
                   {imageUrl && (
-                    <div className="relative h-32 w-full md:w-1/2 border rounded-md overflow-hidden bg-gray-50">
+                    <div className="relative h-24 w-32 border rounded-md overflow-hidden bg-gray-50">
                       <img
                         src={imageUrl}
                         alt={`패키지 이미지 ${index + 1}`}
@@ -911,8 +951,8 @@ export default function EditPackage() {
                         }}
                       />
                       {index === 0 && (
-                        <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                          메인 이미지
+                        <div className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
+                          메인
                         </div>
                       )}
                     </div>
@@ -922,8 +962,8 @@ export default function EditPackage() {
               
               <p className="text-xs text-gray-500 mt-2">
                 • 첫 번째 이미지가 메인 이미지로 사용됩니다.<br/>
-                • 파일 업로드 또는 URL 직접 입력이 가능합니다.<br/>
                 • 이미지 파일 크기는 5MB 이하로 제한됩니다.<br/>
+                • 지원 형식: JPEG, PNG, WebP, GIF<br/>
                 • 이미지는 최대 10개까지 추가 가능합니다.
               </p>
             </div>
@@ -971,6 +1011,214 @@ export default function EditPackage() {
                 onClick={() => removeArrayItem(index, 'highlights')}
                 className="ml-2 text-red-600 hover:text-red-800"
                 disabled={formData.highlights.length <= 1}
+              >
+                <X size={20} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* 상세 일정 */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">상세 일정</h2>
+            <button
+              type="button"
+              onClick={addItineraryDay}
+              className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+            >
+              <Plus size={16} className="mr-1" /> 일정 추가
+            </button>
+          </div>
+          
+          {formData.itinerary.map((day, index) => (
+            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-md font-medium">Day {day.day}</h3>
+                <button
+                  type="button"
+                  onClick={() => removeItineraryDay(index)}
+                  className="text-red-600 hover:text-red-800"
+                  disabled={formData.itinerary.length <= 1}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    일정 제목
+                  </label>
+                  <input
+                    type="text"
+                    value={day.title}
+                    onChange={(e) => handleItineraryChange(index, 'title', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="예: 인천공항 출발 - 파리 도착"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    일정 설명
+                  </label>
+                  <textarea
+                    value={day.description}
+                    onChange={(e) => handleItineraryChange(index, 'description', e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="상세한 일정 내용을 입력하세요"
+                  ></textarea>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    숙박
+                  </label>
+                  <input
+                    type="text"
+                    value={day.accommodation}
+                    onChange={(e) => handleItineraryChange(index, 'accommodation', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="예: 파리 시내 4성급 호텔"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    식사
+                  </label>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={day.meals.breakfast}
+                        onChange={(e) => handleItineraryChange(index, 'breakfast', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm">조식</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={day.meals.lunch}
+                        onChange={(e) => handleItineraryChange(index, 'lunch', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm">중식</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={day.meals.dinner}
+                        onChange={(e) => handleItineraryChange(index, 'dinner', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm">석식</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 포함 사항 */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">포함 사항</h2>
+            <button
+              type="button"
+              onClick={() => addArrayItem('included')}
+              className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+            >
+              <Plus size={16} className="mr-1" /> 추가
+            </button>
+          </div>
+          
+          {formData.included.map((item, index) => (
+            <div key={index} className="flex mb-3">
+              <input
+                type="text"
+                value={item}
+                onChange={(e) => handleArrayChange(index, e.target.value, 'included')}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="포함되는 항목을 입력하세요"
+              />
+              <button
+                type="button"
+                onClick={() => removeArrayItem(index, 'included')}
+                className="ml-2 text-red-600 hover:text-red-800"
+                disabled={formData.included.length <= 1}
+              >
+                <X size={20} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* 불포함 사항 */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">불포함 사항</h2>
+            <button
+              type="button"
+              onClick={() => addArrayItem('excluded')}
+              className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+            >
+              <Plus size={16} className="mr-1" /> 추가
+            </button>
+          </div>
+          
+          {formData.excluded.map((item, index) => (
+            <div key={index} className="flex mb-3">
+              <input
+                type="text"
+                value={item}
+                onChange={(e) => handleArrayChange(index, e.target.value, 'excluded')}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="포함되지 않는 항목을 입력하세요"
+              />
+              <button
+                type="button"
+                onClick={() => removeArrayItem(index, 'excluded')}
+                className="ml-2 text-red-600 hover:text-red-800"
+                disabled={formData.excluded.length <= 1}
+              >
+                <X size={20} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* 예약 시 참고사항 */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">예약 시 참고사항</h2>
+            <button
+              type="button"
+              onClick={() => addArrayItem('notes')}
+              className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+            >
+              <Plus size={16} className="mr-1" /> 추가
+            </button>
+          </div>
+          
+          {formData.notes.map((note, index) => (
+            <div key={index} className="flex mb-3">
+              <input
+                type="text"
+                value={note}
+                onChange={(e) => handleArrayChange(index, e.target.value, 'notes')}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예약 시 주의사항이나 참고사항을 입력하세요"
+              />
+              <button
+                type="button"
+                onClick={() => removeArrayItem(index, 'notes')}
+                className="ml-2 text-red-600 hover:text-red-800"
+                disabled={formData.notes.length <= 1}
               >
                 <X size={20} />
               </button>
