@@ -187,15 +187,21 @@ export default function EditPackage() {
             categoryValue = `${pkg.type}-${pkg.region}`;
           }
           
+          // features에서 이미지 배열과 location 정보 추출
+          const featuresImages = pkg.features?.images || [];
+          const mainImage = pkg.image || '';
+          const allImages = mainImage ? [mainImage, ...featuresImages] : featuresImages;
+          const location = pkg.features?.location || '';
+          
           setFormData({
             id: pkg.id || '',
             name: pkg.title || '', // 데이터베이스의 title 필드를 name으로 매핑
-            price: pkg.price || 0,
+            price: parseInt(pkg.price) || 0, // 문자열을 숫자로 변환
             region: pkg.region || '',
             regionKo: pkg.region_ko || '', // 데이터베이스의 region_ko 필드 사용
             description: pkg.description || '',
-            image: pkg.image || '',
-            images: pkg.features?.images ? pkg.features.images : (pkg.image ? [pkg.image] : ['']), // features에서 이미지 배열 로드, 없으면 기존 image 사용
+            image: mainImage,
+            images: allImages.length > 0 ? allImages : [''], // 메인 이미지 + 추가 이미지들
             highlights: Array.isArray(pkg.highlights) ? pkg.highlights : [''],
             departure: pkg.departure || '',
             type: pkg.type || '', // 데이터베이스의 type 필드 사용
@@ -215,7 +221,7 @@ export default function EditPackage() {
             start_date: pkg.start_date || '',
             end_date: pkg.end_date || '',
             duration: pkg.duration || '',
-            location: pkg.location || '',
+            location: location, // features에서 location 추출
             category: categoryValue // type-region 조합으로 카테고리 설정
           })
           
@@ -466,20 +472,46 @@ export default function EditPackage() {
       else if (formData.category === 'luxury-special-theme') categoryId = 45;
 
       // 패키지 ID를 사용하여 업데이트
+      console.log('업데이트할 데이터:', {
+        title: formData.name,
+        price: String(formData.price || 0),
+        region: formData.region,
+        region_ko: formData.regionKo,
+        type: formData.type,
+        category_id: categoryId,
+        description: formData.description,
+        image: images.length > 0 ? images[0] : (formData.image || ''),
+        features: { 
+          ...formData, // 기존 features 유지
+          images: images.length > 1 ? images.slice(1) : [] // 첫 번째 이미지 제외한 나머지 이미지들
+        },
+        is_featured: formData.is_featured,
+        duration: formData.duration,
+        departure: formData.departure,
+        highlights: highlights.length ? highlights : [''],
+        itinerary: itinerary,
+        included: included.length ? included : [''],
+        excluded: excluded.length ? excluded : [''],
+        notes: notes.length ? notes : [''],
+        min_people: formData.min_people || 1,
+        max_people: formData.max_people || 10
+      });
+
       const { error } = await supabase
         .from('packages')
         .update({
-          title: formData.name, // 데이터베이스에서는 title 필드 사용
-          price: String(formData.price || 0) as any, // 타입 단언으로 문자열 허용
+          title: formData.name,
+          price: String(formData.price || 0),
           region: formData.region,
           region_ko: formData.regionKo || '',
-          type: formData.type, // type 필드를 올바르게 저장 (overseas, hotel, domestic, luxury)
-          category_id: categoryId, // 카테고리 ID 저장
+          type: formData.type,
+          category_id: categoryId,
           description: formData.description || '',
-          image: images.length > 0 ? images[0] : (formData.image || ''), // 첫 번째 이미지를 메인 이미지로 사용, 없으면 기존 이미지 유지
-          features: { images: images.length > 1 ? images : [] }, // 추가 이미지들을 features에 저장
-          location: formData.location || '', // 위치 필드 추가
-          // images 필드는 데이터베이스에 없으므로 제거
+          image: images.length > 0 ? images[0] : (formData.image || ''),
+          features: { 
+            location: formData.location || '', // location을 features에 저장
+            images: images.length > 1 ? images.slice(1) : [] // 첫 번째 이미지 제외한 나머지 이미지들
+          },
           is_featured: formData.is_featured,
           duration: formData.duration || '',
           departure: formData.departure || '',
