@@ -415,8 +415,11 @@ export default function EditPackage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
+    setError('') // 기존 오류 메시지 초기화
     
     try {
+      console.log('폼 제출 시작 - formData:', formData);
+      
       // 필수 필드 검증
       if (!formData.name || !formData.price || !formData.category) {
         throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 카테고리)')
@@ -429,24 +432,14 @@ export default function EditPackage() {
       const notes = formData.notes.filter(item => item.trim() !== '')
       const images = formData.images.filter(item => item.trim() !== '') // 이미지 배열 필터링
       
+      console.log('필터링된 이미지:', images);
+      
       // 여행 일정 검증
       const itinerary = formData.itinerary.map(day => ({
         ...day,
         title: day.title.trim() || `Day ${day.day}`,
         description: day.description.trim()
       }))
-      
-      // 데이터베이스 업데이트 준비
-      const supabase = createClient()
-      
-      // 데이터베이스 업데이트 시도 로그
-      console.log("패키지 데이터 업데이트 시도:", {
-        title: formData.name, 
-        price: String(formData.price || 0), // 문자열로 변환
-        region: formData.region,
-        region_ko: formData.regionKo,
-        type: formData.type // type 필드를 올바르게 저장
-      });
       
       // 카테고리 ID 매핑
       let categoryId = null;
@@ -471,61 +464,62 @@ export default function EditPackage() {
       else if (formData.category === 'luxury-cruise') categoryId = 44;
       else if (formData.category === 'luxury-special-theme') categoryId = 45;
 
-      // 패키지 ID를 사용하여 업데이트
-      console.log('업데이트할 데이터:', {
+      console.log('매핑된 카테고리 ID:', categoryId);
+
+      if (!categoryId) {
+        throw new Error('유효하지 않은 카테고리입니다.');
+      }
+
+      // 데이터베이스 업데이트 데이터 준비
+      const updateData = {
         title: formData.name,
         price: String(formData.price || 0),
         region: formData.region,
-        region_ko: formData.regionKo,
+        region_ko: formData.regionKo || '',
         type: formData.type,
         category_id: categoryId,
-        description: formData.description,
+        description: formData.description || '',
         image: images.length > 0 ? images[0] : (formData.image || ''),
         features: { 
-          ...formData, // 기존 features 유지
-          images: images.length > 1 ? images.slice(1) : [] // 첫 번째 이미지 제외한 나머지 이미지들
+          location: formData.location || '',
+          images: images.length > 1 ? images.slice(1) : []
         },
         is_featured: formData.is_featured,
-        duration: formData.duration,
-        departure: formData.departure,
+        duration: formData.duration || '',
+        departure: formData.departure || '',
         highlights: highlights.length ? highlights : [''],
-        itinerary: itinerary,
+        itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
         included: included.length ? included : [''],
         excluded: excluded.length ? excluded : [''],
         notes: notes.length ? notes : [''],
         min_people: formData.min_people || 1,
         max_people: formData.max_people || 10
-      });
+      };
 
-      const { error } = await supabase
+      console.log('업데이트할 데이터:', updateData);
+      console.log('패키지 ID:', packageId);
+
+      // 데이터베이스 업데이트 시도
+      const supabase = createClient()
+      const { data, error } = await supabase
         .from('packages')
-        .update({
-          title: formData.name,
-          price: String(formData.price || 0) as any, // 타입 단언으로 문자열 허용
-          region: formData.region,
-          region_ko: formData.regionKo || '',
-          type: formData.type,
-          category_id: categoryId,
-          description: formData.description || '',
-          image: images.length > 0 ? images[0] : (formData.image || ''),
-          features: { 
-            location: formData.location || '', // location을 features에 저장
-            images: images.length > 1 ? images.slice(1) : [] // 첫 번째 이미지 제외한 나머지 이미지들
-          },
-          is_featured: formData.is_featured,
-          duration: formData.duration || '',
-          departure: formData.departure || '',
-          highlights: highlights.length ? highlights : [''],
-          itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
-          included: included.length ? included : [''],
-          excluded: excluded.length ? excluded : [''],
-          notes: notes.length ? notes : [''],
-          min_people: formData.min_people || 1,
-          max_people: formData.max_people || 10
-        })
+        .update(updateData)
         .eq('id', packageId)
+        .select() // 업데이트된 데이터 반환
       
-      if (error) throw error
+      console.log('Supabase 응답 - data:', data);
+      console.log('Supabase 응답 - error:', error);
+      
+      if (error) {
+        console.error('Supabase 오류 상세:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        throw new Error('업데이트된 데이터가 없습니다. 패키지 ID를 확인해주세요.');
+      }
+      
+      console.log('업데이트 성공!');
       
       // 성공 후 목록 페이지로 이동
       router.push('/admin/packages')
