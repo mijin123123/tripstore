@@ -496,43 +496,6 @@ export default function EditPackage() {
     setFormData({ ...formData, itinerary: newItinerary })
   }
 
-  const handleItineraryChange = (index: number, field: string, value: any) => {
-    const newItinerary = [...formData.itinerary]
-    
-    if (field === 'breakfast' || field === 'lunch' || field === 'dinner') {
-      newItinerary[index].meals = {
-        ...newItinerary[index].meals,
-        [field]: value
-      }
-    } else {
-      // @ts-ignore
-      newItinerary[index][field] = value
-    }
-    
-    setFormData({ ...formData, itinerary: newItinerary })
-  }
-  
-  const addItineraryDay = () => {
-    const lastDay = formData.itinerary[formData.itinerary.length - 1].day
-    const newDay = {
-      day: lastDay + 1,
-      title: '',
-      description: '',
-      accommodation: '',
-      meals: { breakfast: false, lunch: false, dinner: false }
-    }
-    
-    setFormData({ ...formData, itinerary: [...formData.itinerary, newDay] })
-  }
-  
-  const removeItineraryDay = (index: number) => {
-    const newItinerary = formData.itinerary
-      .filter((_, i) => i !== index)
-      .map((day, i) => ({ ...day, day: i + 1 }))
-      
-    setFormData({ ...formData, itinerary: newItinerary })
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
