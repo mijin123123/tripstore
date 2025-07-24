@@ -545,11 +545,9 @@ export default function EditPackage() {
         // category_id: categoryId, // 외래 키 제약 조건 문제로 일단 제외
         description: formData.description || '',
         image: images.length > 0 ? images[0] : (formData.image || ''), // 메인 이미지
+        images: images, // 모든 이미지를 images 컬럼에 직접 저장
         features: { 
-          location: formData.location || '',
-          images: images, // 모든 이미지를 features.images에 저장 (메인 이미지 포함)
-          additional_images: images.length > 1 ? images.slice(1) : [], // 추가 이미지들만 따로 저장
-          all_images: images // 백업용으로 모든 이미지 저장
+          location: formData.location || ''
         },
         is_featured: formData.is_featured,
         duration: formData.duration || '',
