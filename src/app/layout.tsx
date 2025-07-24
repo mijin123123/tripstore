@@ -4,10 +4,16 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { headers } from 'next/headers'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+})
+
 const notoSansKR = Noto_Sans_KR({ 
   subsets: ['latin'],
   weight: ['300', '400', '500', '700'],
+  display: 'swap',
+  fallback: ['system-ui', 'arial'],
 })
 
 export const metadata = {
@@ -21,17 +27,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const headersList = headers()
-  const pathname = headersList.get('x-pathname') || ''
-  
-  // 현재 경로를 Response 헤더에 추가
-  const path = headersList.get('x-invoke-path') || ''
-  
   return (
     <html lang="ko" className={notoSansKR.className}>
-      <body className={`${inter.className} min-h-screen bg-gray-50`}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body className={`${inter.className} min-h-screen bg-gray-50 antialiased`}>
         <Header />
-        <main>{children}</main>
+        <main className="flex-1">{children}</main>
         <Footer />
       </body>
     </html>

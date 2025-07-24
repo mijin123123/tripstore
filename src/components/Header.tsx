@@ -10,7 +10,6 @@ const Header = () => {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -28,14 +27,12 @@ const Header = () => {
           console.error('인증 확인 오류:', error)
           setUser(null)
         } else if (session) {
-          // 사용자 데이터 가져오기
           const { data: userData } = await supabase
             .from('users')
             .select('*')
             .eq('id', session.user.id)
             .single()
           
-          console.log('사용자 데이터 조회 결과:', userData)
           setUser(userData || { email: session.user.email })
         } else {
           setUser(null)
@@ -48,51 +45,34 @@ const Header = () => {
       }
     }
     
-    // 초기 인증 상태 확인
     checkAuth()
     
-    // 인증 상태 변화 이벤트 구독
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('인증 상태 변경:', event, session?.user?.id)
-        
         if (event === 'SIGNED_IN' && session) {
-          // 로그인 이벤트
           const { data: userData } = await supabase
             .from('users')
             .select('*')
             .eq('id', session.user.id)
             .single()
           
-          console.log('로그인 후 사용자 데이터:', userData)
           setUser(userData || { email: session.user.email })
         } else if (event === 'SIGNED_OUT') {
-          // 로그아웃 이벤트
           setUser(null)
         }
       }
     )
     
-    // 클린업 함수
     return () => {
       authListener.subscription.unsubscribe()
     }
   }, [])
-  
-  // 컴포넌트 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (dropdownTimeout) {
-        clearTimeout(dropdownTimeout)
-      }
-    }
-  }, [dropdownTimeout])
-  
+
   // 관리자 페이지에서는 헤더를 표시하지 않음
   if (pathname?.startsWith('/admin')) {
     return null
   }
-  
+
   const handleLogout = async () => {
     try {
       const supabase = createClient()
@@ -112,28 +92,6 @@ const Header = () => {
     setActiveDropdown(activeDropdown === category ? null : category)
   }
 
-  const handleMouseEnter = (category: string) => {
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout)
-      setDropdownTimeout(null)
-    }
-    setActiveDropdown(category)
-  }
-
-  const handleMouseLeave = () => {
-    const timeout = setTimeout(() => {
-      setActiveDropdown(null)
-    }, 150) // 150ms 지연으로 안정성 확보
-    setDropdownTimeout(timeout)
-  }
-
-  const handleDropdownMouseEnter = () => {
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout)
-      setDropdownTimeout(null)
-    }
-  }
-
   const categories = {
     overseas: {
       title: '해외여행',
@@ -142,9 +100,9 @@ const Header = () => {
         { name: '유럽', href: '/overseas/europe' },
         { name: '동남아', href: '/overseas/southeast-asia' },
         { name: '일본', href: '/overseas/japan' },
-        { name: '괌/사이판', href: '/overseas/guam-saipan' },
+        { name: '괌/사이판', href: '/overseas/guam' },
         { name: '미주/캐나다/하와이', href: '/overseas/americas' },
-        { name: '대만/홍콩/마카오', href: '/overseas/china-hongkong' },
+        { name: '대만/홍콩/마카오', href: '/overseas/hongkong' },
       ]
     },
     hotel: {
@@ -154,9 +112,9 @@ const Header = () => {
         { name: '유럽', href: '/hotel/europe' },
         { name: '동남아', href: '/hotel/southeast-asia' },
         { name: '일본', href: '/hotel/japan' },
-        { name: '괌/사이판', href: '/hotel/guam-saipan' },
+        { name: '괌/사이판', href: '/hotel/guam' },
         { name: '미주/캐나다/하와이', href: '/hotel/americas' },
-        { name: '대만/홍콩/마카오', href: '/hotel/china-hongkong' },
+        { name: '대만/홍콩/마카오', href: '/hotel/hongkong' },
       ]
     },
     domestic: {
@@ -182,7 +140,7 @@ const Header = () => {
   }
 
   return (
-    <header className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 z-[100] transition-all">
+    <header className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 z-50 transition-all">
       <nav className="py-3 md:py-4">
         <div className="max-w-6xl mx-auto px-3 md:px-4">
           <div className="flex items-center justify-between">
@@ -199,37 +157,36 @@ const Header = () => {
                   <li 
                     key={key} 
                     className="relative"
-                    onMouseEnter={() => handleMouseEnter(key)}
-                    onMouseLeave={handleMouseLeave}
+                    onMouseEnter={() => setActiveDropdown(key)}
+                    onMouseLeave={() => setActiveDropdown(null)}
                   >
-                    <Link
-                      href={category.href}
-                      className="flex items-center gap-1 font-medium text-gray-700 hover:text-blue-500 transition-colors"
+                    <button
+                      className="flex items-center gap-1 font-medium text-gray-700 hover:text-blue-500 transition-colors py-2"
                     >
                       {category.title}
                       <ChevronDown className="w-4 h-4" />
-                    </Link>
+                    </button>
 
-                    <div 
-                      className={`absolute z-50 top-full left-0 w-64 bg-white shadow-lg rounded-md border border-gray-100 mt-1
-                        ${activeDropdown === key ? 'block' : 'hidden'}`}
-                      onMouseEnter={handleDropdownMouseEnter}
-                    >
-                      <div className="p-4">
-                        <h3 className="font-semibold text-blue-600 mb-2">{category.title}</h3>
-                        <div className="grid gap-1">
-                          {category.items.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className="py-1 text-gray-600 hover:text-blue-500 transition-colors"
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                    {/* 드롭다운 메뉴 */}
+                    {activeDropdown === key && (
+                      <div className="absolute z-50 top-full left-0 w-64 bg-white shadow-xl rounded-lg border border-gray-100 mt-1">
+                        <div className="p-4">
+                          <h3 className="font-semibold text-blue-600 mb-3 text-sm uppercase tracking-wide">{category.title}</h3>
+                          <div className="space-y-1">
+                            {category.items.map((item) => (
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                className="block py-2 px-3 text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-150 text-sm"
+                                onClick={() => setActiveDropdown(null)}
+                              >
+                                {item.name}
+                              </Link>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </li>
                 ))}
                 <li>
@@ -256,25 +213,36 @@ const Header = () => {
                       </button>
                       {showUserMenu && (
                         <div 
-                          className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-50"
+                          className="absolute right-0 mt-2 w-48 bg-white shadow-xl rounded-lg border border-gray-100 z-50"
                           onMouseEnter={() => setShowUserMenu(true)}
                           onMouseLeave={() => setShowUserMenu(false)}
                         >
-                          <div className="p-3">
-                            <div className="text-sm text-gray-500 mb-2">{user.email}</div>
-                            <Link href="/profile" className="block py-2 text-sm text-gray-700 hover:text-blue-500 transition-colors">
+                          <div className="p-4">
+                            <div className="text-sm text-gray-500 mb-3 pb-2 border-b border-gray-100">{user.email}</div>
+                            <Link 
+                              href="/profile" 
+                              className="block py-2 px-3 text-sm text-gray-700 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-150"
+                              onClick={() => setShowUserMenu(false)}
+                            >
                               마이페이지
                             </Link>
                             {user.is_admin && (
-                              <Link href="/admin" className="block py-2 text-sm text-gray-700 hover:text-blue-500 transition-colors">
+                              <Link 
+                                href="/admin" 
+                                className="block py-2 px-3 text-sm text-gray-700 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-150"
+                                onClick={() => setShowUserMenu(false)}
+                              >
                                 관리자 페이지
                               </Link>
                             )}
                             <button 
-                              onClick={handleLogout}
-                              className="flex items-center gap-1 w-full text-left py-2 text-sm text-red-600 hover:text-red-700 transition-colors"
+                              onClick={() => {
+                                handleLogout();
+                                setShowUserMenu(false);
+                              }}
+                              className="flex items-center gap-2 w-full text-left py-2 px-3 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-all duration-150 mt-2"
                             >
-                              <LogOut className="w-4 h-4 mr-1" /> 로그아웃
+                              <LogOut className="w-4 h-4" /> 로그아웃
                             </button>
                           </div>
                         </div>
@@ -304,35 +272,34 @@ const Header = () => {
           </div>
           
           {/* Mobile navigation */}
-          <div 
-            className={`md:hidden transform transition-transform duration-300 ease-in-out ${
-              isMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'
-            }`}
-          >
-            <div className="py-4 space-y-4">
+          {isMenuOpen && (
+            <div className="md:hidden mt-4 pb-4 space-y-3 border-t border-gray-100 pt-4">
               {Object.entries(categories).map(([key, category]) => (
-                <div key={key}>
+                <div key={key} className="border-b border-gray-50 pb-3">
                   <button
-                    className="flex items-center justify-between w-full py-1.5 border-b border-gray-100 text-sm"
+                    className="flex items-center justify-between w-full py-2 text-left font-medium text-gray-700 hover:text-blue-500 transition-colors"
                     onClick={() => handleDropdownToggle(key)}
                   >
-                    <span className="font-medium">{category.title}</span>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === key ? 'rotate-180' : ''}`} />
+                    <span>{category.title}</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === key ? 'rotate-180' : ''}`} />
                   </button>
-                  <div className={`pl-3 py-1 space-y-0.5 ${
-                    activeDropdown === key ? 'block' : 'hidden'
-                  }`}>
-                    {category.items.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className="block py-0.5 text-xs text-gray-600 hover:text-blue-500 transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
+                  {activeDropdown === key && (
+                    <div className="mt-2 pl-4 space-y-1">
+                      {category.items.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className="block py-2 text-sm text-gray-600 hover:text-blue-500 hover:bg-blue-50 px-3 rounded-md transition-all duration-150"
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setActiveDropdown(null);
+                          }}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
               
@@ -378,7 +345,7 @@ const Header = () => {
                 )}
               </div>
             </div>
-          </div>
+          )}
         </div>
       </nav>
     </header>

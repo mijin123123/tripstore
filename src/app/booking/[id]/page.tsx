@@ -38,6 +38,7 @@ export default function BookingPage() {
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [openSection, setOpenSection] = useState<string>("packageInfo");
+  const [action, setAction] = useState<string>("reserve"); // 기본값은 예약 모드
   
   // 예약 정보 상태 관리
   const [bookingInfo, setBookingInfo] = useState<BookingInfo>({
@@ -57,6 +58,41 @@ export default function BookingPage() {
   
   // 패키지에 포함된 추천 출발일 (동적으로 설정될 예정)
   const [availableDates, setAvailableDates] = useState<{date: string, day: string}[]>([]);
+  
+  // URL 쿼리 파라미터 처리 효과
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const peopleParam = queryParams.get('people');
+    const dateParam = queryParams.get('date');
+    const actionParam = queryParams.get('action');
+    
+    console.log('URL 파라미터 - people:', peopleParam, 'date:', dateParam, 'action:', actionParam);
+    
+    // 인원 수 설정
+    if (peopleParam) {
+      const peopleCount = parseInt(peopleParam);
+      if (!isNaN(peopleCount) && peopleCount > 0 && peopleCount <= 10) {
+        handleTravelerCountChange(peopleCount);
+      }
+    }
+    
+    // 날짜 설정
+    if (dateParam) {
+      setSelectedDate(dateParam);
+      handleDateSelect(dateParam);
+    }
+    
+    // 액션 모드 설정 (예약 또는 결제)
+    if (actionParam === 'payment') {
+      setAction('payment');
+      setCurrentStep(3); // 결제 단계로 바로 이동
+      setOpenSection("paymentInfo"); // 결제 섹션 자동으로 열기
+    } else {
+      setAction('reserve');
+      setCurrentStep(1); // 예약 정보 입력부터 시작
+      setOpenSection("packageInfo"); // 패키지 정보 섹션 열기
+    }
+  }, []);
   
   useEffect(() => {
     const fetchPackage = async () => {
@@ -418,7 +454,7 @@ export default function BookingPage() {
       </div>
       
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">예약하기</h1>
+        <h1 className="text-3xl font-bold mb-6">{action === 'payment' ? '결제하기' : '예약하기'}</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* 메인 콘텐츠 - 예약 양식 */}
@@ -897,7 +933,7 @@ export default function BookingPage() {
                   onClick={handleBookingSubmit}
                   disabled={!bookingInfo.agreeTerms}
                 >
-                  예약하기
+                  {action === 'payment' ? '결제하기' : '예약하기'}
                 </button>
                 
                 <div className="mt-4 border border-blue-100 rounded-lg bg-blue-50 p-3">
