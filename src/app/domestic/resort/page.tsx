@@ -1,48 +1,32 @@
 ﻿'use client'
 
+import { useState, useEffect } from 'react'
 import { MapPin, Star, Calendar, Waves, Palmtree, Utensils } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Package } from '@/types'
+import { getPackagesByTypeAndRegion } from '@/lib/api'
 
 export default function DomesticResortPage() {
   const router = useRouter();
-  const resorts = [
-    {
-      id: '1',
-      name: '제주 신화월드 리조트',
-      location: '제주도',
-      image: '/images/resort-jeju.jpg',
-      rating: 5,
-      price: '250,000',
-      features: ['워터파크', '테마파크', '골프장'],
-    },
-    {
-      id: '2',
-      name: '강원도 알펜시아 리조트',
-      location: '평창, 강원도',
-      image: '/images/resort-pyeongchang.jpg',
-      rating: 5,
-      price: '280,000',
-      features: ['스키장', '워터파크', '스파'],
-    },
-    {
-      id: '3',
-      name: '경주 보문단지 리조트',
-      location: '경주, 경상북도',
-      image: '/images/resort-gyeongju.jpg',
-      rating: 4,
-      price: '220,000',
-      features: ['골프장', '온천', '불국사 인근'],
-    },
-    {
-      id: '4',
-      name: '부산 해운대 프라이빗 리조트',
-      location: '해운대, 부산',
-      image: '/images/resort-busan.jpg',
-      rating: 5,
-      price: '320,000',
-      features: ['오션뷰', '인피니티풀', '스파'],
-    },
-  ]
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchDomesticResorts() {
+      try {
+        console.log('국내 리조트 패키지 조회 시작: type=domestic, region=resort');
+        const resortData = await getPackagesByTypeAndRegion('domestic', 'resort');
+        console.log('국내 리조트 패키지 조회 결과:', resortData);
+        setPackages(resortData);
+      } catch (error) {
+        console.error('국내 리조트 패키지 데이터를 가져오는 중 오류 발생:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchDomesticResorts();
+  }, []);
 
   return (
     <div className="min-h-screen pt-20">
@@ -78,42 +62,71 @@ export default function DomesticResortPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {resorts.map((resort) => (
-              <div 
-                key={resort.id} 
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => router.push(`/package/domestic-resort-${resort.id}`)}
-              >
-                <div className="relative h-48">
-                  <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
-                    <span className="text-white font-semibold">{resort.name}</span>
+            {isLoading ? (
+              <div className="col-span-full flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : packages.length > 0 ? (
+              packages.map((packageItem) => (
+                <div 
+                  key={packageItem.id} 
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => router.push(`/package/${packageItem.id}`)}
+                >
+                  <div className="relative h-48">
+                    {packageItem.image ? (
+                      <img 
+                        src={packageItem.image} 
+                        alt={packageItem.title || packageItem.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
+                        <span className="text-white font-semibold">{packageItem.title || packageItem.name}</span>
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-sm font-semibold">5</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{resort.rating}</span>
+                  
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                    <div className="flex items-center gap-1 text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{packageItem.features?.location || packageItem.location || '위치 정보 없음'}</span>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="text-gray-600 text-sm line-clamp-3">
+                        {packageItem.description || '가족과 함께 즐길 수 있는 다양한 리조트 시설과 액티비티를 만끽하세요.'}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xl font-bold text-blue-600">
+                          {Number(packageItem.price).toLocaleString()}원
+                        </span>
+                        <span className="text-gray-500 text-xs">/{packageItem.duration || '1박'}</span>
+                      </div>
+                      <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        상세보기
+                      </div>
                     </div>
                   </div>
                 </div>
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{resort.name}</h3>
-                  <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{resort.location}</span>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {resort.features.map((feature, index) => (
-                        <span key={index} className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">등록된 국내 리조트 패키지가 없습니다.</p>
+                <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
+              </div>
+            )}
+          </div>
                     <div>
                       <span className="text-2xl font-bold text-blue-600">{resort.price}</span>
                       <span className="text-gray-500 text-sm">원/박</span>

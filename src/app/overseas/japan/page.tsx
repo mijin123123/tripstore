@@ -1,53 +1,32 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { MapPin, Calendar, Users, Star, Clock, Plane, Cherry, Mountain } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Package } from '@/types'
+import { getPackagesByTypeAndRegion } from '@/lib/api'
 
 export default function JapanPage() {
   const router = useRouter();
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const packages = [
-    {
-      id: 'japan-tokyo-osaka',
-      title: '도쿄 & 오사카 벚꽃 여행 5일',
-      price: '1,890,000',
-      duration: '5일 3박',
-      rating: 4.9,
-      image: '/images/japan-tokyo.jpg',
-      highlights: ['시부야', '아사쿠사', '오사카성', '벚꽃 명소'],
-      departure: '3-5월 매일 출발',
-      season: '벚꽃시즌'
-    },
-    {
-      id: 'japan-kyushu',
-      title: '규슈 온천 힐링 여행 6일',
-      price: '2,190,000',
-      duration: '6일 4박',
-      rating: 4.8,
-      image: '/images/japan-kyushu.jpg',
-      highlights: ['벳푸 온천', '유후인', '구마모토성', '아소산'],
-      departure: '연중 출발',
-      season: '온천'
-    },
-    {
-      id: 'japan-hokkaido',
-      title: '홋카이도 삿포로 & 하코다테 7일',
-      price: '2,690,000',
-      duration: '7일 5박',
-      rating: 4.7,
-      image: '/images/japan-hokkaido.jpg',
-      highlights: ['삿포로 맥주공장', '오타루 운하', '하코다테 야경', '니세코'],
-      departure: '6-9월, 12-2월 출발',
-      season: '여름/겨울'
-    },
-    {
-      id: 'japan-kyoto',
-      title: '교토 & 나라 전통문화 5일',
-      price: '1,790,000',
-      duration: '5일 3박',
-      rating: 4.8,
-      image: '/images/japan-kyoto.jpg',
-      highlights: ['후시미 이나리', '기요미즈데라', '나라 사슴공원', '가와라마치'],
+  useEffect(() => {
+    async function fetchJapanPackages() {
+      try {
+        console.log('일본 패키지 조회 시작: type=overseas, region=japan');
+        const japanData = await getPackagesByTypeAndRegion('overseas', 'japan');
+        console.log('일본 패키지 조회 결과:', japanData);
+        setPackages(japanData);
+      } catch (error) {
+        console.error('일본 패키지 데이터를 가져오는 중 오류 발생:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchJapanPackages();
+  }, []);
       departure: '연중 매일 출발',
       season: '전통문화'
     }
@@ -94,51 +73,85 @@ export default function JapanPage() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {packages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                {/* 이미지 섹션 */}
-                <div className="relative h-48">
-                  <div className="w-full h-full">
-                    {pkg.image ? (
+            {isLoading ? (
+              <div className="col-span-full flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+              </div>
+            ) : packages.length > 0 ? (
+              packages.map((packageItem) => (
+                <div 
+                  key={packageItem.id} 
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => router.push(`/package/${packageItem.id}`)}
+                >
+                  <div className="relative h-48">
+                    {packageItem.image ? (
                       <img 
-                        src={pkg.image} 
-                        alt={pkg.title} 
+                        src={packageItem.image} 
+                        alt={packageItem.title || packageItem.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-r from-pink-400 to-red-500 flex items-center justify-center">
-                        <span className="text-white font-semibold">{pkg.title}</span>
+                        <span className="text-white font-semibold">{packageItem.title || packageItem.name}</span>
                       </div>
                     )}
-                  </div>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{pkg.rating}</span>
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-sm font-semibold">5</span>
+                      </div>
                     </div>
-                  </div>
-                  {pkg.season && (
                     <div className="absolute top-4 left-4 bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      {pkg.season}
+                      일본여행
                     </div>
-                  )}
-                </div>
-
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
-                  <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">일본</span>
                   </div>
-                  
-                  {/* 여행 정보 */}
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {pkg.highlights.slice(0, 2).map((highlight, index) => (
-                        <span 
-                          key={index}
-                          className="bg-pink-50 text-pink-600 text-xs px-2 py-1 rounded-full"
-                        >
+
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                    <div className="flex items-center gap-1 text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{packageItem.features?.location || packageItem.location || '일본'}</span>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="text-gray-600 text-sm line-clamp-3">
+                        {packageItem.description || '전통과 현대가 조화를 이루는 아름다운 일본을 경험하세요.'}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Clock className="w-4 h-4" />
+                        <span>{packageItem.duration || '5일'}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Plane className="w-4 h-4" />
+                        <span>{packageItem.departure || '인천 출발'}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xl font-bold text-pink-600">
+                          {Number(packageItem.price).toLocaleString()}원
+                        </span>
+                        <span className="text-gray-500 text-sm block">/{packageItem.duration || '패키지'}</span>
+                      </div>
+                      <div className="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors">
+                        예약하기
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">등록된 일본 여행 패키지가 없습니다.</p>
+                <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
+              </div>
+            )}
+          </div>
                           {highlight}
                         </span>
                       ))}

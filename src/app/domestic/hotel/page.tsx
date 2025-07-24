@@ -1,41 +1,32 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { MapPin, Star, Calendar, Bed, Coffee, Car } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Package } from '@/types'
+import { getPackagesByTypeAndRegion } from '@/lib/api'
 
 export default function DomesticHotelPage() {
   const router = useRouter();
-  const hotels = [
-    {
-      id: 1,
-      name: '서울 강남 프리미엄 호텔',
-      location: '서울 강남구',
-      image: '/images/hotel-seoul.jpg',
-      rating: 5,
-      price: '₩280,000',
-      features: ['강남역 근처', '비즈니스 센터', '스카이라운지'],
-    },
-    {
-      id: 2,
-      name: '부산 해운대 오션뷰 호텔',
-      location: '부산 해운대구',
-      image: '/images/hotel-busan.jpg',
-      rating: 5,
-      price: '₩220,000',
-      features: ['해운대 해변', '오션뷰', '실내 수영장'],
-    },
-    {
-      id: 3,
-      name: '제주 서귀포 리조트 호텔',
-      location: '제주 서귀포시',
-      image: '/images/hotel-jeju.jpg',
-      rating: 4,
-      price: '₩180,000',
-      features: ['한라산 뷰', '온천', '골프장'],
-    },
-  ]
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchDomesticHotels() {
+      try {
+        console.log('국내 호텔 패키지 조회 시작: type=domestic, region=hotel');
+        const hotelData = await getPackagesByTypeAndRegion('domestic', 'hotel');
+        console.log('국내 호텔 패키지 조회 결과:', hotelData);
+        setPackages(hotelData);
+      } catch (error) {
+        console.error('국내 호텔 패키지 데이터를 가져오는 중 오류 발생:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchDomesticHotels();
+  }, []);
 
   return (
     <div className="min-h-screen pt-20">
@@ -71,55 +62,70 @@ export default function DomesticHotelPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {hotels.map((hotel) => (
-              <div key={hotel.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="relative h-48">
-                  <div className="w-full h-full bg-gradient-to-r from-green-400 to-teal-500 flex items-center justify-center">
-                    <span className="text-white font-semibold">{hotel.name}</span>
-                  </div>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{hotel.rating}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{hotel.name}</h3>
-                  <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{hotel.location}</span>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {hotel.features.map((feature, index) => (
-                        <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-1 rounded-full">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xl font-bold text-green-600">{hotel.price}</span>
-                      <span className="text-gray-500 text-xs">/박</span>
-                    </div>
-                    <button 
-                      className="btn btn-primary btn-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/package/${hotel.id}`);
-                      }}
-                    >
-                      상세보기
-                    </button>
-                  </div>
-                </div>
+            {isLoading ? (
+              <div className="col-span-full flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
               </div>
-            ))}
+            ) : packages.length > 0 ? (
+              packages.map((packageItem) => (
+                <div 
+                  key={packageItem.id} 
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => router.push(`/package/${packageItem.id}`)}
+                >
+                  <div className="relative h-48">
+                    {packageItem.image ? (
+                      <img 
+                        src={packageItem.image} 
+                        alt={packageItem.title || packageItem.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-r from-green-400 to-teal-500 flex items-center justify-center">
+                        <span className="text-white font-semibold">{packageItem.title || packageItem.name}</span>
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-sm font-semibold">5</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                    <div className="flex items-center gap-1 text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{packageItem.features?.location || packageItem.location || '위치 정보 없음'}</span>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="text-gray-600 text-sm line-clamp-3">
+                        {packageItem.description || '편안하고 고급스러운 호텔에서의 특별한 휴식을 즐기세요.'}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xl font-bold text-green-600">
+                          {Number(packageItem.price).toLocaleString()}원
+                        </span>
+                        <span className="text-gray-500 text-xs">/{packageItem.duration || '1박'}</span>
+                      </div>
+                      <div className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        상세보기
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">등록된 국내 호텔 패키지가 없습니다.</p>
+                <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

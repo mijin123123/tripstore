@@ -1,41 +1,32 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { MapPin, Star, Calendar, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Package } from '@/types'
+import { getPackagesByTypeAndRegion } from '@/lib/api'
 
 export default function HotelEuropePage() {
   const router = useRouter();
-  const hotels = [
-    {
-      id: 'hotel-1',
-      name: '파리 럭셔리 호텔',
-      location: '파리, 프랑스',
-      image: '/images/hotel-paris.jpg',
-      rating: 5,
-      price: '₩450,000',
-      features: ['에펠탑 뷰', '럭셔리 스파', '미슐랭 레스토랑'],
-    },
-    {
-      id: 'hotel-2',
-      name: '런던 부티크 호텔',
-      location: '런던, 영국',
-      image: '/images/hotel-london.jpg',
-      rating: 5,
-      price: '₩380,000',
-      features: ['템즈강 뷰', '역사적 건물', '애프터눈 티'],
-    },
-    {
-      id: 'hotel-3',
-      name: '로마 클래식 호텔',
-      location: '로마, 이탈리아',
-      image: '/images/hotel-rome.jpg',
-      rating: 4,
-      price: '₩320,000',
-      features: ['콜로세움 근처', '루프탑 바', '이탈리아 요리'],
-    },
-  ]
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchEuropeHotels() {
+      try {
+        console.log('유럽 호텔 패키지 조회 시작: type=hotel, region=europe');
+        const hotelData = await getPackagesByTypeAndRegion('hotel', 'europe');
+        console.log('유럽 호텔 패키지 조회 결과:', hotelData);
+        setPackages(hotelData);
+      } catch (error) {
+        console.error('유럽 호텔 패키지 데이터를 가져오는 중 오류 발생:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchEuropeHotels();
+  }, []);
 
   return (
     <div className="min-h-screen pt-20">
