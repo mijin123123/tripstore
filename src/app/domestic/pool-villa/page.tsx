@@ -105,7 +105,11 @@ export default function DomesticPoolVillaPage() {
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
                       <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{packageItem.location || '제주도'}</span>
+                      <span className="text-sm">{
+                        (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
+                        packageItem.location || 
+                        '제주도'
+                      }</span>
                     </div>
                     
                     <div className="mb-4">

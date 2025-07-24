@@ -34,7 +34,13 @@ export interface Package {
   included?: string[];
   excluded?: string[];
   notes?: string[];
-  features?: string[];
+  features?: {
+    location?: string;
+    images?: string[];
+    additional_images?: string[];
+    all_images?: string[];
+    [key: string]: any; // 다른 추가 속성을 위한 인덱스 시그니처
+  } | string[]; // 이전 버전과의 호환성을 위해 string[]도 허용
 }
 
 export interface Villa {
