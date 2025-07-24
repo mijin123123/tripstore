@@ -195,7 +195,7 @@ export default function EditPackage() {
             regionKo: pkg.region_ko || '', // 데이터베이스의 region_ko 필드 사용
             description: pkg.description || '',
             image: pkg.image || '',
-            images: Array.isArray(pkg.images) ? pkg.images : pkg.image ? [pkg.image] : [''], // 기존 image를 images 배열로 변환
+            images: pkg.features?.images ? pkg.features.images : (pkg.image ? [pkg.image] : ['']), // features에서 이미지 배열 로드, 없으면 기존 image 사용
             highlights: Array.isArray(pkg.highlights) ? pkg.highlights : [''],
             departure: pkg.departure || '',
             type: pkg.type || '', // 데이터베이스의 type 필드 사용
@@ -442,6 +442,29 @@ export default function EditPackage() {
         type: formData.type // type 필드를 올바르게 저장
       });
       
+      // 카테고리 ID 매핑
+      let categoryId = null;
+      if (formData.category === 'overseas-europe') categoryId = 11;
+      else if (formData.category === 'overseas-japan') categoryId = 13;
+      else if (formData.category === 'overseas-southeast-asia') categoryId = 12;
+      else if (formData.category === 'overseas-americas') categoryId = 15;
+      else if (formData.category === 'overseas-china-hongkong') categoryId = 16;
+      else if (formData.category === 'overseas-guam-saipan') categoryId = 14;
+      else if (formData.category === 'domestic-hotel') categoryId = 31;
+      else if (formData.category === 'domestic-resort') categoryId = 32;
+      else if (formData.category === 'domestic-pool-villa') categoryId = 33;
+      else if (formData.category === 'hotel-europe') categoryId = 21;
+      else if (formData.category === 'hotel-japan') categoryId = 23;
+      else if (formData.category === 'hotel-southeast-asia') categoryId = 22;
+      else if (formData.category === 'hotel-americas') categoryId = 25;
+      else if (formData.category === 'hotel-china-hongkong') categoryId = 26;
+      else if (formData.category === 'hotel-guam-saipan') categoryId = 24;
+      else if (formData.category === 'luxury-europe') categoryId = 41;
+      else if (formData.category === 'luxury-japan') categoryId = 42;
+      else if (formData.category === 'luxury-southeast-asia') categoryId = 43;
+      else if (formData.category === 'luxury-cruise') categoryId = 44;
+      else if (formData.category === 'luxury-special-theme') categoryId = 45;
+
       // 패키지 ID를 사용하여 업데이트
       const { error } = await supabase
         .from('packages')
@@ -451,8 +474,11 @@ export default function EditPackage() {
           region: formData.region,
           region_ko: formData.regionKo || '',
           type: formData.type, // type 필드를 올바르게 저장 (overseas, hotel, domestic, luxury)
+          category_id: categoryId, // 카테고리 ID 저장
           description: formData.description || '',
           image: images.length > 0 ? images[0] : (formData.image || ''), // 첫 번째 이미지를 메인 이미지로 사용, 없으면 기존 이미지 유지
+          features: { images: images.length > 1 ? images : [] }, // 추가 이미지들을 features에 저장
+          location: formData.location || '', // 위치 필드 추가
           // images 필드는 데이터베이스에 없으므로 제거
           is_featured: formData.is_featured,
           duration: formData.duration || '',
