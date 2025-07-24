@@ -1,70 +1,70 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, Star, Calendar, Bed, Coffee, Car } from 'lucide-react'
+import { MapPin, Star, Calendar, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
 
-export default function DomesticHotelPage() {
+export default function HotelEuropePage() {
   const router = useRouter();
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    async function fetchDomesticHotels() {
+    async function fetchEuropeHotels() {
       try {
-        console.log('국내 호텔 패키지 조회 시작: type=domestic, region=hotel');
-        const hotelData = await getPackagesByTypeAndRegion('domestic', 'hotel');
-        console.log('국내 호텔 패키지 조회 결과:', hotelData);
+        console.log('유럽 호텔 패키지 조회 시작: type=hotel, region=europe');
+        const hotelData = await getPackagesByTypeAndRegion('hotel', 'europe');
+        console.log('유럽 호텔 패키지 조회 결과:', hotelData);
         setPackages(hotelData);
       } catch (error) {
-        console.error('국내 호텔 패키지 데이터를 가져오는 중 오류 발생:', error);
+        console.error('유럽 호텔 패키지 데이터를 가져오는 중 오류 발생:', error);
       } finally {
         setIsLoading(false);
       }
     }
     
-    fetchDomesticHotels();
+    fetchEuropeHotels();
   }, []);
 
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-green-600 to-teal-700">
+      <section className="relative h-96 bg-gradient-to-r from-blue-600 to-purple-700">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">국내 호텔</h1>
-            <p className="text-xl mb-6">우리나라 곳곳의 아름다운 호텔에서 특별한 휴식을</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">유럽 호텔</h1>
+            <p className="text-xl mb-6">유럽의 아름다운 도시에서 특별한 숙박 경험을 만나보세요</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
-                서울, 부산, 제주, 강릉
+                파리, 런던, 로마, 바르셀로나
               </span>
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4" />
-                도심 호텔 & 리조트
+                5성급 럭셔리 호텔
               </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Hotels Grid */}
+      {/* 패키지 리스트 */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 국내 호텔</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 유럽 호텔</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              전국 각지의 프리미엄 호텔에서 편안하고 특별한 휴식을 만끽하세요
+              유럽 주요 도시의 최고급 호텔에서 특별한 숙박 경험을 선사합니다
             </p>
           </div>
-
+          
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
               <div className="col-span-full flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
               </div>
             ) : packages.length > 0 ? (
               packages.map((packageItem) => (
@@ -81,7 +81,7 @@ export default function DomesticHotelPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-r from-green-400 to-teal-500 flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
                         <span className="text-white font-semibold">{packageItem.title || packageItem.name}</span>
                       </div>
                     )}
@@ -91,30 +91,44 @@ export default function DomesticHotelPage() {
                         <span className="text-sm font-semibold">5</span>
                       </div>
                     </div>
+                    <div className="absolute top-4 left-4 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                      유럽호텔
+                    </div>
                   </div>
-                  
+
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
                       <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{packageItem.location || '위치 정보 없음'}</span>
+                      <span className="text-sm">{packageItem.features?.location || packageItem.location || '유럽'}</span>
                     </div>
                     
                     <div className="mb-4">
                       <p className="text-gray-600 text-sm line-clamp-3">
-                        {packageItem.description || '편안하고 고급스러운 호텔에서의 특별한 휴식을 즐기세요.'}
+                        {packageItem.description || '유럽의 아름다운 도시에서 특별한 숙박 경험을 만나보세요.'}
                       </p>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        <span>{packageItem.duration || '4박 5일'}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Users className="w-4 h-4" />
+                        <span>{packageItem.features?.roomType || '디럭스룸'}</span>
+                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-xl font-bold text-green-600">
+                        <span className="text-xl font-bold text-purple-600">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
-                        <span className="text-gray-500 text-xs">/{packageItem.duration || '1박'}</span>
+                        <span className="text-gray-500 text-sm block">/{packageItem.duration || '1박'}</span>
                       </div>
-                      <div className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        상세보기
+                      <div className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                        예약하기
                       </div>
                     </div>
                   </div>
@@ -122,7 +136,7 @@ export default function DomesticHotelPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 text-lg">등록된 국내 호텔 패키지가 없습니다.</p>
+                <p className="text-gray-500 text-lg">등록된 유럽 호텔 패키지가 없습니다.</p>
                 <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
               </div>
             )}
@@ -130,40 +144,40 @@ export default function DomesticHotelPage() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* 호텔 특징 */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">호텔 서비스</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">유럽 호텔 특징</h2>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Bed className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">편안한 객실</h3>
-              <p className="text-gray-600">최고급 침구와 어메니티로 완벽한 휴식을 제공합니다</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Coffee className="w-8 h-8 text-teal-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">조식 서비스</h3>
-              <p className="text-gray-600">신선한 재료로 준비한 다양한 한식과 양식 조식</p>
-            </div>
-            
-            <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Car className="w-8 h-8 text-blue-600" />
+                <Star className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">교통 편의</h3>
-              <p className="text-gray-600">주요 교통편과 관광지까지의 편리한 접근성</p>
+              <h3 className="text-xl font-semibold mb-3">럭셔리 서비스</h3>
+              <p className="text-gray-600">세계적인 수준의 5성급 호텔 서비스를 경험해보세요</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">최적의 위치</h3>
+              <p className="text-gray-600">주요 관광지와 가까운 최고의 접근성을 제공합니다</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">맞춤 서비스</h3>
+              <p className="text-gray-600">개인의 취향에 맞는 맞춤형 호텔 서비스</p>
             </div>
           </div>
         </div>
       </section>
     </div>
-  )
+  );
 }

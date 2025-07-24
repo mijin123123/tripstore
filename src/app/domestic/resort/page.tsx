@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { MapPin, Star, Calendar, Waves, Palmtree, Utensils } from 'lucide-react'
@@ -51,16 +51,16 @@ export default function DomesticResortPage() {
         </div>
       </section>
 
-      {/* Resorts Grid */}
+      {/* 패키지 리스트 */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 국내 리조트</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              가족과 함께 즐길 수 있는 다양한 시설과 액티비티가 준비된 국내 최고의 리조트들
+              가족 모두가 즐길 수 있는 다양한 액티비티를 갖춘 국내 인기 리조트
             </p>
           </div>
-
+          
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
               <div className="col-span-full flex justify-center items-center py-12">
@@ -91,19 +91,33 @@ export default function DomesticResortPage() {
                         <span className="text-sm font-semibold">5</span>
                       </div>
                     </div>
+                    <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                      리조트
+                    </div>
                   </div>
-                  
+
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
                       <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{packageItem.features?.location || packageItem.location || '위치 정보 없음'}</span>
+                      <span className="text-sm">{packageItem.location || '국내'}</span>
                     </div>
                     
                     <div className="mb-4">
                       <p className="text-gray-600 text-sm line-clamp-3">
-                        {packageItem.description || '가족과 함께 즐길 수 있는 다양한 리조트 시설과 액티비티를 만끽하세요.'}
+                        {packageItem.description || '가족 모두가 즐길 수 있는 다양한 액티비티를 갖춘 국내 인기 리조트'}
                       </p>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        <span>{packageItem.duration || '2박 3일'}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Waves className="w-4 h-4" />
+                        <span>워터파크</span>
+                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -111,10 +125,10 @@ export default function DomesticResortPage() {
                         <span className="text-xl font-bold text-blue-600">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
-                        <span className="text-gray-500 text-xs">/{packageItem.duration || '1박'}</span>
+                        <span className="text-gray-500 text-sm block">/{packageItem.duration || '패키지'}</span>
                       </div>
                       <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        상세보기
+                        예약하기
                       </div>
                     </div>
                   </div>
@@ -122,28 +136,10 @@ export default function DomesticResortPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 text-lg">등록된 국내 리조트 패키지가 없습니다.</p>
+                <p className="text-gray-500 text-lg">등록된 리조트 패키지가 없습니다.</p>
                 <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
               </div>
             )}
-          </div>
-                    <div>
-                      <span className="text-2xl font-bold text-blue-600">{resort.price}</span>
-                      <span className="text-gray-500 text-sm">원/박</span>
-                    </div>
-                    <button 
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/package/domestic-resort-${resort.id}`);
-                      }}
-                    >
-                      상세보기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -183,5 +179,5 @@ export default function DomesticResortPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

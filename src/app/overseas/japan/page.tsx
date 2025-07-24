@@ -27,10 +27,6 @@ export default function JapanPage() {
     
     fetchJapanPackages();
   }, []);
-      departure: '연중 매일 출발',
-      season: '전통문화'
-    }
-  ]
 
   const seasonInfo = {
     spring: { name: '봄 (3-5월)', desc: '벚꽃이 만개하는 가장 아름다운 시기', color: 'pink' },
@@ -111,7 +107,7 @@ export default function JapanPage() {
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
                       <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{packageItem.features?.location || packageItem.location || '일본'}</span>
+                      <span className="text-sm">{packageItem.location || '일본'}</span>
                     </div>
                     
                     <div className="mb-4">
@@ -152,40 +148,8 @@ export default function JapanPage() {
               </div>
             )}
           </div>
-                          {highlight}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{pkg.duration}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4" />
-                      <span>{pkg.departure}</span>
-                    </div>
-                  </div>
-                  
-                  {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xl font-bold text-pink-600">{pkg.price}원</span>
-                      <span className="text-gray-500 text-xs">/1인</span>
-                    </div>
-                    <button 
-                      className="bg-pink-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-pink-700 transition-colors"
-                      onClick={() => router.push(`/package/${pkg.id}`)}
-                    >
-                      상세보기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+
+          {/* 일본 여행 가이드 */}
 
           {/* 일본 여행 가이드 */}
           <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
