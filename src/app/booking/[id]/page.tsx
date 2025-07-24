@@ -48,6 +48,12 @@ export default function BookingPage() {
     agreeTerms: false,
     bankAccount: "로딩 중..."
   });
+
+  // 사이트 설정 상태 관리
+  const [siteSettings, setSiteSettings] = useState({
+    paymentInstruction: "아래 계좌로 예약금(총 결제금액의 10%)을 먼저 입금해 주세요.",
+    paymentConfirmationTime: "입금 후 1~2일 내에 예약 확정 문자가 발송됩니다."
+  });
   
   // 패키지에 포함된 추천 출발일 (동적으로 설정될 예정)
   const [availableDates, setAvailableDates] = useState<{date: string, day: string}[]>([]);
@@ -170,7 +176,16 @@ export default function BookingPage() {
             ...prev,
             bankAccount: bankInfo
           }))
+          
+          // 입금 안내 및 확인 시간도 업데이트
+          setSiteSettings({
+            paymentInstruction: result.payment.payment_instruction || "아래 계좌로 예약금(총 결제금액의 10%)을 먼저 입금해 주세요.",
+            paymentConfirmationTime: result.payment.payment_confirmation_time || "입금 후 1~2일 내에 예약 확정 문자가 발송됩니다."
+          })
+          
           console.log('계좌정보 업데이트됨:', bankInfo)
+          console.log('입금 안내 업데이트됨:', result.payment.payment_instruction)
+          console.log('확인 시간 업데이트됨:', result.payment.payment_confirmation_time)
         } else if (result.settings) {
           // settings 배열에서 payment 관련 정보 찾기
           const paymentBankName = result.settings.find((s: any) => s.setting_key === 'payment_bank_name')?.setting_value
@@ -800,13 +815,13 @@ export default function BookingPage() {
                           <span className="font-medium">무통장 입금</span>
                         </div>
                         <div className="text-sm text-gray-600 mb-3">
-                          아래 계좌로 예약금(총 결제금액의 10%)을 먼저 입금해 주세요.
+                          {siteSettings.paymentInstruction}
                         </div>
                         <div className="bg-white p-3 rounded border border-gray-200 mb-2">
                           <p className="font-medium text-gray-800">{bookingInfo.bankAccount}</p>
                         </div>
                         <p className="text-xs text-gray-500">
-                          입금 후 1~2일 내에 예약 확정 문자가 발송됩니다.
+                          {siteSettings.paymentConfirmationTime}
                         </p>
                       </div>
                     </div>

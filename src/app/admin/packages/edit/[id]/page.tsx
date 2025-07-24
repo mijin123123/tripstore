@@ -452,8 +452,8 @@ export default function EditPackage() {
           region_ko: formData.regionKo || '',
           type: formData.type, // type 필드를 올바르게 저장 (overseas, hotel, domestic, luxury)
           description: formData.description || '',
-          image: images.length > 0 ? images[0] : '', // 첫 번째 이미지를 메인 이미지로 사용
-          images: images.length > 0 ? images : [''], // 이미지 배열 저장
+          image: images.length > 0 ? images[0] : (formData.image || ''), // 첫 번째 이미지를 메인 이미지로 사용, 없으면 기존 이미지 유지
+          // images 필드는 데이터베이스에 없으므로 제거
           is_featured: formData.is_featured,
           duration: formData.duration || '',
           departure: formData.departure || '',
