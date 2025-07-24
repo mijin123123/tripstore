@@ -1,3 +1,4 @@
+// API에서는 supabase.ts만 사용하여 일관성 유지
 import { createClient } from '@/lib/supabase';
 import { Package, Villa, PackageTable, VillaTable } from '@/types';
 

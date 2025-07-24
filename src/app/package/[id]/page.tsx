@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { MapPin, Calendar, Users, Star, Clock, Plane, CheckCircle, BarChart, Coffee, Utensils, Wifi, HelpCircle, CreditCard } from 'lucide-react'
 import { Package } from '@/types'
 import { getPackageById } from '@/lib/api'
+import Image from 'next/image'
 
 export default function PackageDetail() {
   const params = useParams();
@@ -90,58 +91,38 @@ export default function PackageDetail() {
     return '/'; // 기본값으로 홈페이지로 이동
   };
 
-  // 이미지 배열 생성 함수
+  // 간소화된 이미지 배열 생성 함수
   const getPackageImages = () => {
-    const images: string[] = [];
-    
-    // 메인 이미지가 있고 유효한 문자열인지 확인 후 추가
-    if (packageData.image && typeof packageData.image === 'string' && packageData.image.trim() !== '') {
-      images.push(packageData.image);
-    }
-    
-    // features에 있는 이미지들 추가
-    if (typeof packageData.features === 'object' && !Array.isArray(packageData.features)) {
-      // images 배열 처리
-      if (packageData.features.images && Array.isArray(packageData.features.images)) {
-        // 중복 이미지는 추가하지 않음
-        packageData.features.images.forEach(img => {
-          if (typeof img === 'string' && img.trim() !== '' && !images.includes(img)) {
-            images.push(img);
-          }
-        });
+    try {
+      // 기본 이미지
+      const defaultImage = '/images/hotel-hero.jpg';
+      
+      // 메인 이미지가 없으면 기본 이미지만 반환
+      if (!packageData) return [defaultImage];
+      
+      const images: string[] = [];
+      
+      // 메인 이미지 추가 (안전하게 확인)
+      const mainImage = packageData.image;
+      if (typeof mainImage === 'string' && mainImage.trim() !== '') {
+        images.push(mainImage);
       }
       
-      // additional_images 배열 처리
-      if (packageData.features.additional_images && Array.isArray(packageData.features.additional_images)) {
-        packageData.features.additional_images.forEach(img => {
+      // 추가 이미지가 있으면 추가
+      if (packageData.images && Array.isArray(packageData.images)) {
+        for (const img of packageData.images) {
           if (typeof img === 'string' && img.trim() !== '' && !images.includes(img)) {
             images.push(img);
           }
-        });
-      }
-      
-      // all_images 배열 처리
-      if (packageData.features.all_images && Array.isArray(packageData.features.all_images)) {
-        packageData.features.all_images.forEach(img => {
-          if (typeof img === 'string' && img.trim() !== '' && !images.includes(img)) {
-            images.push(img);
-          }
-        });
-      }
-    }
-    
-    // 패키지의 images 배열 처리
-    if (packageData.images && Array.isArray(packageData.images)) {
-      packageData.images.forEach(img => {
-        if (typeof img === 'string' && img.trim() !== '' && !images.includes(img)) {
-          images.push(img);
         }
-      });
+      }
+      
+      // 이미지가 하나도 없으면 기본 이미지 반환
+      return images.length > 0 ? images : [defaultImage];
+    } catch (error) {
+      console.error('이미지 처리 중 오류:', error);
+      return ['/images/hotel-hero.jpg']; // 오류 발생 시 기본 이미지 반환
     }
-    
-    // 이미지가 없으면 기본 이미지 URL 반환
-    // 기본 이미지가 없을 경우를 대비해 빈 배열을 반환하지 않도록 함
-    return images.length > 0 ? images : ['/images/hotel-hero.jpg'];
   };
   
   const packageImages = getPackageImages();
@@ -158,17 +139,13 @@ export default function PackageDetail() {
 
   return (
     <div className="min-h-screen pt-20">
-      {/* 헤더 섹션 - 이미지 슬라이더로 변경 */}
+      {/* 헤더 섹션 - 간소화된 이미지 슬라이더 */}
       <section className="relative h-96">
-        {/* 이미지가 있는 경우에만 이미지 슬라이더 표시 */}
-        {packageImages.length > 0 && packageImages.map((imageUrl, index) => (
-          <div 
-            key={index} 
-            className={`absolute inset-0 transition-opacity duration-500 bg-cover bg-center ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
-            style={{ backgroundImage: `url(${imageUrl})` }}
-          >
-          </div>
-        ))}
+        {/* 단일 이미지 표시 (슬라이더 대신 단일 이미지로 변경) */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${packageImages[currentImageIndex] || '/images/hotel-hero.jpg'})` }}
+        />
         
         <div className="absolute inset-0 bg-black/50"></div>
         
@@ -189,15 +166,11 @@ export default function PackageDetail() {
             >
               &gt;
             </button>
+            {/* 이미지 인디케이터를 간소화 */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
-              {packageImages.map((_, index) => (
-                <button
-                  key={`dot-${index}`}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`w-2 h-2 rounded-full ${index === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
-                  aria-label={`${index + 1}번 이미지로 이동`}
-                />
-              ))}
+              <span className="text-white text-sm">
+                {currentImageIndex + 1} / {packageImages.length}
+              </span>
             </div>
           </>
         )}
@@ -243,12 +216,18 @@ export default function PackageDetail() {
           <div className="lg:col-span-2">
             {/* 패키지 설명 */}
             <section className="bg-white rounded-xl shadow-md p-6 mb-8">
-              {/* 여행 대표 이미지 - 이미지가 없으면 표시하지 않음 */}
-              {packageData.image && typeof packageData.image === 'string' && packageData.image.trim() !== '' && (
-                <div className="mb-6 overflow-hidden rounded-lg">
-                  <img src={packageData.image} alt={packageData.title || packageData.name || '여행 패키지'} className="w-full h-auto object-cover" />
-                </div>
-              )}
+              {/* 여행 대표 이미지 - 항상 기본 이미지라도 표시 */}
+              <div className="mb-6 overflow-hidden rounded-lg">
+                <img 
+                  src={packageData.image || '/images/hotel-hero.jpg'} 
+                  alt={packageData.title || packageData.name || '여행 패키지'} 
+                  className="w-full h-auto object-cover"
+                  onError={(e) => {
+                    // 이미지 로드 실패 시 기본 이미지로 대체
+                    (e.target as HTMLImageElement).src = '/images/hotel-hero.jpg';
+                  }}
+                />
+              </div>
               
               <h2 className="text-2xl font-bold mb-4">여행 소개</h2>
               <p className="text-gray-700 leading-relaxed mb-6">
