@@ -37,8 +37,6 @@ export default function CreatePackage() {
     excluded: [''],
     notes: [''],
     is_featured: false,
-    start_date: '',
-    end_date: '',
     location: '',
     category: ''
   })
@@ -367,9 +365,7 @@ export default function CreatePackage() {
           notes: notes.length ? notes : [''],
           min_people: formData.min_people || 1,
           max_people: formData.max_people || 10,
-          location: formData.location || '',
-          start_date: formData.start_date || null,
-          end_date: formData.end_date || null
+          location: formData.location || ''
         })
       
       if (error) throw error
@@ -567,34 +563,6 @@ export default function CreatePackage() {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min="1"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  시작 날짜
-                </label>
-                <input
-                  type="date"
-                  name="start_date"
-                  value={formData.start_date}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  종료 날짜
-                </label>
-                <input
-                  type="date"
-                  name="end_date"
-                  value={formData.end_date}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
