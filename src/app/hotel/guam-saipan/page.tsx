@@ -4,9 +4,26 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Star, Calendar, Waves, Sun } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function HotelGuamSaipanPage() {
   const router = useRouter();
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
+
+  useEffect(() => {
+    async function loadHeroImage() {
+      try {
+        const image = await getHeroImage('hotel', 'guam-saipan')
+        setHeroImage(image)
+        console.log('호텔 괌-사이판 히어로 이미지:', image)
+      } catch (error) {
+        console.error('히어로 이미지 로딩 실패:', error)
+      }
+    }
+
+    loadHeroImage()
+  }, [])
   
   const hotels = [
     {
@@ -65,15 +82,26 @@ export default function HotelGuamSaipanPage() {
     },
   ];
 
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/hotel-guam-saipan-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)'
+  const title = heroImage?.title || '괌 & 사이판 호텔'
+  const subtitle = heroImage?.subtitle || '아름다운 해변과 청정한 바다를 즐길 수 있는 최고급 리조트'
+
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-80 bg-gradient-to-r from-cyan-500 to-blue-500">
+      <section 
+        className="relative h-80 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">괌 & 사이판 호텔</h1>
-            <p className="text-xl mb-6">아름다운 해변과 청정한 바다를 즐길 수 있는 최고급 리조트</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <Sun className="w-4 h-4" />

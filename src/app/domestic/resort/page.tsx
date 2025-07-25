@@ -5,38 +5,58 @@ import { MapPin, Star, Calendar, Waves, Palmtree, Utensils } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function DomesticResortPage() {
   const router = useRouter();
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
   
   useEffect(() => {
-    async function fetchDomesticResorts() {
+    async function fetchData() {
       try {
-        console.log('국내 리조트 패키지 조회 시작: type=domestic, region=resort');
-        const resortData = await getPackagesByTypeAndRegion('domestic', 'resort');
+        // 패키지 데이터와 히어로 이미지를 병렬로 가져오기
+        const [resortData, heroImageData] = await Promise.all([
+          getPackagesByTypeAndRegion('domestic', 'resort'),
+          getHeroImage('domestic', 'resort')
+        ])
+        
         console.log('국내 리조트 패키지 조회 결과:', resortData);
+        console.log('국내 리조트 히어로 이미지:', heroImageData)
+        
         setPackages(resortData);
+        setHeroImage(heroImageData)
       } catch (error) {
-        console.error('국내 리조트 패키지 데이터를 가져오는 중 오류 발생:', error);
+        console.error('데이터를 가져오는 중 오류 발생:', error);
       } finally {
         setIsLoading(false);
       }
     }
     
-    fetchDomesticResorts();
+    fetchData();
   }, []);
+
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/domestic-resort-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(147, 51, 234, 0.3) 100%)'
+  const title = heroImage?.title || '국내 리조트'
+  const subtitle = heroImage?.subtitle || '가족과 함께 휴일을 특별하게 만들어주는 주말 로컬 바케이션'
 
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-blue-500 to-purple-600">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">국내 리조트</h1>
-            <p className="text-xl mb-6">가족과 함께 휴일을 특별하게 만들어주는 주말 로컬 바케이션</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

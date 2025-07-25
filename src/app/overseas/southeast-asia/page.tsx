@@ -3,9 +3,29 @@
 import { MapPin, Calendar, Users, Star, Clock, Plane, Thermometer } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function SoutheastAsiaPage() {
   const router = useRouter();
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchHeroImage() {
+      try {
+        const heroImg = await getHeroImage('overseas', 'southeast-asia');
+        console.log('동남아시아 페이지: 히어로 이미지:', heroImg);
+        setHeroImage(heroImg);
+      } catch (error) {
+        console.error('동남아시아 히어로 이미지 로딩 오류:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchHeroImage();
+  }, []);
   
   const packages = [
     {
@@ -50,15 +70,26 @@ export default function SoutheastAsiaPage() {
     }
   ]
 
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/southeast-asia-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(5, 150, 105, 0.3) 0%, rgba(4, 120, 87, 0.3) 100%)'
+  const title = heroImage?.title || '동남아시아'
+  const subtitle = heroImage?.subtitle || '열대의 낙원에서 즐기는 완벽한 휴양과 모험'
+
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-green-600 to-blue-600">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">동남아시아</h1>
-            <p className="text-xl mb-6">열대의 낙원에서 즐기는 완벽한 휴양과 모험</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

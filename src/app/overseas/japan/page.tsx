@@ -5,19 +5,30 @@ import { MapPin, Calendar, Users, Star, Clock, Plane, Cherry, Mountain } from 'l
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function JapanPage() {
   const router = useRouter();
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   
   useEffect(() => {
-    async function fetchJapanPackages() {
+    async function fetchData() {
       try {
-        console.log('일본 패키지 조회 시작: type=overseas, region=japan');
-        const japanData = await getPackagesByTypeAndRegion('overseas', 'japan');
+        setIsLoading(true);
+        console.log('일본 페이지: 데이터 조회 시작');
+        
+        // 패키지 데이터와 히어로 이미지를 병렬로 가져오기
+        const [japanData, heroImg] = await Promise.all([
+          getPackagesByTypeAndRegion('overseas', 'japan'),
+          getHeroImage('overseas', 'japan')
+        ]);
+        
         console.log('일본 패키지 조회 결과:', japanData);
+        console.log('일본 페이지: 히어로 이미지:', heroImg);
         setPackages(japanData);
+        setHeroImage(heroImg);
       } catch (error) {
         console.error('일본 패키지 데이터를 가져오는 중 오류 발생:', error);
       } finally {
@@ -25,7 +36,7 @@ export default function JapanPage() {
       }
     }
     
-    fetchJapanPackages();
+    fetchData();
   }, []);
 
   const seasonInfo = {
@@ -35,15 +46,26 @@ export default function JapanPage() {
     winter: { name: '겨울 (12-2월)', desc: '눈과 온천을 즐기는 낭만적인 시기', color: 'blue' }
   }
 
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/japan-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.3) 100%)'
+  const title = heroImage?.title || '일본'
+  const subtitle = heroImage?.subtitle || '전통과 현대가 조화를 이루는 아름다운 일본을 경험하세요'
+
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-pink-600 to-red-600">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">일본</h1>
-            <p className="text-xl mb-6">전통과 현대가 조화를 이루는 아름다운 일본을 경험하세요</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

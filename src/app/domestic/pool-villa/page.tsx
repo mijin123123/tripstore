@@ -5,28 +5,43 @@ import { MapPin, Star, Calendar, Home, Palmtree, Umbrella, Wifi, Users } from 'l
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function DomesticPoolVillaPage() {
   const router = useRouter();
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
   
   useEffect(() => {
-    async function fetchPoolVillas() {
+    async function fetchData() {
       try {
-        console.log('풀빌라 패키지 조회 시작: type=domestic, region=pool-villa');
-        const poolVillaData = await getPackagesByTypeAndRegion('domestic', 'pool-villa');
+        // 패키지 데이터와 히어로 이미지를 병렬로 가져오기
+        const [poolVillaData, heroImageData] = await Promise.all([
+          getPackagesByTypeAndRegion('domestic', 'pool-villa'),
+          getHeroImage('domestic', 'pool-villa')
+        ])
+        
         console.log('풀빌라 패키지 조회 결과:', poolVillaData);
+        console.log('국내 풀빌라 히어로 이미지:', heroImageData)
+        
         setPackages(poolVillaData);
+        setHeroImage(heroImageData)
       } catch (error) {
-        console.error('풀빌라 패키지 데이터를 가져오는 중 오류 발생:', error);
+        console.error('데이터를 가져오는 중 오류 발생:', error);
       } finally {
         setIsLoading(false);
       }
     }
     
-    fetchPoolVillas();
+    fetchData();
   }, []);
+
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/domestic-pool-villa-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(20, 184, 166, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%)'
+  const title = heroImage?.title || '국내 풀빌라'
+  const subtitle = heroImage?.subtitle || '프라이빗한 공간에서 즐기는 럭셔리한 휴식'
 
   // 로딩 상태 표시
   if (isLoading) {
@@ -40,12 +55,17 @@ export default function DomesticPoolVillaPage() {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-teal-500 to-emerald-600">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">국내 풀빌라</h1>
-            <p className="text-xl mb-6">프라이빗한 공간에서 즐기는 럭셔리한 휴식</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

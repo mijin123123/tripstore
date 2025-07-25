@@ -4,9 +4,27 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Star, Calendar, Crown, Palmtree, Waves } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function LuxurySoutheastAsiaPage() {
   const router = useRouter();
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
+
+  useEffect(() => {
+    async function loadHeroImage() {
+      try {
+        const image = await getHeroImage('luxury', 'southeast-asia')
+        setHeroImage(image)
+        console.log('럭셔리 동남아시아 히어로 이미지:', image)
+      } catch (error) {
+        console.error('히어로 이미지 로딩 실패:', error)
+      }
+    }
+
+    loadHeroImage()
+  }, [])
+
   const packages = [
     {
       id: 'luxury-sea-1',
@@ -37,15 +55,26 @@ export default function LuxurySoutheastAsiaPage() {
     },
   ]
 
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/luxury-southeast-asia-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(13, 148, 136, 0.3) 0%, rgba(29, 78, 216, 0.3) 100%)'
+  const title = heroImage?.title || '럭셔리 동남아'
+  const subtitle = heroImage?.subtitle || '열대 낙원에서 경험하는 최고급 휴양과 서비스'
+
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-teal-600 to-blue-700">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">럭셔리 동남아</h1>
-            <p className="text-xl mb-6">열대 낙원에서 경험하는 최고급 휴양과 서비스</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

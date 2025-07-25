@@ -3,10 +3,30 @@
 import { MapPin, Calendar, Users, Star, Clock, Plane, Building2, ShoppingBag } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { getPackagesByRegion } from '@/data/packages'
+import { useState, useEffect } from 'react'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function ChinaHongkongPage() {
   const router = useRouter();
   const chinaPackages = getPackagesByRegion('overseas', 'china-hongkong');
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchHeroImage() {
+      try {
+        const heroImg = await getHeroImage('overseas', 'china-hongkong');
+        console.log('중국/홍콩 페이지: 히어로 이미지:', heroImg);
+        setHeroImage(heroImg);
+      } catch (error) {
+        console.error('중국/홍콩 히어로 이미지 로딩 오류:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchHeroImage();
+  }, []);
   
   const packages = [
     {
@@ -51,15 +71,26 @@ export default function ChinaHongkongPage() {
     }
   ]
 
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/hongkong-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(202, 138, 4, 0.3) 0%, rgba(161, 98, 7, 0.3) 100%)'
+  const title = heroImage?.title || '중국/홍콩'
+  const subtitle = heroImage?.subtitle || '다채로운 문화와 쇼핑의 천국을 경험하세요'
+
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-purple-600 to-pink-600">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">중국/홍콩</h1>
-            <p className="text-xl mb-6">다채로운 문화와 쇼핑의 천국을 경험하세요</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

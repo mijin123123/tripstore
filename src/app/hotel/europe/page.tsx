@@ -5,38 +5,58 @@ import { MapPin, Star, Calendar, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function HotelEuropePage() {
   const router = useRouter();
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
   
   useEffect(() => {
-    async function fetchEuropeHotels() {
+    async function fetchData() {
       try {
-        console.log('유럽 호텔 패키지 조회 시작: type=hotel, region=europe');
-        const hotelData = await getPackagesByTypeAndRegion('hotel', 'europe');
+        // 패키지 데이터와 히어로 이미지를 병렬로 가져오기
+        const [hotelData, heroImageData] = await Promise.all([
+          getPackagesByTypeAndRegion('hotel', 'europe'),
+          getHeroImage('hotel', 'europe')
+        ])
+        
         console.log('유럽 호텔 패키지 조회 결과:', hotelData);
+        console.log('호텔 유럽 히어로 이미지:', heroImageData)
+        
         setPackages(hotelData);
+        setHeroImage(heroImageData)
       } catch (error) {
-        console.error('유럽 호텔 패키지 데이터를 가져오는 중 오류 발생:', error);
+        console.error('데이터를 가져오는 중 오류 발생:', error);
       } finally {
         setIsLoading(false);
       }
     }
     
-    fetchEuropeHotels();
+    fetchData();
   }, []);
+
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/hotel-europe-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%)'
+  const title = heroImage?.title || '유럽 호텔'
+  const subtitle = heroImage?.subtitle || '유럽의 아름다운 도시에서 특별한 숙박 경험을 만나보세요'
 
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-blue-600 to-purple-700">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">유럽 호텔</h1>
-            <p className="text-xl mb-6">유럽의 아름다운 도시에서 특별한 숙박 경험을 만나보세요</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

@@ -2,9 +2,30 @@
 
 import { MapPin, Calendar, Users, Star, Clock, Plane, Sun, Waves } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function GuamSaipanPage() {
   const router = useRouter();
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchHeroImage() {
+      try {
+        const heroImg = await getHeroImage('overseas', 'guam-saipan');
+        console.log('괌/사이판 페이지: 히어로 이미지:', heroImg);
+        setHeroImage(heroImg);
+      } catch (error) {
+        console.error('괌/사이판 히어로 이미지 로딩 오류:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchHeroImage();
+  }, []);
+
   const packages = [
     {
       id: 1,
@@ -38,15 +59,26 @@ export default function GuamSaipanPage() {
     }
   ]
 
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/guam-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(2, 132, 199, 0.3) 100%)'
+  const title = heroImage?.title || '괌/사이판'
+  const subtitle = heroImage?.subtitle || '가까운 태평양 휴양지에서 즐기는 완벽한 휴식'
+
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-cyan-500 to-blue-600">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">괌/사이판</h1>
-            <p className="text-xl mb-6">가까운 태평양 휴양지에서 즐기는 완벽한 휴식</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
