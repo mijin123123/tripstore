@@ -5,28 +5,36 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('hero-images', 'hero-images', true)
 ON CONFLICT (id) DO NOTHING;
 
--- 2. 버킷에 대한 정책 설정
+-- 주의: 아래 정책들은 Supabase 대시보드에서 설정하는 것을 권장합니다.
+-- SQL Editor에서 실행 시 권한 오류가 발생할 수 있습니다.
 
--- 2-1. 모든 사용자가 파일을 볼 수 있도록 허용 (public read)
-CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'hero-images');
+-- 대신 아래 설정을 Supabase 대시보드에서 진행해주세요:
+-- 
+-- Storage > hero-images > Policies 에서 다음 정책들을 추가:
+-- 
+-- 1. Public Read Policy:
+--    Policy name: Public Access
+--    Allowed operation: SELECT
+--    Target roles: public
+--    USING expression: bucket_id = 'hero-images'
+--
+-- 2. Admin Upload Policy:
+--    Policy name: Admin Upload
+--    Allowed operation: INSERT
+--    Target roles: authenticated
+--    WITH CHECK expression: bucket_id = 'hero-images'
+--
+-- 3. Admin Update Policy:
+--    Policy name: Admin Update
+--    Allowed operation: UPDATE
+--    Target roles: authenticated
+--    USING expression: bucket_id = 'hero-images'
+--
+-- 4. Admin Delete Policy:
+--    Policy name: Admin Delete
+--    Allowed operation: DELETE
+--    Target roles: authenticated
+--    USING expression: bucket_id = 'hero-images'
 
--- 2-2. 인증된 사용자만 파일을 업로드할 수 있도록 허용
-CREATE POLICY "Admin can upload hero images" ON storage.objects FOR INSERT WITH CHECK (
-  bucket_id = 'hero-images' 
-  AND auth.role() = 'authenticated'
-);
-
--- 2-3. 인증된 사용자만 파일을 업데이트할 수 있도록 허용
-CREATE POLICY "Admin can update hero images" ON storage.objects FOR UPDATE USING (
-  bucket_id = 'hero-images' 
-  AND auth.role() = 'authenticated'
-);
-
--- 2-4. 인증된 사용자만 파일을 삭제할 수 있도록 허용
-CREATE POLICY "Admin can delete hero images" ON storage.objects FOR DELETE USING (
-  bucket_id = 'hero-images' 
-  AND auth.role() = 'authenticated'
-);
-
--- 3. RLS(Row Level Security) 활성화
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- 버킷 생성 확인 쿼리
+SELECT * FROM storage.buckets WHERE id = 'hero-images';

@@ -30,7 +30,7 @@ export default function AdminRegions() {
 
   const fetchRegions = async () => {
     try {
-      const supabase = createClient()
+      const supabase = await createClient()
       const { data, error } = await supabase
         .from('regions')
         .select('*')
@@ -91,7 +91,7 @@ export default function AdminRegions() {
     }
 
     try {
-      const supabase = createClient()
+      const supabase = await createClient()
       const { error } = await supabase
         .from('regions')
         .insert([{
@@ -123,7 +123,7 @@ export default function AdminRegions() {
     if (!currentRegion) return
 
     try {
-      const supabase = createClient()
+      const supabase = await createClient()
       const { error } = await supabase
         .from('regions')
         .update({
@@ -149,7 +149,7 @@ export default function AdminRegions() {
     if (!confirm('정말로 이 지역을 삭제하시겠습니까?')) return
 
     try {
-      const supabase = createClient()
+      const supabase = await createClient()
       const { error } = await supabase
         .from('regions')
         .delete()

@@ -31,7 +31,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const supabase = createClient()
+        const supabase = await createClient()
         
         const { data, error } = await supabase.auth.getSession()
         
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const supabase = createClient()
+      const supabase = await createClient()
       
       // 10초 타임아웃 설정
       const timeout = setTimeout(() => {
