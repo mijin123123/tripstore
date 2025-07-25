@@ -37,7 +37,8 @@ export default function CreatePackage() {
     excluded: [''],
     notes: [''],
     is_featured: false,
-    category: ''
+    category: '',
+    location: ''
   })
 
   // 숫자를 천 단위 콤마 형식으로 변환하는 함수
@@ -343,9 +344,13 @@ export default function CreatePackage() {
       // 데이터베이스 삽입 준비
       const supabase = createClient()
       
+      // 고유한 패키지 ID 생성
+      const packageId = `pkg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      
       const { error } = await supabase
         .from('packages')
         .insert({
+          id: packageId,
           title: formData.name,
           price: formData.price.toString(),
           region: formData.region,
@@ -363,7 +368,6 @@ export default function CreatePackage() {
           notes: notes.length ? notes : [''],
           min_people: formData.min_people || 1,
           max_people: formData.max_people || 10,
-          location: formData.location || '',
           rating: 4.5 // 기본 평점
         })
       
@@ -533,6 +537,20 @@ export default function CreatePackage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="예: 인천공항"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                위치
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예: 서울"
               />
             </div>
             
