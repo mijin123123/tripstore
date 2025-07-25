@@ -45,6 +45,9 @@ export default function BookingDetailPage() {
   const [booking, setBooking] = useState<BookingDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showPaymentInfo, setShowPaymentInfo] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
 
   // 예약자 정보를 파싱하는 함수
   const parseBookingInfo = (specialRequests: string | null) => {
@@ -94,6 +97,44 @@ export default function BookingDetailPage() {
 
     fetchBookingDetail()
   }, [params.id])
+
+  // 예약 취소 함수
+  const handleCancelBooking = async () => {
+    if (!booking) return
+    
+    setIsCancelling(true)
+    try {
+      const response = await fetch(`/api/bookings/${booking.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'cancelled'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('예약 취소에 실패했습니다.')
+      }
+
+      // 예약 상태 업데이트
+      setBooking({
+        ...booking,
+        status: 'cancelled',
+        updated_at: new Date().toISOString()
+      })
+
+      setShowCancelModal(false)
+      alert('예약이 성공적으로 취소되었습니다.')
+      
+    } catch (error) {
+      console.error('예약 취소 오류:', error)
+      alert('예약 취소 중 오류가 발생했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsCancelling(false)
+    }
+  }
 
   // 상태 표시 컴포넌트
   const StatusBadge = ({ status }: { status: string }) => {
@@ -420,7 +461,7 @@ export default function BookingDetailPage() {
                   </h3>
                   <div className="bg-blue-50 rounded-lg p-4 space-y-3">
                     <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                      <span>1:1 채팅문의</span>
+                      1:1 채팅문의
                     </button>
                     <div className="flex items-center text-sm text-blue-700 justify-center">
                       <Mail className="h-4 w-4 mr-2" />
@@ -435,12 +476,18 @@ export default function BookingDetailPage() {
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row gap-3 justify-end">
                 {booking.status === 'pending' && booking.payment_status === 'unpaid' && (
-                  <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                  <button 
+                    onClick={() => setShowPaymentInfo(true)}
+                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
                     결제하기
                   </button>
                 )}
                 {booking.status === 'pending' && (
-                  <button className="px-6 py-3 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                  <button 
+                    onClick={() => setShowCancelModal(true)}
+                    className="px-6 py-3 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                  >
                     예약 취소
                   </button>
                 )}
@@ -452,6 +499,131 @@ export default function BookingDetailPage() {
                 </Link>
               </div>
             </div>
+
+            {/* 계좌정보 모달 */}
+            {showPaymentInfo && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-md w-full p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">계좌 이체 정보</h3>
+                    <button 
+                      onClick={() => setShowPaymentInfo(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <XCircle className="h-6 w-6" />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">은행명</span>
+                          <span className="font-medium">국민은행</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">계좌번호</span>
+                          <span className="font-medium">123-456-789012</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">예금주</span>
+                          <span className="font-medium">㈜트립스토어</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">입금액</span>
+                          <span className="font-bold text-blue-600">₩{booking.total_price.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <h4 className="font-medium text-yellow-800 mb-2">입금 시 주의사항</h4>
+                      <ul className="text-sm text-yellow-700 space-y-1">
+                        <li>• 예약번호 #{booking.id}를 입금자명에 포함해 주세요</li>
+                        <li>• 정확한 금액을 입금해 주세요</li>
+                        <li>• 입금 후 1:1 채팅문의로 연락 부탁드립니다</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => setShowPaymentInfo(false)}
+                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                      >
+                        닫기
+                      </button>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText('123-456-789012')
+                          alert('계좌번호가 복사되었습니다.')
+                        }}
+                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      >
+                        계좌번호 복사
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 예약 취소 확인 모달 */}
+            {showCancelModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-md w-full p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-red-600">예약 취소 확인</h3>
+                    <button 
+                      onClick={() => setShowCancelModal(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                      disabled={isCancelling}
+                    >
+                      <XCircle className="h-6 w-6" />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex items-start">
+                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-medium text-red-800 mb-2">예약을 취소하시겠습니까?</h4>
+                          <p className="text-sm text-red-700">
+                            예약번호 #{booking.id}을 취소하면 되돌릴 수 없습니다.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <h4 className="font-medium text-yellow-800 mb-2">취소 시 주의사항</h4>
+                      <ul className="text-sm text-yellow-700 space-y-1">
+                        <li>• 취소 후에는 예약을 복구할 수 없습니다</li>
+                        <li>• 결제가 완료된 경우 환불 처리가 진행됩니다</li>
+                        <li>• 환불 문의는 고객센터로 연락 부탁드립니다</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => setShowCancelModal(false)}
+                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                        disabled={isCancelling}
+                      >
+                        돌아가기
+                      </button>
+                      <button 
+                        onClick={handleCancelBooking}
+                        disabled={isCancelling}
+                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed"
+                      >
+                        {isCancelling ? '취소 중...' : '예약 취소'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
