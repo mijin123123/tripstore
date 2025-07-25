@@ -1,7 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['images.unsplash.com', 'via.placeholder.com'],
+    domains: [
+      'images.unsplash.com', 
+      'via.placeholder.com',
+      'ihhnvmzizaiokrfkatwt.supabase.co',  // Supabase 스토리지 도메인 추가
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ihhnvmzizaiokrfkatwt.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
   },
   typescript: {
     // !! WARN !!

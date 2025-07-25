@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
 import { Package } from '@/types'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 export default function EuropePage() {
   const router = useRouter();
   const [europePackages, setEuropePackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   
   // 숫자를 천 단위 콤마 형식으로 변환하는 함수
   const formatPrice = (price: string | number): string => {
@@ -18,14 +20,21 @@ export default function EuropePage() {
   }
   
   useEffect(() => {
-    const fetchPackages = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        console.log('유럽 페이지: 패키지 조회 시작 (type: overseas, region: europe)');
-        const packages = await getPackagesByTypeAndRegion('overseas', 'europe');
+        console.log('유럽 페이지: 데이터 조회 시작');
+        
+        // 패키지 데이터와 히어로 이미지를 병렬로 가져오기
+        const [packages, heroImg] = await Promise.all([
+          getPackagesByTypeAndRegion('overseas', 'europe'),
+          getHeroImage('overseas', 'europe')
+        ]);
+        
         console.log('유럽 페이지: 조회된 패키지 개수:', packages.length);
-        console.log('유럽 페이지: 조회된 패키지 목록:', packages);
+        console.log('유럽 페이지: 히어로 이미지:', heroImg);
         setEuropePackages(packages);
+        setHeroImage(heroImg);
       } catch (error) {
         console.error('유럽 패키지를 가져오는데 실패했습니다:', error);
       } finally {
@@ -33,7 +42,7 @@ export default function EuropePage() {
       }
     };
 
-    fetchPackages();
+    fetchData();
   }, []);
   
   // 패키지 데이터에 추가할 패키지들 (백업/데모 데이터)
@@ -71,6 +80,12 @@ export default function EuropePage() {
   // 모든 패키지 병합 (실제 데이터베이스 패키지를 우선하고, 데이터가 없으면 데모 데이터 표시)
   const packages = europePackages.length > 0 ? europePackages : additionalPackages;
 
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/europe-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(30, 58, 138, 0.3) 100%)'
+  const title = heroImage?.title || '유럽'
+  const subtitle = heroImage?.subtitle || '유럽의 아름다운 도시들과 역사적인 명소를 탐험하세요'
+
   if (isLoading) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
@@ -82,12 +97,17 @@ export default function EuropePage() {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-blue-600 to-indigo-700">
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">유럽</h1>
-            <p className="text-xl mb-6">유럽의 아름다운 도시들과 역사적인 명소를 탐험하세요</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />

@@ -54,32 +54,45 @@ export default function AdminPackages() {
         }
         
         // 데이터베이스에서 받은 데이터를 Package 타입에 맞게 변환
-        const mappedPackages: Package[] = (data || []).map((pkg: any) => ({
-          id: pkg.id,
-          title: pkg.title,
-          region: pkg.region,
-          region_ko: pkg.region_ko,
-          price: pkg.price,
-          type: pkg.type,
-          description: pkg.description,
-          image: pkg.image,
-          is_featured: pkg.is_featured,
-          created_at: pkg.created_at,
-          start_date: pkg.start_date,
-          end_date: pkg.end_date,
-          duration: pkg.duration,
-          departure: pkg.departure,
-          highlights: pkg.highlights,
-          itinerary: pkg.itinerary,
-          included: pkg.included,
-          excluded: pkg.excluded,
-          notes: pkg.notes,
-          category_id: pkg.category_id,
-          region_id: pkg.region_id,
-          rating: pkg.rating,
-          min_people: pkg.min_people,
-          max_people: pkg.max_people
-        }))
+        const mappedPackages: Package[] = (data || []).map((pkg: any) => {
+          // 이미지 URL 처리 - Supabase 스토리지 URL 확인 및 수정
+          let imageUrl = pkg.image;
+          if (imageUrl && !imageUrl.startsWith('http')) {
+            // 상대 경로인 경우 Supabase 스토리지 전체 URL로 변환
+            if (imageUrl.startsWith('/storage/')) {
+              imageUrl = `https://ihhnvmzizaiokrfkatwt.supabase.co${imageUrl}`;
+            } else if (!imageUrl.startsWith('/')) {
+              imageUrl = `https://ihhnvmzizaiokrfkatwt.supabase.co/storage/v1/object/public/images/${imageUrl}`;
+            }
+          }
+          
+          return {
+            id: pkg.id,
+            title: pkg.title,
+            region: pkg.region,
+            region_ko: pkg.region_ko,
+            price: pkg.price,
+            type: pkg.type,
+            description: pkg.description,
+            image: imageUrl,
+            is_featured: pkg.is_featured,
+            created_at: pkg.created_at,
+            start_date: pkg.start_date,
+            end_date: pkg.end_date,
+            duration: pkg.duration,
+            departure: pkg.departure,
+            highlights: pkg.highlights,
+            itinerary: pkg.itinerary,
+            included: pkg.included,
+            excluded: pkg.excluded,
+            notes: pkg.notes,
+            category_id: pkg.category_id,
+            region_id: pkg.region_id,
+            rating: pkg.rating,
+            min_people: pkg.min_people,
+            max_people: pkg.max_people
+          };
+        });
         
         setPackages(mappedPackages)
       } catch (error) {
@@ -203,14 +216,23 @@ export default function AdminPackages() {
                 {filteredPackages.map((pkg) => (
                   <tr key={pkg.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-3">
-                      {pkg.image && (
+                      {pkg.image ? (
                         <div className="h-12 w-16 relative overflow-hidden rounded-md">
                           <Image
                             src={pkg.image}
                             alt={pkg.title || '패키지 이미지'}
                             fill
                             style={{ objectFit: "cover" }}
+                            onError={(e) => {
+                              console.error('이미지 로딩 오류:', pkg.image);
+                              // 에러 발생 시 기본 이미지로 대체
+                              e.currentTarget.src = '/images/placeholder.jpg';
+                            }}
                           />
+                        </div>
+                      ) : (
+                        <div className="h-12 w-16 bg-gray-200 rounded-md flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">이미지 없음</span>
                         </div>
                       )}
                     </td>

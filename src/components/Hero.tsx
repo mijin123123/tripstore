@@ -1,15 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, MapPin, Calendar, Users } from 'lucide-react'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 const Hero = () => {
   const [destination, setDestination] = useState('')
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
+
+  useEffect(() => {
+    async function fetchHeroImage() {
+      const image = await getHeroImage('main')
+      setHeroImage(image)
+    }
+    fetchHeroImage()
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('검색:', destination)
   }
+
+  // 기본값 설정
+  const backgroundImage = heroImage?.image_url || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)'
+  const title = heroImage?.title || '전 세계 어디든, 당신의 꿈을 현실로'
+  const subtitle = heroImage?.subtitle || '맞춤형 여행 패키지와 전문 가이드 서비스로 특별한 추억을 만들어보세요'
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -17,7 +33,7 @@ const Hero = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%), url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80')`
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
         }}
       />
       
@@ -27,10 +43,16 @@ const Hero = () => {
       {/* Content */}
       <div className="relative text-center text-white max-w-4xl px-4 z-10">
         <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
-          전 세계 어디든, <span className="text-amber-400">당신의 꿈</span>을 현실로
+          {title.includes('당신의 꿈') ? (
+            <>
+              전 세계 어디든, <span className="text-amber-400">당신의 꿈</span>을 현실로
+            </>
+          ) : (
+            title
+          )}
         </h1>
         <p className="text-lg md:text-xl mb-8 opacity-95 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          맞춤형 여행 패키지와 전문 가이드 서비스로 특별한 추억을 만들어보세요
+          {subtitle}
         </p>
         
         {/* Search Card */}
