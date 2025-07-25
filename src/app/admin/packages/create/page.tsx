@@ -189,9 +189,16 @@ export default function CreatePackage() {
       return
     }
 
-    // 파일 타입 체크
-    if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.')
+    // 파일 타입 및 크기 체크
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
+    if (!allowedTypes.includes(file.type)) {
+      alert('JPG, PNG, WebP, GIF, AVIF 파일만 업로드 가능합니다.')
+      return
+    }
+
+    // 파일 크기 체크 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('파일 크기는 10MB 이하여야 합니다.')
       return
     }
 
@@ -200,38 +207,76 @@ export default function CreatePackage() {
       
       const supabase = createClient()
       
+      // 현재 사용자 확인
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        console.error('사용자 인증 실패:', userError)
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      console.log('현재 사용자:', user.email)
+      
       // 파일명 생성 (타임스탬프 + 원본 파일명)
-      const fileExt = file.name.split('.').pop()
+      const fileExt = file.name.split('.').pop()?.toLowerCase()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `packages/${fileName}`
+
+      console.log('업로드 시도:', {
+        fileName,
+        filePath,
+        fileSize: file.size,
+        fileType: file.type
+      })
 
       // Supabase Storage에 파일 업로드
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: file.type
         })
 
       if (error) {
-        console.error('파일 업로드 실패:', error)
-        alert('파일 업로드에 실패했습니다.')
+        console.error('파일 업로드 실패:', {
+          error,
+          message: error.message,
+          statusCode: error.statusCode
+        })
+        
+        if (error.message?.includes('already exists')) {
+          alert('같은 이름의 파일이 이미 존재합니다. 다시 시도해주세요.')
+        } else if (error.message?.includes('not allowed')) {
+          alert('파일 형식이 허용되지 않습니다.')
+        } else if (error.message?.includes('size')) {
+          alert('파일 크기가 너무 큽니다.')
+        } else {
+          alert(`파일 업로드에 실패했습니다: ${error.message}`)
+        }
         return
       }
+
+      console.log('업로드 성공:', data)
 
       // 업로드된 파일의 공개 URL 가져오기
       const { data: { publicUrl } } = supabase.storage
         .from('images')
         .getPublicUrl(filePath)
 
+      console.log('공개 URL:', publicUrl)
+
       // 폼 데이터 업데이트
       const newImages = [...formData.images]
       newImages[index] = publicUrl
       setFormData({ ...formData, images: newImages })
 
+      alert('이미지가 성공적으로 업로드되었습니다.')
+
     } catch (error) {
       console.error('파일 업로드 중 오류:', error)
-      alert('파일 업로드 중 오류가 발생했습니다.')
+      alert(`파일 업로드 중 오류가 발생했습니다: ${error}`)
     } finally {
       setUploadingImages(prev => prev.filter(i => i !== index))
     }
