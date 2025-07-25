@@ -1,0 +1,242 @@
+'use client'
+
+import { MapPin, Calendar, Users, Star, Clock, Plane, Building, ShoppingBag } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { getHeroImage, HeroImage } from '@/lib/heroImages'
+
+export default function HongkongPage() {
+  const router = useRouter();
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchHeroImage() {
+      try {
+        const heroImg = await getHeroImage('overseas', 'hongkong');
+        console.log('홍콩 페이지: 히어로 이미지:', heroImg);
+        setHeroImage(heroImg);
+      } catch (error) {
+        console.error('홍콩 히어로 이미지 로딩 오류:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchHeroImage();
+  }, []);
+
+  const packages = [
+    {
+      id: 1,
+      title: '홍콩 자유여행 4일',
+      price: '890,000',
+      duration: '4일 2박',
+      rating: 4.6,
+      image: '/images/hongkong-free.jpg',
+      highlights: ['자유여행', '디즈니랜드', '센트럴', '빅토리아 하버'],
+      departure: '매일 출발'
+    },
+    {
+      id: 2,
+      title: '홍콩 딤섬 투어 3일',
+      price: '790,000',
+      duration: '3일 2박',
+      rating: 4.5,
+      image: '/images/hongkong-dimsum.jpg',
+      highlights: ['딤섬 투어', '미슐랭 맛집', '차찬텡', '야시장'],
+      departure: '매일 출발'
+    },
+    {
+      id: 3,
+      title: '홍콩 쇼핑 패키지 4일',
+      price: '990,000',
+      duration: '4일 2박',
+      rating: 4.7,
+      image: '/images/hongkong-shopping.jpg',
+      highlights: ['쇼핑 투어', '아울렛', '면세점', '로컬 쇼핑'],
+      departure: '매일 출발'
+    },
+    {
+      id: 4,
+      title: '홍콩 디즈니랜드 패키지 5일',
+      price: '1,290,000',
+      duration: '5일 3박',
+      rating: 4.8,
+      image: '/images/hongkong-disney.jpg',
+      highlights: ['디즈니랜드', '오션파크', '가족여행', '테마파크'],
+      departure: '매일 출발'
+    },
+    {
+      id: 5,
+      title: '홍콩 럭셔리 호텔 4일',
+      price: '1,590,000',
+      duration: '4일 2박',
+      rating: 4.9,
+      image: '/images/hongkong-luxury.jpg',
+      highlights: ['5성급 호텔', '하버뷰', '애프터눈티', '스파'],
+      departure: '매일 출발'
+    },
+    {
+      id: 6,
+      title: '홍콩 야경 투어 3일',
+      price: '690,000',
+      duration: '3일 2박',
+      rating: 4.4,
+      image: '/images/hongkong-night.jpg',
+      highlights: ['심포니 오브 라이츠', '스카이100', '야경투어', '트램'],
+      departure: '매일 출발'
+    }
+  ];
+
+  // 히어로 이미지 데이터 또는 기본값
+  const backgroundImage = heroImage?.image_url || '/images/hongkong-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(220, 38, 127, 0.3) 0%, rgba(239, 68, 68, 0.3) 100%)'
+  const title = heroImage?.title || '홍콩'
+  const subtitle = heroImage?.subtitle || '동서양 문화가 만나는 국제도시'
+
+  return (
+    <div className="min-h-screen pt-20">
+      {/* Hero Section */}
+      <section 
+        className="relative h-96 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
+        }}
+      >
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
+          <div className="text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">{title}</h1>
+            <p className="text-xl mb-6 drop-shadow-md">{subtitle}</p>
+            <div className="flex items-center gap-4 text-sm">
+              <span className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                아시아의 국제 금융 허브
+              </span>
+              <span className="flex items-center gap-1">
+                <Plane className="w-4 h-4" />
+                직항 3시간 30분
+              </span>
+              <span className="flex items-center gap-1">
+                <Building className="w-4 h-4" />
+                마천루와 전통의 조화
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Packages Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">홍콩 여행 패키지</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              쇼핑과 미식, 문화가 어우러진 홍콩에서 특별한 경험을 만나보세요
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {packages.map((pkg) => (
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="relative h-48">
+                  <div className="w-full h-full bg-gradient-to-r from-red-400 to-pink-400 flex items-center justify-center">
+                    <span className="text-white font-semibold text-center px-4">{pkg.title}</span>
+                  </div>
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-sm font-semibold">{pkg.rating}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
+                  <div className="flex items-center gap-4 text-gray-600 mb-3">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-sm">{pkg.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm">{pkg.departure}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {pkg.highlights.map((highlight, index) => (
+                        <span key={index} className="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full">
+                          {highlight}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-2xl font-bold text-red-600">₩{pkg.price}</span>
+                      <span className="text-gray-500 text-sm">/인</span>
+                    </div>
+                    <button 
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      onClick={() => router.push(`/package/${pkg.id}`)}
+                    >
+                      상세보기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Info Section */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">홍콩 여행 정보</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center p-6 bg-white rounded-xl shadow-md">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Plane className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">항공편</h3>
+              <p className="text-gray-600">
+                인천공항에서 직항 3시간 30분<br/>
+                비자 없이 90일 체류 가능
+              </p>
+            </div>
+
+            <div className="text-center p-6 bg-white rounded-xl shadow-md">
+              <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ShoppingBag className="w-8 h-8 text-pink-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">쇼핑</h3>
+              <p className="text-gray-600">
+                24시간 쇼핑천국<br/>
+                면세점, 아울렛, 로컬마켓
+              </p>
+            </div>
+
+            <div className="text-center p-6 bg-white rounded-xl shadow-md">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Building className="w-8 h-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">명소</h3>
+              <p className="text-gray-600">
+                빅토리아 하버, 디즈니랜드<br/>
+                센트럴, 침사추이, 스타의 거리
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
