@@ -25,27 +25,43 @@ export default function AdminDashboard() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [authStatus, setAuthStatus] = useState('확인 중...')
+  const [error, setError] = useState<string | null>(null)
 
   // 인증 상태 확인 (디버깅용)
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const supabase = createClient()
+        
+        // Supabase 연결 테스트
+        const { data: testData, error: testError } = await supabase
+          .from('users')
+          .select('count')
+          .limit(1)
+          .single()
+        
+        if (testError) {
+          console.log('Supabase 연결 테스트 실패:', testError)
+          setAuthStatus('데이터베이스 연결 실패: ' + testError.message)
+          return
+        }
+        
         const { data, error } = await supabase.auth.getSession()
         
         if (error) {
-          setAuthStatus('오류: ' + error.message)
+          setAuthStatus('인증 오류: ' + error.message)
           return
         }
         
         if (!data.session) {
-          setAuthStatus('세션 없음')
+          setAuthStatus('세션 없음 (로그인 필요)')
           return
         }
         
         setAuthStatus('인증됨: ' + data.session.user.email)
       } catch (e: any) {
         setAuthStatus('예외 발생: ' + e.message)
+        console.error('인증 확인 중 오류:', e)
       }
     }
     
@@ -56,64 +72,84 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       const supabase = createClient()
       
+      // 10초 타임아웃 설정
+      const timeout = setTimeout(() => {
+        setError('데이터 로딩이 너무 오래 걸립니다. 페이지를 새로고침해주세요.')
+        setIsLoading(false)
+      }, 10000)
+      
       try {
-        // 패키지 수
-        const { count: packagesCount } = await supabase
-          .from('packages')
-          .select('*', { count: 'exact', head: true })
+        console.log('관리자 대시보드 통계 데이터 로딩 시작...')
+        setError(null)
         
-        // 빌라 수
-        const { count: villasCount } = await supabase
-          .from('villas')
-          .select('*', { count: 'exact', head: true })
-        
-        // 사용자 수
-        const { count: usersCount } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-        
-        // 예약 수
-        const { count: bookingsCount } = await supabase
-          .from('bookings')
-          .select('*', { count: 'exact', head: true })
-        
-        // 결제 수
-        const { count: paymentsCount } = await supabase
-          .from('payments')
-          .select('*', { count: 'exact', head: true })
-          
-        // 위시리스트 수
-        const { count: wishlistCount } = await supabase
-          .from('wishlists')
-          .select('*', { count: 'exact', head: true })
-        
-        // 최근 예약
-        const { data: recentBookings } = await supabase
-          .from('bookings')
-          .select('*, users(name, email)')
-          .order('created_at', { ascending: false })
-          .limit(5)
-        
-        // 최근 사용자
-        const { data: recentUsers } = await supabase
-          .from('users')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5)
+        // 모든 쿼리를 Promise.allSettled로 병렬 실행하여 하나가 실패해도 다른 것들이 계속 실행되도록 함
+        const [
+          packagesResult,
+          villasResult,
+          usersResult,
+          bookingsResult,
+          paymentsResult,
+          wishlistResult,
+          recentBookingsResult,
+          recentUsersResult
+        ] = await Promise.allSettled([
+          supabase.from('packages').select('*', { count: 'exact', head: true }),
+          supabase.from('villas').select('*', { count: 'exact', head: true }),
+          supabase.from('users').select('*', { count: 'exact', head: true }),
+          supabase.from('bookings').select('*', { count: 'exact', head: true }),
+          supabase.from('payments').select('*', { count: 'exact', head: true }),
+          supabase.from('wishlists').select('*', { count: 'exact', head: true }),
+          supabase.from('bookings').select('*, users(name, email)').order('created_at', { ascending: false }).limit(5),
+          supabase.from('users').select('*').order('created_at', { ascending: false }).limit(5)
+        ])
+
+        // 결과 처리
+        const packagesCount = packagesResult.status === 'fulfilled' ? packagesResult.value.count || 0 : 0
+        const villasCount = villasResult.status === 'fulfilled' ? villasResult.value.count || 0 : 0
+        const usersCount = usersResult.status === 'fulfilled' ? usersResult.value.count || 0 : 0
+        const bookingsCount = bookingsResult.status === 'fulfilled' ? bookingsResult.value.count || 0 : 0
+        const paymentsCount = paymentsResult.status === 'fulfilled' ? paymentsResult.value.count || 0 : 0
+        const wishlistCount = wishlistResult.status === 'fulfilled' ? wishlistResult.value.count || 0 : 0
+        const recentBookings = recentBookingsResult.status === 'fulfilled' ? recentBookingsResult.value.data || [] : []
+        const recentUsers = recentUsersResult.status === 'fulfilled' ? recentUsersResult.value.data || [] : []
+
+        // 실패한 쿼리 로깅
+        if (packagesResult.status === 'rejected') console.error('패키지 통계 오류:', packagesResult.reason)
+        if (villasResult.status === 'rejected') console.error('빌라 통계 오류:', villasResult.reason)
+        if (usersResult.status === 'rejected') console.error('사용자 통계 오류:', usersResult.reason)
+        if (bookingsResult.status === 'rejected') console.error('예약 통계 오류:', bookingsResult.reason)
+        if (paymentsResult.status === 'rejected') console.error('결제 통계 오류:', paymentsResult.reason)
+        if (wishlistResult.status === 'rejected') console.error('위시리스트 통계 오류:', wishlistResult.reason)
+        if (recentBookingsResult.status === 'rejected') console.error('최근 예약 오류:', recentBookingsResult.reason)
+        if (recentUsersResult.status === 'rejected') console.error('최근 사용자 오류:', recentUsersResult.reason)
+
+        console.log('통계 데이터 로딩 완료:', {
+          packages: packagesCount,
+          villas: villasCount,
+          users: usersCount,
+          bookings: bookingsCount,
+          payments: paymentsCount,
+          wishlist: wishlistCount
+        })
 
         setStats({
-          packages: packagesCount || 0,
-          villas: villasCount || 0,
-          users: usersCount || 0,
-          bookings: bookingsCount || 0,
-          payments: paymentsCount || 0,
-          wishlist: wishlistCount || 0,
-          recentBookings: recentBookings || [],
-          recentUsers: recentUsers || []
+          packages: packagesCount,
+          villas: villasCount,
+          users: usersCount,
+          bookings: bookingsCount,
+          payments: paymentsCount,
+          wishlist: wishlistCount,
+          recentBookings: recentBookings,
+          recentUsers: recentUsers
         })
-      } catch (error) {
+        
+        clearTimeout(timeout)
+      } catch (error: any) {
         console.error('통계를 가져오는 데 실패했습니다:', error)
+        setError(`데이터 로딩 실패: ${error.message}`)
+        clearTimeout(timeout)
       } finally {
+        console.log('관리자 대시보드 로딩 완료')
         setIsLoading(false)
       }
     }
@@ -123,8 +159,28 @@ export default function AdminDashboard() {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center">
         <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent border-solid rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-600">관리자 대시보드 로딩 중...</p>
+        <p className="mt-2 text-sm text-gray-500">인증 상태: {authStatus}</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">데이터 로딩 오류</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            페이지 새로고침
+          </button>
+        </div>
       </div>
     )
   }
