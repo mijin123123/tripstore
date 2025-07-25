@@ -104,7 +104,7 @@ export default function AdminUsers() {
       const supabase = createClient()
       const { error } = await supabase
         .from('users')
-        .update({ is_blocked: !currentStatus })
+        .update({ is_blocked: !currentStatus } as any)
         .eq('id', id)
       
       if (error) {
@@ -156,7 +156,7 @@ export default function AdminUsers() {
       const supabase = createClient()
       const { error } = await supabase
         .from('users')
-        .update({ is_blocked: true })
+        .update({ is_blocked: true } as any)
         .in('id', selectedUsers)
 
       if (error) {
@@ -193,7 +193,7 @@ export default function AdminUsers() {
       const supabase = createClient()
       const { error } = await supabase
         .from('users')
-        .update({ is_blocked: false })
+        .update({ is_blocked: false } as any)
         .in('id', selectedUsers)
 
       if (error) {
