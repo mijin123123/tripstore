@@ -38,10 +38,13 @@ export default function AdminUsers() {
         }
         
         // is_blocked 필드가 없는 경우 기본값 false로 설정
-        const usersWithBlockStatus = (data || []).map(user => ({
-          ...user,
-          is_blocked: user.is_blocked || false
-        }))
+        const usersWithBlockStatus = (data || []).map(user => {
+          const { is_blocked = false, ...rest } = user as any
+          return {
+            ...rest,
+            is_blocked
+          }
+        })
         
         setUsers(usersWithBlockStatus)
       } catch (error) {
