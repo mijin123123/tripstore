@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
-import { Search, Mail, Phone, Calendar, MapPin, Shield, ShieldOff, Ban, CheckCircle } from 'lucide-react'
+import { Search, Mail, Phone, Calendar, MapPin, Shield, ShieldOff, Ban, CheckCircle, Trash2 } from 'lucide-react'
 
 type User = {
   id: string
@@ -19,6 +19,8 @@ export default function AdminUsers() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+  const [bulkActionLoading, setBulkActionLoading] = useState(false)
   
   useEffect(() => {
     const fetchUsers = async () => {
@@ -113,6 +115,98 @@ export default function AdminUsers() {
       setActionLoading(null)
     }
   }
+
+  // 사용자 선택/해제
+  const handleSelectUser = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    )
+  }
+
+  // 전체 선택/해제
+  const handleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([])
+    } else {
+      setSelectedUsers(filteredUsers.map(user => user.id))
+    }
+  }
+
+  // 선택된 사용자 일괄 차단
+  const handleBulkBlock = async () => {
+    if (selectedUsers.length === 0) return
+
+    if (!confirm(`선택된 ${selectedUsers.length}명의 사용자를 차단하시겠습니까?`)) {
+      return
+    }
+
+    setBulkActionLoading(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('users')
+        .update({ is_blocked: true })
+        .in('id', selectedUsers)
+
+      if (error) {
+        throw error
+      }
+
+      // 상태 업데이트
+      setUsers(users.map(user => 
+        selectedUsers.includes(user.id) 
+          ? { ...user, is_blocked: true } 
+          : user
+      ))
+
+      setSelectedUsers([])
+      alert(`${selectedUsers.length}명의 사용자가 차단되었습니다.`)
+    } catch (error) {
+      console.error('일괄 차단에 실패했습니다:', error)
+      alert('일괄 차단에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
+
+  // 선택된 사용자 일괄 차단 해제
+  const handleBulkUnblock = async () => {
+    if (selectedUsers.length === 0) return
+
+    if (!confirm(`선택된 ${selectedUsers.length}명의 사용자를 차단 해제하시겠습니까?`)) {
+      return
+    }
+
+    setBulkActionLoading(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('users')
+        .update({ is_blocked: false })
+        .in('id', selectedUsers)
+
+      if (error) {
+        throw error
+      }
+
+      // 상태 업데이트
+      setUsers(users.map(user => 
+        selectedUsers.includes(user.id) 
+          ? { ...user, is_blocked: false } 
+          : user
+      ))
+
+      setSelectedUsers([])
+      alert(`${selectedUsers.length}명의 사용자가 차단 해제되었습니다.`)
+    } catch (error) {
+      console.error('일괄 차단 해제에 실패했습니다:', error)
+      alert('일괄 차단 해제에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
   
   if (isLoading) {
     return (
@@ -126,6 +220,39 @@ export default function AdminUsers() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">사용자 관리</h1>
+        
+        {/* 일괄 작업 버튼들 */}
+        {selectedUsers.length > 0 && (
+          <div className="flex space-x-2">
+            <span className="text-sm text-gray-600 flex items-center">
+              {selectedUsers.length}명 선택됨
+            </span>
+            <button
+              onClick={handleBulkBlock}
+              disabled={bulkActionLoading}
+              className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {bulkActionLoading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <Ban className="h-4 w-4 mr-2" />
+              )}
+              일괄 차단
+            </button>
+            <button
+              onClick={handleBulkUnblock}
+              disabled={bulkActionLoading}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {bulkActionLoading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <CheckCircle className="h-4 w-4 mr-2" />
+              )}
+              일괄 해제
+            </button>
+          </div>
+        )}
       </div>
       
       {/* 검색 */}
@@ -169,6 +296,20 @@ export default function AdminUsers() {
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 text-left text-sm">
+                  <th className="px-6 py-3 font-medium text-gray-500">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedUsers(filteredUsers.map(u => u.id))
+                        } else {
+                          setSelectedUsers([])
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                  </th>
                   <th className="px-6 py-3 font-medium text-gray-500">이름</th>
                   <th className="px-6 py-3 font-medium text-gray-500">이메일</th>
                   <th className="px-6 py-3 font-medium text-gray-500">전화번호</th>
@@ -181,6 +322,20 @@ export default function AdminUsers() {
               <tbody className="divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className={`hover:bg-gray-50 transition-colors ${user.is_blocked ? 'bg-red-50' : ''}`}>
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedUsers([...selectedUsers, user.id])
+                          } else {
+                            setSelectedUsers(selectedUsers.filter(id => id !== user.id))
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className={`h-8 w-8 rounded-full flex items-center justify-center text-gray-600 mr-3 ${
