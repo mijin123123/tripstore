@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase-client'
+import { createClient } from '@/lib/supabase'
 import { Database } from '@/types/database.types'
 import { Edit, Plus, Save, Trash2, X, Upload, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -99,7 +99,7 @@ export default function HeroImagesPage() {
     try {
       setIsLoading(true)
       setError(null)
-      const supabase = await createClient()
+      const supabase = createClient()
       const { data, error } = await supabase
         .from('hero_images')
         .select('*')
@@ -150,7 +150,7 @@ export default function HeroImagesPage() {
       }
       reader.readAsDataURL(file)
 
-      const supabase = await createClient()
+      const supabase = createClient()
       
       // 파일명 생성 (타임스탬프 + 안전한 파일명)
       const timestamp = Date.now()
@@ -282,7 +282,7 @@ export default function HeroImagesPage() {
         return
       }
 
-      const supabase = await createClient()
+      const supabase = createClient()
       
       if (editingId) {
         // 편집 모드
@@ -334,7 +334,7 @@ export default function HeroImagesPage() {
     }
     
     try {
-      const supabase = await createClient()
+      const supabase = createClient()
       const { error } = await supabase
         .from('hero_images')
         .delete()

@@ -3,6 +3,13 @@ import { Inter, Noto_Sans_KR } from 'next/font/google'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { headers } from 'next/headers'
+import dynamic from 'next/dynamic'
+
+// 인증 제공자 컴포넌트를 동적으로 로드 (클라이언트 측에서만 실행)
+const AuthProviderWrapper = dynamic(
+  () => import('@/components/AuthProvider').then((mod) => mod.AuthProvider),
+  { ssr: false }
+)
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -34,9 +41,11 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={`${inter.className} min-h-screen bg-gray-50 antialiased`}>
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AuthProviderWrapper>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AuthProviderWrapper>
       </body>
     </html>
   )

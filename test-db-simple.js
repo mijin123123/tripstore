@@ -2,7 +2,7 @@
 const { createClient } = require('@supabase/supabase-js');
 
 // 환경변수 대신 직접 값 사용
-const supabaseUrl = 'https://ihhenvmzizaiokrfkatwt.supabase.co';
+const supabaseUrl = 'https://ihhnvmzizaiokrfkatwt.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImloaG52bXppemFpb2tyZmthdHd0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA4ODU5OSwiZXhwIjoyMDY4NjY0NTk5fQ.C9CmGqD7p4n6BjsLX_wbUoTvpyLKWWpOJOmCnFhE4zQ';
 
 console.log('=== Supabase 연결 테스트 시작 ===');

@@ -16,13 +16,80 @@ export function createClient() {
     console.error('Supabase URL 또는 ANON KEY가 없습니다. 폴백 값 사용 중!');
   }
   
-  // 클라이언트 생성 시도
+  // 클라이언트 싱글톤 패턴 적용 (불필요한 클라이언트 생성 방지)
+  if ((globalThis as any).__supabase) {
+    return (globalThis as any).__supabase;
+  }
+  
+  // 클라이언트 생성 시도 - 옵션 추가
   try {
-    return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
+    // 최적화된 설정
+    const client = createBrowserClient<Database>(
+      supabaseUrl, 
+      supabaseAnonKey,
+      {
+        auth: {
+          flowType: 'pkce', // 더 안전한 방식으로 변경
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          persistSession: true,
+          storageKey: 'tripstore-auth-token', // 명시적 저장소 키 설정
+          debug: true, // 디버깅 활성화
+          storage: {
+            getItem: (key) => {
+              try {
+                const value = localStorage.getItem(key);
+                console.log(`Auth 토큰 조회: ${key} (있음: ${!!value})`);
+                return value;
+              } catch (e) {
+                console.error('토큰 조회 오류:', e);
+                return null;
+              }
+            },
+            setItem: (key, value) => {
+              try {
+                console.log(`Auth 토큰 저장: ${key}`);
+                localStorage.setItem(key, value);
+              } catch (e) {
+                console.error('토큰 저장 오류:', e);
+              }
+            },
+            removeItem: (key) => {
+              try {
+                console.log(`Auth 토큰 삭제: ${key}`);
+                localStorage.removeItem(key);
+              } catch (e) {
+                console.error('토큰 삭제 오류:', e);
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // 글로벌 변수에 저장하여 재사용
+    (globalThis as any).__supabase = client;
+    return client;
+    
   } catch (error) {
     console.error('Supabase 클라이언트 생성 오류:', error);
-    // 폴백 값으로 재시도
-    return createBrowserClient<Database>(FALLBACK_SUPABASE_URL, FALLBACK_SUPABASE_ANON_KEY);
+    // 폴백 값으로 재시도 (설정 간소화)
+    const fallbackClient = createBrowserClient<Database>(
+      FALLBACK_SUPABASE_URL, 
+      FALLBACK_SUPABASE_ANON_KEY,
+      {
+        auth: {
+          flowType: 'implicit',
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          persistSession: true
+        }
+      }
+    );
+    
+    // 글로벌 변수에 저장
+    (globalThis as any).__supabase = fallbackClient;
+    return fallbackClient;
   }
 }
 

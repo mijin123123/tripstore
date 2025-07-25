@@ -3,70 +3,27 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Menu, X, ChevronDown, Plane, User, LogOut } from 'lucide-react'
-import { usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase'
+import { usePathname, useRouter } from 'next/navigation'
+import { useAuth } from '@/components/AuthProvider'
 
 const Header = () => {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  
+  // AuthProvider에서 인증 정보 가져오기
+  const { user, session, loading: isLoading, signOut, isAdmin } = useAuth()
 
-  // 로그인 상태 확인
+  // 인증 정보 로그 확인
   useEffect(() => {
-    const supabase = createClient()
-    
-    const checkAuth = async () => {
-      try {
-        setIsLoading(true)
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('인증 확인 오류:', error)
-          setUser(null)
-        } else if (session) {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          
-          setUser(userData || { email: session.user.email })
-        } else {
-          setUser(null)
-        }
-      } catch (error) {
-        console.error('인증 확인 중 오류:', error)
-        setUser(null)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    
-    checkAuth()
-    
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          
-          setUser(userData || { email: session.user.email })
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null)
-        }
-      }
-    )
-    
-    return () => {
-      authListener.subscription.unsubscribe()
-    }
-  }, [])
+    console.log('Header - 인증 정보:', { 
+      isLoggedIn: !!session, 
+      user: user,
+      isAdmin: isAdmin
+    });
+  }, [session, user, isAdmin]);
 
   // 관리자 페이지에서는 헤더를 표시하지 않음
   if (pathname?.startsWith('/admin')) {
@@ -75,10 +32,13 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const supabase = createClient()
-      await supabase.auth.signOut()
-      setUser(null)
-      window.location.href = '/'
+      const result = await signOut()
+      if (result.success) {
+        console.log('로그아웃 성공');
+        router.push('/')
+      } else {
+        console.error('로그아웃 실패:', result.error)
+      }
     } catch (error) {
       console.error('로그아웃 오류:', error)
     }
@@ -209,7 +169,7 @@ const Header = () => {
                         onMouseEnter={() => setShowUserMenu(true)}
                       >
                         <User className="w-4 h-4" />
-                        <span>{user.name || '내 계정'}</span>
+                        <span>{user?.email?.split('@')[0] || '내 계정'}</span>
                       </button>
                       {showUserMenu && (
                         <div 
@@ -218,7 +178,7 @@ const Header = () => {
                           onMouseLeave={() => setShowUserMenu(false)}
                         >
                           <div className="p-4">
-                            <div className="text-sm text-gray-500 mb-3 pb-2 border-b border-gray-100">{user.email}</div>
+                            <div className="text-sm text-gray-500 mb-3 pb-2 border-b border-gray-100">{user?.email}</div>
                             <Link 
                               href="/profile" 
                               className="block py-2 px-3 text-sm text-gray-700 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-150"
@@ -226,7 +186,7 @@ const Header = () => {
                             >
                               마이페이지
                             </Link>
-                            {user.is_admin && (
+                            {isAdmin && (
                               <Link 
                                 href="/admin" 
                                 className="block py-2 px-3 text-sm text-gray-700 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-150"
@@ -316,13 +276,13 @@ const Header = () => {
                 {user ? (
                   <>
                     <div className="px-3 py-1.5 bg-blue-50 rounded-md mb-1.5">
-                      <p className="text-xs font-medium">{user.name || '환영합니다!'}</p>
-                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      <p className="text-xs font-medium">{user?.email?.split('@')[0] || '환영합니다!'}</p>
+                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                     </div>
                     <Link href="/profile" className="block py-1 text-xs text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
                       마이페이지
                     </Link>
-                    {user.is_admin && (
+                    {isAdmin && (
                       <Link href="/admin" className="block py-1 text-xs text-gray-700 hover:text-blue-500 transition-colors" onClick={() => setIsMenuOpen(false)}>
                         관리자 페이지
                       </Link>

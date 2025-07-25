@@ -12,22 +12,28 @@ export default function AdminDashboard() {
 
   // 한 번만 실행되는 초기화 함수
   useEffect(() => {
-    console.log('관리자 페이지 마운트됨');
-    setStatus('인증 상태 확인 완료');
-  }, []); // 빈 의존성 배열로 한 번만 실행
-  
-  // 인증 상태 변경 감지 (별도 useEffect)
-  useEffect(() => {
-    if (!loading) {
-      if (user && isAdmin) {
-        setStatus('관리자로 로그인됨: ' + user.email);
-      } else if (user && !isAdmin) {
-        setStatus('일반 사용자로 로그인됨: ' + user.email);
-      } else {
-        setStatus('로그인되지 않음');
+    const initPage = async () => {
+      try {
+        setStatus('인증 상태 확인 중...');
+        console.log('관리자 페이지 초기화 시작');
+        
+        // 세션 강제 갱신
+        await refreshSession();
+        console.log('세션 갱신 완료');
+        
+        setStatus('인증 정보: ' + JSON.stringify({
+          user: user?.email || '로그인 안됨',
+          isAdmin: isAdmin,
+          loading: loading
+        }));
+      } catch (error) {
+        console.error('관리자 페이지 초기화 오류:', error);
+        setStatus('오류 발생: ' + (error instanceof Error ? error.message : String(error)));
       }
-    }
-  }, [user, isAdmin, loading]); // 상태 변경 시에만 실행
+    };
+    
+    initPage();
+  }, []); // 의존성 배열은 비워두어 한 번만 실행되도록 함
   
   // 페이지 콘텐츠
   return (
@@ -80,18 +86,6 @@ export default function AdminDashboard() {
           <p className="text-blue-800 font-medium">인증 정보 확인 중...</p>
         </div>
       )}
-      
-      <div className="mt-8 border-t pt-4">
-        <a 
-          href="/admin/debug-admin" 
-          className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 inline-block"
-        >
-          관리자 디버그 페이지로 이동
-        </a>
-        <p className="mt-2 text-sm text-gray-500">
-          문제가 발생하면 디버그 페이지에서 관리자 상태를 직접 설정할 수 있습니다.
-        </p>
-      </div>
     </div>
   );
 }
