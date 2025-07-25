@@ -142,12 +142,6 @@ export default function EuropePage() {
                     alt={pkg.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{pkg.rating}</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="p-6">

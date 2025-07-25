@@ -147,12 +147,6 @@ export default function HotelPage() {
                   <h3 className="text-2xl font-bold">{region.name}</h3>
                   <p className="text-sm opacity-90">{region.description}</p>
                 </div>
-                <div className="absolute top-4 right-4 bg-white bg-opacity-90 px-3 py-1 rounded-full">
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-medium">{region.rating}</span>
-                  </div>
-                </div>
               </div>
               
               <div className="p-6">

@@ -146,12 +146,6 @@ export default function OverseasPage() {
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex-shrink-0">
                   <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                  <div className="absolute top-4 right-4 bg-white bg-opacity-90 px-3 py-1 rounded-full">
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-medium">{pkg.rating}</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="p-6">
