@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-client'
 import { 
   Package,
   Users, 
@@ -32,19 +32,6 @@ export default function AdminDashboard() {
     const checkAuth = async () => {
       try {
         const supabase = createClient()
-        
-        // Supabase 연결 테스트
-        const { data: testData, error: testError } = await supabase
-          .from('users')
-          .select('count')
-          .limit(1)
-          .single()
-        
-        if (testError) {
-          console.log('Supabase 연결 테스트 실패:', testError)
-          setAuthStatus('데이터베이스 연결 실패: ' + testError.message)
-          return
-        }
         
         const { data, error } = await supabase.auth.getSession()
         
@@ -79,7 +66,6 @@ export default function AdminDashboard() {
       }, 10000)
       
       try {
-        console.log('관리자 대시보드 통계 데이터 로딩 시작...')
         setError(null)
         
         // 모든 쿼리를 Promise.allSettled로 병렬 실행하여 하나가 실패해도 다른 것들이 계속 실행되도록 함
@@ -113,24 +99,20 @@ export default function AdminDashboard() {
         const recentBookings = recentBookingsResult.status === 'fulfilled' ? recentBookingsResult.value.data || [] : []
         const recentUsers = recentUsersResult.status === 'fulfilled' ? recentUsersResult.value.data || [] : []
 
-        // 실패한 쿼리 로깅
-        if (packagesResult.status === 'rejected') console.error('패키지 통계 오류:', packagesResult.reason)
-        if (villasResult.status === 'rejected') console.error('빌라 통계 오류:', villasResult.reason)
-        if (usersResult.status === 'rejected') console.error('사용자 통계 오류:', usersResult.reason)
-        if (bookingsResult.status === 'rejected') console.error('예약 통계 오류:', bookingsResult.reason)
-        if (paymentsResult.status === 'rejected') console.error('결제 통계 오류:', paymentsResult.reason)
-        if (wishlistResult.status === 'rejected') console.error('위시리스트 통계 오류:', wishlistResult.reason)
-        if (recentBookingsResult.status === 'rejected') console.error('최근 예약 오류:', recentBookingsResult.reason)
-        if (recentUsersResult.status === 'rejected') console.error('최근 사용자 오류:', recentUsersResult.reason)
-
-        console.log('통계 데이터 로딩 완료:', {
-          packages: packagesCount,
-          villas: villasCount,
-          users: usersCount,
-          bookings: bookingsCount,
-          payments: paymentsCount,
-          wishlist: wishlistCount
-        })
+        // 실패한 쿼리만 에러 로깅
+        const failedQueries = []
+        if (packagesResult.status === 'rejected') failedQueries.push('패키지')
+        if (villasResult.status === 'rejected') failedQueries.push('빌라')
+        if (usersResult.status === 'rejected') failedQueries.push('사용자')
+        if (bookingsResult.status === 'rejected') failedQueries.push('예약')
+        if (paymentsResult.status === 'rejected') failedQueries.push('결제')
+        if (wishlistResult.status === 'rejected') failedQueries.push('위시리스트')
+        if (recentBookingsResult.status === 'rejected') failedQueries.push('최근 예약')
+        if (recentUsersResult.status === 'rejected') failedQueries.push('최근 사용자')
+        
+        if (failedQueries.length > 0) {
+          console.warn('일부 통계 로딩 실패:', failedQueries.join(', '))
+        }
 
         setStats({
           packages: packagesCount,
@@ -149,7 +131,6 @@ export default function AdminDashboard() {
         setError(`데이터 로딩 실패: ${error.message}`)
         clearTimeout(timeout)
       } finally {
-        console.log('관리자 대시보드 로딩 완료')
         setIsLoading(false)
       }
     }

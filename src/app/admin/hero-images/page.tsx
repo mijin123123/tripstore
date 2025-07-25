@@ -109,8 +109,8 @@ export default function HeroImagesPage() {
       if (error) throw error
       setHeroImages(data as HeroImage[] || [])
     } catch (err: any) {
-      setError(`히어로 이미지를 불러오는데 실패했습니다: ${err.message}`)
       console.error('히어로 이미지 불러오기 오류:', err)
+      setError(`히어로 이미지를 불러오는데 실패했습니다: ${err.message}`)
     } finally {
       setIsLoading(false)
     }
@@ -157,12 +157,36 @@ export default function HeroImagesPage() {
       const fileExt = file.name.split('.').pop()
       const fileName = `hero-${timestamp}.${fileExt}`
       
-      // Supabase Storage에 업로드
-      const { data, error } = await supabase.storage
+      // Supabase Storage에 업로드 시도
+      let uploadResult = await supabase.storage
         .from('hero-images')
         .upload(fileName, file)
       
-      if (error) throw error
+      // 버킷이 없으면 생성 후 다시 시도
+      if (uploadResult.error && uploadResult.error.message.includes('Bucket not found')) {
+        console.log('hero-images 버킷 생성 중...')
+        
+        const { error: createBucketError } = await supabase.storage
+          .createBucket('hero-images', {
+            public: true,
+            allowedMimeTypes: ['image/*'],
+            fileSizeLimit: 5242880 // 5MB
+          })
+        
+        if (createBucketError) {
+          console.error('버킷 생성 오류:', createBucketError)
+          throw new Error(`스토리지 버킷 생성 실패: ${createBucketError.message}`)
+        }
+        
+        // 버킷 생성 후 다시 업로드 시도
+        uploadResult = await supabase.storage
+          .from('hero-images')
+          .upload(fileName, file)
+      }
+      
+      if (uploadResult.error) {
+        throw uploadResult.error
+      }
       
       // 업로드된 파일의 public URL 생성
       const { data: { publicUrl } } = supabase.storage
