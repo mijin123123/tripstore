@@ -10,7 +10,7 @@ type User = {
   name: string | null
   phone: string | null
   role: string
-  is_blocked: boolean | null
+  is_blocked?: boolean | null
   created_at: string
 }
 
@@ -37,7 +37,13 @@ export default function AdminUsers() {
           throw error
         }
         
-        setUsers(data || [])
+        // is_blocked 필드가 없는 경우 기본값 false로 설정
+        const usersWithBlockStatus = (data || []).map(user => ({
+          ...user,
+          is_blocked: user.is_blocked || false
+        }))
+        
+        setUsers(usersWithBlockStatus)
       } catch (error) {
         console.error('사용자를 가져오는 데 실패했습니다:', error)
       } finally {
