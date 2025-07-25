@@ -270,8 +270,6 @@ export default function CreatePackage() {
       newImages[index] = publicUrl
       setFormData({ ...formData, images: newImages })
 
-      alert('이미지가 성공적으로 업로드되었습니다.')
-
     } catch (error) {
       console.error('파일 업로드 중 오류:', error)
       alert(`파일 업로드 중 오류가 발생했습니다: ${error}`)
