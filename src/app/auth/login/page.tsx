@@ -99,16 +99,22 @@ function LoginForm() {
     setLoginError('')
     
     try {
-      console.log('로그인 시도 중...');
+      console.log('=== 로그인 시도 시작 ===');
       console.log('이메일:', formData.email);
       console.log('비밀번호 길이:', formData.password.length);
+      console.log('현재 URL:', window.location.href);
+      console.log('리다이렉트 경로:', redirectTo);
       
       const supabase = createClient()
+      console.log('Supabase 클라이언트 생성 완료');
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password
       })
+      
+      console.log('인증 응답 데이터:', data);
+      console.log('인증 오류:', error);
       
       if (error) {
         console.error('로그인 오류:', error.message)
@@ -132,8 +138,10 @@ function LoginForm() {
       
       // 사용자 로그인 성공 후 권한 체크
       const userId = data.user?.id
+      console.log('로그인 성공! 사용자 ID:', userId);
       
       if (userId) {
+        console.log('사용자 권한 확인 중...');
         // users 테이블에서 관리자 여부 확인
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -141,27 +149,45 @@ function LoginForm() {
           .eq('id', userId)
           .single()
         
-        console.log('사용자 데이터:', userData, '오류:', userError)
+        console.log('사용자 데이터 조회 결과:', userData);
+        console.log('사용자 데이터 조회 오류:', userError);
         
         // 관리자 페이지 접근 시 권한 체크
         if (redirectTo.includes('/admin')) {
+          console.log('관리자 페이지 접근 시도');
           if (userError || !userData || userData.role !== 'admin') {
+            console.log('관리자 권한 없음 - 로그아웃 처리');
             setLoginError('관리자 권한이 없습니다.')
             await supabase.auth.signOut()
             return
           }
+          console.log('관리자 권한 확인됨');
         }
         
         // 로그인 성공 시 리디렉션
-        console.log('로그인 성공, 리디렉션:', redirectTo)
+        console.log('=== 페이지 이동 시작 ===');
+        console.log('현재 redirectTo:', redirectTo);
+        console.log('사용자 역할:', userData?.role);
         
         // 권한에 따른 리디렉션
         if (userData?.role === 'admin' && !redirectTo.includes('/admin')) {
-          console.log('관리자로 리디렉션 중...')
-          router.push('/admin')
+          console.log('관리자 사용자 - /admin으로 이동');
+          try {
+            await router.push('/admin');
+            console.log('관리자 페이지 이동 완료');
+          } catch (routerError) {
+            console.error('관리자 페이지 이동 실패:', routerError);
+            window.location.href = '/admin'; // 백업 방법
+          }
         } else {
-          console.log('지정된 경로로 리디렉션 중:', redirectTo)
-          router.push(redirectTo)
+          console.log('일반 사용자 또는 지정된 경로로 이동:', redirectTo);
+          try {
+            await router.push(redirectTo);
+            console.log('페이지 이동 완료:', redirectTo);
+          } catch (routerError) {
+            console.error('페이지 이동 실패:', routerError);
+            window.location.href = redirectTo; // 백업 방법
+          }
         }
       } else {
         setLoginError('로그인 처리 중 오류가 발생했습니다.')
