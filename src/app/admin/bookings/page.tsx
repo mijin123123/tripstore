@@ -20,10 +20,6 @@ type Booking = {
   people_count?: number
   total_price?: number
   created_at: string
-  users: {
-    name: string | null
-    email: string
-  }
   packages?: {
     name: string
     image: string | null
@@ -41,6 +37,27 @@ export default function AdminBookings() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [paymentFilter, setPaymentFilter] = useState<string>('all')
   
+  // 예약자 정보를 파싱하는 함수
+  const parseBookingInfo = (specialRequests: string | null | undefined) => {
+    try {
+      if (!specialRequests) return { name: '알 수 없음', email: '알 수 없음' }
+      
+      const parsed = JSON.parse(specialRequests)
+      const travelerInfo = parsed.travelerInfo
+      
+      if (travelerInfo) {
+        return {
+          name: travelerInfo.name || '알 수 없음',
+          email: travelerInfo.email || '알 수 없음'
+        }
+      }
+      
+      return { name: '알 수 없음', email: '알 수 없음' }
+    } catch (error) {
+      return { name: '알 수 없음', email: '알 수 없음' }
+    }
+  }
+
   useEffect(() => {
     const fetchBookings = async () => {
       setIsLoading(true)
@@ -76,10 +93,6 @@ export default function AdminBookings() {
             people_count: booking.people_count || booking.travelerCount || 1,
             total_price: booking.total_price || booking.totalAmount || booking.cost || 0,
             created_at: booking.created_at || new Date().toISOString(),
-            users: {
-              name: booking.travelerInfo?.name || '예약자',
-              email: booking.travelerInfo?.email || 'unknown@example.com'
-            },
             packages: booking.package_id ? {
               name: `패키지 ${booking.package_id}`,
               image: null
@@ -106,10 +119,13 @@ export default function AdminBookings() {
   
   // 필터링 로직
   const filteredBookings = bookings.filter(booking => {
+    // 예약자 정보 파싱
+    const bookingInfo = parseBookingInfo(booking.special_requests)
+    
     // 검색어 필터
     const searchMatch = !searchQuery ||
-      booking.users?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.users?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bookingInfo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bookingInfo.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.packages?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.id.toString().includes(searchQuery);
 
@@ -388,16 +404,18 @@ export default function AdminBookings() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredBookings.map((booking) => (
+                {filteredBookings.map((booking) => {
+                  const bookingInfo = parseBookingInfo(booking.special_requests)
+                  return (
                   <tr key={booking.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {booking.users.name || '이름 없음'}
+                            {bookingInfo.name}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {booking.users.email}
+                            {bookingInfo.email}
                           </div>
                         </div>
                       </div>
@@ -441,7 +459,8 @@ export default function AdminBookings() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>

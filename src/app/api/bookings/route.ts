@@ -60,7 +60,12 @@ export async function POST(request: Request) {
       start_date: body.startDate || '2025-08-01', // 출발일
       end_date: null, // NULL 허용
       people_count: body.peopleCount || body.quantity || 1, // 인원수
-      total_price: parseFloat(body.totalPrice || body.cost) || 0
+      total_price: parseFloat(body.totalPrice || body.cost) || 0,
+      special_requests: JSON.stringify({
+        travelerInfo: body.travelerInfo || null,
+        specialRequests: body.specialRequests || '',
+        allTravelers: body.allTravelers || []
+      })
     }
 
     console.log('최종 삽입할 데이터:', JSON.stringify(insertData, null, 2))
