@@ -294,7 +294,7 @@ export default function AdminUsers() {
         </div>
         <div className="bg-white rounded-xl shadow p-4 flex flex-col">
           <span className="text-sm text-gray-500">차단된 사용자</span>
-          <span className="text-2xl font-bold text-red-600">{users.filter(user => user.is_blocked).length}</span>
+          <span className="text-2xl font-bold text-red-600">{users.filter(user => !!user.is_blocked).length}</span>
         </div>
       </div>
       
@@ -396,7 +396,7 @@ export default function AdminUsers() {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleToggleAdmin(user.id, user.role === 'admin')}
-                          disabled={actionLoading === user.id || user.is_blocked}
+                          disabled={actionLoading === user.id || !!user.is_blocked}
                           className={`flex items-center px-3 py-1 rounded text-sm transition-colors ${
                             user.role === 'admin' 
                               ? 'bg-red-50 text-red-700 hover:bg-red-100 disabled:bg-red-25 disabled:text-red-400' 
