@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/types/database.types'
-import { Edit, Plus, Save, Trash2, X } from 'lucide-react'
+import { Edit, Plus, Save, Trash2, X, Upload, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 
 type HeroImage = {
@@ -25,6 +25,8 @@ export default function HeroImagesPage() {
   const [error, setError] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   
   const [formData, setFormData] = useState<Omit<HeroImage, 'id' | 'created_at' | 'updated_at'>>({
     page_type: '',
@@ -124,6 +126,93 @@ export default function HeroImagesPage() {
     setFormData(prev => ({ ...prev, [name]: checked }))
   }
 
+  const handleImageUpload = async (file: File) => {
+    // 파일 크기 체크 (5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('파일 크기는 5MB 이하여야 합니다.')
+      return
+    }
+
+    // 파일 타입 체크
+    if (!file.type.startsWith('image/')) {
+      setError('이미지 파일만 업로드 가능합니다.')
+      return
+    }
+
+    try {
+      setUploadingImage(true)
+      setError(null)
+
+      // 파일 미리보기 생성
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPreviewImage(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+
+      const supabase = createClient()
+      
+      // 파일명 생성 (타임스탬프 + 원본 파일명)
+      const timestamp = Date.now()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `hero-${timestamp}.${fileExt}`
+      
+      // Supabase Storage에 업로드
+      const { data, error } = await supabase.storage
+        .from('hero-images')
+        .upload(fileName, file)
+      
+      if (error) throw error
+      
+      // 업로드된 파일의 public URL 생성
+      const { data: { publicUrl } } = supabase.storage
+        .from('hero-images')
+        .getPublicUrl(fileName)
+      
+      // 폼 데이터 업데이트
+      setFormData(prev => ({ ...prev, image_url: publicUrl }))
+      
+    } catch (err: any) {
+      setError(`이미지 업로드에 실패했습니다: ${err.message}`)
+      console.error('이미지 업로드 오류:', err)
+      setPreviewImage(null)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleImageUpload(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const files = e.dataTransfer.files
+    if (files && files[0]) {
+      handleImageUpload(files[0])
+    }
+  }
+
   const handleEdit = (heroImage: HeroImage) => {
     setEditingId(heroImage.id)
     setFormData({
@@ -135,6 +224,7 @@ export default function HeroImagesPage() {
       gradient_overlay: heroImage.gradient_overlay,
       is_active: heroImage.is_active
     })
+    setPreviewImage(heroImage.image_url)
     window.scrollTo(0, 0)
   }
 
@@ -150,6 +240,7 @@ export default function HeroImagesPage() {
       gradient_overlay: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.4) 100%)',
       is_active: true
     })
+    setPreviewImage(null)
     window.scrollTo(0, 0)
   }
 
@@ -165,12 +256,13 @@ export default function HeroImagesPage() {
       gradient_overlay: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.4) 100%)',
       is_active: true
     })
+    setPreviewImage(null)
   }
 
   const handleSave = async () => {
     try {
-      if (!formData.page_type || !formData.title || !formData.image_url) {
-        setError('페이지 타입, 제목, 이미지 URL은 필수 항목입니다.')
+      if (!formData.page_type || !formData.title || (!formData.image_url && !previewImage)) {
+        setError('페이지 타입, 제목, 이미지는 필수 항목입니다.')
         return
       }
 
@@ -212,6 +304,7 @@ export default function HeroImagesPage() {
       
       setIsCreating(false)
       setEditingId(null)
+      setPreviewImage(null)
       await fetchHeroImages()
     } catch (err: any) {
       setError(`히어로 이미지 저장에 실패했습니다: ${err.message}`)
@@ -331,16 +424,87 @@ export default function HeroImagesPage() {
             </div>
             
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">이미지 URL <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                name="image_url"
-                value={formData.image_url}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="/images/[category]-hero.jpg"
-                required
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">히어로 이미지 <span className="text-red-500">*</span></label>
+              
+              {/* 파일 업로드 영역 */}
+              <div className="mt-2">
+                <div 
+                  className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors"
+                  onDragOver={handleDragOver}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <div className="space-y-1 text-center">
+                    {previewImage ? (
+                      <div className="relative">
+                        <img
+                          src={previewImage}
+                          alt="미리보기"
+                          className="mx-auto h-32 w-auto rounded-lg object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPreviewImage(null)
+                            setFormData(prev => ({ ...prev, image_url: '' }))
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    )}
+                    
+                    <div className="flex text-sm text-gray-600">
+                      <label htmlFor="hero-image-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                        <span>{previewImage ? '다른 이미지 선택' : '파일을 선택하거나'}</span>
+                        <input
+                          id="hero-image-upload"
+                          name="hero-image-upload"
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={handleFileInputChange}
+                          disabled={uploadingImage}
+                        />
+                      </label>
+                      {!previewImage && <p className="pl-1">여기에 드래그하세요</p>}
+                    </div>
+                    
+                    {!previewImage && (
+                      <p className="text-xs text-gray-500">
+                        PNG, JPG, JPEG, WEBP 파일 (최대 5MB)
+                      </p>
+                    )}
+                    
+                    {uploadingImage && (
+                      <div className="flex items-center justify-center">
+                        <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent border-solid rounded-full animate-spin"></div>
+                        <span className="ml-2 text-sm text-gray-600">업로드 중...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* URL 직접 입력 옵션 (선택사항) */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">또는 이미지 URL 직접 입력</label>
+                <input
+                  type="text"
+                  name="image_url"
+                  value={formData.image_url}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="/images/[category]-hero.jpg 또는 https://..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  파일 업로드 대신 기존 이미지 URL을 직접 입력할 수 있습니다
+                </p>
+              </div>
             </div>
             
             <div className="md:col-span-2">
@@ -370,12 +534,12 @@ export default function HeroImagesPage() {
             </div>
           </div>
           
-          {formData.image_url && (
+          {(previewImage || formData.image_url) && (
             <div className="mt-6">
               <p className="text-sm font-medium text-gray-700 mb-2">이미지 미리보기:</p>
               <div className="relative h-48 w-full overflow-hidden rounded-lg" 
                 style={{ background: formData.gradient_overlay }}>
-                <div className="absolute inset-0" style={{ backgroundImage: `url(${formData.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: -1 }} />
+                <div className="absolute inset-0" style={{ backgroundImage: `url(${previewImage || formData.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: -1 }} />
                 <div className="absolute inset-0 flex items-center justify-center text-white">
                   <div className="text-center">
                     <h3 className="text-2xl font-bold">{formData.title}</h3>
