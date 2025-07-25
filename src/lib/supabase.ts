@@ -26,5 +26,5 @@ export function createClient() {
   }
 }
 
-// 이전 버전과의 호환성을 위한 클라이언트 생성 (하지만 createClient 함수 사용을 권장)
-export const supabase = createClient();
+// 기본 클라이언트 export (필요시 사용)
+// export const supabase = createClient(); // 무한 로그 방지를 위해 주석 처리
