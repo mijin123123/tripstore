@@ -11,10 +11,6 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SU
 
 // 브라우저 클라이언트 생성 (클라이언트 컴포넌트에서 사용)
 export function createClient() {
-  console.log('Supabase 클라이언트 생성', supabaseUrl ? '(URL있음)' : '(URL없음)');
-  console.log('NEXT_PUBLIC_SUPABASE_URL 값 길이:', supabaseUrl?.length);
-  console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY 값 길이:', supabaseAnonKey?.length);
-  
   // URL과 ANON KEY가 유효한지 확인
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Supabase URL 또는 ANON KEY가 없습니다. 폴백 값 사용 중!');

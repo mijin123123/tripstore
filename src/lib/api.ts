@@ -5,7 +5,6 @@ import { Package, Villa, PackageTable, VillaTable } from '@/types';
 // 모든 패키지 가져오기
 export async function getAllPackages(): Promise<Package[]> {
   const supabase = createClient();
-  console.log('Supabase 클라이언트 생성');
   
   try {
     const { data, error } = await supabase
@@ -15,12 +14,6 @@ export async function getAllPackages(): Promise<Package[]> {
     if (error) {
       console.error('패키지를 가져오는 중 오류 발생:', error);
       return [];
-    }
-    
-    // is_featured 필드 확인
-    console.log(`총 ${data?.length || 0}개의 패키지를 가져왔습니다.`);
-    if (data && data.length > 0) {
-      console.log('첫 번째 패키지 데이터 샘플:', data[0]);
     }
     
     // 데이터베이스 스키마와 UI 간의 필드 매핑
@@ -43,7 +36,6 @@ export async function getAllPackages(): Promise<Package[]> {
 // 특정 타입과 지역의 패키지 가져오기
 export async function getPackagesByTypeAndRegion(type: string, region: string): Promise<Package[]> {
   const supabase = createClient();
-  console.log(`API: 패키지 조회 - type: "${type}", region: "${region}"`);
   
   const { data, error } = await supabase
     .from('packages')
@@ -54,11 +46,6 @@ export async function getPackagesByTypeAndRegion(type: string, region: string): 
   if (error) {
     console.error('패키지를 가져오는 중 오류 발생:', error);
     return [];
-  }
-  
-  console.log(`API: 조회 결과 - ${data?.length || 0}개 패키지 발견`);
-  if (data && data.length > 0) {
-    console.log('API: 첫 번째 패키지 샘플:', data[0]);
   }
   
   // 데이터베이스 스키마와 UI 간의 필드 매핑
@@ -76,7 +63,6 @@ export async function getPackagesByTypeAndRegion(type: string, region: string): 
 // ID로 패키지 가져오기
 export async function getPackageById(id: string): Promise<Package | null> {
   const supabase = createClient();
-  console.log(`API: 패키지 조회 - ID: "${id}"`);
   
   const { data, error } = await supabase
     .from('packages')
@@ -90,11 +76,8 @@ export async function getPackageById(id: string): Promise<Package | null> {
   }
   
   if (!data) {
-    console.log('API: 해당 ID의 패키지를 찾을 수 없음');
     return null;
   }
-  
-  console.log('API: 패키지 조회 성공:', (data as any).title || data.name);
   
   // 데이터베이스 스키마와 UI 간의 필드 매핑
   const mappedData = {
