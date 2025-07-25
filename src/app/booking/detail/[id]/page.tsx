@@ -46,6 +46,22 @@ export default function BookingDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // 예약자 정보를 파싱하는 함수
+  const parseBookingInfo = (specialRequests: string | null) => {
+    try {
+      if (!specialRequests) return null
+      
+      const parsed = JSON.parse(specialRequests)
+      return {
+        travelerInfo: parsed.travelerInfo || null,
+        specialRequests: parsed.specialRequests || '',
+        allTravelers: parsed.allTravelers || []
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
   useEffect(() => {
     const fetchBookingDetail = async () => {
       if (!params.id) return
@@ -301,18 +317,64 @@ export default function BookingDetailPage() {
                   </div>
                 </div>
 
-                {/* 특별 요청사항 */}
-                {booking.special_requests && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <AlertCircle className="h-5 w-5 mr-2 text-blue-600" />
-                      특별 요청사항
-                    </h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-700">{booking.special_requests}</p>
-                    </div>
-                  </div>
-                )}
+                {(() => {
+                  const bookingInfo = parseBookingInfo(booking.special_requests)
+                  
+                  return (
+                    <>
+                      {/* 예약자 정보 */}
+                      {bookingInfo?.travelerInfo && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <User className="h-5 w-5 mr-2 text-blue-600" />
+                            예약자 정보
+                          </h3>
+                          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                            <div className="flex justify-between py-2 border-b border-gray-200">
+                              <span className="text-gray-600">이름</span>
+                              <span className="font-medium">{bookingInfo.travelerInfo.name || '알 수 없음'}</span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-200">
+                              <span className="text-gray-600">이메일</span>
+                              <span className="font-medium flex items-center">
+                                <Mail className="h-4 w-4 mr-1" />
+                                {bookingInfo.travelerInfo.email || '알 수 없음'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-200">
+                              <span className="text-gray-600">전화번호</span>
+                              <span className="font-medium flex items-center">
+                                <Phone className="h-4 w-4 mr-1" />
+                                {bookingInfo.travelerInfo.phone || '알 수 없음'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-200">
+                              <span className="text-gray-600">생년월일</span>
+                              <span className="font-medium">{bookingInfo.travelerInfo.birthdate || '알 수 없음'}</span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">성별</span>
+                              <span className="font-medium">{bookingInfo.travelerInfo.gender || '알 수 없음'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 특별 요청사항 */}
+                      {bookingInfo?.specialRequests && bookingInfo.specialRequests.trim() !== '' && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <MessageCircle className="h-5 w-5 mr-2 text-blue-600" />
+                            특별 요청사항
+                          </h3>
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <p className="text-gray-700">{bookingInfo.specialRequests}</p>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
               </div>
 
               {/* 결제 정보 */}
