@@ -37,7 +37,6 @@ export default function CreatePackage() {
     excluded: [''],
     notes: [''],
     is_featured: false,
-    location: '',
     category: ''
   })
 
@@ -347,14 +346,13 @@ export default function CreatePackage() {
       const { error } = await supabase
         .from('packages')
         .insert({
-          name: formData.name,
-          price: formData.price || 0,
+          title: formData.name,
+          price: formData.price.toString(),
           region: formData.region,
           region_ko: formData.regionKo || '',
           type: formData.type,
           description: formData.description || '',
           image: images.length > 0 ? images[0] : '',
-          images: images.length > 0 ? images : [''],
           is_featured: formData.is_featured,
           duration: formData.duration || '',
           departure: formData.departure || '',
@@ -365,7 +363,8 @@ export default function CreatePackage() {
           notes: notes.length ? notes : [''],
           min_people: formData.min_people || 1,
           max_people: formData.max_people || 10,
-          location: formData.location || ''
+          location: formData.location || '',
+          rating: 4.5 // 기본 평점
         })
       
       if (error) throw error
