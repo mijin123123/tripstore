@@ -628,6 +628,8 @@ export default function CreatePackage() {
                             const file = e.target.files?.[0]
                             if (file) {
                               handleFileUpload(file, index)
+                              // 업로드 후 입력 요소 초기화
+                              e.target.value = ''
                             }
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
