@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
-import { Search, Mail, Phone, Calendar, MapPin, Shield, ShieldOff } from 'lucide-react'
+import { Search, Mail, Phone, Calendar, MapPin, Shield, ShieldOff, Ban, CheckCircle } from 'lucide-react'
 
 type User = {
   id: string
@@ -10,6 +10,7 @@ type User = {
   name: string | null
   phone: string | null
   role: string
+  is_blocked: boolean | null
   created_at: string
 }
 
@@ -17,6 +18,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
   
   useEffect(() => {
     const fetchUsers = async () => {
@@ -55,6 +57,7 @@ export default function AdminUsers() {
       return
     }
     
+    setActionLoading(id)
     try {
       const supabase = createClient()
       const { error } = await supabase
@@ -68,10 +71,46 @@ export default function AdminUsers() {
       
       // 상태 업데이트
       setUsers(users.map(user => 
-        user.id === id ? { ...user, is_admin: !currentStatus } : user
+        user.id === id ? { ...user, role: !currentStatus ? 'admin' : 'user' } : user
       ))
+      
+      alert(`관리자 권한이 ${!currentStatus ? '부여' : '해제'}되었습니다.`)
     } catch (error) {
       console.error('사용자 업데이트에 실패했습니다:', error)
+      alert('권한 변경에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleToggleBlock = async (id: string, currentStatus: boolean) => {
+    if (!confirm(`이 사용자를 ${currentStatus ? '차단 해제' : '차단'}하시겠습니까?`)) {
+      return
+    }
+    
+    setActionLoading(id)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('users')
+        .update({ is_blocked: !currentStatus })
+        .eq('id', id)
+      
+      if (error) {
+        throw error
+      }
+      
+      // 상태 업데이트
+      setUsers(users.map(user => 
+        user.id === id ? { ...user, is_blocked: !currentStatus } : user
+      ))
+      
+      alert(`사용자가 ${!currentStatus ? '차단' : '차단 해제'}되었습니다.`)
+    } catch (error) {
+      console.error('사용자 차단 상태 업데이트에 실패했습니다:', error)
+      alert('차단 상태 변경에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setActionLoading(null)
     }
   }
   
@@ -104,7 +143,7 @@ export default function AdminUsers() {
       </div>
       
       {/* 사용자 통계 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-xl shadow p-4 flex flex-col">
           <span className="text-sm text-gray-500">총 사용자</span>
           <span className="text-2xl font-bold">{users.length}</span>
@@ -116,6 +155,10 @@ export default function AdminUsers() {
         <div className="bg-white rounded-xl shadow p-4 flex flex-col">
           <span className="text-sm text-gray-500">일반 사용자</span>
           <span className="text-2xl font-bold">{users.filter(user => user.role !== 'admin').length}</span>
+        </div>
+        <div className="bg-white rounded-xl shadow p-4 flex flex-col">
+          <span className="text-sm text-gray-500">차단된 사용자</span>
+          <span className="text-2xl font-bold text-red-600">{users.filter(user => user.is_blocked).length}</span>
         </div>
       </div>
       
@@ -130,32 +173,37 @@ export default function AdminUsers() {
                   <th className="px-6 py-3 font-medium text-gray-500">이메일</th>
                   <th className="px-6 py-3 font-medium text-gray-500">전화번호</th>
                   <th className="px-6 py-3 font-medium text-gray-500">역할</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">상태</th>
                   <th className="px-6 py-3 font-medium text-gray-500">가입일</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">권한 관리</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={user.id} className={`hover:bg-gray-50 transition-colors ${user.is_blocked ? 'bg-red-50' : ''}`}>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mr-3">
+                        <div className={`h-8 w-8 rounded-full flex items-center justify-center text-gray-600 mr-3 ${
+                          user.is_blocked ? 'bg-red-200' : 'bg-gray-200'
+                        }`}>
                           {user.name ? user.name.charAt(0).toUpperCase() : '?'}
                         </div>
-                        <span className="font-medium">{user.name || '이름 없음'}</span>
+                        <span className={`font-medium ${user.is_blocked ? 'text-red-600' : ''}`}>
+                          {user.name || '이름 없음'}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <Mail className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.email}
+                        <span className={user.is_blocked ? 'text-red-600' : ''}>{user.email}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       {user.phone ? (
                         <div className="flex items-center">
                           <Phone className="h-4 w-4 mr-2 text-gray-400" />
-                          {user.phone}
+                          <span className={user.is_blocked ? 'text-red-600' : ''}>{user.phone}</span>
                         </div>
                       ) : (
                         <span className="text-gray-400">-</span>
@@ -169,27 +217,57 @@ export default function AdminUsers() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {new Date(user.created_at).toLocaleDateString()}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.is_blocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {user.is_blocked ? '차단됨' : '활성'}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleToggleAdmin(user.id, user.role === 'admin')}
-                        className={`flex items-center px-3 py-1 rounded text-sm ${
-                          user.role === 'admin' 
-                            ? 'bg-red-50 text-red-700 hover:bg-red-100' 
-                            : 'bg-green-50 text-green-700 hover:bg-green-100'
-                        }`}
-                      >
-                        {user.role === 'admin' ? (
-                          <>
-                            <ShieldOff className="h-4 w-4 mr-1" /> 관리자 해제
-                          </>
-                        ) : (
-                          <>
-                            <Shield className="h-4 w-4 mr-1" /> 관리자 지정
-                          </>
-                        )}
-                      </button>
+                      <span className={user.is_blocked ? 'text-red-600' : ''}>
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleToggleAdmin(user.id, user.role === 'admin')}
+                          disabled={actionLoading === user.id || user.is_blocked}
+                          className={`flex items-center px-3 py-1 rounded text-sm transition-colors ${
+                            user.role === 'admin' 
+                              ? 'bg-red-50 text-red-700 hover:bg-red-100 disabled:bg-red-25 disabled:text-red-400' 
+                              : 'bg-green-50 text-green-700 hover:bg-green-100 disabled:bg-green-25 disabled:text-green-400'
+                          } disabled:cursor-not-allowed`}
+                        >
+                          {actionLoading === user.id ? (
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+                          ) : user.role === 'admin' ? (
+                            <ShieldOff className="h-4 w-4 mr-1" />
+                          ) : (
+                            <Shield className="h-4 w-4 mr-1" />
+                          )}
+                          {user.role === 'admin' ? '관리자 해제' : '관리자 지정'}
+                        </button>
+                        
+                        <button
+                          onClick={() => handleToggleBlock(user.id, user.is_blocked || false)}
+                          disabled={actionLoading === user.id}
+                          className={`flex items-center px-3 py-1 rounded text-sm transition-colors ${
+                            user.is_blocked
+                              ? 'bg-green-50 text-green-700 hover:bg-green-100 disabled:bg-green-25 disabled:text-green-400'
+                              : 'bg-red-50 text-red-700 hover:bg-red-100 disabled:bg-red-25 disabled:text-red-400'
+                          } disabled:cursor-not-allowed`}
+                        >
+                          {actionLoading === user.id ? (
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+                          ) : user.is_blocked ? (
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                          ) : (
+                            <Ban className="h-4 w-4 mr-1" />
+                          )}
+                          {user.is_blocked ? '차단 해제' : '사용자 차단'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
