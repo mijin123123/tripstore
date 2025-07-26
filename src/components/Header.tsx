@@ -81,8 +81,7 @@ const Header = () => {
       title: '국내',
       href: '/domestic/hotel',
       items: [
-        { name: '호텔', href: '/domestic/hotel' },
-        { name: '리조트', href: '/domestic/resort' },
+        { name: '호텔/리조트', href: '/domestic/hotel' },
         { name: '풀빌라', href: '/domestic/pool-villa' },
       ]
     },

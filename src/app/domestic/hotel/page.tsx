@@ -89,9 +89,9 @@ export default function DomesticHotelPage() {
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 국내 호텔</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 국내 호텔/리조트</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              전국 각지의 프리미엄 호텔에서 편안하고 특별한 휴식을 만끽하세요
+              전국 각지의 프리미엄 호텔과 리조트에서 편안하고 특별한 휴식을 만끽하세요
             </p>
           </div>
 

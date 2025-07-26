@@ -4,24 +4,14 @@ import { MapPin, Calendar, Users, Star, Home, Waves, TreePine, Mountain, Heart, 
 export default function DomesticPage() {
   const categories = [
     {
-      name: '호텔',
+      name: '호텔/리조트',
       slug: 'hotel',
       icon: Home,
-      description: '도심 속 편안한 휴식 공간',
-      places: 150,
-      rating: 4.6,
-      priceRange: '80,000 - 250,000원',
-      features: ['도심 접근성', '비즈니스 센터', '레스토랑', '컨퍼런스룸']
-    },
-    {
-      name: '리조트',
-      slug: 'resort',
-      icon: Waves,
-      description: '자연 속에서 즐기는 완벽한 휴양',
-      places: 85,
-      rating: 4.8,
-      priceRange: '150,000 - 400,000원',
-      features: ['수영장', '스파', '골프장', '키즈클럽']
+      description: '도심 호텔부터 자연 속 리조트까지',
+      places: 235,
+      rating: 4.7,
+      priceRange: '80,000 - 400,000원',
+      features: ['도심 접근성', '수영장', '스파', '레스토랑']
     },
     {
       name: '풀빌라',

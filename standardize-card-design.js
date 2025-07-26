@@ -4,7 +4,6 @@ const path = require('path');
 // 모든 카테고리 페이지
 const allPages = [
   'src/app/domestic/page.tsx',
-  'src/app/domestic/resort/page.tsx',
   'src/app/domestic/pool-villa/page.tsx',
   'src/app/domestic/hotel/page.tsx',
   'src/app/overseas/page.tsx',
