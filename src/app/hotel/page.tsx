@@ -133,7 +133,7 @@ export default function HotelPage() {
                   <IconComponent className="w-8 h-8 text-emerald-600" />
                 </div>
                 <h3 className="font-bold mb-2 text-gray-800">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
+                <p className="text-gray-600 text-sm line-clamp-3">{feature.description}</p>
               </div>
             )
           })}
@@ -145,9 +145,9 @@ export default function HotelPage() {
             <Link 
               key={region.slug}
               href={`/hotel/${region.slug}`}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
             >
-              <div className="relative h-48 flex-shrink-0 flex-shrink-0">
+              <div className="relative h-48 flex-shrink-0">
                 <div className="w-full h-full">
                   {region.image ? (
                     <img 
@@ -166,11 +166,11 @@ export default function HotelPage() {
                 </div>
               </div>
               
-              <div className="p-6">
+              <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-center justify-between mt-auto">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Bed className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm">{region.hotels}개 호텔</span>
+                    <span className="text-sm truncate">{region.hotels}개 호텔</span>
                   </div>
                   <div className="text-xs text-blue-600 font-medium">
                     {region.priceRange}
@@ -248,28 +248,28 @@ export default function HotelPage() {
                 <Calendar className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="font-semibold mb-2">예약 시기</h3>
-              <p className="text-gray-600 text-sm">여행 2-3개월 전 예약 시 할인 혜택</p>
+              <p className="text-gray-600 text-sm line-clamp-3">여행 2-3개월 전 예약 시 할인 혜택</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MapPin className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="font-semibold mb-2">위치 선택</h3>
-              <p className="text-gray-600 text-sm">관광지와 교통편을 고려한 위치 선택</p>
+              <p className="text-gray-600 text-sm line-clamp-3">관광지와 교통편을 고려한 위치 선택</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-purple-600" />
               </div>
               <h3 className="font-semibold mb-2">리뷰 확인</h3>
-              <p className="text-gray-600 text-sm">실제 투숙객 리뷰와 평점 꼼꼼히 확인</p>
+              <p className="text-gray-600 text-sm line-clamp-3">실제 투숙객 리뷰와 평점 꼼꼼히 확인</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-orange-600" />
               </div>
               <h3 className="font-semibold mb-2">멤버십 혜택</h3>
-              <p className="text-gray-600 text-sm">호텔 체인 멤버십 가입으로 추가 혜택</p>
+              <p className="text-gray-600 text-sm line-clamp-3">호텔 체인 멤버십 가입으로 추가 혜택</p>
             </div>
           </div>
         </div>

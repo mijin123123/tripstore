@@ -91,7 +91,7 @@ export default function DomesticPage() {
                   <IconComponent className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="font-bold mb-2 text-gray-800">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
+                <p className="text-gray-600 text-sm line-clamp-3">{feature.description}</p>
               </div>
             )
           })}
@@ -107,7 +107,7 @@ export default function DomesticPage() {
                 href={`/domestic/${category.slug}`}
                 className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
               >
-                <div className="relative h-48 bg-gradient-to-br from-green-500 to-blue-600 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <IconComponent className="w-20 h-20 text-white opacity-80" />
@@ -118,7 +118,7 @@ export default function DomesticPage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-grow">
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-2 text-gray-600">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
@@ -186,28 +186,28 @@ export default function DomesticPage() {
                 <Calendar className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="font-semibold mb-2">즉시 예약</h3>
-              <p className="text-gray-600 text-sm">실시간 예약 확정, 당일 출발도 가능</p>
+              <p className="text-gray-600 text-sm line-clamp-3">실시간 예약 확정, 당일 출발도 가능</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MapPin className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="font-semibold mb-2">전국 커버</h3>
-              <p className="text-gray-600 text-sm">제주도부터 강원도까지 전국 모든 지역</p>
+              <p className="text-gray-600 text-sm line-clamp-3">제주도부터 강원도까지 전국 모든 지역</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-purple-600" />
               </div>
               <h3 className="font-semibold mb-2">현지 할인</h3>
-              <p className="text-gray-600 text-sm">제휴 업체 할인 혜택 및 쿠폰 제공</p>
+              <p className="text-gray-600 text-sm line-clamp-3">제휴 업체 할인 혜택 및 쿠폰 제공</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-orange-600" />
               </div>
               <h3 className="font-semibold mb-2">맞춤 추천</h3>
-              <p className="text-gray-600 text-sm">여행 스타일에 맞는 개인화된 추천</p>
+              <p className="text-gray-600 text-sm line-clamp-3">여행 스타일에 맞는 개인화된 추천</p>
             </div>
           </div>
         </div>

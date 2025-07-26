@@ -89,11 +89,11 @@ export default function HotelJapanPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 도쿄, 교토, 오사카, 하코네
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4" />
+                <Star className="w-4 h-4 flex-shrink-0" />
                 료칸 & 모던 호텔
               </span>
             </div>
@@ -113,27 +113,27 @@ export default function HotelJapanPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {hotels.map((hotel) => (
-              <div key={hotel.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
+              <div key={hotel.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-red-400 to-pink-500 flex items-center justify-center">
                     <span className="text-white font-semibold">{hotel.name}</span>
                   </div>
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate font-semibold">{hotel.rating}</span>
+                      <span className="text-sm truncate">{hotel.rating}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{hotel.name}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{hotel.name}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{hotel.location}</span>
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{hotel.location}</span>
                   </div>
                   
-                  <div className="mb-4">
+                  <div className="mb-4 flex-grow">
                     <div className="flex flex-wrap gap-2">
                       {hotel.features.map((feature, index) => (
                         <span key={index} className="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full">
@@ -143,9 +143,9 @@ export default function HotelJapanPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 mb-2">{hotel.price}</span>
+                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{hotel.price}</span>
                       <span className="text-gray-500 text-xs">/박</span>
                     </div>
                     <button 

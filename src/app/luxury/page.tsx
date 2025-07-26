@@ -112,7 +112,7 @@ export default function LuxuryPage() {
                   <IconComponent className="w-8 h-8 text-purple-600" />
                 </div>
                 <h3 className="font-bold mb-2 text-gray-800">{service.title}</h3>
-                <p className="text-gray-600 text-sm">{service.description}</p>
+                <p className="text-gray-600 text-sm line-clamp-3">{service.description}</p>
               </div>
             )
           })}
@@ -139,7 +139,7 @@ export default function LuxuryPage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-grow">
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-2 text-gray-600">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
@@ -147,7 +147,7 @@ export default function LuxuryPage() {
                     </div>
                   </div>
                   
-                  <div className="mb-4">
+                  <div className="mb-4 flex-grow">
                     <div className="text-sm truncate font-bold text-purple-600 mb-2">
                       {category.priceRange}
                     </div>

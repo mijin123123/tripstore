@@ -123,15 +123,15 @@ export default function MacauPage() {
             <p className="text-xl mb-6 drop-shadow-md">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 유네스코 세계문화유산
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4" />
+                <Plane className="w-4 h-4 flex-shrink-0" />
                 홍콩에서 페리 1시간
               </span>
               <span className="flex items-center gap-1">
-                <Crown className="w-4 h-4" />
+                <Crown className="w-4 h-4 flex-shrink-0" />
                 카지노와 엔터테인먼트
               </span>
             </div>
@@ -152,32 +152,32 @@ export default function MacauPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
                     <span className="text-white font-semibold text-center px-4">{pkg.title}</span>
                   </div>
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate font-semibold">{pkg.rating}</span>
+                      <span className="text-sm truncate">{pkg.rating}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-4 text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm">{pkg.duration}</span>
+                      <Calendar className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{pkg.duration}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span className="text-sm">{pkg.departure}</span>
+                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{pkg.departure}</span>
                     </div>
                   </div>
                   
-                  <div className="mb-4">
+                  <div className="mb-4 flex-grow">
                     <div className="flex flex-wrap gap-2">
                       {pkg.highlights.map((highlight, index) => (
                         <span key={index} className="bg-purple-50 text-purple-600 text-xs px-2 py-1 rounded-full">
@@ -187,7 +187,7 @@ export default function MacauPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div>
                       <span className="text-2xl font-bold text-purple-600">₩{pkg.price}</span>
                       <span className="text-gray-500 text-sm">/인</span>
@@ -218,7 +218,7 @@ export default function MacauPage() {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plane className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">교통편</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">교통편</h3>
               <p className="text-gray-600">
                 홍콩에서 페리로 1시간<br/>
                 인천공항에서 직항 3시간 30분
@@ -229,7 +229,7 @@ export default function MacauPage() {
               <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Crown className="w-8 h-8 text-pink-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">카지노</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">카지노</h3>
               <p className="text-gray-600">
                 베네치안, 갤럭시, 윈<br/>
                 세계 최대 규모의 카지노들
@@ -240,7 +240,7 @@ export default function MacauPage() {
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Building className="w-8 h-8 text-yellow-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">문화유산</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">문화유산</h3>
               <p className="text-gray-600">
                 성 바울 성당, 세나두 광장<br/>
                 포르투갈 식민지 건축물

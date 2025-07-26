@@ -1,7 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, Star, Calendar, Bed, Coffee, Car, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Star, Calendar, Bed, Coffee, Car, ChevronLeft                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
+                    <div className="flex items-center gap-1 text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{packageItem.location || '위치 정보 없음'}</span>
+                    </div>
+                    
+                    <div className="mb-4 flex-grow">
+                      <p className="text-gray-600 text-sm line-clamp-3">
+                        {packageItem.description || '편안하고 고급스러운 호텔에서의 특별한 휴식을 즐기세요.'}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-auto"> } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
@@ -104,7 +117,7 @@ export default function DomesticHotelPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
                   <div className="relative h-48 flex-shrink-0">
@@ -121,22 +134,22 @@ export default function DomesticHotelPage() {
                     )}
                   </div>
                   
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{packageItem.location || '위치 정보 없음'}</span>
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{packageItem.location || '위치 정보 없음'}</span>
                     </div>
                     
-                    <div className="mb-4">
-                      <p className="text-gray-600 text-sm">
+                    <div className="mb-4 flex-grow">
+                      <p className="text-gray-600 text-sm line-clamp-3">
                         {packageItem.description || '편안하고 고급스러운 호텔에서의 특별한 휴식을 즐기세요.'}
                       </p>
                     </div>
                     
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mt-auto">
                       <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 mb-2">
+                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-xs">/{packageItem.duration || '1박'}</span>

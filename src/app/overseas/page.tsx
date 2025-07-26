@@ -149,7 +149,7 @@ export default function OverseasPage() {
                   <IconComponent className="w-8 h-8 text-blue-600" />
                 </div>
                 <h3 className="font-bold mb-2 text-gray-800">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
+                <p className="text-gray-600 text-sm line-clamp-3">{feature.description}</p>
               </div>
             )
           })}
@@ -159,23 +159,23 @@ export default function OverseasPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {currentPackages.map((pkg) => (
             <Link href={pkg.link} key={pkg.id}>
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer duration-300">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
                 {/* 이미지 섹션 */}
-                <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex-shrink-0 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                 </div>
 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                   
                   {/* 여행 정보 */}
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">{pkg.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4" />
+                      <Plane className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">{pkg.departure}</span>
                     </div>
                   </div>
@@ -195,9 +195,9 @@ export default function OverseasPage() {
                   </div>
 
                   {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                      <span className="text-xl font-bold text-gray-900 mb-2">
+                      <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
                         {pkg.price}원
                       </span>
                       <span className="text-gray-500 text-xs">/ 1인</span>
@@ -268,28 +268,28 @@ export default function OverseasPage() {
                 <Calendar className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="font-semibold mb-2">여행 시기</h3>
-              <p className="text-gray-600 text-sm">목적지별 최적의 여행 시기를 고려한 일정 계획</p>
+              <p className="text-gray-600 text-sm line-clamp-3">목적지별 최적의 여행 시기를 고려한 일정 계획</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Globe className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="font-semibold mb-2">비자/여권</h3>
-              <p className="text-gray-600 text-sm">국가별 비자 요건과 여권 유효기간 확인</p>
+              <p className="text-gray-600 text-sm line-clamp-3">국가별 비자 요건과 여권 유효기간 확인</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-purple-600" />
               </div>
               <h3 className="font-semibold mb-2">여행보험</h3>
-              <p className="text-gray-600 text-sm">해외 응급상황 대비 여행자 보험 가입</p>
+              <p className="text-gray-600 text-sm line-clamp-3">해외 응급상황 대비 여행자 보험 가입</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-orange-600" />
               </div>
               <h3 className="font-semibold mb-2">맞춤 상담</h3>
-              <p className="text-gray-600 text-sm">개인 취향에 맞는 여행 일정 전문 상담</p>
+              <p className="text-gray-600 text-sm line-clamp-3">개인 취향에 맞는 여행 일정 전문 상담</p>
             </div>
           </div>
         </div>

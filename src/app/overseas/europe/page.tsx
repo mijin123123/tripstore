@@ -122,11 +122,11 @@ export default function EuropePage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 파리, 런던, 로마, 바르셀로나
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4" />
+                <Plane className="w-4 h-4 flex-shrink-0" />
                 직항 8-10시간
               </span>
             </div>
@@ -146,9 +146,9 @@ export default function EuropePage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow" onClick={() => router.push(`/package/${pkg.id}`)}>
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
                 {/* 이미지 섹션 */}
-                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0">
                   <img 
                     src={pkg.image} 
                     alt={pkg.title}
@@ -156,15 +156,15 @@ export default function EuropePage() {
                   />
                 </div>
 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">유럽</span>
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm truncate">유럽</span>
                   </div>
                   
                   {/* 여행 정보 */}
-                  <div className="mb-4">
+                  <div className="mb-4 flex-grow">
                     <div className="flex flex-wrap gap-2">
                       {(pkg.highlights || []).slice(0, 2).map((highlight, index) => (
                         <span 
@@ -179,19 +179,19 @@ export default function EuropePage() {
                   
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-4 h-4 flex-shrink-0" />
                       <span>{pkg.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4" />
+                      <Plane className="w-4 h-4 flex-shrink-0" />
                       <span>{pkg.departure}</span>
                     </div>
                   </div>
                   
                   {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 mb-2">{formatPrice(pkg.price)}원</span>
+                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{formatPrice(pkg.price)}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 
@@ -218,28 +218,28 @@ export default function EuropePage() {
                   <Calendar className="w-8 h-8 text-blue-600" />
                 </div>
                 <h3 className="font-semibold mb-2">최적 시기</h3>
-                <p className="text-gray-600 text-sm">4-6월, 9-10월이 날씨가 좋고 관광하기 적합</p>
+                <p className="text-gray-600 text-sm line-clamp-3">4-6월, 9-10월이 날씨가 좋고 관광하기 적합</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MapPin className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="font-semibold mb-2">교통</h3>
-                <p className="text-gray-600 text-sm">유럽 패스 활용하여 편리한 기차 여행</p>
+                <p className="text-gray-600 text-sm line-clamp-3">유럽 패스 활용하여 편리한 기차 여행</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-purple-600" />
                 </div>
                 <h3 className="font-semibold mb-2">언어</h3>
-                <p className="text-gray-600 text-sm">영어로 대부분 소통 가능, 기본 현지어 학습 권장</p>
+                <p className="text-gray-600 text-sm line-clamp-3">영어로 대부분 소통 가능, 기본 현지어 학습 권장</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Star className="w-8 h-8 text-orange-600" />
                 </div>
                 <h3 className="font-semibold mb-2">팁</h3>
-                <p className="text-gray-600 text-sm">박물관 패스 구매로 시간과 비용 절약</p>
+                <p className="text-gray-600 text-sm line-clamp-3">박물관 패스 구매로 시간과 비용 절약</p>
               </div>
             </div>
           </div>

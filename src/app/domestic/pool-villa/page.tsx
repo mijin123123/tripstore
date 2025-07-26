@@ -82,11 +82,11 @@ export default function DomesticPoolVillaPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 제주도, 강원도, 경기도
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4" />
+                <Star className="w-4 h-4 flex-shrink-0" />
                 프라이빗 풀장
               </span>
             </div>
@@ -109,10 +109,10 @@ export default function DomesticPoolVillaPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
-                  <div className="relative h-48 flex-shrink-0 flex-shrink-0">
+                  <div className="relative h-48 flex-shrink-0">
                     {packageItem.image ? (
                       <img 
                         src={packageItem.image} 
@@ -127,7 +127,7 @@ export default function DomesticPoolVillaPage() {
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm truncate font-semibold">5</span>
+                        <span className="text-sm truncate">5</span>
                       </div>
                     </div>
                     <div className="absolute top-4 left-4 bg-teal-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -135,37 +135,37 @@ export default function DomesticPoolVillaPage() {
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
                         '제주도'
                       }</span>
                     </div>
                     
-                    <div className="mb-4">
-                      <p className="text-gray-600 text-sm">
+                    <div className="mb-4 flex-grow">
+                      <p className="text-gray-600 text-sm line-clamp-3">
                         {packageItem.description || '프라이빗한 공간에서 즐기는 럭셔리한 휴식을 경험하세요.'}
                       </p>
                     </div>
                     
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Home className="w-4 h-4" />
+                        <Home className="w-4 h-4 flex-shrink-0" />
                         <span>독채</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Users className="w-4 h-4" />
+                        <Users className="w-4 h-4 flex-shrink-0" />
                         <span>최대 6인</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mt-auto">
                       <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 mb-2">
+                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-sm block">/{packageItem.duration || '1박'}</span>
@@ -247,7 +247,7 @@ export default function DomesticPoolVillaPage() {
                 <Home className="w-8 h-8 text-teal-600" />
               </div>
               <h3 className="font-bold mb-2">프라이빗 공간</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm line-clamp-3">
                 독립된 공간에서 방해받지 않는 완벽한 프라이버시
               </p>
             </div>
@@ -257,7 +257,7 @@ export default function DomesticPoolVillaPage() {
                 <Umbrella className="w-8 h-8 text-teal-600" />
               </div>
               <h3 className="font-bold mb-2">전용 수영장</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm line-clamp-3">
                 계절에 관계없이 즐길 수 있는 개인 전용 풀
               </p>
             </div>
@@ -267,7 +267,7 @@ export default function DomesticPoolVillaPage() {
                 <Wifi className="w-8 h-8 text-teal-600" />
               </div>
               <h3 className="font-bold mb-2">스마트 시설</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm line-clamp-3">
                 최신 스마트홈 시스템과 고급 엔터테인먼트 시설
               </p>
             </div>
@@ -277,7 +277,7 @@ export default function DomesticPoolVillaPage() {
                 <Users className="w-8 h-8 text-teal-600" />
               </div>
               <h3 className="font-bold mb-2">맞춤형 서비스</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm line-clamp-3">
                 셰프, 버틀러 등 요청 시 이용 가능한 특별 서비스
               </p>
             </div>
