@@ -494,47 +494,31 @@ export default function EditPackage() {
       console.log(`이미지 ${index + 1} 업로드 완료:`, publicUrl)
 
     } catch (error) {
-      console.error('파일 업로드 중 오류:', error)
-      alert(`파일 업로드 중 오류가 발생했습니다: ${error}`)
+      console.error('파일 업로드 중 오류:', error);
+      alert(`파일 업로드 중 오류가 발생했습니다: ${error}`);
     } finally {
-      setUploadingImages(prev => prev.filter(i => i !== index))
-    }
-  }
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath)
-
-      // 폼 데이터 업데이트
-      const newImages = [...formData.images];
-      newImages[index] = publicUrl;
-      setFormData({ ...formData, images: newImages });
-
-    } catch (error) {
-      console.error('파일 업로드 중 오류:', error)
-      alert('파일 업로드 중 오류가 발생했습니다.')
-    } finally {
-      setUploadingImages(prev => prev.filter(i => i !== index))
+      setUploadingImages(prev => prev.filter(i => i !== index));
     }
   }
   
   const handleItineraryChange = (index: number, field: string, value: any) => {
-    const newItinerary = [...formData.itinerary]
+    const newItinerary = [...formData.itinerary];
     
     if (field === 'breakfast' || field === 'lunch' || field === 'dinner') {
       newItinerary[index].meals = {
         ...newItinerary[index].meals,
         [field]: value
-      }
+      };
     } else {
       // @ts-ignore
-      newItinerary[index][field] = value
+      newItinerary[index][field] = value;
     }
     
-    setFormData({ ...formData, itinerary: newItinerary })
+    setFormData({ ...formData, itinerary: newItinerary });
   }
   
   const addItineraryDay = () => {
-    const lastDay = formData.itinerary[formData.itinerary.length - 1].day
+    const lastDay = formData.itinerary[formData.itinerary.length - 1].day;
     const newDay = {
       day: lastDay + 1,
       title: '',
