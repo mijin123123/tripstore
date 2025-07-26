@@ -103,7 +103,7 @@ export default function LuxuryPage() {
         </div>
 
         {/* 럭셔리 서비스 소개 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {luxuryServices.map((service, index) => {
             const IconComponent = service.icon
             return (
@@ -119,7 +119,7 @@ export default function LuxuryPage() {
         </div>
 
         {/* 럭셔리 카테고리 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {categories.map((category) => {
             const IconComponent = category.icon
             return (
@@ -135,20 +135,20 @@ export default function LuxuryPage() {
                   </div>
                   <div className="absolute bottom-6 left-6 text-white">
                     <h3 className="text-2xl font-bold mb-2">{category.name}</h3>
-                    <p className="text-sm opacity-90">{category.description}</p>
+                    <p className="text-sm truncate opacity-90">{category.description}</p>
                   </div>
                 </div>
                 
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-2 text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{category.packages}개 패키지</span>
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{category.packages}개 패키지</span>
                     </div>
                   </div>
                   
                   <div className="mb-4">
-                    <div className="text-sm font-bold text-purple-600 mb-2">
+                    <div className="text-sm truncate font-bold text-purple-600 mb-2">
                       {category.priceRange}
                     </div>
                     <div className="text-xs text-gray-500">1인 기준 / 항공료 포함</div>
@@ -176,27 +176,27 @@ export default function LuxuryPage() {
         {/* 럭셔리 여행의 특별함 */}
         <div className="bg-gradient-to-r from-purple-900 to-purple-700 rounded-xl p-8 text-white">
           <h2 className="text-3xl font-bold text-center mb-8">왜 럭셔리 여행을 선택하나요?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Crown className="w-8 h-8 text-yellow-300" />
               </div>
               <h3 className="font-semibold mb-2">독점적 경험</h3>
-              <p className="text-sm opacity-90">일반인이 접하기 어려운 특별한 경험과 장소</p>
+              <p className="text-sm truncate opacity-90">일반인이 접하기 어려운 특별한 경험과 장소</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-yellow-300" />
               </div>
               <h3 className="font-semibold mb-2">개인 맞춤 서비스</h3>
-              <p className="text-sm opacity-90">고객의 취향과 니즈에 완벽히 맞춘 서비스</p>
+              <p className="text-sm truncate opacity-90">고객의 취향과 니즈에 완벽히 맞춘 서비스</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-yellow-300" />
               </div>
               <h3 className="font-semibold mb-2">평생 기억</h3>
-              <p className="text-sm opacity-90">돈으로 살 수 없는 소중한 추억과 경험</p>
+              <p className="text-sm truncate opacity-90">돈으로 살 수 없는 소중한 추억과 경험</p>
             </div>
           </div>
         </div>

@@ -73,11 +73,11 @@ export default function DomesticResortPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 제주도, 강원도, 경주, 부산
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4 flex-shrink-0" />
+                <Star className="w-4 h-4" />
                 종합 리조트 & 테마파크
               </span>
             </div>
@@ -104,7 +104,7 @@ export default function DomesticResortPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
                   <div className="relative h-48 flex-shrink-0 flex-shrink-0">
@@ -121,8 +121,8 @@ export default function DomesticResortPage() {
                     )}
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                       <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm font-semibold">5</span>
+                        <Star className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm truncate font-semibold">5</span>
                       </div>
                     </div>
                     <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -130,37 +130,37 @@ export default function DomesticResortPage() {
                     </div>
                   </div>
 
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
                         '국내'
                       }</span>
                     </div>
                     
-                    <div className="mb-4 flex-grow">
-                      <p className="text-gray-600 text-sm line-clamp-3">
+                    <div className="mb-4">
+                      <p className="text-gray-600 text-sm">
                         {packageItem.description || '가족 모두가 즐길 수 있는 다양한 액티비티를 갖춘 국내 인기 리조트'}
                       </p>
                     </div>
                     
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        <Calendar className="w-4 h-4" />
                         <span>{packageItem.duration || '2박 3일'}</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Waves className="w-4 h-4 flex-shrink-0" />
+                        <Waves className="w-4 h-4" />
                         <span>워터파크</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-xl font-bold text-blue-600 line-clamp-2 line-clamp-2">
+                        <span className="text-xl font-bold text-gray-900 mb-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-sm block">/{packageItem.duration || '패키지'}</span>
@@ -192,7 +192,7 @@ export default function DomesticResortPage() {
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                 }`}
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
+                <ChevronLeft className="w-4 h-4 flex-shrink-0" />
                 이전
               </button>
 
@@ -222,7 +222,7 @@ export default function DomesticResortPage() {
                 }`}
               >
                 다음
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
               </button>
             </div>
           )}
@@ -236,7 +236,7 @@ export default function DomesticResortPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">리조트 액티비티</h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Waves className="w-8 h-8 text-blue-600" />

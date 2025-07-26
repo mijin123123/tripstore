@@ -93,11 +93,11 @@ export default function GuamSaipanPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 괌, 사이판, 로타, 티니안
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4 flex-shrink-0" />
+                <Plane className="w-4 h-4" />
                 직항 3.5시간
               </span>
             </div>
@@ -114,9 +114,9 @@ export default function GuamSaipanPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full flex flex-col h-full flex flex-col">
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <div className="w-full h-full">
@@ -134,17 +134,17 @@ export default function GuamSaipanPage() {
                   </div>
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{pkg.rating}</span>
+                      <Star className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate font-semibold">{pkg.rating}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm truncate">괌·사이판</span>
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm">괌·사이판</span>
                   </div>
                   
                   {/* 여행 정보 */}
@@ -161,21 +161,21 @@ export default function GuamSaipanPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <Clock className="w-4 h-4" />
                       <span>{pkg.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4 flex-shrink-0" />
+                      <Plane className="w-4 h-4" />
                       <span>{pkg.departure}</span>
                     </div>
                   </div>
                   
                   {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-cyan-600 line-clamp-2 line-clamp-2">{pkg.price}원</span>
+                        <span className="text-xl font-bold text-gray-900 mb-2">{pkg.price}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 
@@ -195,7 +195,7 @@ export default function GuamSaipanPage() {
 
           <div className="bg-white rounded-xl shadow-lg p-8 mt-16">
             <h2 className="text-2xl font-bold mb-6 text-center">괌·사이판 여행 가이드</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               <div>
                 <h3 className="font-bold mb-3 text-blue-600">입국 정보</h3>
                 <ul className="space-y-2 text-sm text-gray-600">

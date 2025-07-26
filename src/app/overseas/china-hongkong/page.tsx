@@ -105,11 +105,11 @@ export default function ChinaHongkongPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 홍콩, 마카오, 상해, 베이징
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4 flex-shrink-0" />
+                <Plane className="w-4 h-4" />
                 직항 2-4시간
               </span>
             </div>
@@ -119,11 +119,11 @@ export default function ChinaHongkongPage() {
 
       <div className="max-w-6xl mx-auto px-4 py-16">
         {/* 패키지 리스트 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {currentPackages.map((pkg) => (
             <div 
               key={pkg.id} 
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer h-full flex flex-col h-full flex flex-col"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
               onClick={() => router.push(`/package/${pkg.id}`)}
             >
               <div className="relative h-48 flex-shrink-0 flex-shrink-0">
@@ -143,8 +143,8 @@ export default function ChinaHongkongPage() {
                 <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                 <div className="absolute top-4 right-4 bg-white bg-opacity-90 px-3 py-1 rounded-full">
                   <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-medium">{pkg.rating}</span>
+                    <Star className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm truncate font-medium">{pkg.rating}</span>
                   </div>
                 </div>
                 {pkg.id === 'china-hongkong-3' && (
@@ -154,16 +154,16 @@ export default function ChinaHongkongPage() {
                 )}
               </div>
 
-              <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
                 
-                <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
+                <div className="flex items-center justify-between mt-auto">
                   <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4 flex-shrink-0" />
+                    <Clock className="w-4 h-4" />
                     <span>{pkg.duration}</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Plane className="w-4 h-4 flex-shrink-0" />
+                    <Plane className="w-4 h-4" />
                     <span>{pkg.departure}</span>
                   </div>
                 </div>
@@ -181,9 +181,9 @@ export default function ChinaHongkongPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-auto">
+                <div className="flex items-center justify-between">
                   <div className="flex flex-col">
-                        <span className="text-xl font-bold text-purple-600 line-clamp-2 line-clamp-2">
+                        <span className="text-xl font-bold text-gray-900 mb-2">
                       {pkg.price}원
                     </span>
                     <span className="text-gray-500 text-xs">/ 1인</span>
@@ -206,7 +206,7 @@ export default function ChinaHongkongPage() {
         {/* 여행 정보 */}
         <div className="bg-white rounded-xl shadow-lg p-8 mt-12">
           <h2 className="text-2xl font-bold mb-6 text-center">여행 가이드</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div>
               <h3 className="font-bold mb-3 text-purple-600">입국 정보</h3>
               <ul className="space-y-2 text-sm text-gray-600">

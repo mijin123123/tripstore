@@ -92,7 +92,7 @@ export default function DomesticPage() {
         </div>
 
         {/* 국내 여행 특징 소개 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {domesticFeatures.map((feature, index) => {
             const IconComponent = feature.icon
             return (
@@ -108,7 +108,7 @@ export default function DomesticPage() {
         </div>
 
         {/* 숙박 타입별 카테고리 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {categories.map((category) => {
             const IconComponent = category.icon
             return (
@@ -124,15 +124,15 @@ export default function DomesticPage() {
                   </div>
                   <div className="absolute bottom-4 left-4 text-white">
                     <h3 className="text-2xl font-bold">{category.name}</h3>
-                    <p className="text-sm opacity-90">{category.description}</p>
+                    <p className="text-sm truncate opacity-90">{category.description}</p>
                   </div>
                 </div>
                 
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-2 text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{category.places}곳</span>
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{category.places}곳</span>
                     </div>
                     <div className="text-xs text-green-600 font-medium">
                       {category.priceRange}
@@ -161,7 +161,7 @@ export default function DomesticPage() {
         {/* 인기 여행지 */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold text-center mb-8">인기 여행지</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {popularDestinations.map((destination, index) => (
               <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative h-32">
@@ -190,7 +190,7 @@ export default function DomesticPage() {
         {/* 국내 여행 혜택 */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-center mb-8">국내 여행 특별 혜택</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-8 h-8 text-green-600" />

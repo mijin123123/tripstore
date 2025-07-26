@@ -104,11 +104,11 @@ export default function SoutheastAsiaPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 태국, 베트남, 필리핀, 싱가포르
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4 flex-shrink-0" />
+                <Plane className="w-4 h-4" />
                 직항 3-7시간
               </span>
             </div>
@@ -128,7 +128,7 @@ export default function SoutheastAsiaPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full flex flex-col h-full flex flex-col">
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <img 
@@ -138,8 +138,8 @@ export default function SoutheastAsiaPage() {
                   />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{pkg.rating}</span>
+                      <Star className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate font-semibold">{pkg.rating}</span>
                     </div>
                   </div>
                   <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -147,11 +147,11 @@ export default function SoutheastAsiaPage() {
                   </div>
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm truncate">동남아시아</span>
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm">동남아시아</span>
                   </div>
                   
                   {/* 여행 정보 */}
@@ -168,21 +168,21 @@ export default function SoutheastAsiaPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <Clock className="w-4 h-4" />
                       <span>{pkg.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4 flex-shrink-0" />
+                      <Plane className="w-4 h-4" />
                       <span>{pkg.departure}</span>
                     </div>
                   </div>
                   
                   {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-green-600 line-clamp-2 line-clamp-2">{pkg.price}원</span>
+                        <span className="text-xl font-bold text-gray-900 mb-2">{pkg.price}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 

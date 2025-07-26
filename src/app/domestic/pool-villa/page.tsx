@@ -82,11 +82,11 @@ export default function DomesticPoolVillaPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 제주도, 강원도, 경기도
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4 flex-shrink-0" />
+                <Star className="w-4 h-4" />
                 프라이빗 풀장
               </span>
             </div>
@@ -109,7 +109,7 @@ export default function DomesticPoolVillaPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
                   <div className="relative h-48 flex-shrink-0 flex-shrink-0">
@@ -126,8 +126,8 @@ export default function DomesticPoolVillaPage() {
                     )}
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                       <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm font-semibold">5</span>
+                        <Star className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm truncate font-semibold">5</span>
                       </div>
                     </div>
                     <div className="absolute top-4 left-4 bg-teal-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -135,37 +135,37 @@ export default function DomesticPoolVillaPage() {
                     </div>
                   </div>
 
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
                         '제주도'
                       }</span>
                     </div>
                     
-                    <div className="mb-4 flex-grow">
-                      <p className="text-gray-600 text-sm line-clamp-3">
+                    <div className="mb-4">
+                      <p className="text-gray-600 text-sm">
                         {packageItem.description || '프라이빗한 공간에서 즐기는 럭셔리한 휴식을 경험하세요.'}
                       </p>
                     </div>
                     
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Home className="w-4 h-4 flex-shrink-0" />
+                        <Home className="w-4 h-4" />
                         <span>독채</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Users className="w-4 h-4 flex-shrink-0" />
+                        <Users className="w-4 h-4" />
                         <span>최대 6인</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-xl font-bold text-teal-600 line-clamp-2 line-clamp-2">
+                        <span className="text-xl font-bold text-gray-900 mb-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-sm block">/{packageItem.duration || '1박'}</span>
@@ -197,7 +197,7 @@ export default function DomesticPoolVillaPage() {
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                 }`}
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
+                <ChevronLeft className="w-4 h-4 flex-shrink-0" />
                 이전
               </button>
 
@@ -227,7 +227,7 @@ export default function DomesticPoolVillaPage() {
                 }`}
               >
                 다음
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
               </button>
             </div>
           )}
@@ -241,7 +241,7 @@ export default function DomesticPoolVillaPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">풀빌라 특징</h2>
           </div>
           
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="bg-white p-6 rounded-xl shadow-md text-center">
               <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Home className="w-8 h-8 text-teal-600" />

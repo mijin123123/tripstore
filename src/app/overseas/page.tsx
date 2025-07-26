@@ -125,11 +125,11 @@ export default function OverseasPage() {
             <p className="text-xl mb-6">전 세계의 아름다운 여행지에서 특별한 추억을 만들어보세요</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 전 세계 200개 도시
               </span>
               <span className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
+                <Clock className="w-4 h-4 flex-shrink-0" />
                 맞춤형 일정 상담
               </span>
             </div>
@@ -140,7 +140,7 @@ export default function OverseasPage() {
       <div className="max-w-6xl mx-auto px-4 py-16">
 
         {/* 여행 서비스 소개 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {travelFeatures.map((feature, index) => {
             const IconComponent = feature.icon
             return (
@@ -156,26 +156,26 @@ export default function OverseasPage() {
         </div>
 
         {/* 패키지 리스트 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {currentPackages.map((pkg) => (
             <Link href={pkg.link} key={pkg.id}>
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col h-full flex flex-col">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer duration-300">
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex-shrink-0 flex-shrink-0">
                   <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
                   
                   {/* 여행 정보 */}
-                  <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <Clock className="w-4 h-4" />
                       <span className="truncate">{pkg.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4 flex-shrink-0" />
+                      <Plane className="w-4 h-4" />
                       <span className="truncate">{pkg.departure}</span>
                     </div>
                   </div>
@@ -195,9 +195,9 @@ export default function OverseasPage() {
                   </div>
 
                   {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                      <span className="text-xl font-bold text-blue-600 line-clamp-2">
+                      <span className="text-xl font-bold text-gray-900 mb-2">
                         {pkg.price}원
                       </span>
                       <span className="text-gray-500 text-xs">/ 1인</span>
@@ -224,7 +224,7 @@ export default function OverseasPage() {
                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
               }`}
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
+              <ChevronLeft className="w-4 h-4 flex-shrink-0" />
               이전
             </button>
 
@@ -254,7 +254,7 @@ export default function OverseasPage() {
               }`}
             >
               다음
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0" />
             </button>
           </div>
         )}
@@ -262,7 +262,7 @@ export default function OverseasPage() {
         {/* 여행 팁 섹션 */}
         <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-bold mb-6 text-center">해외여행 준비 가이드</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-8 h-8 text-blue-600" />

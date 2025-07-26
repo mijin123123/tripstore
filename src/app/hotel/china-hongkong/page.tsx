@@ -116,11 +116,11 @@ export default function HotelChinaHongkongPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 홍콩, 마카오, 타이베이
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4 flex-shrink-0" />
+                <Star className="w-4 h-4" />
                 최고급 호텔 & 리조트
               </span>
             </div>
@@ -142,7 +142,7 @@ export default function HotelChinaHongkongPage() {
             {hotels.map((hotel) => (
               <div 
                 key={hotel.id} 
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col"
+                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                 onClick={() => router.push(`/package/${hotel.id}`)}
               >
                 <div className="relative h-48 flex-shrink-0 flex-shrink-0">
@@ -153,17 +153,17 @@ export default function HotelChinaHongkongPage() {
                   />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{hotel.rating}</span>
+                      <Star className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate font-semibold">{hotel.rating}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{hotel.name}</h3>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{hotel.name}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm truncate">{hotel.location}</span>
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm">{hotel.location}</span>
                   </div>
                   
                   <div className="mb-4">
@@ -176,9 +176,9 @@ export default function HotelChinaHongkongPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-red-600 line-clamp-2 line-clamp-2">{hotel.price}</span>
+                        <span className="text-xl font-bold text-gray-900 mb-2">{hotel.price}</span>
                       <span className="text-gray-500 text-xs">/박</span>
                     </div>
                     <button 
@@ -205,7 +205,7 @@ export default function HotelChinaHongkongPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">문화 체험</h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Utensils className="w-8 h-8 text-red-600" />

@@ -122,11 +122,11 @@ export default function EuropePage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 파리, 런던, 로마, 바르셀로나
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4 flex-shrink-0" />
+                <Plane className="w-4 h-4" />
                 직항 8-10시간
               </span>
             </div>
@@ -146,7 +146,7 @@ export default function EuropePage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow" onClick={() => router.push(`/package/${pkg.id}`)}>
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <img 
@@ -156,11 +156,11 @@ export default function EuropePage() {
                   />
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm truncate">유럽</span>
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm">유럽</span>
                   </div>
                   
                   {/* 여행 정보 */}
@@ -177,21 +177,21 @@ export default function EuropePage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <Clock className="w-4 h-4" />
                       <span>{pkg.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4 flex-shrink-0" />
+                      <Plane className="w-4 h-4" />
                       <span>{pkg.departure}</span>
                     </div>
                   </div>
                   
                   {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-blue-600 line-clamp-2 line-clamp-2">{formatPrice(pkg.price)}원</span>
+                        <span className="text-xl font-bold text-gray-900 mb-2">{formatPrice(pkg.price)}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 
@@ -212,7 +212,7 @@ export default function EuropePage() {
           {/* 여행 팁 섹션 */}
           <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
             <h2 className="text-2xl font-bold mb-6 text-center">유럽 여행 팁</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-8 h-8 text-blue-600" />

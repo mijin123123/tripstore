@@ -124,7 +124,7 @@ export default function HotelPage() {
         </div>
 
         {/* 호텔 서비스 소개 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {hotelFeatures.map((feature, index) => {
             const IconComponent = feature.icon
             return (
@@ -140,12 +140,12 @@ export default function HotelPage() {
         </div>
 
         {/* 지역별 호텔 카드 그리드 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {currentRegions.map((region) => (
             <Link 
               key={region.slug}
               href={`/hotel/${region.slug}`}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col cursor-pointer h-full flex flex-col"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
               <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                 <div className="w-full h-full">
@@ -162,28 +162,28 @@ export default function HotelPage() {
                 <div className="absolute inset-0 bg-black bg-opacity-30"></div>
                 <div className="absolute bottom-4 left-4 text-white">
                   <h3 className="text-2xl font-bold">{region.name}</h3>
-                  <p className="text-sm opacity-90 truncate">{region.description}</p>
+                  <p className="text-sm opacity-90">{region.description}</p>
                 </div>
               </div>
               
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-center justify-between mb-4">
+              <div className="p-6">
+                <div className="flex items-center justify-between mt-auto">
                   <div className="flex items-center space-x-2 text-gray-600">
-                    <Bed className="w-4 h-4" />
-                    <span className="text-sm truncate">{region.hotels}개 호텔</span>
+                    <Bed className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm">{region.hotels}개 호텔</span>
                   </div>
                   <div className="text-xs text-blue-600 font-medium">
                     {region.priceRange}
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center justify-between mt-auto">
                   <div className="flex items-center space-x-1">
-                    <Wifi className="w-4 h-4" />
+                    <Wifi className="w-4 h-4 flex-shrink-0" />
                     <span>무료 WiFi</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Car className="w-4 h-4" />
+                    <Car className="w-4 h-4 flex-shrink-0" />
                     <span>공항 셔틀</span>
                   </div>
                 </div>
@@ -204,7 +204,7 @@ export default function HotelPage() {
                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
               }`}
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
+              <ChevronLeft className="w-4 h-4 flex-shrink-0" />
               이전
             </button>
 
@@ -234,7 +234,7 @@ export default function HotelPage() {
               }`}
             >
               다음
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0" />
             </button>
           </div>
         )}
@@ -242,7 +242,7 @@ export default function HotelPage() {
         {/* 호텔 예약 팁 */}
         <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-center mb-8">호텔 예약 팁</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-8 h-8 text-blue-600" />

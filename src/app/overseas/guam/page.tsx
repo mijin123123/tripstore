@@ -123,15 +123,15 @@ export default function GuamPage() {
             <p className="text-xl mb-6 drop-shadow-md">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <MapPin className="w-4 h-4" />
                 태평양의 진주
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4 flex-shrink-0" />
+                <Plane className="w-4 h-4" />
                 직항 3시간 30분
               </span>
               <span className="flex items-center gap-1">
-                <Sun className="w-4 h-4 flex-shrink-0" />
+                <Sun className="w-4 h-4" />
                 연중 따뜻한 날씨
               </span>
             </div>
@@ -158,22 +158,22 @@ export default function GuamPage() {
                   </div>
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold">{pkg.rating}</span>
+                      <Star className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate font-semibold">{pkg.rating}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
                   <div className="flex items-center gap-4 text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{pkg.duration}</span>
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-sm">{pkg.duration}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{pkg.departure}</span>
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm">{pkg.departure}</span>
                     </div>
                   </div>
                   
@@ -187,7 +187,7 @@ export default function GuamPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center justify-between">
                     <div>
                       <span className="text-2xl font-bold text-blue-600">₩{pkg.price}</span>
                       <span className="text-gray-500 text-sm">/인</span>
@@ -213,12 +213,12 @@ export default function GuamPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">괌 여행 정보</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white rounded-xl shadow-md">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plane className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">항공편</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">항공편</h3>
               <p className="text-gray-600">
                 인천공항에서 직항 3시간 30분<br/>
                 비자 없이 45일 체류 가능
@@ -229,7 +229,7 @@ export default function GuamPage() {
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sun className="w-8 h-8 text-emerald-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">날씨</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">날씨</h3>
               <p className="text-gray-600">
                 연중 26-28도의 따뜻한 날씨<br/>
                 우기(7-11월), 건기(12-6월)
@@ -240,7 +240,7 @@ export default function GuamPage() {
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Waves className="w-8 h-8 text-yellow-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">액티비티</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">액티비티</h3>
               <p className="text-gray-600">
                 스노클링, 다이빙, 제트스키<br/>
                 골프, 쇼핑, 차모로 문화체험
