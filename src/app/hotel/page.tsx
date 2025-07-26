@@ -1,7 +1,12 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Calendar, Users, Star, Bed, Wifi, Car, Building, Coffee, Shield } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Bed, Wifi, Car, Building, Coffee, Shield, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function HotelPage() {
+  const [currentPage, setCurrentPage] = useState(1)
+  const regionsPerPage = 12
   const regions = [
     {
       name: '유럽',
@@ -58,6 +63,18 @@ export default function HotelPage() {
       priceRange: '100,000 - 350,000원'
     }
   ]
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(regions.length / regionsPerPage)
+  const startIndex = (currentPage - 1) * regionsPerPage
+  const endIndex = startIndex + regionsPerPage
+  const currentRegions = regions.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const hotelFeatures = [
     {
@@ -124,7 +141,7 @@ export default function HotelPage() {
 
         {/* 지역별 호텔 카드 그리드 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
-          {regions.map((region) => (
+          {currentRegions.map((region) => (
             <Link 
               key={region.slug}
               href={`/hotel/${region.slug}`}
@@ -174,6 +191,53 @@ export default function HotelPage() {
             </Link>
           ))}
         </div>
+
+        {/* 페이지네이션 */}
+        {regions.length > regionsPerPage && (
+          <div className="flex justify-center items-center mb-16 space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`flex items-center px-3 py-2 rounded-lg ${
+                currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              이전
+            </button>
+
+            <div className="flex space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-2 rounded-lg ${
+                    currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`flex items-center px-3 py-2 rounded-lg ${
+                currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+              }`}
+            >
+              다음
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        )}
 
         {/* 호텔 예약 팁 */}
         <div className="mt-16 bg-white rounded-xl shadow-lg p-8">

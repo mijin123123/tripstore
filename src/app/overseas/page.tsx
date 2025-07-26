@@ -1,7 +1,12 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Calendar, Users, Star, Plane, Globe, Heart, Clock } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Plane, Globe, Heart, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function OverseasPage() {
+  const [currentPage, setCurrentPage] = useState(1)
+  const packagesPerPage = 12
   const packages = [
     {
       id: 1,
@@ -71,6 +76,18 @@ export default function OverseasPage() {
     }
   ]
 
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const startIndex = (currentPage - 1) * packagesPerPage
+  const endIndex = startIndex + packagesPerPage
+  const currentPackages = packages.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const travelFeatures = [
     {
       title: '무료 일정 변경',
@@ -139,8 +156,8 @@ export default function OverseasPage() {
         </div>
 
         {/* 패키지 리스트 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packages.map((pkg) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {currentPackages.map((pkg) => (
             <Link href={pkg.link} key={pkg.id}>
               <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full">
                 {/* 이미지 섹션 */}
@@ -194,6 +211,53 @@ export default function OverseasPage() {
             </Link>
           ))}
         </div>
+
+        {/* 페이지네이션 */}
+        {packages.length > packagesPerPage && (
+          <div className="flex justify-center items-center mt-12 space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`flex items-center px-3 py-2 rounded-lg ${
+                currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              이전
+            </button>
+
+            <div className="flex space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-2 rounded-lg ${
+                    currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`flex items-center px-3 py-2 rounded-lg ${
+                currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+              }`}
+            >
+              다음
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        )}
 
         {/* 여행 팁 섹션 */}
         <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
