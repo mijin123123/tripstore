@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { ArrowLeft, Plus, X, Save } from 'lucide-react'
+import { ArrowLeft, Plus, X, Save, ChevronUp, ChevronDown, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CreatePackage() {
@@ -175,6 +175,51 @@ export default function CreatePackage() {
   const removeArrayItem = (index: number, field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     const newArray = formData[field].filter((_, i) => i !== index)
     setFormData({ ...formData, [field]: newArray })
+  }
+
+  // 이미지 순서 조정 함수들
+  const moveImageUp = (index: number) => {
+    if (index === 0) return
+    const newImages = [...formData.images]
+    const temp = newImages[index]
+    newImages[index] = newImages[index - 1]
+    newImages[index - 1] = temp
+    setFormData({ ...formData, images: newImages })
+  }
+
+  const moveImageDown = (index: number) => {
+    if (index === formData.images.length - 1) return
+    const newImages = [...formData.images]
+    const temp = newImages[index]
+    newImages[index] = newImages[index + 1]
+    newImages[index + 1] = temp
+    setFormData({ ...formData, images: newImages })
+  }
+
+  // 드래그 앤 드롭 관련 상태
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === dropIndex) return
+
+    const newImages = [...formData.images]
+    const draggedImage = newImages[draggedIndex]
+    newImages.splice(draggedIndex, 1)
+    newImages.splice(dropIndex, 0, draggedImage)
+    
+    setFormData({ ...formData, images: newImages })
+    setDraggedIndex(null)
   }
 
   // 파일 업로드 처리 함수
@@ -621,7 +666,7 @@ export default function CreatePackage() {
               </div>
               
               {/* 다중 파일 업로드 섹션 */}
-              <div className="mb-4 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+              <div className="mb-3 p-3 border border-dashed border-gray-300 rounded-md bg-gray-50">
                 <div className="text-center">
                   <input
                     type="file"
@@ -682,20 +727,20 @@ export default function CreatePackage() {
                   />
                   <label 
                     htmlFor="multipleFileUpload" 
-                    className={`cursor-pointer inline-flex items-center px-4 py-2 rounded-md transition-colors ${
+                    className={`cursor-pointer inline-flex items-center px-3 py-1.5 rounded-md text-sm transition-colors ${
                       uploadingImages.length > 0 
                         ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
-                    <Plus size={16} className="mr-2" />
+                    <Plus size={14} className="mr-1" />
                     {uploadingImages.length > 0 ? '업로드 중...' : '여러 이미지 한번에 업로드'}
                   </label>
                   <p className="text-xs text-gray-500 mt-2">
-                    최대 10개까지 선택 가능 (각 파일 5MB 이하, JPG/PNG/WebP/GIF/AVIF)
+                    최대 10개까지 선택 가능 (각 파일 5MB 이하)
                     {uploadingImages.length > 0 && (
                       <span className="text-blue-600 block mt-1">
-                        업로드 진행 중: {uploadingImages.length}개 파일
+                        업로드 진행 중: {uploadingImages.length}개
                       </span>
                     )}
                   </p>
@@ -703,11 +748,86 @@ export default function CreatePackage() {
               </div>
               
               {formData.images.map((imageUrl, index) => (
-                <div key={index} className="mb-3">
-                  <div className="mb-2">
-                    <div className="flex items-center space-x-2">
-                      {/* 개별 파일 업로드 입력 */}
-                      <div className="flex-1">
+                <div 
+                  key={index} 
+                  className={`mb-2 p-2 border rounded-md transition-all ${
+                    draggedIndex === index ? 'opacity-50' : ''
+                  } ${draggedIndex !== null && draggedIndex !== index ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, index)}
+                >
+                  <div className="flex items-center space-x-2">
+                    {/* 드래그 핸들 및 순서 조정 버튼 */}
+                    <div className="flex flex-col items-center space-y-1">
+                      <GripVertical size={12} className="text-gray-400 cursor-move" />
+                      <div className="flex flex-col space-y-0.5">
+                        <button
+                          type="button"
+                          onClick={() => moveImageUp(index)}
+                          disabled={index === 0}
+                          className={`p-0.5 rounded ${
+                            index === 0 
+                              ? 'text-gray-300 cursor-not-allowed' 
+                              : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                          }`}
+                        >
+                          <ChevronUp size={10} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImageDown(index)}
+                          disabled={index === formData.images.length - 1}
+                          className={`p-0.5 rounded ${
+                            index === formData.images.length - 1 
+                              ? 'text-gray-300 cursor-not-allowed' 
+                              : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                          }`}
+                        >
+                          <ChevronDown size={10} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 이미지 프리뷰 */}
+                    <div className="flex-shrink-0">
+                      {imageUrl && (
+                        <div className="relative h-16 w-20 border rounded overflow-hidden bg-gray-50">
+                          <img
+                            src={imageUrl}
+                            alt={`패키지 이미지 ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              if (!target.dataset.retried) {
+                                target.dataset.retried = 'true'
+                                setTimeout(() => {
+                                  target.src = imageUrl + '?t=' + Date.now()
+                                }, 1000)
+                              } else {
+                                target.src = "https://via.placeholder.com/300x200?text=이미지+로딩+실패"
+                              }
+                            }}
+                            onLoad={() => {
+                              console.log(`이미지 ${index + 1} 로딩 성공:`, imageUrl.substring(0, 50) + '...')
+                            }}
+                          />
+                          {index === 0 && (
+                            <div className="absolute top-0.5 left-0.5 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
+                              메인
+                            </div>
+                          )}
+                          <div className="absolute top-0.5 right-0.5 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
+                            {index + 1}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 파일 업로드 및 URL */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-1 mb-1">
                         <input
                           type="file"
                           accept="image/*"
@@ -718,88 +838,60 @@ export default function CreatePackage() {
                               e.target.value = ''
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                           disabled={uploadingImages.includes(index)}
                         />
-                        />
-                        {uploadingImages.includes(index) && (
-                          <div className="text-sm text-blue-600 mt-1 flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                            업로드 중...
-                          </div>
-                        )}
-                        {formData.images[index] && formData.images[index].trim() !== '' && (
-                          <div className="text-sm text-green-600 mt-1 flex items-center">
-                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                            업로드 완료
-                          </div>
-                        )}
+                        
+                        {/* 삭제 버튼 */}
+                        <button
+                          type="button"
+                          onClick={() => removeArrayItem(index, 'images')}
+                          className="px-2 py-1 border border-gray-300 rounded text-red-600 hover:text-red-800 hover:bg-red-50"
+                          disabled={formData.images.length <= 1}
+                        >
+                          <X size={12} />
+                        </button>
                       </div>
-                      
-                      {/* 삭제 버튼 */}
-                      <button
-                        type="button"
-                        onClick={() => removeArrayItem(index, 'images')}
-                        className="px-3 py-2 border border-gray-300 rounded-r-md text-red-600 hover:text-red-800 hover:bg-red-50"
-                        disabled={formData.images.length <= 1}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                    
-                    {/* 업로드된 이미지가 있는 경우에만 URL 표시 (편집용) */}
-                    {imageUrl && (
-                      <div className="mt-1">
+
+                      {/* 이미지 URL 편집 */}
+                      {imageUrl && (
                         <input
                           type="url"
                           value={imageUrl}
                           onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
-                          className="w-full px-2 py-1 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
-                          placeholder="이미지 URL (편집 가능)"
+                          className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                          placeholder="이미지 URL"
                           readOnly={uploadingImages.includes(index)}
                         />
-                      </div>
-                    )}
-                  </div>
-                  
-                  {imageUrl && (
-                    <div className="relative h-24 w-32 border rounded-md overflow-hidden bg-gray-50">
-                      <img
-                        src={imageUrl}
-                        alt={`패키지 이미지 ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          // 업로드된 이미지 로딩 실패 시 재시도 (한 번만)
-                          if (!target.dataset.retried) {
-                            target.dataset.retried = 'true'
-                            setTimeout(() => {
-                              target.src = imageUrl + '?t=' + Date.now() // 캐시 버스팅
-                            }, 1000)
-                          } else {
-                            target.src = "https://via.placeholder.com/300x200?text=이미지+로딩+실패"
-                          }
-                        }}
-                        onLoad={() => {
-                          console.log(`이미지 ${index + 1} 로딩 성공:`, imageUrl.substring(0, 50) + '...')
-                        }}
-                      />
-                      {index === 0 && (
-                        <div className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
-                          메인
+                      )}
+
+                      {/* 업로드 상태 표시 */}
+                      {uploadingImages.includes(index) && (
+                        <div className="text-xs text-blue-600 mt-1 flex items-center">
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                          업로드 중...
+                        </div>
+                      )}
+                      
+                      {formData.images[index] && formData.images[index].trim() !== '' && !uploadingImages.includes(index) && (
+                        <div className="text-xs text-green-600 mt-1 flex items-center">
+                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          완료
                         </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
               ))}
               
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 mt-4">
                 • 첫 번째 이미지가 메인 이미지로 사용됩니다.<br/>
+                • 드래그하거나 위/아래 버튼으로 이미지 순서를 변경할 수 있습니다.<br/>
+                • "여러 이미지 한번에 업로드" 버튼으로 최대 10개까지 선택하여 한번에 업로드 가능<br/>
                 • 이미지 파일 크기는 5MB 이하로 제한됩니다.<br/>
-                • 지원 형식: JPEG, PNG, WebP, GIF<br/>
+                • 지원 형식: JPEG, PNG, WebP, GIF, AVIF<br/>
                 • 이미지는 최대 10개까지 추가 가능합니다.
               </p>
             </div>

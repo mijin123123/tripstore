@@ -1,9 +1,9 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { ArrowLeft, Plus, X, Save, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Plus, X, Save, ChevronUp, ChevronDown, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 
 type Category = {
@@ -11,42 +11,6 @@ type Category = {
   name: string
   slug: string
   parent_id: number | null
-}
-
-// 패키지 타입 정의
-type Package = {
-  id: string
-  name: string
-  price: string | number // price는 데이터베이스에서 TEXT 타입이므로 string도 허용
-  region: string | null
-  category: string | null
-  location: string
-  image: string | null
-  description: string | null
-  is_featured: boolean
-  start_date: string | null
-  end_date: string | null
-  type?: string
-  highlights?: string[]
-  departure?: string
-  min_people?: number
-  max_people?: number
-  itinerary?: {
-    day: number
-    title: string
-    description: string
-    accommodation: string
-    meals: {
-      breakfast: boolean
-      lunch: boolean
-      dinner: boolean
-    }
-  }[]
-  included?: string[]
-  excluded?: string[]
-  notes?: string[]
-  duration?: string
-  created_at?: string
 }
 
 export default function EditPackage() {
@@ -63,51 +27,6 @@ export default function EditPackage() {
   const [error, setError] = useState('')
   const [packageLoaded, setPackageLoaded] = useState(false)
   const [uploadingImages, setUploadingImages] = useState<number[]>([])
-  
-  // 카테고리 ID와 지역명 매핑 정의
-  const categoryRegionMap: Record<number, { region: string, regionKo: string }> = {
-    // 메인 카테고리
-    1: { region: 'overseas', regionKo: '해외여행' },
-    2: { region: 'hotel', regionKo: '호텔' },
-    3: { region: 'domestic', regionKo: '국내' },
-    4: { region: 'luxury', regionKo: '럭셔리' },
-    
-    // 해외여행(overseas) 서브 카테고리
-    11: { region: 'europe', regionKo: '유럽' },
-    12: { region: 'southeast-asia', regionKo: '동남아' },
-    13: { region: 'japan', regionKo: '일본' },
-    14: { region: 'guam-saipan', regionKo: '괌/사이판' },
-    15: { region: 'americas', regionKo: '미주/캐나다/하와이' },
-    16: { region: 'china-hongkong', regionKo: '대만/홍콩/마카오' },
-    
-    // 호텔(hotel) 서브 카테고리
-    21: { region: 'europe', regionKo: '유럽' },
-    22: { region: 'southeast-asia', regionKo: '동남아' },
-    23: { region: 'japan', regionKo: '일본' },
-    24: { region: 'guam-saipan', regionKo: '괌/사이판' },
-    25: { region: 'americas', regionKo: '미주/캐나다/하와이' },
-    26: { region: 'china-hongkong', regionKo: '대만/홍콩/마카오' },
-    
-    // 국내(domestic) 서브 카테고리
-    31: { region: 'hotel', regionKo: '호텔' },
-    32: { region: 'resort', regionKo: '리조트' },
-    33: { region: 'pool-villa', regionKo: '풀빌라' },
-    
-    // 럭셔리(luxury) 서브 카테고리
-    41: { region: 'europe', regionKo: '유럽' },
-    42: { region: 'japan', regionKo: '일본' },
-    43: { region: 'southeast-asia', regionKo: '동남아' },
-    44: { region: 'cruise', regionKo: '크루즈' },
-    45: { region: 'special-theme', regionKo: '이색테마' },
-  }
-  
-  // 타입과 지역명 매핑 정의
-  const typeRegionMap: Record<string, { region: string, regionKo: string }> = {
-    'overseas': { region: 'overseas', regionKo: '해외여행' },
-    'hotel': { region: 'hotel', regionKo: '호텔' },
-    'domestic': { region: 'domestic', regionKo: '국내' },
-    'luxury': { region: 'luxury', regionKo: '럭셔리' },
-  }
 
   const [formData, setFormData] = useState({
     id: '',
@@ -118,7 +37,7 @@ export default function EditPackage() {
     regionKo: '',
     description: '',
     image: '',
-    images: [''], // 여러 이미지를 위한 배열 추가
+    images: [''], // 여러 이미지를 위한 배열
     highlights: [''],
     departure: '',
     type: '',
@@ -137,10 +56,10 @@ export default function EditPackage() {
     is_featured: false,
     start_date: '',
     end_date: '',
-    location: '',
-    category: ''
+    category: '',
+    location: ''
   })
-  
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -154,11 +73,6 @@ export default function EditPackage() {
         
         const mainCats = categoriesData.filter(cat => cat.parent_id === null)
         const subCats = categoriesData.filter(cat => cat.parent_id !== null)
-        
-        // 실제 카테고리 데이터 로깅
-        console.log('실제 카테고리 데이터:', categoriesData);
-        console.log('메인 카테고리:', mainCats);
-        console.log('서브 카테고리:', subCats);
         
         setCategories(categoriesData)
         setMainCategories(mainCats)
@@ -181,56 +95,39 @@ export default function EditPackage() {
         if (error) throw error
         
         if (packageData) {
-          // 타입 문제 해결을 위해 any로 처리
           const pkg = packageData as any;
           
-          // 패키지 데이터 확인을 위한 로깅
-          console.log('불러온 패키지 데이터:', pkg);
-          
-          // 폼 데이터 설정 (데이터베이스에 없는 필드는 기본값 설정)
           let categoryValue = '';
           if (pkg.type && pkg.region) {
             categoryValue = `${pkg.type}-${pkg.region}`;
           }
           
-          // features에서 이미지 배열과 location 정보 추출 (개선된 방식)
           const featuresImages = pkg.features?.images || pkg.features?.all_images || pkg.features?.additional_images || [];
           const mainImage = pkg.image || '';
           
-          // 이미지 배열 구성: 메인 이미지가 있으면 featuresImages에 포함되어 있는지 확인
           let allImages = [];
           if (featuresImages.length > 0) {
-            // features에 이미지들이 저장되어 있는 경우
             allImages = featuresImages;
           } else if (mainImage) {
-            // 메인 이미지만 있는 경우
             allImages = [mainImage];
           } else {
-            // 이미지가 없는 경우
             allImages = [''];
           }
           
           const location = pkg.features?.location || '';
           
-          console.log('이미지 로딩 상황:', {
-            mainImage,
-            featuresImages,
-            allImages,
-            features: pkg.features
-          });
-          
           setFormData({
             id: pkg.id || '',
-            name: pkg.title || '', // 데이터베이스의 title 필드를 name으로 매핑
-            price: parseInt(pkg.price) || 0, // 문자열을 숫자로 변환
+            name: pkg.title || '',
+            price: parseInt(pkg.price) || 0,
             region: pkg.region || '',
-            regionKo: pkg.region_ko || '', // 데이터베이스의 region_ko 필드 사용
+            regionKo: pkg.region_ko || '',
             description: pkg.description || '',
             image: mainImage,
-            images: allImages.length > 0 ? allImages : [''], // 메인 이미지 + 추가 이미지들
+            images: allImages.length > 0 ? allImages : [''],
             highlights: Array.isArray(pkg.highlights) ? pkg.highlights : [''],
             departure: pkg.departure || '',
-            type: pkg.type || '', // 데이터베이스의 type 필드 사용
+            type: pkg.type || '',
             min_people: pkg.min_people || 1,
             max_people: pkg.max_people || 10,
             itinerary: Array.isArray(pkg.itinerary) ? pkg.itinerary : [{
@@ -247,8 +144,8 @@ export default function EditPackage() {
             start_date: pkg.start_date || '',
             end_date: pkg.end_date || '',
             duration: pkg.duration || '',
-            location: location, // features에서 location 추출
-            category: categoryValue // type-region 조합으로 카테고리 설정
+            location: location,
+            category: categoryValue
           })
           
           setPackageLoaded(true)
@@ -264,12 +161,12 @@ export default function EditPackage() {
     fetchCategories()
     fetchPackage()
   }, [packageId])
-  
+
   // 숫자를 천 단위 콤마 형식으로 변환하는 함수
   const formatNumber = (num: number): string => {
     return num.toLocaleString('ko-KR')
   }
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     
@@ -380,13 +277,13 @@ export default function EditPackage() {
       setFormData({ ...formData, [name]: value })
     }
   }
-  
+
   const handleArrayChange = (index: number, value: string, field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     const newArray = [...formData[field]]
     newArray[index] = value
     setFormData({ ...formData, [field]: newArray })
   }
-  
+
   const addArrayItem = (field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     if (field === 'images' && formData.images.length >= 10) {
       alert('이미지는 최대 10개까지만 추가할 수 있습니다.');
@@ -395,10 +292,55 @@ export default function EditPackage() {
     const newArray = [...formData[field], '']
     setFormData({ ...formData, [field]: newArray })
   }
-  
+
   const removeArrayItem = (index: number, field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     const newArray = formData[field].filter((_, i) => i !== index)
     setFormData({ ...formData, [field]: newArray })
+  }
+
+  // 이미지 순서 조정 함수들
+  const moveImageUp = (index: number) => {
+    if (index === 0) return
+    const newImages = [...formData.images]
+    const temp = newImages[index]
+    newImages[index] = newImages[index - 1]
+    newImages[index - 1] = temp
+    setFormData({ ...formData, images: newImages })
+  }
+
+  const moveImageDown = (index: number) => {
+    if (index === formData.images.length - 1) return
+    const newImages = [...formData.images]
+    const temp = newImages[index]
+    newImages[index] = newImages[index + 1]
+    newImages[index + 1] = temp
+    setFormData({ ...formData, images: newImages })
+  }
+
+  // 드래그 앤 드롭 관련 상태
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === dropIndex) return
+
+    const newImages = [...formData.images]
+    const draggedImage = newImages[draggedIndex]
+    newImages.splice(draggedIndex, 1)
+    newImages.splice(dropIndex, 0, draggedImage)
+    
+    setFormData({ ...formData, images: newImages })
+    setDraggedIndex(null)
   }
 
   // 파일 업로드 처리 함수
@@ -494,31 +436,31 @@ export default function EditPackage() {
       console.log(`이미지 ${index + 1} 업로드 완료:`, publicUrl)
 
     } catch (error) {
-      console.error('파일 업로드 중 오류:', error);
-      alert(`파일 업로드 중 오류가 발생했습니다: ${error}`);
+      console.error('파일 업로드 중 오류:', error)
+      alert(`파일 업로드 중 오류가 발생했습니다: ${error}`)
     } finally {
-      setUploadingImages(prev => prev.filter(i => i !== index));
+      setUploadingImages(prev => prev.filter(i => i !== index))
     }
   }
-  
+
   const handleItineraryChange = (index: number, field: string, value: any) => {
-    const newItinerary = [...formData.itinerary];
+    const newItinerary = [...formData.itinerary]
     
     if (field === 'breakfast' || field === 'lunch' || field === 'dinner') {
       newItinerary[index].meals = {
         ...newItinerary[index].meals,
         [field]: value
-      };
+      }
     } else {
       // @ts-ignore
-      newItinerary[index][field] = value;
+      newItinerary[index][field] = value
     }
     
-    setFormData({ ...formData, itinerary: newItinerary });
+    setFormData({ ...formData, itinerary: newItinerary })
   }
-  
+
   const addItineraryDay = () => {
-    const lastDay = formData.itinerary[formData.itinerary.length - 1].day;
+    const lastDay = formData.itinerary[formData.itinerary.length - 1].day
     const newDay = {
       day: lastDay + 1,
       title: '',
@@ -529,7 +471,7 @@ export default function EditPackage() {
     
     setFormData({ ...formData, itinerary: [...formData.itinerary, newDay] })
   }
-  
+
   const removeItineraryDay = (index: number) => {
     const newItinerary = formData.itinerary
       .filter((_, i) => i !== index)
@@ -541,11 +483,8 @@ export default function EditPackage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
-    setError('') // 기존 오류 메시지 초기화
     
     try {
-      console.log('폼 제출 시작 - formData:', formData);
-      
       // 필수 필드 검증
       if (!formData.name || !formData.price || !formData.category) {
         throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 카테고리)')
@@ -556,9 +495,7 @@ export default function EditPackage() {
       const included = formData.included.filter(item => item.trim() !== '')
       const excluded = formData.excluded.filter(item => item.trim() !== '')
       const notes = formData.notes.filter(item => item.trim() !== '')
-      const images = formData.images.filter(item => item.trim() !== '') // 이미지 배열 필터링
-      
-      console.log('필터링된 이미지:', images);
+      const images = formData.images.filter(item => item.trim() !== '')
       
       // 여행 일정 검증
       const itinerary = formData.itinerary.map(day => ({
@@ -567,79 +504,53 @@ export default function EditPackage() {
         description: day.description.trim()
       }))
       
-      // 카테고리 ID 매핑 (실제 데이터베이스의 카테고리 ID에 맞춰 수정)
-      let categoryId = null;
-      
-      // 일단 category_id를 null로 설정하여 외래 키 제약 조건을 우회
-      // 실제 카테고리 테이블의 ID를 확인 후 수정 필요
-      console.log('선택된 카테고리:', formData.category);
-      
-      // 기존 패키지의 category_id 유지 (변경하지 않음)
-      // 나중에 실제 카테고리 테이블 확인 후 올바른 매핑 적용
-
-      // 데이터베이스 업데이트 데이터 준비 (이미지 처리 방식 변경)
-      const updateData = {
-        title: formData.name,
-        price: String(formData.price || 0) as any, // 타입 단언 추가
-        region: formData.region,
-        region_ko: formData.regionKo || '',
-        type: formData.type,
-        // category_id: categoryId, // 외래 키 제약 조건 문제로 일단 제외
-        description: formData.description || '',
-        image: images.length > 0 ? images[0] : (formData.image || ''), // 메인 이미지
-        images: images, // 모든 이미지를 images 컬럼에 직접 저장
-        features: { 
-          location: formData.location || ''
-        },
-        is_featured: formData.is_featured,
-        duration: formData.duration || '',
-        departure: formData.departure || '',
-        highlights: highlights.length ? highlights : [''],
-        itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
-        included: included.length ? included : [''],
-        excluded: excluded.length ? excluded : [''],
-        notes: notes.length ? notes : [''],
-        min_people: formData.min_people || 1,
-        max_people: formData.max_people || 10
-      };
-
-      console.log('업데이트할 데이터:', updateData);
-      console.log('패키지 ID:', packageId);
-
-      // 데이터베이스 업데이트 시도
+      // 데이터베이스 업데이트 준비
       const supabase = createClient()
-      const { data, error } = await supabase
+      
+      const { error } = await supabase
         .from('packages')
-        .update(updateData)
+        .update({
+          title: formData.name,
+          price: formData.price.toString(),
+          region: formData.region,
+          region_ko: formData.regionKo || '',
+          type: formData.type,
+          description: formData.description || '',
+          image: images.length > 0 ? images[0] : formData.image || '',
+          images: images, // 이미지 배열 저장
+          is_featured: formData.is_featured,
+          duration: formData.duration || '',
+          departure: formData.departure || '',
+          highlights: highlights.length ? highlights : [''],
+          itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
+          included: included.length ? included : [''],
+          excluded: excluded.length ? excluded : [''],
+          notes: notes.length ? notes : [''],
+          min_people: formData.min_people || 1,
+          max_people: formData.max_people || 10,
+          features: { 
+            location: formData.location || ''
+          }
+        })
         .eq('id', packageId)
-        .select() // 업데이트된 데이터 반환
       
-      console.log('Supabase 응답 - data:', data);
-      console.log('Supabase 응답 - error:', error);
+      if (error) throw error
       
-      if (error) {
-        console.error('Supabase 오류 상세:', error);
-        throw error;
-      }
-
-      if (!data || data.length === 0) {
-        throw new Error('업데이트된 데이터가 없습니다. 패키지 ID를 확인해주세요.');
-      }
+      console.log('패키지 수정 성공:', packageId)
       
-      console.log('업데이트 성공!');
-      
-      // 성공 후 목록 페이지로 이동
+      // 성공 후 패키지 목록으로 이동
       router.push('/admin/packages')
       router.refresh()
       
     } catch (error: any) {
       console.error('패키지 수정 실패:', error)
       setError(error.message || '패키지 수정 중 오류가 발생했습니다')
+      setError(error.message || '패키지 생성 중 오류가 발생했습니다')
     } finally {
       setIsSaving(false)
     }
   }
-  
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -647,7 +558,7 @@ export default function EditPackage() {
       </div>
     )
   }
-  
+
   return (
     <div className="pb-12">
       <div className="mb-8 flex justify-between items-center">
@@ -656,6 +567,20 @@ export default function EditPackage() {
             <ArrowLeft size={20} />
           </Link>
           <h1 className="text-2xl font-bold">패키지 수정</h1>
+        </div>
+        <div className="flex space-x-2">
+          <a href="#itinerary-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
+            상세 일정
+          </a>
+          <a href="#included-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
+            포함 사항
+          </a>
+          <a href="#excluded-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
+            불포함 사항
+          </a>
+          <a href="#notes-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
+            참고사항
+          </a>
         </div>
       </div>
       
@@ -670,19 +595,6 @@ export default function EditPackage() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h2 className="text-lg font-semibold mb-4">기본 정보</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                패키지 ID
-              </label>
-              <input
-                type="text"
-                name="id"
-                value={formData.id}
-                className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-500 cursor-not-allowed"
-                disabled
-              />
-            </div>
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 패키지명 <span className="text-red-500">*</span>
@@ -802,6 +714,20 @@ export default function EditPackage() {
               />
             </div>
             
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                위치
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예: 서울"
+              />
+            </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -828,34 +754,6 @@ export default function EditPackage() {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min="1"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  시작 날짜
-                </label>
-                <input
-                  type="date"
-                  name="start_date"
-                  value={formData.start_date}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  종료 날짜
-                </label>
-                <input
-                  type="date"
-                  name="end_date"
-                  value={formData.end_date}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -894,7 +792,7 @@ export default function EditPackage() {
               </div>
               
               {/* 다중 파일 업로드 섹션 */}
-              <div className="mb-4 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+              <div className="mb-3 p-3 border border-dashed border-gray-300 rounded-md bg-gray-50">
                 <div className="text-center">
                   <input
                     type="file"
@@ -955,20 +853,20 @@ export default function EditPackage() {
                   />
                   <label 
                     htmlFor="multipleFileUpload" 
-                    className={`cursor-pointer inline-flex items-center px-4 py-2 rounded-md transition-colors ${
+                    className={`cursor-pointer inline-flex items-center px-3 py-1.5 rounded-md text-sm transition-colors ${
                       uploadingImages.length > 0 
                         ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
-                    <Plus size={16} className="mr-2" />
+                    <Plus size={14} className="mr-1" />
                     {uploadingImages.length > 0 ? '업로드 중...' : '여러 이미지 한번에 업로드'}
                   </label>
                   <p className="text-xs text-gray-500 mt-2">
-                    최대 10개까지 선택 가능 (각 파일 5MB 이하, JPG/PNG/WebP/GIF/AVIF)
+                    최대 10개까지 선택 가능 (각 파일 5MB 이하)
                     {uploadingImages.length > 0 && (
                       <span className="text-blue-600 block mt-1">
-                        업로드 진행 중: {uploadingImages.length}개 파일
+                        업로드 진행 중: {uploadingImages.length}개
                       </span>
                     )}
                   </p>
@@ -976,11 +874,86 @@ export default function EditPackage() {
               </div>
               
               {formData.images.map((imageUrl, index) => (
-                <div key={index} className="mb-3">
-                  <div className="mb-2">
-                    <div className="flex items-center space-x-2">
-                      {/* 파일 업로드 입력 */}
-                      <div className="flex-1">
+                <div 
+                  key={index} 
+                  className={`mb-2 p-2 border rounded-md transition-all ${
+                    draggedIndex === index ? 'opacity-50' : ''
+                  } ${draggedIndex !== null && draggedIndex !== index ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, index)}
+                >
+                  <div className="flex items-center space-x-2">
+                    {/* 드래그 핸들 및 순서 조정 버튼 */}
+                    <div className="flex flex-col items-center space-y-1">
+                      <GripVertical size={12} className="text-gray-400 cursor-move" />
+                      <div className="flex flex-col space-y-0.5">
+                        <button
+                          type="button"
+                          onClick={() => moveImageUp(index)}
+                          disabled={index === 0}
+                          className={`p-0.5 rounded ${
+                            index === 0 
+                              ? 'text-gray-300 cursor-not-allowed' 
+                              : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                          }`}
+                        >
+                          <ChevronUp size={10} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImageDown(index)}
+                          disabled={index === formData.images.length - 1}
+                          className={`p-0.5 rounded ${
+                            index === formData.images.length - 1 
+                              ? 'text-gray-300 cursor-not-allowed' 
+                              : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                          }`}
+                        >
+                          <ChevronDown size={10} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 이미지 프리뷰 */}
+                    <div className="flex-shrink-0">
+                      {imageUrl && (
+                        <div className="relative h-16 w-20 border rounded overflow-hidden bg-gray-50">
+                          <img
+                            src={imageUrl}
+                            alt={`패키지 이미지 ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              if (!target.dataset.retried) {
+                                target.dataset.retried = 'true'
+                                setTimeout(() => {
+                                  target.src = imageUrl + '?t=' + Date.now()
+                                }, 1000)
+                              } else {
+                                target.src = "https://via.placeholder.com/300x200?text=이미지+로딩+실패"
+                              }
+                            }}
+                            onLoad={() => {
+                              console.log(`이미지 ${index + 1} 로딩 성공:`, imageUrl.substring(0, 50) + '...')
+                            }}
+                          />
+                          {index === 0 && (
+                            <div className="absolute top-0.5 left-0.5 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
+                              메인
+                            </div>
+                          )}
+                          <div className="absolute top-0.5 right-0.5 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
+                            {index + 1}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 파일 업로드 및 URL */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-1 mb-1">
                         <input
                           type="file"
                           accept="image/*"
@@ -988,77 +961,60 @@ export default function EditPackage() {
                             const file = e.target.files?.[0]
                             if (file) {
                               handleFileUpload(file, index)
-                              e.target.value = '' // 업로드 후 입력 초기화
+                              e.target.value = ''
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                           disabled={uploadingImages.includes(index)}
                         />
-                        {uploadingImages.includes(index) && (
-                          <div className="text-sm text-blue-600 mt-1">업로드 중...</div>
-                        )}
+                        
+                        {/* 삭제 버튼 */}
+                        <button
+                          type="button"
+                          onClick={() => removeArrayItem(index, 'images')}
+                          className="px-2 py-1 border border-gray-300 rounded text-red-600 hover:text-red-800 hover:bg-red-50"
+                          disabled={formData.images.length <= 1}
+                        >
+                          <X size={12} />
+                        </button>
                       </div>
-                      
-                      {/* 삭제 버튼 */}
-                      <button
-                        type="button"
-                        onClick={() => removeArrayItem(index, 'images')}
-                        className="px-3 py-2 border border-gray-300 rounded-r-md text-red-600 hover:text-red-800 hover:bg-red-50"
-                        disabled={formData.images.length <= 1}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                    
-                    {/* 기존 이미지가 있는 경우에만 URL 표시 (편집용) */}
-                    {imageUrl && (
-                      <div className="mt-1">
+
+                      {/* 이미지 URL 편집 */}
+                      {imageUrl && (
                         <input
                           type="url"
                           value={imageUrl}
                           onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
-                          className="w-full px-2 py-1 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
-                          placeholder="이미지 URL (편집 가능)"
+                          className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                          placeholder="이미지 URL"
                           readOnly={uploadingImages.includes(index)}
                         />
-                      </div>
-                    )}
-                  </div>
-                  
-                  {imageUrl && (
-                    <div className="relative h-24 w-32 border rounded-md overflow-hidden bg-gray-50">
-                      <img
-                        src={imageUrl}
-                        alt={`패키지 이미지 ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          // 업로드된 이미지 로딩 실패 시 재시도 (한 번만)
-                          if (!target.dataset.retried) {
-                            target.dataset.retried = 'true'
-                            setTimeout(() => {
-                              target.src = imageUrl + '?t=' + Date.now() // 캐시 버스팅
-                            }, 1000)
-                          } else {
-                            target.src = "https://via.placeholder.com/300x200?text=이미지+로딩+실패"
-                          }
-                        }}
-                        onLoad={() => {
-                          console.log(`이미지 ${index + 1} 로딩 성공:`, imageUrl.substring(0, 50) + '...')
-                        }}
-                      />
-                      {index === 0 && (
-                        <div className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
-                          메인
+                      )}
+
+                      {/* 업로드 상태 표시 */}
+                      {uploadingImages.includes(index) && (
+                        <div className="text-xs text-blue-600 mt-1 flex items-center">
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                          업로드 중...
+                        </div>
+                      )}
+                      
+                      {formData.images[index] && formData.images[index].trim() !== '' && !uploadingImages.includes(index) && (
+                        <div className="text-xs text-green-600 mt-1 flex items-center">
+                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          완료
                         </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
               ))}
               
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 mt-4">
                 • 첫 번째 이미지가 메인 이미지로 사용됩니다.<br/>
+                • 드래그하거나 위/아래 버튼으로 이미지 순서를 변경할 수 있습니다.<br/>
                 • "여러 이미지 한번에 업로드" 버튼으로 최대 10개까지 선택하여 한번에 업로드 가능<br/>
                 • 이미지 파일 크기는 5MB 이하로 제한됩니다.<br/>
                 • 지원 형식: JPEG, PNG, WebP, GIF, AVIF<br/>
@@ -1116,10 +1072,10 @@ export default function EditPackage() {
           ))}
         </div>
 
-        {/* 상세 일정 */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        {/* 여행 일정 */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="itinerary-section">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">상세 일정</h2>
+            <h2 className="text-lg font-semibold">여행 일정</h2>
             <button
               type="button"
               onClick={addItineraryDay}
@@ -1130,20 +1086,20 @@ export default function EditPackage() {
           </div>
           
           {formData.itinerary.map((day, index) => (
-            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-md font-medium">Day {day.day}</h3>
+                <h3 className="font-medium text-gray-900">Day {day.day}</h3>
                 <button
                   type="button"
                   onClick={() => removeItineraryDay(index)}
                   className="text-red-600 hover:text-red-800"
                   disabled={formData.itinerary.length <= 1}
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     일정 제목
@@ -1153,21 +1109,8 @@ export default function EditPackage() {
                     value={day.title}
                     onChange={(e) => handleItineraryChange(index, 'title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="예: 인천공항 출발 - 파리 도착"
+                    placeholder={`Day ${day.day} 제목`}
                   />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    일정 설명
-                  </label>
-                  <textarea
-                    value={day.description}
-                    onChange={(e) => handleItineraryChange(index, 'description', e.target.value)}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="상세한 일정 내용을 입력하세요"
-                  ></textarea>
                 </div>
                 
                 <div>
@@ -1179,13 +1122,26 @@ export default function EditPackage() {
                     value={day.accommodation}
                     onChange={(e) => handleItineraryChange(index, 'accommodation', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="예: 파리 시내 4성급 호텔"
+                    placeholder="숙박 정보"
                   />
                 </div>
                 
-                <div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    일정 설명
+                  </label>
+                  <textarea
+                    value={day.description}
+                    onChange={(e) => handleItineraryChange(index, 'description', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    placeholder="상세 일정을 입력하세요"
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    식사
+                    식사 포함
                   </label>
                   <div className="flex space-x-4">
                     <label className="flex items-center">
@@ -1195,7 +1151,7 @@ export default function EditPackage() {
                         onChange={(e) => handleItineraryChange(index, 'breakfast', e.target.checked)}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <span className="ml-2 text-sm">조식</span>
+                      <span className="ml-2 text-sm text-gray-700">조식</span>
                     </label>
                     <label className="flex items-center">
                       <input
@@ -1204,7 +1160,7 @@ export default function EditPackage() {
                         onChange={(e) => handleItineraryChange(index, 'lunch', e.target.checked)}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <span className="ml-2 text-sm">중식</span>
+                      <span className="ml-2 text-sm text-gray-700">중식</span>
                     </label>
                     <label className="flex items-center">
                       <input
@@ -1213,7 +1169,7 @@ export default function EditPackage() {
                         onChange={(e) => handleItineraryChange(index, 'dinner', e.target.checked)}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <span className="ml-2 text-sm">석식</span>
+                      <span className="ml-2 text-sm text-gray-700">석식</span>
                     </label>
                   </div>
                 </div>
@@ -1223,7 +1179,7 @@ export default function EditPackage() {
         </div>
 
         {/* 포함 사항 */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="included-section">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">포함 사항</h2>
             <button
@@ -1257,7 +1213,7 @@ export default function EditPackage() {
         </div>
 
         {/* 불포함 사항 */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="excluded-section">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">불포함 사항</h2>
             <button
@@ -1291,7 +1247,7 @@ export default function EditPackage() {
         </div>
 
         {/* 예약 시 참고사항 */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="notes-section">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">예약 시 참고사항</h2>
             <button
@@ -1310,7 +1266,7 @@ export default function EditPackage() {
                 value={note}
                 onChange={(e) => handleArrayChange(index, e.target.value, 'notes')}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="예약 시 주의사항이나 참고사항을 입력하세요"
+                placeholder="주의사항이나 참고할 내용을 입력하세요"
               />
               <button
                 type="button"
@@ -1344,7 +1300,7 @@ export default function EditPackage() {
               </>
             ) : (
               <>
-                <Save size={18} className="mr-2" /> 저장하기
+                <Save size={18} className="mr-2" /> 패키지 생성
               </>
             )}
           </button>
