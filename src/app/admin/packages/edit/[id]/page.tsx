@@ -402,18 +402,19 @@ export default function EditPackage() {
   }
 
   // 파일 업로드 처리 함수
-  const handleFileUpload = async (file: File, index: number) => {
+  const handleFileUpload = async (file: File, index: number): Promise<void> => {
     if (!file) return
+
+    // 파일 타입 체크
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
+    if (!allowedTypes.includes(file.type)) {
+      alert('JPG, PNG, WebP, GIF, AVIF 파일만 업로드 가능합니다.')
+      return
+    }
 
     // 파일 크기 체크 (5MB 제한)
     if (file.size > 5 * 1024 * 1024) {
       alert('파일 크기는 5MB 이하로 제한됩니다.')
-      return
-    }
-
-    // 파일 타입 체크
-    if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.')
       return
     }
 
@@ -422,26 +423,83 @@ export default function EditPackage() {
       
       const supabase = createClient()
       
-      // 파일명 생성 (타임스탬프 + 원본 파일명)
-      const fileExt = file.name.split('.').pop()
+      // 현재 사용자 확인
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        console.error('사용자 인증 실패:', userError)
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      console.log('현재 사용자:', user.email)
+      
+      // 파일명 생성 (타임스탬프 + 랜덤 문자열)
+      const fileExt = file.name.split('.').pop()?.toLowerCase()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `packages/${fileName}`
+
+      console.log('업로드 시도:', {
+        fileName,
+        filePath,
+        fileSize: file.size,
+        fileType: file.type,
+        targetIndex: index
+      })
 
       // Supabase Storage에 파일 업로드
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: file.type
         })
 
       if (error) {
-        console.error('파일 업로드 실패:', error)
-        alert('파일 업로드에 실패했습니다.')
+        console.error('파일 업로드 실패:', {
+          error,
+          message: error.message,
+          statusCode: error.statusCode
+        })
+        
+        if (error.message?.includes('already exists')) {
+          alert('같은 이름의 파일이 이미 존재합니다. 다시 시도해주세요.')
+        } else if (error.message?.includes('not allowed')) {
+          alert('파일 형식이 허용되지 않습니다.')
+        } else if (error.message?.includes('size')) {
+          alert('파일 크기가 너무 큽니다.')
+        } else {
+          alert(`파일 업로드에 실패했습니다: ${error.message}`)
+        }
         return
       }
 
+      console.log('업로드 성공:', data)
+
       // 업로드된 파일의 공개 URL 가져오기
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath)
+
+      console.log('공개 URL:', publicUrl)
+
+      // 폼 데이터 업데이트 (함수형 업데이트로 최신 상태 보장)
+      setFormData(prev => {
+        const newImages = [...prev.images]
+        newImages[index] = publicUrl
+        return { ...prev, images: newImages }
+      })
+
+      console.log(`이미지 ${index + 1} 업로드 완료:`, publicUrl)
+
+    } catch (error) {
+      console.error('파일 업로드 중 오류:', error)
+      alert(`파일 업로드 중 오류가 발생했습니다: ${error}`)
+    } finally {
+      setUploadingImages(prev => prev.filter(i => i !== index))
+    }
+  }
       const { data: { publicUrl } } = supabase.storage
         .from('images')
         .getPublicUrl(filePath)
@@ -851,6 +909,88 @@ export default function EditPackage() {
                 </button>
               </div>
               
+              {/* 다중 파일 업로드 섹션 */}
+              <div className="mb-4 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+                <div className="text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files || [])
+                      if (files.length > 0) {
+                        console.log(`${files.length}개 파일 선택됨`)
+                        
+                        // 현재 사용된 슬롯 개수 확인
+                        const usedSlots = formData.images.filter(img => img.trim()).length
+                        
+                        // 최대 10개 제한 확인
+                        if (usedSlots + files.length > 10) {
+                          alert(`이미지는 최대 10개까지만 업로드 가능합니다. 현재 ${usedSlots}개 등록됨, ${files.length}개 선택됨`)
+                          e.target.value = ''
+                          return
+                        }
+                        
+                        // 필요한 만큼 이미지 슬롯 확보
+                        const currentImages = [...formData.images]
+                        while (currentImages.length < usedSlots + files.length) {
+                          currentImages.push('')
+                        }
+                        
+                        // 상태 업데이트
+                        setFormData(prev => ({ ...prev, images: currentImages }))
+                        
+                        // 순차적으로 파일 업로드
+                        let uploadIndex = 0
+                        for (const [fileIndex, file] of files.entries()) {
+                          try {
+                            // 빈 슬롯 찾기
+                            while (uploadIndex < currentImages.length && currentImages[uploadIndex].trim() !== '') {
+                              uploadIndex++
+                            }
+                            
+                            if (uploadIndex < 10) {
+                              console.log(`파일 ${fileIndex + 1}/${files.length} 업로드 시작 (슬롯 ${uploadIndex})`)
+                              await handleFileUpload(file, uploadIndex)
+                              // 업로드 완료 후 해당 슬롯을 사용됨으로 표시
+                              currentImages[uploadIndex] = 'uploading' // 임시 표시
+                              uploadIndex++
+                            }
+                          } catch (error) {
+                            console.error(`파일 ${fileIndex + 1} 업로드 실패:`, error)
+                          }
+                        }
+                        
+                        e.target.value = '' // 입력 초기화
+                        console.log('모든 파일 업로드 완료')
+                      }
+                    }}
+                    className="hidden"
+                    id="multipleFileUpload"
+                    disabled={uploadingImages.length > 0}
+                  />
+                  <label 
+                    htmlFor="multipleFileUpload" 
+                    className={`cursor-pointer inline-flex items-center px-4 py-2 rounded-md transition-colors ${
+                      uploadingImages.length > 0 
+                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    <Plus size={16} className="mr-2" />
+                    {uploadingImages.length > 0 ? '업로드 중...' : '여러 이미지 한번에 업로드'}
+                  </label>
+                  <p className="text-xs text-gray-500 mt-2">
+                    최대 10개까지 선택 가능 (각 파일 5MB 이하, JPG/PNG/WebP/GIF/AVIF)
+                    {uploadingImages.length > 0 && (
+                      <span className="text-blue-600 block mt-1">
+                        업로드 진행 중: {uploadingImages.length}개 파일
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              
               {formData.images.map((imageUrl, index) => (
                 <div key={index} className="mb-3">
                   <div className="mb-2">
@@ -864,6 +1004,7 @@ export default function EditPackage() {
                             const file = e.target.files?.[0]
                             if (file) {
                               handleFileUpload(file, index)
+                              e.target.value = '' // 업로드 후 입력 초기화
                             }
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -908,7 +1049,18 @@ export default function EditPackage() {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement
-                          target.src = "https://via.placeholder.com/300x200?text=이미지+오류"
+                          // 업로드된 이미지 로딩 실패 시 재시도 (한 번만)
+                          if (!target.dataset.retried) {
+                            target.dataset.retried = 'true'
+                            setTimeout(() => {
+                              target.src = imageUrl + '?t=' + Date.now() // 캐시 버스팅
+                            }, 1000)
+                          } else {
+                            target.src = "https://via.placeholder.com/300x200?text=이미지+로딩+실패"
+                          }
+                        }}
+                        onLoad={() => {
+                          console.log(`이미지 ${index + 1} 로딩 성공:`, imageUrl.substring(0, 50) + '...')
                         }}
                       />
                       {index === 0 && (
@@ -923,8 +1075,9 @@ export default function EditPackage() {
               
               <p className="text-xs text-gray-500 mt-2">
                 • 첫 번째 이미지가 메인 이미지로 사용됩니다.<br/>
+                • "여러 이미지 한번에 업로드" 버튼으로 최대 10개까지 선택하여 한번에 업로드 가능<br/>
                 • 이미지 파일 크기는 5MB 이하로 제한됩니다.<br/>
-                • 지원 형식: JPEG, PNG, WebP, GIF<br/>
+                • 지원 형식: JPEG, PNG, WebP, GIF, AVIF<br/>
                 • 이미지는 최대 10개까지 추가 가능합니다.
               </p>
             </div>
