@@ -178,25 +178,19 @@ export default function CreatePackage() {
   }
 
   // 파일 업로드 처리 함수
-  const handleFileUpload = async (file: File, index: number) => {
+  const handleFileUpload = async (file: File, index: number): Promise<void> => {
     if (!file) return
 
-    // 파일 크기 체크 (5MB 제한)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('파일 크기는 5MB 이하로 제한됩니다.')
-      return
-    }
-
-    // 파일 타입 및 크기 체크
+    // 파일 타입 체크
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
     if (!allowedTypes.includes(file.type)) {
       alert('JPG, PNG, WebP, GIF, AVIF 파일만 업로드 가능합니다.')
       return
     }
 
-    // 파일 크기 체크 (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('파일 크기는 10MB 이하여야 합니다.')
+    // 파일 크기 체크 (5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('파일 크기는 5MB 이하로 제한됩니다.')
       return
     }
 
@@ -216,7 +210,7 @@ export default function CreatePackage() {
 
       console.log('현재 사용자:', user.email)
       
-      // 파일명 생성 (타임스탬프 + 원본 파일명)
+      // 파일명 생성 (타임스탬프 + 랜덤 문자열)
       const fileExt = file.name.split('.').pop()?.toLowerCase()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `packages/${fileName}`
@@ -225,7 +219,8 @@ export default function CreatePackage() {
         fileName,
         filePath,
         fileSize: file.size,
-        fileType: file.type
+        fileType: file.type,
+        targetIndex: index
       })
 
       // Supabase Storage에 파일 업로드
@@ -265,10 +260,14 @@ export default function CreatePackage() {
 
       console.log('공개 URL:', publicUrl)
 
-      // 폼 데이터 업데이트
-      const newImages = [...formData.images]
-      newImages[index] = publicUrl
-      setFormData({ ...formData, images: newImages })
+      // 폼 데이터 업데이트 (함수형 업데이트로 최신 상태 보장)
+      setFormData(prev => {
+        const newImages = [...prev.images]
+        newImages[index] = publicUrl
+        return { ...prev, images: newImages }
+      })
+
+      console.log(`이미지 ${index + 1} 업로드 완료:`, publicUrl)
 
     } catch (error) {
       console.error('파일 업로드 중 오류:', error)
@@ -356,6 +355,7 @@ export default function CreatePackage() {
           type: formData.type,
           description: formData.description || '',
           image: images.length > 0 ? images[0] : '',
+          images: images, // 이미지 배열 저장
           is_featured: formData.is_featured,
           duration: formData.duration || '',
           departure: formData.departure || '',
@@ -615,34 +615,107 @@ export default function CreatePackage() {
                 </button>
               </div>
               
+              {/* 다중 파일 업로드 섹션 */}
+              <div className="mb-4 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+                <div className="text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files || [])
+                      if (files.length > 0) {
+                        console.log(`${files.length}개 파일 선택됨`)
+                        
+                        // 현재 사용된 슬롯 개수 확인
+                        const usedSlots = formData.images.filter(img => img.trim()).length
+                        
+                        // 최대 10개 제한 확인
+                        if (usedSlots + files.length > 10) {
+                          alert(`이미지는 최대 10개까지만 업로드 가능합니다. 현재 ${usedSlots}개 등록됨, ${files.length}개 선택됨`)
+                          e.target.value = ''
+                          return
+                        }
+                        
+                        // 필요한 만큼 이미지 슬롯 확보
+                        const currentImages = [...formData.images]
+                        while (currentImages.length < usedSlots + files.length) {
+                          currentImages.push('')
+                        }
+                        
+                        // 상태 업데이트
+                        setFormData(prev => ({ ...prev, images: currentImages }))
+                        
+                        // 순차적으로 파일 업로드
+                        let uploadIndex = 0
+                        for (const [fileIndex, file] of files.entries()) {
+                          try {
+                            // 빈 슬롯 찾기
+                            while (uploadIndex < currentImages.length && currentImages[uploadIndex].trim() !== '') {
+                              uploadIndex++
+                            }
+                            
+                            if (uploadIndex < 10) {
+                              console.log(`파일 ${fileIndex + 1}/${files.length} 업로드 시작 (슬롯 ${uploadIndex})`)
+                              await handleFileUpload(file, uploadIndex)
+                              // 업로드 완료 후 해당 슬롯을 사용됨으로 표시
+                              currentImages[uploadIndex] = 'uploading' // 임시 표시
+                              uploadIndex++
+                            }
+                          } catch (error) {
+                            console.error(`파일 ${fileIndex + 1} 업로드 실패:`, error)
+                          }
+                        }
+                        
+                        e.target.value = '' // 입력 초기화
+                        console.log('모든 파일 업로드 완료')
+                      }
+                    }}
+                    className="hidden"
+                    id="multipleFileUpload"
+                    disabled={uploadingImages.length > 0}
+                  />
+                  <label 
+                    htmlFor="multipleFileUpload" 
+                    className={`cursor-pointer inline-flex items-center px-4 py-2 rounded-md transition-colors ${
+                      uploadingImages.length > 0 
+                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    <Plus size={16} className="mr-2" />
+                    {uploadingImages.length > 0 ? '업로드 중...' : '여러 이미지 한번에 업로드'}
+                  </label>
+                  <p className="text-xs text-gray-500 mt-2">
+                    최대 10개까지 선택 가능 (각 파일 5MB 이하, JPG/PNG/WebP/GIF/AVIF)
+                    {uploadingImages.length > 0 && (
+                      <span className="text-blue-600 block mt-1">
+                        업로드 진행 중: {uploadingImages.length}개 파일
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              
               {formData.images.map((imageUrl, index) => (
                 <div key={index} className="mb-3">
                   <div className="mb-2">
                     <div className="flex items-center space-x-2">
-                      {/* 파일 업로드 입력 */}
+                      {/* 개별 파일 업로드 입력 */}
                       <div className="flex-1">
                         <input
                           type="file"
                           accept="image/*"
-                          multiple
                           onChange={(e) => {
-                            const files = Array.from(e.target.files || [])
-                            if (files.length > 0) {
-                              // 여러 파일을 순차적으로 업로드
-                              files.forEach((file, fileIndex) => {
-                                const targetIndex = index + fileIndex
-                                // 필요한 만큼 이미지 슬롯 추가
-                                while (formData.images.length <= targetIndex) {
-                                  addArrayItem('images')
-                                }
-                                handleFileUpload(file, targetIndex)
-                              })
-                              // 업로드 후 입력 요소 초기화
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              handleFileUpload(file, index)
                               e.target.value = ''
                             }
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           disabled={uploadingImages.includes(index)}
+                        />
                         />
                         {uploadingImages.includes(index) && (
                           <div className="text-sm text-blue-600 mt-1 flex items-center">
