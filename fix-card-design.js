@@ -3,7 +3,6 @@ const path = require('path');
 
 // 카드 디자인을 통일할 페이지 목록
 const pages = [
-  'src/app/domestic/resort/page.tsx',
   'src/app/domestic/pool-villa/page.tsx',
   'src/app/overseas/europe/page.tsx',
   'src/app/overseas/japan/page.tsx', 
