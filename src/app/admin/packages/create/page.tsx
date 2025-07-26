@@ -371,8 +371,13 @@ export default function CreatePackage() {
       
       if (error) throw error
       
-      // 성공 후 목록 페이지로 이동
-      router.push('/admin/packages')
+      console.log('패키지 생성 성공:', packageId)
+      
+      // 성공 후 해당 패키지 상세 페이지로 이동하여 즉시 결과 확인
+      alert(`패키지가 성공적으로 생성되었습니다! (ID: ${packageId})`)
+      
+      // 패키지 목록과 해당 패키지 페이지 모두 새로고침
+      router.push(`/package/${packageId}`)
       router.refresh()
       
     } catch (error: any) {
@@ -767,7 +772,18 @@ export default function CreatePackage() {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement
-                          target.src = "https://via.placeholder.com/300x200?text=이미지+오류"
+                          // 업로드된 이미지 로딩 실패 시 재시도 (한 번만)
+                          if (!target.dataset.retried) {
+                            target.dataset.retried = 'true'
+                            setTimeout(() => {
+                              target.src = imageUrl + '?t=' + Date.now() // 캐시 버스팅
+                            }, 1000)
+                          } else {
+                            target.src = "https://via.placeholder.com/300x200?text=이미지+로딩+실패"
+                          }
+                        }}
+                        onLoad={() => {
+                          console.log(`이미지 ${index + 1} 로딩 성공:`, imageUrl.substring(0, 50) + '...')
                         }}
                       />
                       {index === 0 && (

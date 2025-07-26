@@ -352,7 +352,11 @@ export default function PackageDetail() {
                       className='w-full h-64 object-cover'
                       onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         console.log('콘텐츠 이미지 로드 실패, 기본 이미지로 변경');
-                        (e.target as HTMLImageElement).src = '/images/hotel-hero.jpg';
+                        const target = e.target as HTMLImageElement;
+                        // 이미 기본 이미지인 경우 재시도하지 않음
+                        if (!target.src.includes('/images/hotel-hero.jpg')) {
+                          target.src = '/images/hotel-hero.jpg';
+                        }
                       }}
                       onLoad={() => {
                         console.log('콘텐츠 이미지 로드 성공:', packageImages[currentImageIndex]);
