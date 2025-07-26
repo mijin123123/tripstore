@@ -117,7 +117,7 @@ export default function DomesticPage() {
                 href={`/domestic/${category.slug}`}
                 className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
               >
-                <div className="relative h-48 bg-gradient-to-br from-green-500 to-blue-600">
+                <div className="relative h-48 bg-gradient-to-br from-green-500 to-blue-600 flex-shrink-0">
                   <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <IconComponent className="w-20 h-20 text-white opacity-80" />
@@ -128,7 +128,7 @@ export default function DomesticPage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-grow">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2 text-gray-600">
                       <MapPin className="w-4 h-4" />

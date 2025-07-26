@@ -145,9 +145,9 @@ export default function HotelPage() {
             <Link 
               key={region.slug}
               href={`/hotel/${region.slug}`}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col cursor-pointer h-full flex flex-col"
             >
-              <div className="relative h-48">
+              <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                 <div className="w-full h-full">
                   {region.image ? (
                     <img 
@@ -162,15 +162,15 @@ export default function HotelPage() {
                 <div className="absolute inset-0 bg-black bg-opacity-30"></div>
                 <div className="absolute bottom-4 left-4 text-white">
                   <h3 className="text-2xl font-bold">{region.name}</h3>
-                  <p className="text-sm opacity-90">{region.description}</p>
+                  <p className="text-sm opacity-90 truncate">{region.description}</p>
                 </div>
               </div>
               
-              <div className="p-6">
+              <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Bed className="w-4 h-4" />
-                    <span className="text-sm">{region.hotels}개 호텔</span>
+                    <span className="text-sm truncate">{region.hotels}개 호텔</span>
                   </div>
                   <div className="text-xs text-blue-600 font-medium">
                     {region.priceRange}

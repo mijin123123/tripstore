@@ -139,7 +139,7 @@ export default function LuxuryPage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-grow">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2 text-gray-600">
                       <MapPin className="w-4 h-4" />

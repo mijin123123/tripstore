@@ -159,14 +159,14 @@ export default function OverseasPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {currentPackages.map((pkg) => (
             <Link href={pkg.link} key={pkg.id}>
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col h-full flex flex-col">
                 {/* 이미지 섹션 */}
-                <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex-shrink-0">
+                <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex-shrink-0 flex-shrink-0">
                   <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                 </div>
 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold mb-2 line-clamp-2">{pkg.title}</h3>
+                  <h3 className="text-xl font-bold mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
                   
                   {/* 여행 정보 */}
                   <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
@@ -197,7 +197,7 @@ export default function OverseasPage() {
                   {/* 가격 및 예약 */}
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                      <span className="text-xl font-bold text-blue-600">
+                      <span className="text-xl font-bold text-blue-600 line-clamp-2">
                         {pkg.price}원
                       </span>
                       <span className="text-gray-500 text-xs">/ 1인</span>

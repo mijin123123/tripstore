@@ -128,7 +128,7 @@ export default function AboutPage() {
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <IconComponent className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="text-xl font-bold mb-4 text-gray-900">{value.title}</h3>
+                  <h3 className="text-xl font-bold mb-4 text-gray-900 line-clamp-2">{value.title}</h3>
                   <p className="text-gray-600">{value.description}</p>
                 </div>
               )
@@ -141,10 +141,10 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">우리 팀</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {team.map((member, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full flex flex-col cursor-pointer">
                 <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500"></div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2 text-gray-900">{member.name}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold mb-2 text-gray-900 line-clamp-2">{member.name}</h3>
                   <p className="text-blue-600 font-medium mb-2">{member.position}</p>
                   <p className="text-gray-600 text-sm mb-1">경력: {member.experience}</p>
                   <p className="text-gray-600 text-sm">{member.specialty}</p>

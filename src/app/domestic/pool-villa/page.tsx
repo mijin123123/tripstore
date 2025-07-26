@@ -109,10 +109,10 @@ export default function DomesticPoolVillaPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
-                  <div className="relative h-48 flex-shrink-0">
+                  <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                     {packageItem.image ? (
                       <img 
                         src={packageItem.image} 
@@ -136,7 +136,7 @@ export default function DomesticPoolVillaPage() {
                   </div>
 
                   <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="text-sm truncate">{
@@ -165,7 +165,7 @@ export default function DomesticPoolVillaPage() {
                     
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex flex-col">
-                        <span className="text-xl font-bold text-teal-600 line-clamp-2">
+                        <span className="text-xl font-bold text-teal-600 line-clamp-2 line-clamp-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-sm block">/{packageItem.duration || '1박'}</span>

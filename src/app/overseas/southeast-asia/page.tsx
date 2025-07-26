@@ -128,9 +128,9 @@ export default function SoutheastAsiaPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full flex flex-col">
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full flex flex-col h-full flex flex-col">
                 {/* 이미지 섹션 */}
-                <div className="relative h-48 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <img 
                     src={pkg.image} 
                     alt={pkg.title}
@@ -148,7 +148,7 @@ export default function SoutheastAsiaPage() {
                 </div>
 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span className="text-sm truncate">동남아시아</span>
@@ -182,7 +182,7 @@ export default function SoutheastAsiaPage() {
                   {/* 가격 및 예약 */}
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-green-600 line-clamp-2">{pkg.price}원</span>
+                        <span className="text-xl font-bold text-green-600 line-clamp-2 line-clamp-2">{pkg.price}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 

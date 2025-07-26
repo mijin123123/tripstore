@@ -152,7 +152,7 @@ export default function GuamPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="relative h-48 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center justify-center">
                     <span className="text-white font-semibold text-center px-4">{pkg.title}</span>
                   </div>
@@ -165,7 +165,7 @@ export default function GuamPage() {
                 </div>
                 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-4 text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4 flex-shrink-0" />
@@ -218,7 +218,7 @@ export default function GuamPage() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plane className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">항공편</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">항공편</h3>
               <p className="text-gray-600">
                 인천공항에서 직항 3시간 30분<br/>
                 비자 없이 45일 체류 가능
@@ -229,7 +229,7 @@ export default function GuamPage() {
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sun className="w-8 h-8 text-emerald-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">날씨</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">날씨</h3>
               <p className="text-gray-600">
                 연중 26-28도의 따뜻한 날씨<br/>
                 우기(7-11월), 건기(12-6월)
@@ -240,7 +240,7 @@ export default function GuamPage() {
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Waves className="w-8 h-8 text-yellow-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">액티비티</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">액티비티</h3>
               <p className="text-gray-600">
                 스노클링, 다이빙, 제트스키<br/>
                 골프, 쇼핑, 차모로 문화체험

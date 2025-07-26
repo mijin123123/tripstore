@@ -152,7 +152,7 @@ export default function TaiwanPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="relative h-48 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-green-500 flex items-center justify-center">
                     <span className="text-white font-semibold text-center px-4">{pkg.title}</span>
                   </div>
@@ -165,7 +165,7 @@ export default function TaiwanPage() {
                 </div>
                 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-4 text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4 flex-shrink-0" />
@@ -218,7 +218,7 @@ export default function TaiwanPage() {
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plane className="w-8 h-8 text-emerald-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">교통편</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">교통편</h3>
               <p className="text-gray-600">
                 인천공항에서 직항 2시간 30분<br/>
                 무비자 30일 체류 가능
@@ -229,7 +229,7 @@ export default function TaiwanPage() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mountain className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">자연경관</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">자연경관</h3>
               <p className="text-gray-600">
                 타로코 협곡, 일월담<br/>
                 아리산, 양명산 국립공원
@@ -240,7 +240,7 @@ export default function TaiwanPage() {
               <div className="w-16 h-16 bg-lime-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Camera className="w-8 h-8 text-lime-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">명소</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">명소</h3>
               <p className="text-gray-600">
                 타이베이 101, 야시장<br/>
                 고궁박물관, 지우펀
@@ -252,7 +252,7 @@ export default function TaiwanPage() {
           <div className="mt-12 bg-white rounded-xl shadow-md p-8">
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2">여행 기본 정보</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 line-clamp-2">여행 기본 정보</h3>
                 <ul className="space-y-2 text-gray-600">
                   <li>• 화폐: 신타이완달러 (TWD)</li>
                   <li>• 언어: 중국어 (번체자)</li>
@@ -262,7 +262,7 @@ export default function TaiwanPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2">추천 여행 시기</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 line-clamp-2">추천 여행 시기</h3>
                 <ul className="space-y-2 text-gray-600">
                   <li>• 봄 (3-5월): 날씨가 온화하고 쾌적</li>
                   <li>• 가을 (9-11월): 태풍이 지나가고 선선함</li>
