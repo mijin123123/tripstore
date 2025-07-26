@@ -505,9 +505,9 @@ export default function EditPackage() {
         .getPublicUrl(filePath)
 
       // 폼 데이터 업데이트
-      const newImages = [...formData.images]
-      newImages[index] = publicUrl
-      setFormData({ ...formData, images: newImages })
+      const newImages = [...formData.images];
+      newImages[index] = publicUrl;
+      setFormData({ ...formData, images: newImages });
 
     } catch (error) {
       console.error('파일 업로드 중 오류:', error)
