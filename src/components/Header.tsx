@@ -12,9 +12,27 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null)
   
   // AuthProvider에서 인증 정보 가져오기
   const { user, session, loading: isLoading, signOut, isAdmin } = useAuth()
+
+  // 드롭다운 열기
+  const handleDropdownEnter = (category: string) => {
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout)
+      setDropdownTimeout(null)
+    }
+    setActiveDropdown(category)
+  }
+
+  // 드롭다운 닫기 (지연 처리)
+  const handleDropdownLeave = () => {
+    const timeout = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150) // 150ms 지연
+    setDropdownTimeout(timeout)
+  }
 
   // 인증 정보 로그 확인
   useEffect(() => {
@@ -82,7 +100,7 @@ const Header = () => {
       href: '/domestic/hotel',
       items: [
         { name: '호텔/리조트', href: '/domestic/hotel' },
-        { name: '풀빌라', href: '/domestic/pool-villa' },
+        { name: '풀빌라/펜션', href: '/domestic/pool-villa' },
       ]
     },
     luxury: {
@@ -115,9 +133,9 @@ const Header = () => {
                 {Object.entries(categories).map(([key, category]) => (
                   <li 
                     key={key} 
-                    className="relative"
-                    onMouseEnter={() => setActiveDropdown(key)}
-                    onMouseLeave={() => setActiveDropdown(null)}
+                    className="relative group"
+                    onMouseEnter={() => handleDropdownEnter(key)}
+                    onMouseLeave={handleDropdownLeave}
                   >
                     <button
                       className="flex items-center gap-1 font-medium text-gray-700 hover:text-blue-500 transition-colors py-2"
@@ -127,25 +145,27 @@ const Header = () => {
                     </button>
 
                     {/* 드롭다운 메뉴 */}
-                    {activeDropdown === key && (
-                      <div className="absolute z-50 top-full left-0 w-64 bg-white shadow-xl rounded-lg border border-gray-100 mt-1">
-                        <div className="p-4">
-                          <h3 className="font-semibold text-blue-600 mb-3 text-sm uppercase tracking-wide">{category.title}</h3>
-                          <div className="space-y-1">
-                            {category.items.map((item) => (
-                              <Link
-                                key={item.name}
-                                href={item.href}
-                                className="block py-2 px-3 text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-150 text-sm"
-                                onClick={() => setActiveDropdown(null)}
-                              >
-                                {item.name}
-                              </Link>
-                            ))}
-                          </div>
+                    <div 
+                      className={`absolute z-50 top-full left-0 w-64 bg-white shadow-xl rounded-lg border border-gray-100 mt-1 transition-all duration-200 ${
+                        activeDropdown === key ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
+                      }`}
+                    >
+                      <div className="p-4">
+                        <h3 className="font-semibold text-blue-600 mb-3 text-sm uppercase tracking-wide">{category.title}</h3>
+                        <div className="space-y-1">
+                          {category.items.map((item) => (
+                            <Link
+                              key={item.name}
+                              href={item.href}
+                              className="block py-2 px-3 text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-150 text-sm"
+                              onClick={() => setActiveDropdown(null)}
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
                         </div>
                       </div>
-                    )}
+                    </div>
                   </li>
                 ))}
                 <li>

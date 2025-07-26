@@ -14,13 +14,13 @@ export default function DomesticPage() {
       features: ['도심 접근성', '수영장', '스파', '레스토랑']
     },
     {
-      name: '풀빌라',
+      name: '풀빌라/펜션',
       slug: 'pool-villa',
       icon: TreePine,
-      description: '프라이빗한 럭셔리 휴식',
-      places: 45,
-      rating: 4.9,
-      priceRange: '300,000 - 800,000원',
+      description: '프라이빗한 럭셔리 휴식과 아늑한 펜션',
+      places: 65,
+      rating: 4.8,
+      priceRange: '150,000 - 800,000원',
       features: ['전용 수영장', '바비큐 시설', '개별 주방', '프라이빗 정원']
     }
   ]

@@ -54,7 +54,7 @@ export default function DomesticPoolVillaPage() {
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/domestic-pool-villa-hero.jpg'
   const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(20, 184, 166, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%)'
-  const title = heroImage?.title || '국내 풀빌라'
+  const title = heroImage?.title || '국내 풀빌라/펜션'
   const subtitle = heroImage?.subtitle || '프라이빗한 공간에서 즐기는 럭셔리한 휴식'
 
   // 로딩 상태 표시
@@ -98,9 +98,9 @@ export default function DomesticPoolVillaPage() {
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 풀빌라</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 풀빌라/펜션</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              완벽한 프라이버시와 고급스러운 휴식을 제공하는 국내 최고의 풀빌라
+              완벽한 프라이버시와 고급스러운 휴식을 제공하는 국내 최고의 풀빌라와 아늑한 펜션
             </p>
           </div>
           
@@ -179,7 +179,7 @@ export default function DomesticPoolVillaPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 text-lg">등록된 풀빌라 패키지가 없습니다.</p>
+                <p className="text-gray-500 text-lg">등록된 풀빌라/펜션 패키지가 없습니다.</p>
                 <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
               </div>
             )}
@@ -238,7 +238,7 @@ export default function DomesticPoolVillaPage() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">풀빌라 특징</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">풀빌라/펜션 특징</h2>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
