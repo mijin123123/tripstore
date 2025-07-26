@@ -211,15 +211,11 @@ export default function EditPackage() {
       } else if (value === 'domestic-hotel') {
         newType = 'domestic';
         newRegion = 'hotel';
-        newRegionKo = '호텔';
-      } else if (value === 'domestic-resort') {
-        newType = 'domestic';
-        newRegion = 'resort';
-        newRegionKo = '리조트';
+        newRegionKo = '호텔/리조트';
       } else if (value === 'domestic-pool-villa') {
         newType = 'domestic';
         newRegion = 'pool-villa';
-        newRegionKo = '풀빌라';
+        newRegionKo = '풀빌라/펜션';
       } else if (value === 'hotel-europe') {
         newType = 'hotel';
         newRegion = 'europe';
@@ -630,9 +626,8 @@ export default function EditPackage() {
                   <option value="overseas-guam-saipan">괌/사이판</option>
                 </optgroup>
                 <optgroup label="국내여행">
-                  <option value="domestic-hotel">호텔</option>
-                  <option value="domestic-resort">리조트</option>
-                  <option value="domestic-pool-villa">풀빌라</option>
+                  <option value="domestic-hotel">호텔/리조트</option>
+                  <option value="domestic-pool-villa">풀빌라/펜션</option>
                 </optgroup>
                 <optgroup label="호텔">
                   <option value="hotel-europe">유럽</option>
