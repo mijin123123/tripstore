@@ -105,11 +105,11 @@ export default function ChinaHongkongPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 홍콩, 마카오, 상해, 베이징
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4" />
+                <Plane className="w-4 h-4 flex-shrink-0" />
                 직항 2-4시간
               </span>
             </div>
@@ -123,10 +123,10 @@ export default function ChinaHongkongPage() {
           {currentPackages.map((pkg) => (
             <div 
               key={pkg.id} 
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer h-full flex flex-col"
               onClick={() => router.push(`/package/${pkg.id}`)}
             >
-              <div className="relative h-48">
+              <div className="relative h-48 flex-shrink-0">
                 <div className="w-full h-full">
                   {pkg.image ? (
                     <img 
@@ -154,16 +154,16 @@ export default function ChinaHongkongPage() {
                 )}
               </div>
 
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">{pkg.title}</h3>
+              <div className="p-6 flex flex-col flex-grow">
+                <h3 className="text-xl font-bold mb-2 line-clamp-2">{pkg.title}</h3>
                 
                 <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
                   <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-4 h-4 flex-shrink-0" />
                     <span>{pkg.duration}</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Plane className="w-4 h-4" />
+                    <Plane className="w-4 h-4 flex-shrink-0" />
                     <span>{pkg.departure}</span>
                   </div>
                 </div>
@@ -181,15 +181,15 @@ export default function ChinaHongkongPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xl font-bold text-purple-600">
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="flex flex-col">
+                        <span className="text-xl font-bold text-purple-600 line-clamp-2">
                       {pkg.price}원
                     </span>
                     <span className="text-gray-500 text-xs">/ 1인</span>
                   </div>
                   <button 
-                    className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                    className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
                       router.push(`/package/${pkg.id}`);

@@ -89,11 +89,11 @@ export default function HotelSoutheastAsiaPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 발리, 방콕, 푸켓, 다낭
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4" />
+                <Star className="w-4 h-4 flex-shrink-0" />
                 리조트 & 비치 호텔
               </span>
             </div>
@@ -113,8 +113,8 @@ export default function HotelSoutheastAsiaPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {hotels.map((hotel) => (
-              <div key={hotel.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="relative h-48">
+              <div key={hotel.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full flex flex-col">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center">
                     <span className="text-white font-semibold">{hotel.name}</span>
                   </div>
@@ -126,11 +126,11 @@ export default function HotelSoutheastAsiaPage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{hotel.name}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{hotel.name}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{hotel.location}</span>
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{hotel.location}</span>
                   </div>
                   
                   <div className="mb-4">
@@ -143,9 +143,9 @@ export default function HotelSoutheastAsiaPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xl font-bold text-green-600">{hotel.price}</span>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex flex-col">
+                        <span className="text-xl font-bold text-green-600 line-clamp-2">{hotel.price}</span>
                       <span className="text-gray-500 text-xs">/박</span>
                     </div>
                     <button 

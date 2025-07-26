@@ -73,11 +73,11 @@ export default function DomesticResortPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 제주도, 강원도, 경주, 부산
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4" />
+                <Star className="w-4 h-4 flex-shrink-0" />
                 종합 리조트 & 테마파크
               </span>
             </div>
@@ -104,10 +104,10 @@ export default function DomesticResortPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
-                  <div className="relative h-48">
+                  <div className="relative h-48 flex-shrink-0">
                     {packageItem.image ? (
                       <img 
                         src={packageItem.image} 
@@ -130,18 +130,18 @@ export default function DomesticResortPage() {
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
                         '국내'
                       }</span>
                     </div>
                     
-                    <div className="mb-4">
+                    <div className="mb-4 flex-grow">
                       <p className="text-gray-600 text-sm line-clamp-3">
                         {packageItem.description || '가족 모두가 즐길 수 있는 다양한 액티비티를 갖춘 국내 인기 리조트'}
                       </p>
@@ -149,23 +149,23 @@ export default function DomesticResortPage() {
                     
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
                         <span>{packageItem.duration || '2박 3일'}</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Waves className="w-4 h-4" />
+                        <Waves className="w-4 h-4 flex-shrink-0" />
                         <span>워터파크</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-xl font-bold text-blue-600">
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold text-blue-600 line-clamp-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-sm block">/{packageItem.duration || '패키지'}</span>
                       </div>
-                      <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                      <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0">
                         예약하기
                       </div>
                     </div>

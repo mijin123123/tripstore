@@ -71,11 +71,11 @@ export default function HotelEuropePage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 파리, 런던, 로마, 바르셀로나
               </span>
               <span className="flex items-center gap-1">
-                <Star className="w-4 h-4" />
+                <Star className="w-4 h-4 flex-shrink-0" />
                 5성급 럭셔리 호텔
               </span>
             </div>
@@ -102,10 +102,10 @@ export default function HotelEuropePage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
-                  <div className="relative h-48">
+                  <div className="relative h-48 flex-shrink-0">
                     {packageItem.image ? (
                       <img 
                         src={packageItem.image} 
@@ -128,18 +128,18 @@ export default function HotelEuropePage() {
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
                         '유럽'
                       }</span>
                     </div>
                     
-                    <div className="mb-4">
+                    <div className="mb-4 flex-grow">
                       <p className="text-gray-600 text-sm line-clamp-3">
                         {packageItem.description || '유럽의 아름다운 도시에서 특별한 숙박 경험을 만나보세요.'}
                       </p>
@@ -147,23 +147,23 @@ export default function HotelEuropePage() {
                     
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
                         <span>{packageItem.duration || '4박 5일'}</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Users className="w-4 h-4" />
+                        <Users className="w-4 h-4 flex-shrink-0" />
                         <span>디럭스룸</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-xl font-bold text-purple-600">
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold text-purple-600 line-clamp-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-sm block">/{packageItem.duration || '1박'}</span>
                       </div>
-                      <div className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                      <div className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex-shrink-0">
                         예약하기
                       </div>
                     </div>

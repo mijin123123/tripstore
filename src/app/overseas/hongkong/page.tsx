@@ -123,15 +123,15 @@ export default function HongkongPage() {
             <p className="text-xl mb-6 drop-shadow-md">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 아시아의 국제 금융 허브
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4" />
+                <Plane className="w-4 h-4 flex-shrink-0" />
                 직항 3시간 30분
               </span>
               <span className="flex items-center gap-1">
-                <Building className="w-4 h-4" />
+                <Building className="w-4 h-4 flex-shrink-0" />
                 마천루와 전통의 조화
               </span>
             </div>
@@ -152,7 +152,7 @@ export default function HongkongPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="relative h-48">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-red-400 to-pink-400 flex items-center justify-center">
                     <span className="text-white font-semibold text-center px-4">{pkg.title}</span>
                   </div>
@@ -164,16 +164,16 @@ export default function HongkongPage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-4 text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm">{pkg.duration}</span>
+                      <Calendar className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{pkg.duration}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span className="text-sm">{pkg.departure}</span>
+                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{pkg.departure}</span>
                     </div>
                   </div>
                   
@@ -187,7 +187,7 @@ export default function HongkongPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div>
                       <span className="text-2xl font-bold text-red-600">₩{pkg.price}</span>
                       <span className="text-gray-500 text-sm">/인</span>
@@ -218,7 +218,7 @@ export default function HongkongPage() {
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plane className="w-8 h-8 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">항공편</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">항공편</h3>
               <p className="text-gray-600">
                 인천공항에서 직항 3시간 30분<br/>
                 비자 없이 90일 체류 가능
@@ -229,7 +229,7 @@ export default function HongkongPage() {
               <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ShoppingBag className="w-8 h-8 text-pink-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">쇼핑</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">쇼핑</h3>
               <p className="text-gray-600">
                 24시간 쇼핑천국<br/>
                 면세점, 아울렛, 로컬마켓
@@ -240,7 +240,7 @@ export default function HongkongPage() {
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Building className="w-8 h-8 text-orange-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">명소</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">명소</h3>
               <p className="text-gray-600">
                 빅토리아 하버, 디즈니랜드<br/>
                 센트럴, 침사추이, 스타의 거리

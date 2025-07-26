@@ -89,11 +89,11 @@ export default function LuxuryEuropePage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 파리, 스위스, 이탈리아, 영국
               </span>
               <span className="flex items-center gap-1">
-                <Crown className="w-4 h-4" />
+                <Crown className="w-4 h-4 flex-shrink-0" />
                 프리미엄 럭셔리 투어
               </span>
             </div>
@@ -113,8 +113,8 @@ export default function LuxuryEuropePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="relative h-48">
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full flex flex-col">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
                     <span className="text-white font-semibold">{pkg.name}</span>
                   </div>
@@ -126,11 +126,11 @@ export default function LuxuryEuropePage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.name}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{pkg.location}</span>
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{pkg.location}</span>
                   </div>
                   
                   <div className="mb-4">
@@ -143,9 +143,9 @@ export default function LuxuryEuropePage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xl font-bold text-purple-600">{pkg.price}</span>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex flex-col">
+                        <span className="text-xl font-bold text-purple-600 line-clamp-2">{pkg.price}</span>
                       <span className="text-gray-500 text-xs">/인</span>
                     </div>
                     <button 

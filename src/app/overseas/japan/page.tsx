@@ -80,11 +80,11 @@ export default function JapanPage() {
             <p className="text-xl mb-6">{subtitle}</p>
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 flex-shrink-0" />
                 도쿄, 오사카, 교토, 홋카이도
               </span>
               <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4" />
+                <Plane className="w-4 h-4 flex-shrink-0" />
                 직항 2-3시간
               </span>
             </div>
@@ -111,10 +111,10 @@ export default function JapanPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
-                  <div className="relative h-48">
+                  <div className="relative h-48 flex-shrink-0">
                     {packageItem.image ? (
                       <img 
                         src={packageItem.image} 
@@ -137,18 +137,18 @@ export default function JapanPage() {
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{packageItem.title || packageItem.name}</h3>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{packageItem.title || packageItem.name}</h3>
                     <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
                         '일본'
                       }</span>
                     </div>
                     
-                    <div className="mb-4">
+                    <div className="mb-4 flex-grow">
                       <p className="text-gray-600 text-sm line-clamp-3">
                         {packageItem.description || '전통과 현대가 조화를 이루는 아름다운 일본을 경험하세요.'}
                       </p>
@@ -156,23 +156,23 @@ export default function JapanPage() {
                     
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Clock className="w-4 h-4" />
+                        <Clock className="w-4 h-4 flex-shrink-0" />
                         <span>{packageItem.duration || '5일'}</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Plane className="w-4 h-4" />
+                        <Plane className="w-4 h-4 flex-shrink-0" />
                         <span>{packageItem.departure || '인천 출발'}</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-xl font-bold text-pink-600">
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold text-pink-600 line-clamp-2">
                           {Number(packageItem.price).toLocaleString()}원
                         </span>
                         <span className="text-gray-500 text-sm block">/{packageItem.duration || '패키지'}</span>
                       </div>
-                      <div className="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors">
+                      <div className="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors flex-shrink-0">
                         예약하기
                       </div>
                     </div>
@@ -193,7 +193,7 @@ export default function JapanPage() {
           <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* 여행 준비사항 */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold mb-4 text-pink-600">여행 준비사항</h3>
+            <h3 className="text-xl font-bold mb-4 text-pink-600 line-clamp-2">여행 준비사항</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start space-x-2">
                 <span className="text-pink-500">•</span>
@@ -216,7 +216,7 @@ export default function JapanPage() {
 
           {/* 추천 음식 */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold mb-4 text-green-600">꼭 먹어봐야 할 음식</h3>
+            <h3 className="text-xl font-bold mb-4 text-green-600 line-clamp-2">꼭 먹어봐야 할 음식</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start space-x-2">
                 <span className="text-green-500">🍣</span>
@@ -239,7 +239,7 @@ export default function JapanPage() {
 
           {/* 교통 정보 */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold mb-4 text-blue-600">교통 정보</h3>
+            <h3 className="text-xl font-bold mb-4 text-blue-600 line-clamp-2">교통 정보</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start space-x-2">
                 <span className="text-blue-500">🚅</span>

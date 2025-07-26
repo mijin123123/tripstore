@@ -624,10 +624,19 @@ export default function CreatePackage() {
                         <input
                           type="file"
                           accept="image/*"
+                          multiple
                           onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) {
-                              handleFileUpload(file, index)
+                            const files = Array.from(e.target.files || [])
+                            if (files.length > 0) {
+                              // 여러 파일을 순차적으로 업로드
+                              files.forEach((file, fileIndex) => {
+                                const targetIndex = index + fileIndex
+                                // 필요한 만큼 이미지 슬롯 추가
+                                while (formData.images.length <= targetIndex) {
+                                  addArrayItem('images')
+                                }
+                                handleFileUpload(file, targetIndex)
+                              })
                               // 업로드 후 입력 요소 초기화
                               e.target.value = ''
                             }
@@ -636,7 +645,18 @@ export default function CreatePackage() {
                           disabled={uploadingImages.includes(index)}
                         />
                         {uploadingImages.includes(index) && (
-                          <div className="text-sm text-blue-600 mt-1">업로드 중...</div>
+                          <div className="text-sm text-blue-600 mt-1 flex items-center">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                            업로드 중...
+                          </div>
+                        )}
+                        {formData.images[index] && formData.images[index].trim() !== '' && (
+                          <div className="text-sm text-green-600 mt-1 flex items-center">
+                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            업로드 완료
+                          </div>
                         )}
                       </div>
                       
