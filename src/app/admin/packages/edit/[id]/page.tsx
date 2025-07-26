@@ -919,7 +919,7 @@ export default function EditPackage() {
                     {/* 이미지 프리뷰 */}
                     <div className="flex-shrink-0">
                       {imageUrl && (
-                        <div className="relative h-16 w-20 border rounded overflow-hidden bg-gray-50">
+                        <div className="relative h-20 w-28 border rounded overflow-hidden bg-gray-50">
                           <img
                             src={imageUrl}
                             alt={`패키지 이미지 ${index + 1}`}
@@ -952,7 +952,7 @@ export default function EditPackage() {
                     </div>
 
                     {/* 파일 업로드 및 URL */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 max-w-md">
                       <div className="flex items-center space-x-1 mb-1">
                         <input
                           type="file"
@@ -985,7 +985,7 @@ export default function EditPackage() {
                           type="url"
                           value={imageUrl}
                           onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
-                          className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                          className="w-full max-w-sm px-1 py-0.5 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
                           placeholder="이미지 URL"
                           readOnly={uploadingImages.includes(index)}
                         />
