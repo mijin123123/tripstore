@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, Star, Calendar, Users } from 'lucide-react'
+import { MapPin, Star, Calendar, Users, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
@@ -37,6 +37,18 @@ export default function HotelEuropePage() {
     fetchData();
   }, []);
 
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const startIndex = (currentPage - 1) * packagesPerPage
+  const endIndex = startIndex + packagesPerPage
+  const currentPackages = packages.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/hotel-europe-hero.jpg'
   const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%)'
@@ -81,13 +93,13 @@ export default function HotelEuropePage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {isLoading ? (
               <div className="col-span-full flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
               </div>
             ) : packages.length > 0 ? (
-              packages.map((packageItem) => (
+              currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"

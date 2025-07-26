@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, Calendar, Users, Star, Home, Waves, TreePine, Mountain, Heart, Shield } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Home, Waves, TreePine, Mountain, Heart, Shield, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function DomesticPage() {
   const categories = [

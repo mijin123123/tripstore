@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, Star, Calendar, Home, Palmtree, Umbrella, Wifi, Users } from 'lucide-react'
+import { MapPin, Star, Calendar, Home, Palmtree, Umbrella, Wifi, Users, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
@@ -12,6 +12,8 @@ export default function DomesticPoolVillaPage() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const packagesPerPage = 12
   
   useEffect(() => {
     async function fetchData() {
@@ -36,6 +38,18 @@ export default function DomesticPoolVillaPage() {
     
     fetchData();
   }, []);
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const startIndex = (currentPage - 1) * packagesPerPage
+  const endIndex = startIndex + packagesPerPage
+  const currentPackages = packages.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/domestic-pool-villa-hero.jpg'
@@ -90,9 +104,9 @@ export default function DomesticPoolVillaPage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {packages.length > 0 ? (
-              packages.map((packageItem) => (
+              currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
@@ -170,6 +184,53 @@ export default function DomesticPoolVillaPage() {
               </div>
             )}
           </div>
+
+          {/* 페이지네이션 */}
+          {packages.length > packagesPerPage && (
+            <div className="flex justify-center items-center mt-12 space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`flex items-center px-3 py-2 rounded-lg ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                이전
+              </button>
+
+              <div className="flex space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-2 rounded-lg ${
+                      currentPage === page
+                        ? 'bg-teal-600 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`flex items-center px-3 py-2 rounded-lg ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                }`}
+              >
+                다음
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

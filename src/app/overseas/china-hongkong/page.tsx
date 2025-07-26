@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { MapPin, Calendar, Users, Star, Clock, Plane, Building2, ShoppingBag } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Clock, Plane, Building2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { getPackagesByRegion } from '@/data/packages'
 import { useState, useEffect } from 'react'
@@ -28,6 +28,18 @@ export default function ChinaHongkongPage() {
     fetchHeroImage();
   }, []);
   
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const startIndex = (currentPage - 1) * packagesPerPage
+  const endIndex = startIndex + packagesPerPage
+  const currentPackages = packages.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   const packages = [
     {
       id: 'china-hongkong-1',
@@ -107,8 +119,8 @@ export default function ChinaHongkongPage() {
 
       <div className="max-w-6xl mx-auto px-4 py-16">
         {/* 패키지 리스트 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packages.map((pkg) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {currentPackages.map((pkg) => (
             <div 
               key={pkg.id} 
               className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"

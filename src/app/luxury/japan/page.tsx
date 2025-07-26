@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { MapPin, Star, Calendar, Crown, Mountain, Waves } from 'lucide-react'
+import { MapPin, Star, Calendar, Crown, Mountain, Waves, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { getHeroImage, HeroImage } from '@/lib/heroImages'
@@ -25,6 +25,18 @@ export default function LuxuryJapanPage() {
     loadHeroImage()
   }, [])
 
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const startIndex = (currentPage - 1) * packagesPerPage
+  const endIndex = startIndex + packagesPerPage
+  const currentPackages = packages.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   const packages = [
     {
       id: 'luxury-japan-1',
@@ -99,8 +111,8 @@ export default function LuxuryJapanPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {packages.map((pkg) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {currentPackages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                 <div className="relative h-48">
                   <div className="w-full h-full bg-gradient-to-r from-red-400 to-orange-500 flex items-center justify-center">

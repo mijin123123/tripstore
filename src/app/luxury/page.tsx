@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, Calendar, Users, Star, Crown, Ship, Sparkles, Plane } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Crown, Ship, Sparkles, Plane, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function LuxuryPage() {
   const categories = [
@@ -176,7 +176,7 @@ export default function LuxuryPage() {
         {/* 럭셔리 여행의 특별함 */}
         <div className="bg-gradient-to-r from-purple-900 to-purple-700 rounded-xl p-8 text-white">
           <h2 className="text-3xl font-bold text-center mb-8">왜 럭셔리 여행을 선택하나요?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Crown className="w-8 h-8 text-yellow-300" />
