@@ -9,15 +9,6 @@ export default function HotelPage() {
   const regionsPerPage = 12
   const regions = [
     {
-      name: '유럽',
-      slug: 'europe',
-      image: '/images/hotel-europe.jpg',
-      description: '럭셔리 호텔부터 부티크 호텔까지',
-      hotels: 25,
-      rating: 4.8,
-      priceRange: '150,000 - 500,000원'
-    },
-    {
       name: '동남아',
       slug: 'southeast-asia', 
       image: '/images/hotel-sea.jpg',

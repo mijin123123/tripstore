@@ -73,9 +73,8 @@ const Header = () => {
   const categories = {
     overseas: {
       title: '해외여행',
-      href: '/overseas/europe',
+      href: '/overseas/southeast-asia',
       items: [
-        { name: '유럽', href: '/overseas/europe' },
         { name: '동남아', href: '/overseas/southeast-asia' },
         { name: '일본', href: '/overseas/japan' },
         { name: '괌/사이판', href: '/overseas/guam-saipan' },
@@ -93,9 +92,8 @@ const Header = () => {
     },
     luxury: {
       title: '럭셔리',
-      href: '/luxury/europe',
+      href: '/luxury/japan',
       items: [
-        { name: '유럽', href: '/luxury/europe' },
         { name: '일본', href: '/luxury/japan' },
         { name: '동남아', href: '/luxury/southeast-asia' },
         { name: '크루즈', href: '/luxury/cruise' },

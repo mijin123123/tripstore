@@ -14,18 +14,6 @@ export default function OverseasPage() {
   
   const packages = [
     {
-      id: 1,
-      title: '유럽 로맨틱 투어 7일',
-      price: '2,890,000',
-      duration: '7일 5박',
-      rating: 4.8,
-      image: '/images/europe.jpg',
-      highlights: ['파리', '런던', '로마', '바르셀로나'],
-      departure: '매주 화/금 출발',
-      link: '/overseas/europe',
-      keywords: ['유럽', 'europe', '파리', '런던', '로마', '바르셀로나', '프랑스', '영국', '이탈리아', '스페인']
-    },
-    {
       id: 2,
       title: '동남아 휴양지 투어 5일',
       price: '1,590,000',
@@ -196,7 +184,7 @@ export default function OverseasPage() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="여행지, 국가명을 검색해보세요 (예: 일본, 유럽, 태국...)"
+                  placeholder="여행지, 국가명을 검색해보세요 (예: 일본, 동남아, 태국...)"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 text-gray-700 outline-none"

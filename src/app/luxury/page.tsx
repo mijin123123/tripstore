@@ -4,16 +4,6 @@ import { MapPin, Calendar, Users, Star, Crown, Ship, Sparkles, Plane, ChevronLef
 export default function LuxuryPage() {
   const categories = [
     {
-      name: '유럽 럭셔리',
-      slug: 'europe',
-      icon: Crown,
-      description: '유럽 귀족들의 우아한 여행',
-      packages: 12,
-      rating: 4.9,
-      priceRange: '8,000,000 - 15,000,000원',
-      highlights: ['미슐랭 레스토랑', '프라이빗 가이드', '럭셔리 호텔', '전용 차량']
-    },
-    {
       name: '일본 프리미엄',
       slug: 'japan',
       icon: Sparkles,
