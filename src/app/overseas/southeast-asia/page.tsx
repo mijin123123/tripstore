@@ -29,48 +29,8 @@ export default function SoutheastAsiaPage() {
     fetchHeroImage();
   }, []);
   
-  const packages = [
-    {
-      id: 'southeast-asia-thailand',
-      title: '태국 방콕 & 파타야 5일',
-      price: '890,000',
-      duration: '5일 3박',
-      rating: 4.8,
-      image: '/images/thailand.jpg',
-      highlights: ['왕궁', '왓포', '파타야 비치', '수상시장'],
-      departure: '매일 출발'
-    },
-    {
-      id: 'southeast-asia-vietnam',
-      title: '베트남 다낭 & 호이안 5일',
-      price: '1,190,000',
-      duration: '5일 3박',
-      rating: 4.7,
-      image: '/images/vietnam.jpg',
-      highlights: ['바나힐', '미케 비치', '호이안 구시가지', '한시장'],
-      departure: '매일 출발'
-    },
-    {
-      id: 'southeast-asia-singapore',
-      title: '싱가포르 & 말레이시아 6일',
-      price: '1,490,000',
-      duration: '6일 4박',
-      rating: 4.9,
-      image: '/images/singapore.jpg',
-      highlights: ['마리나베이샌즈', '센토사', '쿠알라룸푸르', '페트로나스 타워'],
-      departure: '매주 화/금/일 출발'
-    },
-    {
-      id: 'southeast-asia-philippines',
-      title: '필리핀 세부 리조트 5일',
-      price: '1,290,000',
-      duration: '5일 3박',
-      rating: 4.6,
-      image: '/images/cebu.jpg',
-      highlights: ['막탄 리조트', '보홀섬', '알로나 비치', '스노클링'],
-      departure: '매주 월/수/금/일 출발'
-    }
-  ]
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)

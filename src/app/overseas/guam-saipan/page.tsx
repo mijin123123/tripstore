@@ -28,38 +28,8 @@ export default function GuamSaipanPage() {
     fetchHeroImage();
   }, []);
 
-  const packages = [
-    {
-      id: 1,
-      title: '괌 힐튼 리조트 4일',
-      price: '1,290,000',
-      duration: '4일 2박',
-      rating: 4.7,
-      image: '/images/guam-resort.jpg',
-      highlights: ['투몬 비치', '언더워터 월드', '쇼핑', '차모로 빌리지'],
-      departure: '매일 출발'
-    },
-    {
-      id: 2,
-      title: '사이판 하얏트 리조트 5일',
-      price: '1,490,000',
-      duration: '5일 3박',
-      rating: 4.6,
-      image: '/images/saipan-resort.jpg',
-      highlights: ['마나가하섬', '그로토', '만세절벽', '골프'],
-      departure: '매일 출발'
-    },
-    {
-      id: 3,
-      title: '괌 사이판 아일랜드 호핑 6일',
-      price: '1,890,000',
-      duration: '6일 4박',
-      rating: 4.8,
-      image: '/images/island-hopping.jpg',
-      highlights: ['두 섬 체험', '스노클링', '해양스포츠', '면세쇼핑'],
-      departure: '매주 화/금/일 출발'
-    }
-  ]
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)

@@ -38,68 +38,8 @@ export default function GuamPage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 1,
-      title: '괌 힐튼 리조트 4일',
-      price: '1,290,000',
-      duration: '4일 2박',
-      rating: 4.7,
-      image: '/images/guam-resort.jpg',
-      highlights: ['투몬 비치', '언더워터 월드', '쇼핑', '차모로 빌리지'],
-      departure: '매일 출발'
-    },
-    {
-      id: 2,
-      title: '괌 퍼시픽 아일랜드 클럽 4일',
-      price: '1,190,000',
-      duration: '4일 2박',
-      rating: 4.5,
-      image: '/images/guam-pic.jpg',
-      highlights: ['키즈클럽', '워터파크', '가족여행', '액티비티'],
-      departure: '매일 출발'
-    },
-    {
-      id: 3,
-      title: '괌 리프 호텔 자유여행 5일',
-      price: '1,390,000',
-      duration: '5일 3박',
-      rating: 4.6,
-      image: '/images/guam-reef.jpg',
-      highlights: ['자유여행', '렌터카', '골프', '스노클링'],
-      departure: '매일 출발'
-    },
-    {
-      id: 4,
-      title: '괌 두짓타니 럭셔리 4일',
-      price: '1,890,000',
-      duration: '4일 2박',
-      rating: 4.8,
-      image: '/images/guam-dusit.jpg',
-      highlights: ['럭셔리 리조트', '스파', '프리미엄', '오션뷰'],
-      departure: '매일 출발'
-    },
-    {
-      id: 5,
-      title: '괌 허니문 패키지 5일',
-      price: '1,690,000',
-      duration: '5일 3박',
-      rating: 4.7,
-      image: '/images/guam-honeymoon.jpg',
-      highlights: ['허니문', '로맨틱', '선셋크루즈', '커플마사지'],
-      departure: '매일 출발'
-    },
-    {
-      id: 6,
-      title: '괌 골프 패키지 4일',
-      price: '1,590,000',
-      duration: '4일 2박',
-      rating: 4.5,
-      image: '/images/guam-golf.jpg',
-      highlights: ['골프 2라운드', '골프장 픽업', '캐디피', '남성 추천'],
-      departure: '매일 출발'
-    }
-  ];
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];;
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/guam-hero.jpg'

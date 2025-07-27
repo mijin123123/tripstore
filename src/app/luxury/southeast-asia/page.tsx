@@ -37,35 +37,9 @@ export default function LuxurySoutheastAsiaPage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 'luxury-sea-1',
-      name: '발리 프라이빗 빌라 리트리트',
-      location: '발리, 인도네시아',
-      image: '/images/luxury-bali.jpg',
-      rating: 5,
-      price: '₩2,200,000',
-      features: ['프라이빗 빌라', '개인 셰프', '스파 서비스'],
-    },
-    {
-      id: 'luxury-sea-2',
-      name: '몰디브 리조트 프리미엄',
-      location: '몰디브',
-      image: '/images/luxury-maldives.jpg',
-      rating: 5,
-      price: '₩3,800,000',
-      features: ['수상 빌라', '버틀러 서비스', '프라이빗 다이닝'],
-    },
-    {
-      id: 'luxury-sea-3',
-      name: '태국 코사무이 럭셔리',
-      location: '코사무이, 태국',
-      image: '/images/luxury-samui.jpg',
-      rating: 5,
-      price: '₩1,800,000',
-      features: ['비치프론트', '요트 투어', '스파 패키지'],
-    },
-  ]
+  
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/luxury-southeast-asia-hero.jpg'

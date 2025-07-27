@@ -47,46 +47,11 @@ export default function EuropePage() {
     fetchData();
   }, []);
   
-  // 패키지 데이터에 추가할 패키지들 (백업/데모 데이터)
-  const additionalPackages = [
-    {
-      id: 'europe-4',
-      type: 'overseas',
-      region: 'europe',
-      regionKo: '유럽',
-      title: '스페인 & 포르투갈 9일',
-      price: '3,790,000',
-      duration: '9일 7박',
-      rating: 4.6,
-      image: '/images/europe-spain.jpg',
-      highlights: ['사그라다 파밀리아', '알함브라 궁전', '포르투', '리스본'],
-      departure: '매주 화/일 출발',
-      description: '열정의 나라 스페인과 아름다운 포르투갈의 매력을 느낄 수 있는 9일 여행입니다.'
-    },
-    {
-      id: 'europe-5',
-      type: 'overseas',
-      region: 'europe',
-      regionKo: '유럽',
-      title: '그리스 아테네 & 산토리니 7일',
-      price: '3,290,000',
-      duration: '7일 5박',
-      rating: 4.5,
-      image: '/images/europe-greece.jpg',
-      highlights: ['아크로폴리스', '산토리니 일몰', '아테네 플라카', '이아 마을'],
-      departure: '매주 월/금 출발',
-      description: '신화와 역사의 나라 그리스와 환상적인 에게해의 보석 산토리니를 방문하는 7일 여행입니다.'
-    }
-  ];
-  
-  // 모든 패키지 병합 (실제 데이터베이스 패키지를 우선하고, 데이터가 없으면 데모 데이터 표시)
-  const packages = europePackages.length > 0 ? europePackages : additionalPackages;
-
   // 페이지네이션 계산
-  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const totalPages = Math.ceil(europePackages.length / packagesPerPage)
   const startIndex = (currentPage - 1) * packagesPerPage
   const endIndex = startIndex + packagesPerPage
-  const currentPackages = packages.slice(startIndex, endIndex)
+  const currentPackages = europePackages.slice(startIndex, endIndex)
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {

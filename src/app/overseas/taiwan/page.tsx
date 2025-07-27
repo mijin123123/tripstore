@@ -38,68 +38,9 @@ export default function TaiwanPage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 1,
-      title: '대만 타이베이 101 타워 3일',
-      price: '650,000',
-      duration: '3일 2박',
-      rating: 4.6,
-      image: '/images/taiwan-taipei.jpg',
-      highlights: ['타이베이 101', '야시장', '궁다오 스카이라인', '딤섬'],
-      departure: '매일 출발'
-    },
-    {
-      id: 2,
-      title: '대만 타이베이 & 타이중 5일',
-      price: '890,000',
-      duration: '5일 3박',
-      rating: 4.7,
-      image: '/images/taiwan-taichung.jpg',
-      highlights: ['타이베이', '타이중', '일월담', '고궁박물관'],
-      departure: '매일 출발'
-    },
-    {
-      id: 3,
-      title: '대만 일주 완전정복 8일',
-      price: '1,290,000',
-      duration: '8일 6박',
-      rating: 4.8,
-      image: '/images/taiwan-tour.jpg',
-      highlights: ['타이베이', '화련', '타이둥', '가오슝', '전 지역'],
-      departure: '매일 출발'
-    },
-    {
-      id: 4,
-      title: '대만 화련 타로코 협곡 4일',
-      price: '790,000',
-      duration: '4일 2박',
-      rating: 4.5,
-      image: '/images/taiwan-taroko.jpg',
-      highlights: ['타로코 협곡', '화련', '대리석 협곡', '자연경관'],
-      departure: '매일 출발'
-    },
-    {
-      id: 5,
-      title: '대만 가오슝 & 타이난 5일',
-      price: '860,000',
-      duration: '5일 3박',
-      rating: 4.6,
-      image: '/images/taiwan-kaohsiung.jpg',
-      highlights: ['가오슝', '타이난', '애견원', '전통문화'],
-      departure: '매일 출발'
-    },
-    {
-      id: 6,
-      title: '대만 일월담 & 아리산 6일',
-      price: '990,000',
-      duration: '6일 4박',
-      rating: 4.8,
-      image: '/images/taiwan-alishan.jpg',
-      highlights: ['일월담', '아리산', '일출관광', '원주민문화'],
-      departure: '매일 출발'
-    }
-  ];
+  
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/taiwan-hero.jpg'

@@ -38,68 +38,8 @@ export default function MacauPage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 1,
-      title: '마카오 베네치안 리조트 3일',
-      price: '990,000',
-      duration: '3일 2박',
-      rating: 4.7,
-      image: '/images/macau-venetian.jpg',
-      highlights: ['베네치안 리조트', '카지노', '쇼핑몰', '곤돌라'],
-      departure: '매일 출발'
-    },
-    {
-      id: 2,
-      title: '마카오 시티 오브 드림스 4일',
-      price: '1,190,000',
-      duration: '4일 2박',
-      rating: 4.6,
-      image: '/images/macau-cod.jpg',
-      highlights: ['시티오브드림스', '하드락호텔', '쇼', '카지노'],
-      departure: '매일 출발'
-    },
-    {
-      id: 3,
-      title: '마카오 월드유산 투어 3일',
-      price: '790,000',
-      duration: '3일 2박',
-      rating: 4.5,
-      image: '/images/macau-heritage.jpg',
-      highlights: ['세나두 광장', '성 바울 성당', '마카오 타워', '문화투어'],
-      departure: '매일 출발'
-    },
-    {
-      id: 4,
-      title: '마카오 미식 투어 4일',
-      price: '890,000',
-      duration: '4일 2박',
-      rating: 4.8,
-      image: '/images/macau-food.jpg',
-      highlights: ['포르투갈 요리', '에그타르트', '미슐랭 맛집', '로컬푸드'],
-      departure: '매일 출발'
-    },
-    {
-      id: 5,
-      title: '마카오 럭셔리 갤럭시 5일',
-      price: '1,590,000',
-      duration: '5일 3박',
-      rating: 4.9,
-      image: '/images/macau-galaxy.jpg',
-      highlights: ['갤럭시 마카오', '리츠칼튼', 'JW메리어트', '럭셔리'],
-      departure: '매일 출발'
-    },
-    {
-      id: 6,
-      title: '마카오 쇼 관람 패키지 3일',
-      price: '1,090,000',
-      duration: '3일 2박',
-      rating: 4.6,
-      image: '/images/macau-show.jpg',
-      highlights: ['하우스 오브 댄싱 워터', '더 골든 마스크', '쇼 관람', '엔터테인먼트'],
-      departure: '매일 출발'
-    }
-  ];
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];;
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/macau-hero.jpg'

@@ -37,35 +37,9 @@ export default function LuxuryJapanPage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 'luxury-japan-1',
-      name: '교토 프리미엄 료칸 체험',
-      location: '교토, 일본',
-      image: '/images/luxury-kyoto.jpg',
-      rating: 5,
-      price: '₩1,800,000',
-      features: ['전통 료칸', '개인 온천', '가이세키 요리'],
-    },
-    {
-      id: 'luxury-japan-2',
-      name: '도쿄 미슐랭 투어',
-      location: '도쿄, 일본',
-      image: '/images/luxury-tokyo.jpg',
-      rating: 5,
-      price: '₩2,200,000',
-      features: ['미슐랭 3스타', '개인 셰프', '프리미엄 쇼핑'],
-    },
-    {
-      id: 'luxury-japan-3',
-      name: '후지산 럭셔리 리트리트',
-      location: '하코네, 일본',
-      image: '/images/luxury-fuji.jpg',
-      rating: 5,
-      price: '₩2,500,000',
-      features: ['후지산 뷰', '프라이빗 온천', '헬기 투어'],
-    },
-  ]
+  
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/luxury-japan-hero.jpg'

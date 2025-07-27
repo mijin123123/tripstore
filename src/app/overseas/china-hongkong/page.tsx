@@ -30,48 +30,8 @@ export default function ChinaHongkongPage() {
     fetchHeroImage();
   }, []);
   
-  const packages = [
-    {
-      id: 'china-hongkong-1',
-      title: '홍콩 & 마카오 3일',
-      price: '890,000',
-      duration: '3일 1박',
-      rating: 4.7,
-      image: '/images/hongkong.jpg',
-      highlights: ['빅토리아 피크', '심포니 오브 라이츠', '베네시안 마카오', '딤섬'],
-      departure: '매일 출발'
-    },
-    {
-      id: 'china-hongkong-2',
-      title: '대만 타이베이 & 타이중 5일',
-      price: '1,290,000',
-      duration: '5일 3박',
-      rating: 4.8,
-      image: '/images/taiwan.jpg',
-      highlights: ['101타워', '야시장', '지우펀', '타로코 협곡'],
-      departure: '매일 출발'
-    },
-    {
-      id: 'china-hongkong-3',
-      title: '홍콩 디즈니랜드 가족여행 4일',
-      price: '1,490,000',
-      duration: '4일 2박',
-      rating: 4.9,
-      image: '/images/hongkong-disney.jpg',
-      highlights: ['디즈니랜드', '오션파크', '스타페리', '템플스트리트'],
-      departure: '매주 금/토/일 출발'
-    },
-    {
-      id: 'china-hongkong-4',
-      title: '대만 일주 완전정복 8일',
-      price: '2,190,000',
-      duration: '8일 6박',
-      rating: 4.6,
-      image: '/images/taiwan-tour.jpg',
-      highlights: ['타이베이', '타이중', '가오슝', '화련'],
-      departure: '매주 화/토 출발'
-    }
-  ]
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)

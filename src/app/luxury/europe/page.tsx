@@ -39,35 +39,9 @@ export default function LuxuryEuropePage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 'luxury-1',
-      name: '파리 럭셔리 3박4일',
-      location: '파리, 프랑스',
-      image: '/images/luxury-paris.jpg',
-      rating: 5,
-      price: '₩2,800,000',
-      features: ['5성급 호텔', '미슐랭 3스타', '개인 가이드'],
-    },
-    {
-      id: 'luxury-2',
-      name: '스위스 알프스 럭셔리 투어',
-      location: '융프라우, 스위스',
-      image: '/images/luxury-swiss.jpg',
-      rating: 5,
-      price: '₩3,200,000',
-      features: ['산악 리조트', '개인 셰프', '헬기 투어'],
-    },
-    {
-      id: 'luxury-3',
-      name: '이탈리아 토스카나 와이너리',
-      location: '토스카나, 이탈리아',
-      image: '/images/luxury-tuscany.jpg',
-      rating: 5,
-      price: '₩2,500,000',
-      features: ['와이너리 투어', '요리 클래스', '고급 숙소'],
-    },
-  ]
+  
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/luxury-europe-hero.jpg'

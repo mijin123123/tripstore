@@ -38,68 +38,8 @@ export default function SaipanPage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 1,
-      title: '사이판 하얏트 리조트 5일',
-      price: '1,490,000',
-      duration: '5일 3박',
-      rating: 4.6,
-      image: '/images/saipan-resort.jpg',
-      highlights: ['마나가하섬', '그로토', '만세절벽', '골프'],
-      departure: '매일 출발'
-    },
-    {
-      id: 2,
-      title: '사이판 월드 리조트 4일',
-      price: '1,290,000',
-      duration: '4일 2박',
-      rating: 4.5,
-      image: '/images/saipan-world.jpg',
-      highlights: ['워터파크', '키즈클럽', '가족여행', '수상스포츠'],
-      departure: '매일 출발'
-    },
-    {
-      id: 3,
-      title: '사이판 아쿠아 리조트 자유여행 5일',
-      price: '1,390,000',
-      duration: '5일 3박',
-      rating: 4.7,
-      image: '/images/saipan-aqua.jpg',
-      highlights: ['자유여행', '렌터카', '다이빙', '스노클링'],
-      departure: '매일 출발'
-    },
-    {
-      id: 4,
-      title: '사이판 럭셔리 허니문 5일',
-      price: '1,890,000',
-      duration: '5일 3박',
-      rating: 4.8,
-      image: '/images/saipan-honeymoon.jpg',
-      highlights: ['허니문', '로맨틱', '선셋크루즈', '커플스파'],
-      departure: '매일 출발'
-    },
-    {
-      id: 5,
-      title: '사이판 역사탐방 패키지 4일',
-      price: '1,190,000',
-      duration: '4일 2박',
-      rating: 4.4,
-      image: '/images/saipan-history.jpg',
-      highlights: ['역사탐방', '문화체험', '만세절벽', '수이사이드클리프'],
-      departure: '매일 출발'
-    },
-    {
-      id: 6,
-      title: '사이판 골프 패키지 5일',
-      price: '1,690,000',
-      duration: '5일 3박',
-      rating: 4.6,
-      image: '/images/saipan-golf.jpg',
-      highlights: ['골프 3라운드', '오션뷰 골프장', '캐디피', '골프용품'],
-      departure: '매일 출발'
-    }
-  ];
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];;
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/saipan-hero.jpg'

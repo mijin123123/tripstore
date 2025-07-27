@@ -37,35 +37,9 @@ export default function LuxurySpecialThemePage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 'luxury-theme-1',
-      name: '오로라 프리미엄 투어',
-      location: '아이슬란드/노르웨이',
-      image: '/images/luxury-aurora.jpg',
-      rating: 5,
-      price: '₩3,800,000',
-      features: ['프라이빗 가이드', '럭셔리 롯지', '오로라 전용 투어'],
-    },
-    {
-      id: 'luxury-theme-2',
-      name: '사파리 럭셔리 캠프',
-      location: '케냐/탄자니아',
-      image: '/images/luxury-safari.jpg',
-      rating: 5,
-      price: '₩4,500,000',
-      features: ['텐트 럭셔리', '와일드라이프', '전문 가이드'],
-    },
-    {
-      id: 'luxury-theme-3',
-      name: '남극 탐험 크루즈',
-      location: '남극',
-      image: '/images/luxury-antarctica.jpg',
-      rating: 5,
-      price: '₩8,800,000',
-      features: ['탐험선', '빙하 투어', '야생동물 관찰'],
-    },
-  ]
+  
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/luxury-special-theme-hero.jpg'

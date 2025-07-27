@@ -38,68 +38,8 @@ export default function HongkongPage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const packages = [
-    {
-      id: 1,
-      title: '홍콩 자유여행 4일',
-      price: '890,000',
-      duration: '4일 2박',
-      rating: 4.6,
-      image: '/images/hongkong-free.jpg',
-      highlights: ['자유여행', '디즈니랜드', '센트럴', '빅토리아 하버'],
-      departure: '매일 출발'
-    },
-    {
-      id: 2,
-      title: '홍콩 딤섬 투어 3일',
-      price: '790,000',
-      duration: '3일 2박',
-      rating: 4.5,
-      image: '/images/hongkong-dimsum.jpg',
-      highlights: ['딤섬 투어', '미슐랭 맛집', '차찬텡', '야시장'],
-      departure: '매일 출발'
-    },
-    {
-      id: 3,
-      title: '홍콩 쇼핑 패키지 4일',
-      price: '990,000',
-      duration: '4일 2박',
-      rating: 4.7,
-      image: '/images/hongkong-shopping.jpg',
-      highlights: ['쇼핑 투어', '아울렛', '면세점', '로컬 쇼핑'],
-      departure: '매일 출발'
-    },
-    {
-      id: 4,
-      title: '홍콩 디즈니랜드 패키지 5일',
-      price: '1,290,000',
-      duration: '5일 3박',
-      rating: 4.8,
-      image: '/images/hongkong-disney.jpg',
-      highlights: ['디즈니랜드', '오션파크', '가족여행', '테마파크'],
-      departure: '매일 출발'
-    },
-    {
-      id: 5,
-      title: '홍콩 럭셔리 호텔 4일',
-      price: '1,590,000',
-      duration: '4일 2박',
-      rating: 4.9,
-      image: '/images/hongkong-luxury.jpg',
-      highlights: ['5성급 호텔', '하버뷰', '애프터눈티', '스파'],
-      departure: '매일 출발'
-    },
-    {
-      id: 6,
-      title: '홍콩 야경 투어 3일',
-      price: '690,000',
-      duration: '3일 2박',
-      rating: 4.4,
-      image: '/images/hongkong-night.jpg',
-      highlights: ['심포니 오브 라이츠', '스카이100', '야경투어', '트램'],
-      departure: '매일 출발'
-    }
-  ];
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];;
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/hongkong-hero.jpg'
