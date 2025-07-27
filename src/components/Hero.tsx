@@ -25,38 +25,8 @@ const Hero = () => {
       return
     }
 
-    // 목적지에 따라 적절한 페이지로 이동
-    const searchTerm = destination.toLowerCase().trim()
-    
-    if (searchTerm.includes('일본') || searchTerm.includes('japan') || searchTerm.includes('도쿄') || searchTerm.includes('오사카')) {
-      router.push('/overseas/japan')
-    } else if (searchTerm.includes('유럽') || searchTerm.includes('europe') || searchTerm.includes('프랑스') || searchTerm.includes('이탈리아') || searchTerm.includes('독일')) {
-      router.push('/overseas/europe')
-    } else if (searchTerm.includes('동남아') || searchTerm.includes('태국') || searchTerm.includes('베트남') || searchTerm.includes('필리핀') || searchTerm.includes('인도네시아')) {
-      router.push('/overseas/southeast-asia')
-    } else if (searchTerm.includes('미주') || searchTerm.includes('미국') || searchTerm.includes('캐나다') || searchTerm.includes('미국') || searchTerm.includes('america')) {
-      router.push('/overseas/americas')
-    } else if (searchTerm.includes('괌') || searchTerm.includes('사이판') || searchTerm.includes('guam') || searchTerm.includes('saipan')) {
-      router.push('/overseas/guam-saipan')
-    } else if (searchTerm.includes('대만') || searchTerm.includes('홍콩') || searchTerm.includes('마카오') || searchTerm.includes('taiwan') || searchTerm.includes('hongkong') || searchTerm.includes('macau')) {
-      router.push('/overseas/taiwan-hongkong-macau')
-    } else if (searchTerm.includes('호텔') || searchTerm.includes('리조트') || searchTerm.includes('hotel') || searchTerm.includes('resort')) {
-      router.push('/domestic/hotel')
-    } else if (searchTerm.includes('풀빌라') || searchTerm.includes('펜션') || searchTerm.includes('villa') || searchTerm.includes('pension')) {
-      router.push('/domestic/pool-villa')
-    } else if (searchTerm.includes('제주') || searchTerm.includes('jeju') || searchTerm.includes('부산') || searchTerm.includes('busan') || 
-               searchTerm.includes('강릉') || searchTerm.includes('경주') || searchTerm.includes('전주') || searchTerm.includes('여수') ||
-               searchTerm.includes('국내') || searchTerm.includes('한국') || searchTerm.includes('domestic') || searchTerm.includes('korea')) {
-      // 국내 키워드인 경우 메인 페이지에서 검색 결과를 표시
-      router.push(`/?search=${encodeURIComponent(destination)}&category=domestic`)
-    } else if (searchTerm.includes('크루즈') || searchTerm.includes('cruise')) {
-      router.push('/luxury/cruise')
-    } else if (searchTerm.includes('럭셔리') || searchTerm.includes('특별') || searchTerm.includes('luxury') || searchTerm.includes('special')) {
-      router.push('/luxury/special-theme')
-    } else {
-      // 일반적인 검색 - 해외여행 페이지로 이동하면서 검색어를 쿼리로 전달
-      router.push(`/overseas?search=${encodeURIComponent(destination)}`)
-    }
+    // 모든 검색을 메인 페이지에서 처리
+    router.push(`/?search=${encodeURIComponent(destination)}`)
   }
 
   // 기본값 설정

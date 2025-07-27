@@ -32,16 +32,26 @@ const FeaturedPackages = () => {
             filteredPackages = filteredPackages.filter(pkg => pkg.category === categoryFilter)
           }
           
-          // 검색어 필터 적용
+          // 검색어 필터 적용 - 패키지명 우선, 그 다음 설명과 지역
           if (searchQuery) {
             const term = searchQuery.toLowerCase()
             filteredPackages = filteredPackages.filter(pkg => {
-              return (
-                pkg.title.toLowerCase().includes(term) ||
-                pkg.description?.toLowerCase().includes(term) ||
-                pkg.region?.toLowerCase().includes(term) ||
-                pkg.regionKo?.toLowerCase().includes(term)
-              )
+              const titleMatch = pkg.title.toLowerCase().includes(term)
+              const descriptionMatch = pkg.description?.toLowerCase().includes(term) || false
+              const regionMatch = pkg.region?.toLowerCase().includes(term) || false
+              const regionKoMatch = pkg.regionKo?.toLowerCase().includes(term) || false
+              
+              // 패키지명에 일치하는 것을 우선적으로 표시
+              return titleMatch || descriptionMatch || regionMatch || regionKoMatch
+            })
+            
+            // 패키지명에 검색어가 포함된 것을 앞으로 정렬
+            filteredPackages.sort((a, b) => {
+              const aTitle = a.title.toLowerCase().includes(term)
+              const bTitle = b.title.toLowerCase().includes(term)
+              if (aTitle && !bTitle) return -1
+              if (!aTitle && bTitle) return 1
+              return 0
             })
           }
           
@@ -82,7 +92,7 @@ const FeaturedPackages = () => {
                 "{searchQuery}" 검색 결과
               </h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                {categoryFilter === 'domestic' ? '국내 여행' : '전체'} 패키지 중 {displayedPackages.length}개의 결과를 찾았습니다.
+                전체 패키지 중 {displayedPackages.length}개의 결과를 찾았습니다.
               </p>
               {searchQuery && (
                 <div className="mt-4 flex justify-center">
@@ -136,7 +146,7 @@ const FeaturedPackages = () => {
               {searchQuery ? (
                 <div>
                   <p className="text-gray-600 text-lg">"{searchQuery}"에 대한 검색 결과가 없습니다.</p>
-                  <p className="text-gray-500 mt-2">다른 키워드로 검색해보시거나 카테고리 페이지를 확인해보세요.</p>
+                  <p className="text-gray-500 mt-2">패키지명이나 여행지명을 정확히 입력해보세요.</p>
                 </div>
               ) : (
                 <div>
