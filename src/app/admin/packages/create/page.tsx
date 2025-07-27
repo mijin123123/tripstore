@@ -79,9 +79,9 @@ export default function CreatePackage() {
         newType = 'overseas';
         newRegion = 'americas';
         newRegionKo = '미주/캐나다/하와이';
-      } else if (value === 'overseas-china-hongkong') {
+      } else if (value === 'overseas-taiwan-hongkong-macau') {
         newType = 'overseas';
-        newRegion = 'china-hongkong';
+        newRegion = 'taiwan-hongkong-macau';
         newRegionKo = '대만/홍콩/마카오';
       } else if (value === 'overseas-guam-saipan') {
         newType = 'overseas';
@@ -472,7 +472,7 @@ export default function CreatePackage() {
                   <option value="overseas-japan">일본</option>
                   <option value="overseas-southeast-asia">동남아</option>
                   <option value="overseas-americas">미주/캐나다/하와이</option>
-                  <option value="overseas-china-hongkong">대만/홍콩/마카오</option>
+                  <option value="overseas-taiwan-hongkong-macau">대만/홍콩/마카오</option>
                   <option value="overseas-guam-saipan">괌/사이판</option>
                 </optgroup>
                 <optgroup label="국내여행">

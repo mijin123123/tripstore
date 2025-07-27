@@ -78,9 +78,9 @@ const Header = () => {
         { name: '유럽', href: '/overseas/europe' },
         { name: '동남아', href: '/overseas/southeast-asia' },
         { name: '일본', href: '/overseas/japan' },
-        { name: '괌/사이판', href: '/overseas/guam' },
+        { name: '괌/사이판', href: '/overseas/guam-saipan' },
         { name: '미주/캐나다/하와이', href: '/overseas/americas' },
-        { name: '대만/홍콩/마카오', href: '/overseas/hongkong' },
+        { name: '대만/홍콩/마카오', href: '/overseas/taiwan-hongkong-macau' },
       ]
     },
     domestic: {
