@@ -29,8 +29,8 @@ const Hero = () => {
     router.push(`/?search=${encodeURIComponent(destination)}`)
   }
 
-  // 기본값 설정
-  const backgroundImage = heroImage?.image_url || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=5760&q=98'
+  // 기본값 설정 - 초고화질 8K 이미지
+  const backgroundImage = heroImage?.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=7680&q=100&dpr=2'
   const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)'
   const title = heroImage?.title || '전 세계 어디든, 당신의 꿈을 현실로'
   const subtitle = heroImage?.subtitle || '맞춤형 여행 패키지와 전문 가이드 서비스로 특별한 추억을 만들어보세요'

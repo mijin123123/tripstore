@@ -61,7 +61,7 @@ export default function JapanPage() {
   }
 
   // 히어로 이미지 데이터 또는 기본값
-  const backgroundImage = heroImage?.image_url || 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=5760&q=98'
+  const backgroundImage = heroImage?.image_url || 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=7680&q=100&dpr=2'
   const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.3) 100%)'
   const title = heroImage?.title || '일본'
   const subtitle = heroImage?.subtitle || '전통과 현대가 조화를 이루는 아름다운 일본을 경험하세요'
