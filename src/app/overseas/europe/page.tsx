@@ -60,7 +60,7 @@ export default function EuropePage() {
   }
 
   // 히어로 이미지 데이터 또는 기본값
-  const backgroundImage = heroImage?.image_url || '/images/europe-hero.jpg'
+  const backgroundImage = heroImage?.image_url || 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3840&q=95'
   const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(30, 58, 138, 0.3) 100%)'
   const title = heroImage?.title || '유럽'
   const subtitle = heroImage?.subtitle || '유럽의 아름다운 도시들과 역사적인 명소를 탐험하세요'

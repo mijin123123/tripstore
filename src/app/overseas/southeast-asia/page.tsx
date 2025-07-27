@@ -45,7 +45,7 @@ export default function SoutheastAsiaPage() {
   }
 
   // 히어로 이미지 데이터 또는 기본값
-  const backgroundImage = heroImage?.image_url || '/images/southeast-asia-hero.jpg'
+  const backgroundImage = heroImage?.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3840&q=95'
   const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(5, 150, 105, 0.3) 0%, rgba(4, 120, 87, 0.3) 100%)'
   const title = heroImage?.title || '동남아시아'
   const subtitle = heroImage?.subtitle || '열대의 낙원에서 즐기는 완벽한 휴양과 모험'

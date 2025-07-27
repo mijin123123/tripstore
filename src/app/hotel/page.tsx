@@ -108,7 +108,7 @@ export default function HotelPage() {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('/images/hotel-hero.jpg'), linear-gradient(135deg, #065f46 0%, #047857 50%, #0d9488 100%)`
+              backgroundImage: `url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3840&q=95'), linear-gradient(135deg, #065f46 0%, #047857 50%, #0d9488 100%)`
             }}
           ></div>
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
