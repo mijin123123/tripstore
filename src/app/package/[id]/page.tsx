@@ -416,7 +416,7 @@ export default function PackageDetail() {
               </div>
               
               <h2 className='text-2xl font-bold mb-4'>여행 소개</h2>
-              <p className='text-gray-700 leading-relaxed mb-6'>
+              <p className='text-gray-700 leading-relaxed mb-6 whitespace-pre-wrap'>
                 {packageData.description}
               </p>
               
@@ -446,7 +446,7 @@ export default function PackageDetail() {
                       </div>
                       <h3 className='text-xl font-semibold'>{day.title}</h3>
                     </div>
-                    <p className='text-gray-700 mb-3'>{day.description}</p>
+                    <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description}</p>
                     
                     <div className='flex flex-wrap gap-4 items-center mt-3'>
                       <div className='flex items-center'>
@@ -484,7 +484,7 @@ export default function PackageDetail() {
                     {packageData.included?.map((item, index) => (
                       <li key={index} className='flex items-start'>
                         <CheckCircle className='w-4 h-4 text-green-500 mr-2 mt-0.5' />
-                        <span className='text-gray-700'>{item}</span>
+                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -503,7 +503,7 @@ export default function PackageDetail() {
                         <span className='w-4 h-4 text-red-500 mr-2 mt-0.5 relative'>
                           <span className='absolute inset-0 text-red-500'>×</span>
                         </span>
-                        <span className='text-gray-700'>{item}</span>
+                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -519,7 +519,7 @@ export default function PackageDetail() {
                 {packageData.notes?.map((note, index) => (
                   <li key={index} className='flex items-start'>
                     <span className='text-blue-500 mr-2'>•</span>
-                    <span className='text-gray-700'>{note}</span>
+                    <span className='text-gray-700 whitespace-pre-wrap'>{note}</span>
                   </li>
                 ))}
               </ul>
