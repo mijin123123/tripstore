@@ -152,7 +152,7 @@ export default function SaipanPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="relative h-48 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-purple-400 to-blue-400 flex items-center justify-center">
                     <span className="text-white font-semibold text-center px-4">{pkg.title}</span>
                   </div>
@@ -165,7 +165,7 @@ export default function SaipanPage() {
                 </div>
                 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-4 text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4 flex-shrink-0" />
@@ -218,7 +218,7 @@ export default function SaipanPage() {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plane className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">항공편</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">항공편</h3>
               <p className="text-gray-600">
                 인천공항에서 직항 3시간 30분<br/>
                 비자 없이 45일 체류 가능
@@ -229,7 +229,7 @@ export default function SaipanPage() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sun className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">날씨</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">날씨</h3>
               <p className="text-gray-600">
                 연중 26-28도의 열대성 기후<br/>
                 우기(7-11월), 건기(12-6월)
@@ -240,7 +240,7 @@ export default function SaipanPage() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Waves className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">명소</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">명소</h3>
               <p className="text-gray-600">
                 만세절벽, 그로토, 마나가하섬<br/>
                 역사탐방, 다이빙, 골프

@@ -113,8 +113,8 @@ export default function LuxuryCruisePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {cruises.map((cruise) => (
-              <div key={cruise.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
-                <div className="relative h-48 flex-shrink-0">
+              <div key={cruise.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col">
+                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
                     <span className="text-white font-semibold">{cruise.name}</span>
                   </div>
@@ -127,7 +127,7 @@ export default function LuxuryCruisePage() {
                 </div>
                 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{cruise.name}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{cruise.name}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span className="text-sm truncate">{cruise.location}</span>

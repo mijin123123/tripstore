@@ -123,10 +123,10 @@ export default function ChinaHongkongPage() {
           {currentPackages.map((pkg) => (
             <div 
               key={pkg.id} 
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col"
               onClick={() => router.push(`/package/${pkg.id}`)}
             >
-              <div className="relative h-48 flex-shrink-0">
+              <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                 <div className="w-full h-full">
                   {pkg.image ? (
                     <img 
@@ -155,7 +155,7 @@ export default function ChinaHongkongPage() {
               </div>
 
               <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
                 
                 <div className="flex items-center justify-between mt-auto">
                   <div className="flex items-center space-x-1">
@@ -183,7 +183,7 @@ export default function ChinaHongkongPage() {
 
                 <div className="flex items-center justify-between mt-auto">
                   <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">
                       {pkg.price}원
                     </span>
                     <span className="text-gray-500 text-xs">/ 1인</span>

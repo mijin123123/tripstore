@@ -90,6 +90,41 @@ function fixCardDesign(filePath) {
       'className="bg-$1 text-white px-$2 py-$3 rounded-lg hover:bg-$4 transition-colors flex-shrink-0"'
     );
     
+    // 11. 별점 아이콘이 있는 div 제거
+    content = content.replace(
+      /<div className="absolute top-4 right-4 bg-white\/90 backdrop-blur-sm px-2 py-1 rounded-full">\s*<div className="flex items-center gap-1">\s*<Star className="w-4 h-4 flex-shrink-0" \/>\s*<span className="text-sm truncate">5<\/span>\s*<\/div>\s*<\/div>/g,
+      ''
+    );
+    
+    // 12. 호텔 카테고리명을 올바른 카테고리명으로 수정 (정확한 매칭)
+    if (filePath.includes('domestic/hotel')) {
+      content = content.replace(/호텔\/리조트\/리조트/g, '호텔/리조트');
+      content = content.replace(/(?<!\/|리조트)호텔(?!\/)/g, '호텔/리조트');
+    } else if (filePath.includes('domestic/pool-villa')) {
+      content = content.replace(/풀빌라\/펜션\/펜션/g, '풀빌라/펜션');
+      content = content.replace(/(?<!\/|펜션)풀빌라(?!\/)/g, '풀빌라/펜션');
+    } else if (filePath.includes('overseas/japan')) {
+      content = content.replace(/일본여행/g, '일본');
+    } else if (filePath.includes('overseas/europe')) {
+      content = content.replace(/유럽여행/g, '유럽');
+    } else if (filePath.includes('overseas/southeast-asia')) {
+      content = content.replace(/동남아시아여행/g, '동남아시아');
+    } else if (filePath.includes('overseas/americas')) {
+      content = content.replace(/미주여행/g, '미주');
+    } else if (filePath.includes('overseas/china-hongkong')) {
+      content = content.replace(/중국\/홍콩여행/g, '중국/홍콩');
+    } else if (filePath.includes('overseas/guam-saipan')) {
+      content = content.replace(/괌\/사이판여행/g, '괌/사이판');
+    } else if (filePath.includes('luxury/cruise')) {
+      content = content.replace(/크루즈여행/g, '크루즈');
+    } else if (filePath.includes('luxury/special-theme')) {
+      content = content.replace(/특별테마여행/g, '특별테마');
+    }
+    
+    // 13. 중복된 클래스 정리
+    content = content.replace(/flex-shrink-0 flex-shrink-0/g, 'flex-shrink-0');
+    content = content.replace(/line-clamp-2 line-clamp-2/g, 'line-clamp-2');
+    
     fs.writeFileSync(fullPath, content, 'utf8');
     console.log(`✅ Successfully updated: ${filePath}`);
     
