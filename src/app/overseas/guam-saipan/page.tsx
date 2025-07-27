@@ -4,32 +4,45 @@ import { MapPin, Calendar, Users, Star, Clock, Plane, Sun, Waves, ChevronLeft, C
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { getHeroImage, HeroImage } from '@/lib/heroImages'
+import { getAllPackages } from '@/lib/api'
+import { Package } from '@/types'
 
 export default function GuamSaipanPage() {
   const router = useRouter();
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const packagesPerPage = 12;
 
   useEffect(() => {
-    async function fetchHeroImage() {
+    async function fetchData() {
       try {
+        // 히어로 이미지 가져오기
         const heroImg = await getHeroImage('overseas', 'guam-saipan');
         console.log('괌/사이판 페이지: 히어로 이미지:', heroImg);
         setHeroImage(heroImg);
+
+        // 괌/사이판 패키지 가져오기
+        const allPackages = await getAllPackages();
+        const guamPackages = allPackages.filter(pkg => 
+          pkg.category === 'overseas' && 
+          (pkg.region === 'guam-saipan' || pkg.regionKo === '괌/사이판')
+        );
+        console.log('괌/사이판 패키지:', guamPackages);
+        setPackages(guamPackages);
       } catch (error) {
-        console.error('괌/사이판 히어로 이미지 로딩 오류:', error);
+        console.error('데이터 로딩 오류:', error);
       } finally {
         setIsLoading(false);
       }
     }
     
-    fetchHeroImage();
+    fetchData();
   }, []);
 
   // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
-  const packages: any[] = [];
+  // const packages: any[] = [];
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)
@@ -86,25 +99,93 @@ export default function GuamSaipanPage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col">
-                {/* 이미지 섹션 */}
-                <div className="relative h-48 flex-shrink-0">
-                  <div className="w-full h-full">
-                    {pkg.image ? (
-                      <img 
-                        src={pkg.image} 
-                        alt={pkg.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center">
-                        <span className="text-white font-semibold">{pkg.title}</span>
+          {isLoading ? (
+            // 로딩 상태
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden h-96">
+                  <div className="animate-pulse">
+                    <div className="bg-gray-200 h-48 w-full"></div>
+                    <div className="p-6">
+                      <div className="bg-gray-200 h-6 w-3/4 mb-2 rounded"></div>
+                      <div className="bg-gray-200 h-4 w-1/2 mb-4 rounded"></div>
+                      <div className="flex justify-between">
+                        <div className="bg-gray-200 h-8 w-20 rounded"></div>
+                        <div className="bg-gray-200 h-8 w-16 rounded"></div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : packages.length === 0 ? (
+            // 패키지 없음
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg mb-2">괌·사이판 여행 패키지가 준비 중입니다.</p>
+              <p className="text-gray-500">관리자 페이지에서 패키지를 추가해주세요.</p>
+            </div>
+          ) : (
+            // 패키지 목록
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {currentPackages.map((pkg) => (
+                <div 
+                  key={pkg.id} 
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
+                  onClick={() => router.push(`/package/${pkg.id}`)}
+                >
+                  {/* 이미지 섹션 */}
+                  <div className="relative h-48 flex-shrink-0">
+                    <img 
+                      src={pkg.image} 
+                      alt={pkg.title} 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm">{pkg.rating || 5}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                    <div className="flex items-center gap-1 text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{pkg.regionKo || pkg.region || '괌/사이판'}</span>
+                    </div>
+                    
+                    {/* 여행 정보 */}
+                    <div className="mb-4 flex-grow">
+                      <div className="flex flex-wrap gap-2">
+                        {pkg.highlights?.slice(0, 2).map((highlight, index) => (
+                          <span 
+                            key={index}
+                            className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full"
+                          >
+                            {highlight}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm">{pkg.duration || '준비중'}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-600">
+                          {(typeof pkg.price === 'string' ? parseInt(pkg.price) : pkg.price).toLocaleString()}원
+                        </div>
+                        <div className="text-xs text-gray-500">1인 기준</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
                 <div className="p-6 flex flex-col flex-grow">
                   <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
