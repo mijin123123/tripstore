@@ -9,13 +9,8 @@ const pages = [
   'src/app/overseas/japan/page.tsx', 
   'src/app/overseas/southeast-asia/page.tsx',
   'src/app/overseas/americas/page.tsx',
-  'src/app/overseas/china-hongkong/page.tsx',
   'src/app/overseas/guam-saipan/page.tsx',
-  'src/app/overseas/taiwan/page.tsx',
-  'src/app/overseas/saipan/page.tsx',
-  'src/app/overseas/macau/page.tsx',
-  'src/app/overseas/hongkong/page.tsx',
-  'src/app/overseas/guam/page.tsx',
+  'src/app/overseas/taiwan-hongkong-macau/page.tsx',
   'src/app/luxury/europe/page.tsx',
   'src/app/luxury/japan/page.tsx',
   'src/app/luxury/southeast-asia/page.tsx',
@@ -111,10 +106,10 @@ function fixCardDesign(filePath) {
       content = content.replace(/동남아시아여행/g, '동남아시아');
     } else if (filePath.includes('overseas/americas')) {
       content = content.replace(/미주여행/g, '미주');
-    } else if (filePath.includes('overseas/china-hongkong')) {
-      content = content.replace(/중국\/홍콩여행/g, '중국/홍콩');
     } else if (filePath.includes('overseas/guam-saipan')) {
       content = content.replace(/괌\/사이판여행/g, '괌/사이판');
+    } else if (filePath.includes('overseas/taiwan-hongkong-macau')) {
+      content = content.replace(/대만\/홍콩\/마카오여행/g, '대만/홍콩/마카오');
     } else if (filePath.includes('luxury/cruise')) {
       content = content.replace(/크루즈여행/g, '크루즈');
     } else if (filePath.includes('luxury/special-theme')) {

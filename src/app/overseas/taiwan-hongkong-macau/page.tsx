@@ -1,11 +1,11 @@
 'use client'
 
-import { MapPin, Calendar, Users, Star, Clock, Plane, Sun, Waves, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Clock, Plane, Building, ShoppingBag, Crown, Mountain, Camera, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
-export default function GuamSaipanPage() {
+export default function TaiwanHongkongMacauPage() {
   const router = useRouter();
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,11 +15,11 @@ export default function GuamSaipanPage() {
   useEffect(() => {
     async function fetchHeroImage() {
       try {
-        const heroImg = await getHeroImage('overseas', 'guam-saipan');
-        console.log('괌/사이판 페이지: 히어로 이미지:', heroImg);
+        const heroImg = await getHeroImage('overseas', 'taiwan-hongkong-macau');
+        console.log('대만/홍콩/마카오 페이지: 히어로 이미지:', heroImg);
         setHeroImage(heroImg);
       } catch (error) {
-        console.error('괌/사이판 히어로 이미지 로딩 오류:', error);
+        console.error('대만/홍콩/마카오 히어로 이미지 로딩 오류:', error);
       } finally {
         setIsLoading(false);
       }
@@ -44,10 +44,10 @@ export default function GuamSaipanPage() {
   }
 
   // 히어로 이미지 데이터 또는 기본값
-  const backgroundImage = heroImage?.image_url || '/images/guam-hero.jpg'
-  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(2, 132, 199, 0.3) 100%)'
-  const title = heroImage?.title || '괌/사이판'
-  const subtitle = heroImage?.subtitle || '가까운 태평양 휴양지에서 즐기는 완벽한 휴식'
+  const backgroundImage = heroImage?.image_url || '/images/taiwan-hongkong-macau-hero.jpg'
+  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(16, 185, 129, 0.3) 100%)'
+  const title = heroImage?.title || '대만/홍콩/마카오'
+  const subtitle = heroImage?.subtitle || '가까운 아시아의 다채로운 문화와 매력'
 
   return (
     <div className="min-h-screen pt-20">
@@ -66,11 +66,11 @@ export default function GuamSaipanPage() {
             <div className="flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
-                괌, 사이판, 로타, 티니안
+                대만, 홍콩, 마카오
               </span>
               <span className="flex items-center gap-1">
                 <Plane className="w-4 h-4 flex-shrink-0" />
-                직항 3.5시간
+                직항 2.5-3.5시간
               </span>
             </div>
           </div>
@@ -80,15 +80,15 @@ export default function GuamSaipanPage() {
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 괌·사이판 여행</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 대만·홍콩·마카오 여행</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              짧은 비행시간으로 만나는 환상적인 남태평양의 휴양지
+              각기 다른 매력을 가진 아시아의 보석 같은 여행지들
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col">
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col">
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full">
@@ -99,7 +99,7 @@ export default function GuamSaipanPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-to-r from-red-400 via-purple-500 to-emerald-400 flex items-center justify-center">
                         <span className="text-white font-semibold">{pkg.title}</span>
                       </div>
                     )}
@@ -110,16 +110,16 @@ export default function GuamSaipanPage() {
                   <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm truncate">괌·사이판</span>
+                    <span className="text-sm truncate">대만/홍콩/마카오</span>
                   </div>
                   
                   {/* 여행 정보 */}
                   <div className="mb-4 flex-grow">
                     <div className="flex flex-wrap gap-2">
-                      {pkg.highlights.slice(0, 2).map((highlight, index) => (
+                      {pkg.highlights?.slice(0, 2).map((highlight, index) => (
                         <span 
                           key={index}
-                          className="bg-cyan-50 text-cyan-600 text-xs px-2 py-1 rounded-full"
+                          className="bg-gradient-to-r from-red-50 via-purple-50 to-emerald-50 text-purple-600 text-xs px-2 py-1 rounded-full"
                         >
                           {highlight}
                         </span>
@@ -127,25 +127,25 @@ export default function GuamSaipanPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4 flex-shrink-0" />
-                      <span>{pkg.duration}</span>
+                      <span className="text-sm truncate">{pkg.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Plane className="w-4 h-4 flex-shrink-0" />
-                      <span>{pkg.departure}</span>
+                      <span className="text-sm truncate">{pkg.departure}</span>
                     </div>
                   </div>
                   
                   {/* 가격 및 예약 */}
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 line-clamp-2">{pkg.price}원</span>
+                        <span className="text-xl font-bold text-purple-600 line-clamp-2">{pkg.price}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 
-                      className="bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-cyan-700 transition-colors flex-shrink-0"
+                      className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition-colors flex-shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/package/${pkg.id}`);
@@ -181,7 +181,7 @@ export default function GuamSaipanPage() {
                     onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 rounded-lg ${
                       page === currentPage
-                        ? 'bg-cyan-600 text-white'
+                        ? 'bg-purple-600 text-white'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -205,42 +205,86 @@ export default function GuamSaipanPage() {
           )}
 
           <div className="bg-white rounded-xl shadow-lg p-8 mt-16">
-            <h2 className="text-2xl font-bold mb-6 text-center">괌·사이판 여행 가이드</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              <div>
-                <h3 className="font-bold mb-3 text-blue-600">입국 정보</h3>
+            <h2 className="text-2xl font-bold mb-6 text-center">대만·홍콩·마카오 여행 가이드</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* 대만 정보 */}
+              <div className="border rounded-lg p-6">
+                <h3 className="text-xl font-bold mb-4 text-emerald-600 flex items-center gap-2 line-clamp-2">
+                  <Mountain className="w-5 h-5" />
+                  대만
+                </h3>
                 <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 무비자 45일 체류</li>
-                  <li>• 여권 유효기간 6개월</li>
-                  <li>• ESTA 사전 신청 (괌)</li>
-                  <li>• 왕복 항공권 필수</li>
+                  <li>• 무비자 30일 체류</li>
+                  <li>• 타이베이 101, 야시장</li>
+                  <li>• 타로코 협곡, 일월담</li>
+                  <li>• 신타이완달러 (TWD)</li>
+                </ul>
+              </div>
+
+              {/* 홍콩 정보 */}
+              <div className="border rounded-lg p-6">
+                <h3 className="text-xl font-bold mb-4 text-red-600 flex items-center gap-2 line-clamp-2">
+                  <Building className="w-5 h-5" />
+                  홍콩
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li>• 무비자 90일 체류</li>
+                  <li>• 빅토리아 하버, 디즈니랜드</li>
+                  <li>• 센트럴, 침사추이</li>
+                  <li>• 홍콩달러 (HKD)</li>
+                </ul>
+              </div>
+
+              {/* 마카오 정보 */}
+              <div className="border rounded-lg p-6">
+                <h3 className="text-xl font-bold mb-4 text-purple-600 flex items-center gap-2 line-clamp-2">
+                  <Crown className="w-5 h-5" />
+                  마카오
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li>• 무비자 30일 체류</li>
+                  <li>• 베네치안, 갤럭시 카지노</li>
+                  <li>• 성 바울 성당 유적</li>
+                  <li>• 마카오파타카 (MOP)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <h4 className="font-bold mb-3 text-blue-600">여행 팁</h4>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li>• 여권 유효기간 6개월 이상</li>
+                  <li>• 왕복 항공권 준비</li>
+                  <li>• 현지 심카드/와이파이</li>
+                  <li>• 옥토퍼스 카드 (홍콩)</li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold mb-3 text-green-600">추천 활동</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 스노클링/다이빙</li>
-                  <li>• 패러세일링</li>
-                  <li>• 돌핀 워칭</li>
-                  <li>• 선셋 크루즈</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-bold mb-3 text-purple-600">쇼핑</h3>
+                <h4 className="font-bold mb-3 text-green-600">쇼핑</h4>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li>• DFS 면세점</li>
-                  <li>• 아울렛 쇼핑</li>
-                  <li>• 현지 기념품</li>
-                  <li>• 화장품/향수</li>
+                  <li>• 하버시티 몰</li>
+                  <li>• 시먼딩 쇼핑가</li>
+                  <li>• 로컬 야시장</li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold mb-3 text-orange-600">음식</h3>
+                <h4 className="font-bold mb-3 text-purple-600">음식</h4>
+                <ul className="space-y-2 text-gray-600">
+                  <li>• 딤섬, 차찬탱</li>
+                  <li>• 타이완 야시장 음식</li>
+                  <li>• 포르투갈 요리</li>
+                  <li>• 에그타르트</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-bold mb-3 text-orange-600">교통</h4>
                 <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 차모로 요리</li>
-                  <li>• 코코넛 크랩</li>
-                  <li>• BBQ 레스토랑</li>
-                  <li>• 트로피컬 과일</li>
+                  <li>• 홍콩-마카오: 페리 1시간</li>
+                  <li>• 지하철(MTR) 이용</li>
+                  <li>• 택시, 버스</li>
+                  <li>• 투어버스 추천</li>
                 </ul>
               </div>
             </div>

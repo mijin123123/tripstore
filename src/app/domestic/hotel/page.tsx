@@ -24,8 +24,8 @@ export default function DomesticHotelPage() {
           getHeroImage('domestic', 'hotel')
         ])
         
-        console.log('국내 호텔/리조트/리조트 패키지 조회 결과:', hotelData);
-        console.log('국내 호텔/리조트/리조트 히어로 이미지:', heroImageData)
+        console.log('국내 호텔/리조트 패키지 조회 결과:', hotelData);
+        console.log('국내 호텔/리조트 히어로 이미지:', heroImageData)
         
         setPackages(hotelData);
         setHeroImage(heroImageData)
@@ -54,8 +54,8 @@ export default function DomesticHotelPage() {
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/domestic-hotel-hero.jpg'
   const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(20, 83, 45, 0.3) 0%, rgba(22, 101, 52, 0.3) 100%)'
-  const title = heroImage?.title || '국내 호텔/리조트/리조트/리조트'
-  const subtitle = heroImage?.subtitle || '전국 각지의 프리미엄 호텔/리조트/리조트과 리조트에서 편안하고 특별한 휴식'
+  const title = heroImage?.title || '국내 호텔/리조트'
+  const subtitle = heroImage?.subtitle || '전국 각지의 프리미엄 호텔/리조트과 리조트에서 편안하고 특별한 휴식'
 
   // 로딩 상태 표시
   if (isLoading) {
@@ -87,7 +87,7 @@ export default function DomesticHotelPage() {
               </span>
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4 flex-shrink-0" />
-                프리미엄 호텔/리조트/리조트
+                프리미엄 호텔/리조트
               </span>
             </div>
           </div>
@@ -98,9 +98,9 @@ export default function DomesticHotelPage() {
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 호텔/리조트/리조트/리조트</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 호텔/리조트</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              완벽한 편안함과 고급스러운 서비스를 제공하는 국내 최고의 호텔/리조트/리조트과 리조트
+              완벽한 편안함과 고급스러운 서비스를 제공하는 국내 최고의 호텔/리조트과 리조트
             </p>
           </div>
           
@@ -109,7 +109,7 @@ export default function DomesticHotelPage() {
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
                   <div className="relative h-48 flex-shrink-0">
@@ -143,7 +143,7 @@ export default function DomesticHotelPage() {
                     
                     <div className="mb-4 flex-grow">
                       <p className="text-gray-600 text-sm line-clamp-3">
-                        {packageItem.description || '편안하고 고급스러운 호텔/리조트/리조트에서 특별한 휴식을 경험하세요.'}
+                        {packageItem.description || '편안하고 고급스러운 호텔/리조트에서 특별한 휴식을 경험하세요.'}
                       </p>
                     </div>
                     
@@ -174,7 +174,7 @@ export default function DomesticHotelPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 text-lg">등록된 호텔/리조트/리조트/리조트 패키지가 없습니다.</p>
+                <p className="text-gray-500 text-lg">등록된 호텔/리조트 패키지가 없습니다.</p>
                 <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
               </div>
             )}
@@ -229,11 +229,11 @@ export default function DomesticHotelPage() {
         </div>
       </section>
 
-      {/* 호텔/리조트/리조트/리조트 특징 */}
+      {/* 호텔/리조트 특징 */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">호텔/리조트/리조트/리조트 특징</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">호텔/리조트 특징</h2>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">

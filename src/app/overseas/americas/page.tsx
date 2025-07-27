@@ -87,7 +87,7 @@ export default function AmericasPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <img 

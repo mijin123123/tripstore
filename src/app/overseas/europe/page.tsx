@@ -113,7 +113,7 @@ export default function EuropePage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
                 {/* 이미지 섹션 */}
                 <div className="relative h-48 flex-shrink-0">
                   <img 
@@ -162,7 +162,7 @@ export default function EuropePage() {
                   {/* 가격 및 예약 */}
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900">{formatPrice(pkg.price)}원</span>
+                        <span className="text-xl font-bold text-gray-900 line-clamp-2">{formatPrice(pkg.price)}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 
