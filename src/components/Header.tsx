@@ -83,18 +83,6 @@ const Header = () => {
         { name: '대만/홍콩/마카오', href: '/overseas/hongkong' },
       ]
     },
-    hotel: {
-      title: '호텔',
-      href: '/hotel/europe',
-      items: [
-        { name: '유럽', href: '/hotel/europe' },
-        { name: '동남아', href: '/hotel/southeast-asia' },
-        { name: '일본', href: '/hotel/japan' },
-        { name: '괌/사이판', href: '/hotel/guam' },
-        { name: '미주/캐나다/하와이', href: '/hotel/americas' },
-        { name: '대만/홍콩/마카오', href: '/hotel/hongkong' },
-      ]
-    },
     domestic: {
       title: '국내',
       href: '/domestic/hotel',

@@ -95,30 +95,6 @@ export default function CreatePackage() {
         newType = 'domestic';
         newRegion = 'pool-villa';
         newRegionKo = '풀빌라/펜션';
-      } else if (value === 'hotel-europe') {
-        newType = 'hotel';
-        newRegion = 'europe';
-        newRegionKo = '유럽';
-      } else if (value === 'hotel-japan') {
-        newType = 'hotel';
-        newRegion = 'japan';
-        newRegionKo = '일본';
-      } else if (value === 'hotel-southeast-asia') {
-        newType = 'hotel';
-        newRegion = 'southeast-asia';
-        newRegionKo = '동남아';
-      } else if (value === 'hotel-americas') {
-        newType = 'hotel';
-        newRegion = 'americas';
-        newRegionKo = '미주/캐나다/하와이';
-      } else if (value === 'hotel-china-hongkong') {
-        newType = 'hotel';
-        newRegion = 'china-hongkong';
-        newRegionKo = '대만/홍콩/마카오';
-      } else if (value === 'hotel-guam-saipan') {
-        newType = 'hotel';
-        newRegion = 'guam-saipan';
-        newRegionKo = '괌/사이판';
       } else if (value === 'luxury-europe') {
         newType = 'luxury';
         newRegion = 'europe';
@@ -502,14 +478,6 @@ export default function CreatePackage() {
                 <optgroup label="국내여행">
                   <option value="domestic-hotel">호텔/리조트</option>
                   <option value="domestic-pool-villa">풀빌라/펜션</option>
-                </optgroup>
-                <optgroup label="호텔">
-                  <option value="hotel-europe">유럽</option>
-                  <option value="hotel-japan">일본</option>
-                  <option value="hotel-southeast-asia">동남아</option>
-                  <option value="hotel-americas">미주/캐나다/하와이</option>
-                  <option value="hotel-china-hongkong">대만/홍콩/마카오</option>
-                  <option value="hotel-guam-saipan">괌/사이판</option>
                 </optgroup>
                 <optgroup label="럭셔리">
                   <option value="luxury-europe">유럽</option>

@@ -66,7 +66,6 @@ const Footer = async () => {
             <ul className="space-y-2">
               <li><Link href="/overseas" className="text-gray-400 hover:text-blue-400 transition-colors">해외여행</Link></li>
               <li><Link href="/domestic" className="text-gray-400 hover:text-blue-400 transition-colors">국내여행</Link></li>
-              <li><Link href="/hotel" className="text-gray-400 hover:text-blue-400 transition-colors">호텔</Link></li>
               <li><Link href="/luxury" className="text-gray-400 hover:text-blue-400 transition-colors">럭셔리</Link></li>
             </ul>
           </div>
