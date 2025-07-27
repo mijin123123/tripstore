@@ -36,7 +36,7 @@ const Hero = () => {
   const subtitle = heroImage?.subtitle || '맞춤형 여행 패키지와 전문 가이드 서비스로 특별한 추억을 만들어보세요'
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
