@@ -1,97 +1,295 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-// @ts-ignore - 빌드 중 경로 문제 무시
-import { createClient } from '@/lib/supabase-client'
+import { Users, Package, Calendar, DollarSign, TrendingUp, Eye } from 'lucide-react'
+import Link from 'next/link'
 // @ts-ignore - 빌드 중 경로 문제 무시
 import { useAuth } from '@/components/AuthProvider'
+// @ts-ignore - 빌드 중 경로 문제 무시
+import { createClient } from '@/lib/supabase-client'
+
+interface DashboardStats {
+  totalUsers: number
+  totalPackages: number
+  totalBookings: number
+  totalRevenue: number
+  featuredPackages: number
+  recentBookings: number
+}
 
 export default function AdminDashboard() {
-  const { user, loading, isAdmin, refreshSession } = useAuth();
-  const [status, setStatus] = useState('페이지 초기화 중...');
+  const { user, loading, isAdmin } = useAuth()
+  const [stats, setStats] = useState<DashboardStats>({
+    totalUsers: 0,
+    totalPackages: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    featuredPackages: 0,
+    recentBookings: 0
+  })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
 
-  // 한 번만 실행되는 초기화 함수
   useEffect(() => {
-    console.log('관리자 페이지 마운트됨');
-    setStatus('인증 상태 확인 완료');
-  }, []); // 빈 의존성 배열로 한 번만 실행
-  
-  // 인증 상태 변경 감지 (별도 useEffect)
-  useEffect(() => {
-    if (!loading) {
-      if (user && isAdmin) {
-        setStatus('관리자로 로그인됨: ' + user.email);
-      } else if (user && !isAdmin) {
-        setStatus('일반 사용자로 로그인됨: ' + user.email);
-      } else {
-        setStatus('로그인되지 않음');
-      }
+    if (isAdmin && !loading) {
+      fetchDashboardStats()
     }
-  }, [user, isAdmin, loading]); // 상태 변경 시에만 실행
-  
-  // 페이지 콘텐츠
+  }, [isAdmin, loading])
+
+  const fetchDashboardStats = async () => {
+    try {
+      const supabase = createClient()
+      
+      // 총 사용자 수
+      const { count: usersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+      
+      // 총 패키지 수
+      const { count: packagesCount } = await supabase
+        .from('packages')
+        .select('*', { count: 'exact', head: true })
+      
+      // 추천 패키지 수
+      const { count: featuredCount } = await supabase
+        .from('packages')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_featured', true)
+      
+      // 총 예약 수
+      const { count: bookingsCount } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+      
+      // 최근 7일 예약 수
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      const { count: recentBookingsCount } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', sevenDaysAgo.toISOString())
+      
+      // 총 수익 계산 (예약된 패키지들의 가격 합계)
+      const { data: bookingRevenue } = await supabase
+        .from('bookings')
+        .select(`
+          packages (
+            price
+          )
+        `)
+        .eq('status', 'confirmed')
+      
+      const totalRevenue = bookingRevenue?.reduce((sum, booking: any) => {
+        return sum + (booking.packages?.price || 0)
+      }, 0) || 0
+
+      setStats({
+        totalUsers: usersCount || 0,
+        totalPackages: packagesCount || 0,
+        totalBookings: bookingsCount || 0,
+        totalRevenue,
+        featuredPackages: featuredCount || 0,
+        recentBookings: recentBookingsCount || 0
+      })
+    } catch (error) {
+      console.error('대시보드 통계 로딩 실패:', error)
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">접근 권한이 없습니다</h1>
+          <p className="text-gray-600 mb-4">관리자 권한이 필요합니다.</p>
+          <Link href="/" className="text-blue-500 hover:text-blue-700">
+            메인 페이지로 돌아가기
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">관리자 페이지 (디버그 모드)</h1>
-      
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">상태 정보</h2>
-        <div className="bg-gray-100 p-4 rounded-md">
-          <p className="mb-2"><strong>페이지 상태:</strong> {status}</p>
-          <p className="mb-2"><strong>인증 상태:</strong> {loading ? '로딩 중' : '완료'}</p>
-          <p className="mb-2"><strong>관리자 권한:</strong> {isAdmin ? '있음' : '없음'}</p>
-          <p className="mb-2"><strong>이메일:</strong> {user?.email || '로그인되지 않음'}</p>
+    <div className="min-h-screen bg-gray-50 pt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">관리자 대시보드</h1>
+          <p className="mt-2 text-gray-600">트립스토어 관리 시스템에 오신 것을 환영합니다.</p>
         </div>
-      </div>
 
-      <div className="flex gap-4 mb-6">
-        <button
-          onClick={async () => {
-            setStatus('세션 갱신 중...');
-            await refreshSession();
-            setStatus('세션 갱신 완료');
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-        >
-          세션 갱신하기
-        </button>
-        
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-        >
-          페이지 새로고침
-        </button>
-      </div>
+        {/* 통계 카드 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Users className="h-8 w-8 text-blue-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">총 사용자</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? '...' : stats.totalUsers.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
 
-      {/* 관리자 정보만 표시 */}
-      {isAdmin && !loading ? (
-        <div className="bg-green-100 p-4 rounded-md">
-          <p className="text-green-800 font-medium">관리자로 로그인되었습니다!</p>
-          <p className="mt-2">이제 관리자 기능을 사용할 수 있습니다.</p>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Package className="h-8 w-8 text-green-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">총 패키지</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? '...' : stats.totalPackages.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Calendar className="h-8 w-8 text-yellow-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">총 예약</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? '...' : stats.totalBookings.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <DollarSign className="h-8 w-8 text-purple-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">총 수익</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? '...' : `${stats.totalRevenue.toLocaleString()}원`}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      ) : !loading ? (
-        <div className="bg-yellow-100 p-4 rounded-md">
-          <p className="text-yellow-800 font-medium">관리자 권한이 없습니다.</p>
-          <p className="mt-2">관리자로 로그인하세요.</p>
+
+        {/* 추가 통계 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <TrendingUp className="h-8 w-8 text-indigo-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">추천 패키지</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? '...' : stats.featuredPackages.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Eye className="h-8 w-8 text-red-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">최근 7일 예약</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? '...' : stats.recentBookings.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="bg-blue-100 p-4 rounded-md">
-          <p className="text-blue-800 font-medium">인증 정보 확인 중...</p>
+
+        {/* 관리 메뉴 */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">관리 메뉴</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link
+              href="/admin/packages"
+              className="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            >
+              <Package className="h-6 w-6 text-blue-500 mr-3" />
+              <div>
+                <p className="font-medium text-gray-900">패키지 관리</p>
+                <p className="text-sm text-gray-500">여행 패키지 추가/수정/삭제</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/bookings"
+              className="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            >
+              <Calendar className="h-6 w-6 text-green-500 mr-3" />
+              <div>
+                <p className="font-medium text-gray-900">예약 관리</p>
+                <p className="text-sm text-gray-500">예약 현황 및 관리</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/users"
+              className="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors"
+            >
+              <Users className="h-6 w-6 text-yellow-500 mr-3" />
+              <div>
+                <p className="font-medium text-gray-900">사용자 관리</p>
+                <p className="text-sm text-gray-500">회원 정보 및 권한 관리</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/hero-images"
+              className="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+            >
+              <Eye className="h-6 w-6 text-purple-500 mr-3" />
+              <div>
+                <p className="font-medium text-gray-900">히어로 이미지</p>
+                <p className="text-sm text-gray-500">메인 배너 이미지 관리</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/site-settings"
+              className="flex items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+            >
+              <TrendingUp className="h-6 w-6 text-indigo-500 mr-3" />
+              <div>
+                <p className="font-medium text-gray-900">사이트 설정</p>
+                <p className="text-sm text-gray-500">기본 설정 및 환경설정</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/debug"
+              className="flex items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+            >
+              <DollarSign className="h-6 w-6 text-red-500 mr-3" />
+              <div>
+                <p className="font-medium text-gray-900">디버그 도구</p>
+                <p className="text-sm text-gray-500">시스템 진단 및 디버깅</p>
+              </div>
+            </Link>
+          </div>
         </div>
-      )}
-      
-      <div className="mt-8 border-t pt-4">
-        <a 
-          href="/admin/debug-admin" 
-          className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 inline-block"
-        >
-          관리자 디버그 페이지로 이동
-        </a>
-        <p className="mt-2 text-sm text-gray-500">
-          문제가 발생하면 디버그 페이지에서 관리자 상태를 직접 설정할 수 있습니다.
-        </p>
       </div>
     </div>
-  );
+  )
 }
