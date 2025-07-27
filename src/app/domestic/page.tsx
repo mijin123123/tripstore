@@ -105,7 +105,7 @@ export default function DomesticPage() {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3840&q=95'), linear-gradient(135deg, #14532d 0%, #166534 50%, #059669 100%)`
+              backgroundImage: `url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=5760&q=98'), linear-gradient(135deg, #14532d 0%, #166534 50%, #059669 100%)`
             }}
           ></div>
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
