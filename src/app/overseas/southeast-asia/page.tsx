@@ -10,6 +10,8 @@ export default function SoutheastAsiaPage() {
   const router = useRouter();
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const packagesPerPage = 12;
 
   useEffect(() => {
     async function fetchHeroImage() {
@@ -27,18 +29,6 @@ export default function SoutheastAsiaPage() {
     fetchHeroImage();
   }, []);
   
-
-  // 페이지네이션 계산
-  const totalPages = Math.ceil(packages.length / packagesPerPage)
-  const startIndex = (currentPage - 1) * packagesPerPage
-  const endIndex = startIndex + packagesPerPage
-  const currentPackages = packages.slice(startIndex, endIndex)
-
-  // 페이지 변경 핸들러
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
   const packages = [
     {
       id: 'southeast-asia-thailand',
@@ -81,6 +71,18 @@ export default function SoutheastAsiaPage() {
       departure: '매주 월/수/금/일 출발'
     }
   ]
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const startIndex = (currentPage - 1) * packagesPerPage
+  const endIndex = startIndex + packagesPerPage
+  const currentPackages = packages.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/southeast-asia-hero.jpg'

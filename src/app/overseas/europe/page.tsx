@@ -12,6 +12,8 @@ export default function EuropePage() {
   const [europePackages, setEuropePackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const packagesPerPage = 12;
   
   // 숫자를 천 단위 콤마 형식으로 변환하는 함수
   const formatPrice = (price: string | number): string => {
@@ -45,18 +47,6 @@ export default function EuropePage() {
     fetchData();
   }, []);
   
-
-  // 페이지네이션 계산
-  const totalPages = Math.ceil(packages.length / packagesPerPage)
-  const startIndex = (currentPage - 1) * packagesPerPage
-  const endIndex = startIndex + packagesPerPage
-  const currentPackages = packages.slice(startIndex, endIndex)
-
-  // 페이지 변경 핸들러
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
   // 패키지 데이터에 추가할 패키지들 (백업/데모 데이터)
   const additionalPackages = [
     {
@@ -91,6 +81,18 @@ export default function EuropePage() {
   
   // 모든 패키지 병합 (실제 데이터베이스 패키지를 우선하고, 데이터가 없으면 데모 데이터 표시)
   const packages = europePackages.length > 0 ? europePackages : additionalPackages;
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const startIndex = (currentPage - 1) * packagesPerPage
+  const endIndex = startIndex + packagesPerPage
+  const currentPackages = packages.slice(startIndex, endIndex)
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/europe-hero.jpg'
@@ -146,18 +148,22 @@ export default function EuropePage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
                 {/* 이미지 섹션 */}
-                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
+                <div className="relative h-48 flex-shrink-0">
                   <img 
                     src={pkg.image} 
                     alt={pkg.title}
                     className="w-full h-full object-cover"
                   />
+                  
+                  <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    유럽
+                  </div>
                 </div>
 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span className="text-sm truncate">유럽</span>
@@ -191,11 +197,11 @@ export default function EuropePage() {
                   {/* 가격 및 예약 */}
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{formatPrice(pkg.price)}원</span>
+                        <span className="text-xl font-bold text-gray-900">{formatPrice(pkg.price)}원</span>
                       <span className="text-gray-500 text-xs">/1인</span>
                     </div>
                     <button 
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors flex-shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/package/${pkg.id}`);
@@ -209,6 +215,50 @@ export default function EuropePage() {
             ))}
           </div>
 
+          {/* 페이지네이션 */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center mt-12 space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center justify-center w-10 h-10 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`w-10 h-10 rounded-lg border text-sm font-medium transition-colors ${
+                    currentPage === page
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="flex items-center justify-center w-10 h-10 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 유럽 여행 특징 섹션 */}
+      <section className="py-16 bg-gray-50"
+        style={{
+          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4">
           {/* 여행 팁 섹션 */}
           <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
             <h2 className="text-2xl font-bold mb-6 text-center">유럽 여행 팁</h2>

@@ -10,6 +10,8 @@ import { getHeroImage, HeroImage } from '@/lib/heroImages'
 export default function LuxuryEuropePage() {
   const router = useRouter();
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
+  const [currentPage, setCurrentPage] = useState(1);
+  const packagesPerPage = 12;
 
   useEffect(() => {
     async function loadHeroImage() {

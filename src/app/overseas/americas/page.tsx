@@ -11,6 +11,8 @@ export default function AmericasPage() {
   const packages = getPackagesByRegion('overseas', 'americas');
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const packagesPerPage = 12;
 
   useEffect(() => {
     async function fetchHeroImage() {
@@ -27,7 +29,6 @@ export default function AmericasPage() {
     
     fetchHeroImage();
   }, []);
-
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)
