@@ -75,7 +75,7 @@ const Hero = () => {
         <div className="glassmorphism rounded-full p-3 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
           <form onSubmit={handleSearch} className="flex items-center gap-3">
             <div className="relative flex-1 flex items-center">
-              <Search className="absolute left-5 w-5 h-5 text-blue-500 z-10" />
+              <Search className="absolute left-5 w-4 h-4 text-blue-500 z-10" />
               <input
                 type="text"
                 placeholder="어디로 떠나고 싶으세요?"
