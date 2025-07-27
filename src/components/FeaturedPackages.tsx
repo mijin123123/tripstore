@@ -86,11 +86,11 @@ const FeaturedPackages = () => {
             packages.map((pkg) => (
               <div 
                 key={pkg.id}
-                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
+                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group h-full flex flex-col"
                 onClick={() => router.push(`/package/${pkg.id}`)}
               >
                 {/* Image */}
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-64 overflow-hidden flex-shrink-0">
                   <img 
                     src={pkg.image} 
                     alt={pkg.title}
@@ -104,42 +104,45 @@ const FeaturedPackages = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                   
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{pkg.regionKo || pkg.region || '지역 정보 없음'}</span>
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{pkg.regionKo || pkg.region || '지역 정보 없음'}</span>
                   </div>
 
-                  <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
-                    {pkg.description || "패키지 상세 정보가 준비 중입니다."}
-                  </p>
+                  <div className="mb-4 flex-grow">
+                    <p className="text-gray-600 line-clamp-3 text-sm leading-relaxed">
+                      {pkg.description || "패키지 상세 정보가 준비 중입니다."}
+                    </p>
+                  </div>
 
                   {/* Details */}
                   <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{pkg.duration || "준비중"}</span>
+                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{pkg.duration || "준비중"}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      <span>최대 {pkg.max_people || 2}명</span>
+                      <Users className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">최대 {pkg.max_people || 2}명</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span>{pkg.rating || 5}</span>
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                      <span className="text-sm truncate">{pkg.rating || 5}</span>
                     </div>
                   </div>
 
                   {/* Price */}
-                  <div className="flex justify-between items-center">
-                    <div className="text-xl font-bold text-blue-500">
-                      {(typeof pkg.price === 'string' ? parseInt(pkg.price) : pkg.price).toLocaleString()}
-                      <span className="text-xs text-gray-500 ml-1">원</span>
+                  <div className="flex justify-between items-center mt-auto">
+                    <div className="flex flex-col">
+                      <span className="text-xl font-bold text-blue-500">
+                        {(typeof pkg.price === 'string' ? parseInt(pkg.price) : pkg.price).toLocaleString()}원
+                      </span>
                     </div>
                     <button 
-                      className="btn btn-primary btn-sm"
+                      className="btn btn-primary btn-sm flex-shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/package/${pkg.id}`);

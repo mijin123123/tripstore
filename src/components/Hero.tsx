@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { Search, MapPin, Calendar, Users } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { getHeroImage, HeroImage } from '@/lib/heroImages'
 
 const Hero = () => {
+  const router = useRouter()
   const [destination, setDestination] = useState('')
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
 
@@ -18,7 +20,38 @@ const Hero = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('검색:', destination)
+    if (!destination.trim()) {
+      alert('검색할 목적지를 입력해주세요.')
+      return
+    }
+
+    // 목적지에 따라 적절한 페이지로 이동
+    const searchTerm = destination.toLowerCase().trim()
+    
+    if (searchTerm.includes('일본') || searchTerm.includes('japan') || searchTerm.includes('도쿄') || searchTerm.includes('오사카')) {
+      router.push('/overseas/japan')
+    } else if (searchTerm.includes('유럽') || searchTerm.includes('europe') || searchTerm.includes('프랑스') || searchTerm.includes('이탈리아') || searchTerm.includes('독일')) {
+      router.push('/overseas/europe')
+    } else if (searchTerm.includes('동남아') || searchTerm.includes('태국') || searchTerm.includes('베트남') || searchTerm.includes('필리핀') || searchTerm.includes('인도네시아')) {
+      router.push('/overseas/southeast-asia')
+    } else if (searchTerm.includes('미주') || searchTerm.includes('미국') || searchTerm.includes('캐나다') || searchTerm.includes('미국') || searchTerm.includes('america')) {
+      router.push('/overseas/americas')
+    } else if (searchTerm.includes('괌') || searchTerm.includes('사이판') || searchTerm.includes('guam') || searchTerm.includes('saipan')) {
+      router.push('/overseas/guam-saipan')
+    } else if (searchTerm.includes('대만') || searchTerm.includes('홍콩') || searchTerm.includes('마카오') || searchTerm.includes('taiwan') || searchTerm.includes('hongkong') || searchTerm.includes('macau')) {
+      router.push('/overseas/taiwan-hongkong-macau')
+    } else if (searchTerm.includes('호텔') || searchTerm.includes('리조트') || searchTerm.includes('hotel') || searchTerm.includes('resort')) {
+      router.push('/domestic/hotel')
+    } else if (searchTerm.includes('풀빌라') || searchTerm.includes('펜션') || searchTerm.includes('villa') || searchTerm.includes('pension')) {
+      router.push('/domestic/pool-villa')
+    } else if (searchTerm.includes('크루즈') || searchTerm.includes('cruise')) {
+      router.push('/luxury/cruise')
+    } else if (searchTerm.includes('럭셔리') || searchTerm.includes('특별') || searchTerm.includes('luxury') || searchTerm.includes('special')) {
+      router.push('/luxury/special-theme')
+    } else {
+      // 일반적인 검색 - 해외여행 페이지로 이동하면서 검색어를 쿼리로 전달
+      router.push(`/overseas?search=${encodeURIComponent(destination)}`)
+    }
   }
 
   // 기본값 설정

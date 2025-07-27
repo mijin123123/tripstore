@@ -1,12 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, Calendar, Users, Star, Plane, Globe, Heart, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Plane, Globe, Heart, Clock, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 export default function OverseasPage() {
   const [currentPage, setCurrentPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filteredPackages, setFilteredPackages] = useState<any[]>([])
   const packagesPerPage = 12
+  const searchParams = useSearchParams()
+  
   const packages = [
     {
       id: 1,
@@ -17,7 +22,8 @@ export default function OverseasPage() {
       image: '/images/europe.jpg',
       highlights: ['파리', '런던', '로마', '바르셀로나'],
       departure: '매주 화/금 출발',
-      link: '/overseas/europe'
+      link: '/overseas/europe',
+      keywords: ['유럽', 'europe', '파리', '런던', '로마', '바르셀로나', '프랑스', '영국', '이탈리아', '스페인']
     },
     {
       id: 2,
@@ -28,7 +34,8 @@ export default function OverseasPage() {
       image: '/images/southeast-asia.jpg',
       highlights: ['태국', '베트남', '필리핀', '싱가포르'],
       departure: '매일 출발',
-      link: '/overseas/southeast-asia'
+      link: '/overseas/southeast-asia',
+      keywords: ['동남아', 'southeast', '태국', '베트남', '필리핀', '싱가포르', 'thailand', 'vietnam', 'philippines', 'singapore']
     },
     {
       id: 3,
@@ -39,7 +46,8 @@ export default function OverseasPage() {
       image: '/images/japan.jpg',
       highlights: ['도쿄', '오사카', '교토', '홋카이도'],
       departure: '3-5월 매일 출발',
-      link: '/overseas/japan'
+      link: '/overseas/japan',
+      keywords: ['일본', 'japan', '도쿄', '오사카', '교토', '홋카이도', '벚꽃', 'tokyo', 'osaka', 'kyoto']
     },
     {
       id: 4,
@@ -50,7 +58,8 @@ export default function OverseasPage() {
       image: '/images/guam.jpg',
       highlights: ['괌', '사이판', '로타', '티니안'],
       departure: '매주 화/금/일 출발',
-      link: '/overseas/guam-saipan'
+      link: '/overseas/guam-saipan',
+      keywords: ['괌', '사이판', 'guam', 'saipan', '로타', '티니안', '휴양']
     },
     {
       id: 5,
@@ -61,26 +70,61 @@ export default function OverseasPage() {
       image: '/images/americas.jpg',
       highlights: ['미국', '캐나다', '하와이', '남미'],
       departure: '매주 수/토 출발',
-      link: '/overseas/americas'
+      link: '/overseas/americas',
+      keywords: ['미주', '미국', '캐나다', '하와이', '남미', 'america', 'usa', 'canada', 'hawaii']
     },
     {
       id: 6,
-      title: '홍콩/마카오 쇼핑 투어 4일',
+      title: '대만/홍콩/마카오 투어 4일',
       price: '1,290,000',
       duration: '4일 2박',
       rating: 4.5,
-      image: '/images/hongkong.jpg',
-      highlights: ['홍콩', '마카오', '상해', '베이징'],
+      image: '/images/taiwan-hongkong-macau.jpg',
+      highlights: ['대만', '홍콩', '마카오', '타이베이'],
       departure: '매일 출발',
-      link: '/overseas/china-hongkong'
+      link: '/overseas/taiwan-hongkong-macau',
+      keywords: ['대만', '홍콩', '마카오', 'taiwan', 'hongkong', 'macau', '타이베이', '쇼핑']
     }
   ]
 
+  useEffect(() => {
+    // URL에서 search 파라미터 가져오기
+    const search = searchParams.get('search')
+    if (search) {
+      setSearchTerm(search)
+      handleSearch(search)
+    } else {
+      setFilteredPackages(packages)
+    }
+  }, [searchParams])
+
+  const handleSearch = (term: string) => {
+    if (!term.trim()) {
+      setFilteredPackages(packages)
+      return
+    }
+
+    const searchLower = term.toLowerCase()
+    const filtered = packages.filter(pkg => 
+      pkg.title.toLowerCase().includes(searchLower) ||
+      pkg.highlights.some(highlight => highlight.toLowerCase().includes(searchLower)) ||
+      pkg.keywords.some(keyword => keyword.toLowerCase().includes(searchLower))
+    )
+    
+    setFilteredPackages(filtered)
+    setCurrentPage(1) // 검색 시 첫 페이지로 이동
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    handleSearch(searchTerm)
+  }
+
   // 페이지네이션 계산
-  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const totalPages = Math.ceil(filteredPackages.length / packagesPerPage)
   const startIndex = (currentPage - 1) * packagesPerPage
   const endIndex = startIndex + packagesPerPage
-  const currentPackages = packages.slice(startIndex, endIndex)
+  const currentPackages = filteredPackages.slice(startIndex, endIndex)
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
@@ -138,9 +182,49 @@ export default function OverseasPage() {
       </section>
 
       <div className="max-w-6xl mx-auto px-4 py-16">
+        {/* 검색창 */}
+        <div className="mb-12">
+          <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto">
+            <div className="flex bg-white rounded-full shadow-lg overflow-hidden">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="여행지, 국가명을 검색해보세요 (예: 일본, 유럽, 태국...)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 text-gray-700 outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 font-semibold transition-colors"
+              >
+                검색
+              </button>
+            </div>
+          </form>
+          
+          {searchTerm && (
+            <div className="text-center mt-4">
+              <p className="text-gray-600">
+                '<span className="font-semibold text-blue-600">{searchTerm}</span>' 검색 결과: {filteredPackages.length}개의 패키지
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm('')
+                  setFilteredPackages(packages)
+                }}
+                className="text-blue-600 hover:text-blue-800 text-sm mt-2 underline"
+              >
+                전체 보기
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* 여행 서비스 소개 */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
           {travelFeatures.map((feature, index) => {
             const IconComponent = feature.icon
             return (
