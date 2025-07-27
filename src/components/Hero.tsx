@@ -47,7 +47,8 @@ const Hero = () => {
     } else if (searchTerm.includes('제주') || searchTerm.includes('jeju') || searchTerm.includes('부산') || searchTerm.includes('busan') || 
                searchTerm.includes('강릉') || searchTerm.includes('경주') || searchTerm.includes('전주') || searchTerm.includes('여수') ||
                searchTerm.includes('국내') || searchTerm.includes('한국') || searchTerm.includes('domestic') || searchTerm.includes('korea')) {
-      router.push(`/domestic?search=${encodeURIComponent(destination)}`)
+      // 국내 키워드인 경우 메인 페이지에서 검색 결과를 표시
+      router.push(`/?search=${encodeURIComponent(destination)}&category=domestic`)
     } else if (searchTerm.includes('크루즈') || searchTerm.includes('cruise')) {
       router.push('/luxury/cruise')
     } else if (searchTerm.includes('럭셔리') || searchTerm.includes('특별') || searchTerm.includes('luxury') || searchTerm.includes('special')) {
