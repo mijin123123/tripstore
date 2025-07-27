@@ -44,6 +44,10 @@ const Hero = () => {
       router.push('/domestic/hotel')
     } else if (searchTerm.includes('풀빌라') || searchTerm.includes('펜션') || searchTerm.includes('villa') || searchTerm.includes('pension')) {
       router.push('/domestic/pool-villa')
+    } else if (searchTerm.includes('제주') || searchTerm.includes('jeju') || searchTerm.includes('부산') || searchTerm.includes('busan') || 
+               searchTerm.includes('강릉') || searchTerm.includes('경주') || searchTerm.includes('전주') || searchTerm.includes('여수') ||
+               searchTerm.includes('국내') || searchTerm.includes('한국') || searchTerm.includes('domestic') || searchTerm.includes('korea')) {
+      router.push(`/domestic?search=${encodeURIComponent(destination)}`)
     } else if (searchTerm.includes('크루즈') || searchTerm.includes('cruise')) {
       router.push('/luxury/cruise')
     } else if (searchTerm.includes('럭셔리') || searchTerm.includes('특별') || searchTerm.includes('luxury') || searchTerm.includes('special')) {
