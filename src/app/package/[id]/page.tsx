@@ -467,7 +467,7 @@ export default function PackageDetail() {
                         <div className='bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold'>
                           {day.day || index + 1}
                         </div>
-                        <h3 className='text-xl font-semibold'>{day.title || `Day ${day.day || index + 1}`}</h3>
+                        <h3 className='text-xl font-semibold'>{day.title || ''}</h3>
                       </div>
                       <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description || '일정 상세 내용이 준비 중입니다.'}</p>
                       
