@@ -444,16 +444,24 @@ export default function PackageDetail() {
               <h2 className='text-2xl font-bold mb-6'>상세 일정</h2>
               
               <div className='space-y-6'>
+                {/* 디버깅을 위한 로깅 */}
+                {console.log('일정 렌더링 체크:', {
+                  itinerary: packageData.itinerary,
+                  type: typeof packageData.itinerary,
+                  isArray: Array.isArray(packageData.itinerary),
+                  length: Array.isArray(packageData.itinerary) ? packageData.itinerary.length : 'N/A'
+                })}
+                
                 {packageData.itinerary && Array.isArray(packageData.itinerary) && packageData.itinerary.length > 0 ? (
-                  packageData.itinerary.map((day) => (
-                    <div key={day.day} className='border-l-4 border-blue-500 pl-4 pb-6'>
+                  packageData.itinerary.map((day, index) => (
+                    <div key={day.day || index} className='border-l-4 border-blue-500 pl-4 pb-6'>
                       <div className='flex items-center gap-2 mb-2'>
                         <div className='bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold'>
-                          {day.day}
+                          {day.day || index + 1}
                         </div>
-                        <h3 className='text-xl font-semibold'>{day.title || `Day ${day.day}`}</h3>
+                        <h3 className='text-xl font-semibold'>{day.title || `Day ${day.day || index + 1}`}</h3>
                       </div>
-                      <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description}</p>
+                      <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description || '일정 상세 내용이 준비 중입니다.'}</p>
                       
                       <div className='flex flex-wrap gap-4 items-center mt-3'>
                         {day.accommodation && (
@@ -486,6 +494,13 @@ export default function PackageDetail() {
                     </div>
                     <p className='text-gray-500 text-lg'>상세 일정 정보가 준비 중입니다.</p>
                     <p className='text-gray-400 text-sm mt-2'>곧 업데이트될 예정입니다.</p>
+                    {/* 디버깅 정보 표시 (개발 중에만) */}
+                    <div className='mt-4 p-3 bg-gray-100 rounded text-left text-xs text-gray-600'>
+                      <strong>디버깅 정보:</strong><br/>
+                      일정 데이터: {JSON.stringify(packageData.itinerary)}<br/>
+                      타입: {typeof packageData.itinerary}<br/>
+                      배열 여부: {Array.isArray(packageData.itinerary) ? 'Yes' : 'No'}
+                    </div>
                   </div>
                 )}
               </div>
