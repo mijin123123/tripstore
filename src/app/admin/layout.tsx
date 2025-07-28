@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { 
   Package, 
   Users, 
@@ -14,7 +15,8 @@ import {
   LogOut,
   User,
   Image,
-  Settings
+  Settings,
+  AlertTriangle
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -25,15 +27,20 @@ export default function AdminLayout({
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [error, setError] = useState<string>('')
 
   useEffect(() => {
     let mounted = true;
+    let retryCount = 0;
+    const maxRetries = 3;
     
     const checkAdmin = async () => {
       if (!mounted) return;
       
       try {
         setIsLoading(true)
+        setError('')
+        
         const supabase = createClient()
         
         // 먼저 현재 세션을 확인
@@ -43,9 +50,7 @@ export default function AdminLayout({
         
         if (sessionError) {
           console.error('세션 확인 오류:', sessionError)
-          setIsLoading(false)
-          router.push('/auth/login?redirect=/admin')
-          return
+          throw new Error(`세션 확인 실패: ${sessionError.message}`)
         }
         
         if (!session) {
@@ -58,46 +63,51 @@ export default function AdminLayout({
         console.log('세션 확인됨:', session.user.id)
 
         // 사용자 데이터 조회 (옵션으로 처리)
-        const { data: userData, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
+        try {
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
 
-        if (error) {
-          console.log('사용자 데이터 오류 (무시하고 계속):', error)
-          // 사용자 데이터가 없어도 세션이 있으면 관리자로 간주
+          if (error && error.code !== 'PGRST116') { // Row not found는 무시
+            console.log('사용자 데이터 조회 실패 (무시하고 계속):', error)
+          }
+          
+          setUser(userData || { 
+            id: session.user.id, 
+            email: session.user.email, 
+            name: session.user.email || 'Unknown User'
+          })
+        } catch (userError) {
+          console.log('사용자 데이터 조회 중 오류 (무시하고 계속):', userError)
           setUser({ 
             id: session.user.id, 
             email: session.user.email, 
-            name: session.user.email 
+            name: session.user.email || 'Unknown User'
           })
-        } else {
-          setUser(userData)
         }
 
-        // 관리자 권한 체크 (현재는 모든 로그인된 사용자를 관리자로 처리)
-        const isAdmin = true // 임시로 모든 사용자를 관리자로 처리
+        setIsLoading(false)
+      } catch (error: any) {
+        console.error('관리자 확인 중 오류:', error)
         
-        if (!isAdmin) {
-          console.log('관리자 권한이 없음')
-          setIsLoading(false)
-          router.push('/')
+        if (!mounted) return;
+        
+        // 재시도 로직
+        if (retryCount < maxRetries && error.message?.includes('network')) {
+          retryCount++
+          console.log(`네트워크 오류로 재시도 중... (${retryCount}/${maxRetries})`)
+          setTimeout(() => {
+            if (mounted) checkAdmin()
+          }, 2000 * retryCount) // 점진적 지연
           return
         }
-
+        
+        setError(error.message || '알 수 없는 오류가 발생했습니다')
         setIsLoading(false)
-      } catch (error) {
-        console.error('관리자 확인 중 오류:', error)
-        setIsLoading(false)
-        // 심각한 오류가 아니면 로그인 페이지로 보내지 않음
-        if (error instanceof Error && error.message.includes('network')) {
-          // 네트워크 오류인 경우 재시도
-          setTimeout(() => {
-            checkAdmin()
-          }, 2000)
-        } else {
-          router.push('/auth/login?redirect=/admin')
+      }
+    }
         }
       }
     }
@@ -134,7 +144,42 @@ export default function AdminLayout({
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent border-solid rounded-full animate-spin"></div>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent border-solid rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">관리자 권한을 확인하는 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            관리자 페이지 로딩 오류
+          </h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <div className="space-y-2">
+            <button
+              onClick={() => {
+                setError('')
+                setIsLoading(true)
+                window.location.reload()
+              }}
+              className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              페이지 새로고침
+            </button>
+            <button
+              onClick={() => router.push('/auth/login?redirect=/admin')}
+              className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              다시 로그인
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -211,7 +256,9 @@ export default function AdminLayout({
 
       {/* 메인 컨텐츠 */}
       <main className="flex-1 p-6 overflow-auto">
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </main>
     </div>
   )
