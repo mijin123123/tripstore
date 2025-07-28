@@ -124,7 +124,7 @@ export default function EditPackage() {
             type: pkg.type || '',
             min_people: pkg.min_people || 1,
             max_people: pkg.max_people || 10,
-            itinerary: typeof pkg.itinerary === 'string' ? pkg.itinerary : (Array.isArray(pkg.itinerary) ? pkg.itinerary.map(day => day.title + ': ' + day.description).join('\n') : ''),
+            itinerary: typeof pkg.itinerary === 'string' ? pkg.itinerary : '',
             included: Array.isArray(pkg.included) ? pkg.included : [''],
             excluded: Array.isArray(pkg.excluded) ? pkg.excluded : [''],
             notes: Array.isArray(pkg.notes) ? pkg.notes : [''],
@@ -458,7 +458,11 @@ export default function EditPackage() {
       const images = formData.images.filter(item => item.trim() !== '')
       
       // 여행 일정 검증
-      const itinerary = formData.itinerary.trim() || ''
+      const itinerary = formData.itinerary.map(day => ({
+        ...day,
+        title: day.title.trim() || `Day ${day.day}`,
+        description: day.description.trim()
+      }))
       
       // 데이터베이스 업데이트 준비
       const supabase = createClient()
@@ -1021,17 +1025,83 @@ export default function EditPackage() {
 
         {/* 여행 일정 */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="itinerary-section">
-          <h2 className="text-lg font-semibold mb-4">여행 일정</h2>
-          <textarea
-            name="itinerary"
-            value={formData.itinerary}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={6}
-            placeholder="예: 3박 4일, 아시아나항공, 하노이-사파-하이퐁(1)"
-          />
-          <p className="text-gray-500 text-sm mt-2">간단한 형태로 여행 일정을 입력해 주세요.</p>
-        </div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">여행 일정</h2>
+            <button
+              type="button"
+              onClick={addItineraryDay}
+              className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+            >
+              <Plus size={16} className="mr-1" /> 일정 추가
+            </button>
+          </div>
+          
+          {formData.itinerary.map((day, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-medium text-gray-900">Day {day.day}</h3>
+                <button
+                  type="button"
+                  onClick={() => removeItineraryDay(index)}
+                  className="text-red-600 hover:text-red-800"
+                  disabled={formData.itinerary.length <= 1}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    일정 제목
+                  </label>
+                  <input
+                    type="text"
+                    value={day.title}
+                    onChange={(e) => handleItineraryChange(index, 'title', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={`Day ${day.day} 제목`}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    숙박
+                  </label>
+                  <input
+                    type="text"
+                    value={day.accommodation}
+                    onChange={(e) => handleItineraryChange(index, 'accommodation', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="숙박 정보"
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    일정 설명
+                  </label>
+                  <textarea
+                    value={day.description}
+                    onChange={(e) => handleItineraryChange(index, 'description', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    placeholder="상세 일정을 입력하세요"
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    식사 포함
+                  </label>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={day.meals.breakfast}
+                        onChange={(e) => handleItineraryChange(index, 'breakfast', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
                       <span className="ml-2 text-sm text-gray-700">조식</span>
                     </label>
                     <label className="flex items-center">
