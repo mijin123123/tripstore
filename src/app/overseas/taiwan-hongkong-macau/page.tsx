@@ -1,6 +1,7 @@
 'use client'
 
-import { MapPin, Calendar, Users, Star, Clock, Plane, Building, ShoppingBag, Crown, Mountain, Camera, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Clock, Plane, Thermometer, ChevronLeft, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { getHeroImage, HeroImage } from '@/lib/heroImages'
@@ -10,8 +11,8 @@ import { Package } from '@/types'
 export default function TaiwanHongkongMacauPage() {
   const router = useRouter();
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
-  const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const packagesPerPage = 12;
 
@@ -20,17 +21,21 @@ export default function TaiwanHongkongMacauPage() {
       try {
         // 히어로 이미지 가져오기
         const heroImg = await getHeroImage('overseas', 'taiwan-hongkong-macau');
-        console.log('대만/홍콩/마카오 페이지: 히어로 이미지:', heroImg);
+        console.log('대만홍콩마카오 페이지: 히어로 이미지:', heroImg);
         setHeroImage(heroImg);
 
-        // 대만/홍콩/마카오 패키지 가져오기
+        // 대만홍콩마카오 패키지 가져오기
         const allPackages = await getAllPackages();
-        const taiwanPackages = allPackages.filter(pkg => 
+        const taiwanHongkongMacauPackages = allPackages.filter(pkg => 
           pkg.category === 'overseas' && 
-          (pkg.region === 'taiwan-hongkong-macau' || pkg.regionKo === '대만/홍콩/마카오')
+          (pkg.region === 'taiwan-hongkong-macau' || 
+           pkg.regionKo === '대만' || 
+           pkg.regionKo === '홍콩' || 
+           pkg.regionKo === '마카오' ||
+           pkg.regionKo === '대만홍콩마카오')
         );
-        console.log('대만/홍콩/마카오 패키지:', taiwanPackages);
-        setPackages(taiwanPackages);
+        console.log('대만홍콩마카오 패키지:', taiwanHongkongMacauPackages);
+        setPackages(taiwanHongkongMacauPackages);
       } catch (error) {
         console.error('데이터 로딩 오류:', error);
       } finally {
@@ -41,335 +46,191 @@ export default function TaiwanHongkongMacauPage() {
     fetchData();
   }, []);
 
-  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
-  // const packages: any[] = [];
-
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)
   const startIndex = (currentPage - 1) * packagesPerPage
   const endIndex = startIndex + packagesPerPage
   const currentPackages = packages.slice(startIndex, endIndex)
 
-  // 페이지 변경 핸들러
+  // 페이지 변경 처리
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // 히어로 이미지 데이터 또는 기본값
-  const backgroundImage = heroImage?.image_url || '/images/taiwan-hongkong-macau-hero.jpg'
-  const gradientOverlay = heroImage?.gradient_overlay || 'linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(16, 185, 129, 0.3) 100%)'
-  const title = heroImage?.title || '대만/홍콩/마카오'
-  const subtitle = heroImage?.subtitle || '가까운 아시아의 다채로운 문화와 매력'
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen pt-20">
-      {/* Hero Section */}
-      <section 
-        className="relative h-96 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `${gradientOverlay}, url('${backgroundImage}')`
-        }}
-      >
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="relative max-w-6xl mx-auto px-4 h-full flex items-center">
-          <div className="text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
-            <p className="text-xl mb-6">{subtitle}</p>
-            <div className="flex items-center gap-4 text-sm">
-              <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
-                대만, 홍콩, 마카오
-              </span>
-              <span className="flex items-center gap-1">
-                <Plane className="w-4 h-4 flex-shrink-0" />
-                직항 2.5-3.5시간
-              </span>
+    <div className="min-h-screen bg-gray-50">
+      {/* 히어로 섹션 */}
+      <section className="relative h-[500px] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-80"></div>
+        {heroImage && (
+          <img 
+            src={heroImage.url} 
+            alt={heroImage.alt}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="relative h-full flex items-center justify-center">
+          <div className="text-center text-white max-w-4xl mx-auto px-4">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">대만 · 홍콩 · 마카오</h1>
+            <p className="text-xl md:text-2xl mb-8">동양과 서양이 만나는 특별한 도시들</p>
+            <div className="flex items-center justify-center space-x-8 text-sm">
+              <div className="flex items-center">
+                <Thermometer className="w-5 h-5 mr-2" />
+                <span>아열대 기후</span>
+              </div>
+              <div className="flex items-center">
+                <Clock className="w-5 h-5 mr-2" />
+                <span>2-3시간 비행</span>
+              </div>
+              <div className="flex items-center">
+                <Plane className="w-5 h-5 mr-2" />
+                <span>직항 다수</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* 메인 컨텐츠 */}
       <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">추천 대만·홍콩·마카오 여행</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              각기 다른 매력을 가진 아시아의 보석 같은 여행지들
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">대만 · 홍콩 · 마카오 여행 패키지</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              독특한 문화와 맛있는 음식, 현대적 매력이 공존하는 매혹적인 여행지
             </p>
-          </div>
-          
-          {isLoading ? (
-            // 로딩 상태
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden h-96">
-                  <div className="animate-pulse">
-                    <div className="bg-gray-200 h-48 w-full"></div>
-                    <div className="p-6">
-                      <div className="bg-gray-200 h-6 w-3/4 mb-2 rounded"></div>
-                      <div className="bg-gray-200 h-4 w-1/2 mb-4 rounded"></div>
-                      <div className="flex justify-between">
-                        <div className="bg-gray-200 h-8 w-20 rounded"></div>
-                        <div className="bg-gray-200 h-8 w-16 rounded"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="mt-4 text-sm text-gray-500">
+              총 {packages.length}개의 패키지
             </div>
-          ) : packages.length === 0 ? (
-            // 패키지 없음
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg mb-2">대만·홍콩·마카오 여행 패키지가 준비 중입니다.</p>
-              <p className="text-gray-500">관리자 페이지에서 패키지를 추가해주세요.</p>
+          </div>
+
+          {packages.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🏮</div>
+              <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+                현재 등록된 대만 · 홍콩 · 마카오 패키지가 없습니다
+              </h3>
+              <p className="text-gray-500 mb-8">
+                새로운 패키지가 곧 추가될 예정입니다.
+              </p>
+              <button 
+                onClick={() => router.push('/overseas')}
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                다른 해외여행 보기
+              </button>
             </div>
           ) : (
-            // 패키지 목록
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {currentPackages.map((pkg) => (
-                <div 
-                  key={pkg.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
-                  onClick={() => router.push(`/package/${pkg.id}`)}
-                >
-                  {/* 이미지 섹션 */}
-                  <div className="relative h-48 flex-shrink-0">
-                    <img 
-                      src={pkg.image} 
-                      alt={pkg.title} 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">{pkg.rating || 5}</span>
+            <>
+              {/* 패키지 그리드 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+                {currentPackages.map((pkg, index) => (
+                  <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src={pkg.images?.[0] || '/api/placeholder/400/300'} 
+                        alt={pkg.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute top-3 left-3 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        {pkg.duration}
+                      </div>
+                      <div className="absolute top-3 right-3 bg-white bg-opacity-90 backdrop-blur-sm rounded-full p-2">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
-                    <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{pkg.regionKo || pkg.region || '대만/홍콩/마카오'}</span>
-                    </div>
                     
-                    {/* 여행 정보 */}
-                    <div className="mb-4 flex-grow">
-                      <div className="flex flex-wrap gap-2">
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                      
+                      <div className="space-y-2 mb-4">
                         {pkg.highlights?.slice(0, 2).map((highlight, index) => (
-                          <span 
-                            key={index}
-                            className="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full"
-                          >
-                            {highlight}
-                          </span>
+                          <div key={index} className="flex items-center text-sm text-gray-600">
+                            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
+                            <span className="line-clamp-1">{highlight}</span>
+                          </div>
                         ))}
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm">{pkg.duration || '준비중'}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-red-600">
-                          {(typeof pkg.price === 'string' ? parseInt(pkg.price) : pkg.price).toLocaleString()}원
+                      
+                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <div className="flex items-center">
+                          <Clock className="w-4 h-4 mr-1" />
+                          <span>{pkg.duration}</span>
                         </div>
-                        <div className="text-xs text-gray-500">1인 기준</div>
+                        <div className="flex items-center">
+                          <MapPin className="w-4 h-4 mr-1" />
+                          <span>{pkg.departure}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="text-right">
+                          <span className="text-xl font-bold text-gray-900 line-clamp-2">{pkg.price}원</span>
+                          <div className="text-sm text-gray-500">1인 기준</div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            router.push(`/package/${pkg.id}`);
+                          }}
+                          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          자세히 보기
+                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
-                  <div className="flex items-center gap-1 text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm truncate">대만/홍콩/마카오</span>
-                  </div>
-                  
-                  {/* 여행 정보 */}
-                  <div className="mb-4 flex-grow">
-                    <div className="flex flex-wrap gap-2">
-                      {pkg.highlights?.slice(0, 2).map((highlight, index) => (
-                        <span 
-                          key={index}
-                          className="bg-gradient-to-r from-red-50 via-purple-50 to-emerald-50 text-purple-600 text-xs px-2 py-1 rounded-full"
-                        >
-                          {highlight}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{pkg.duration}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Plane className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{pkg.departure}</span>
-                    </div>
-                  </div>
-                  
-                  {/* 가격 및 예약 */}
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="flex flex-col">
-                        <span className="text-xl font-bold text-purple-600 line-clamp-2">{pkg.price}원</span>
-                      <span className="text-gray-500 text-xs">/1인</span>
-                    </div>
-                    <button 
-                      className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition-colors flex-shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/package/${pkg.id}`);
-                      }}
-                    >
-                      상세보기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* 페이지네이션 */}
-          {totalPages > 1 && (
-            <div className="mt-12 flex justify-center">
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`p-2 rounded-lg ${
-                    currentPage === 1
-                      ? 'text-gray-400 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 rounded-lg ${
-                      page === currentPage
-                        ? 'bg-purple-600 text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {page}
-                  </button>
                 ))}
-                
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className={`p-2 rounded-lg ${
-                    currentPage === totalPages
-                      ? 'text-gray-400 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
               </div>
-            </div>
+
+              {/* 페이지네이션 */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center space-x-2">
+                  <button
+                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-4 py-2 rounded-lg ${
+                        currentPage === page
+                          ? 'bg-purple-600 text-white'
+                          : 'border border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  
+                  <button
+                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </>
           )}
-
-          <div className="bg-white rounded-xl shadow-lg p-8 mt-16">
-            <h2 className="text-2xl font-bold mb-6 text-center">대만·홍콩·마카오 여행 가이드</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* 대만 정보 */}
-              <div className="border rounded-lg p-6">
-                <h3 className="text-xl font-bold mb-4 text-emerald-600 flex items-center gap-2 line-clamp-2">
-                  <Mountain className="w-5 h-5" />
-                  대만
-                </h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 무비자 30일 체류</li>
-                  <li>• 타이베이 101, 야시장</li>
-                  <li>• 타로코 협곡, 일월담</li>
-                  <li>• 신타이완달러 (TWD)</li>
-                </ul>
-              </div>
-
-              {/* 홍콩 정보 */}
-              <div className="border rounded-lg p-6">
-                <h3 className="text-xl font-bold mb-4 text-red-600 flex items-center gap-2 line-clamp-2">
-                  <Building className="w-5 h-5" />
-                  홍콩
-                </h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 무비자 90일 체류</li>
-                  <li>• 빅토리아 하버, 디즈니랜드</li>
-                  <li>• 센트럴, 침사추이</li>
-                  <li>• 홍콩달러 (HKD)</li>
-                </ul>
-              </div>
-
-              {/* 마카오 정보 */}
-              <div className="border rounded-lg p-6">
-                <h3 className="text-xl font-bold mb-4 text-purple-600 flex items-center gap-2 line-clamp-2">
-                  <Crown className="w-5 h-5" />
-                  마카오
-                </h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 무비자 30일 체류</li>
-                  <li>• 베네치안, 갤럭시 카지노</li>
-                  <li>• 성 바울 성당 유적</li>
-                  <li>• 마카오파타카 (MOP)</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
-                <h4 className="font-bold mb-3 text-blue-600">여행 팁</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 여권 유효기간 6개월 이상</li>
-                  <li>• 왕복 항공권 준비</li>
-                  <li>• 현지 심카드/와이파이</li>
-                  <li>• 옥토퍼스 카드 (홍콩)</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold mb-3 text-green-600">쇼핑</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• DFS 면세점</li>
-                  <li>• 하버시티 몰</li>
-                  <li>• 시먼딩 쇼핑가</li>
-                  <li>• 로컬 야시장</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold mb-3 text-purple-600">음식</h4>
-                <ul className="space-y-2 text-gray-600">
-                  <li>• 딤섬, 차찬탱</li>
-                  <li>• 타이완 야시장 음식</li>
-                  <li>• 포르투갈 요리</li>
-                  <li>• 에그타르트</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold mb-3 text-orange-600">교통</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• 홍콩-마카오: 페리 1시간</li>
-                  <li>• 지하철(MTR) 이용</li>
-                  <li>• 택시, 버스</li>
-                  <li>• 투어버스 추천</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
     </div>
