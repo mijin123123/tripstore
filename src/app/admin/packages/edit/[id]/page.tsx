@@ -44,8 +44,6 @@ export default function EditPackage() {
     min_people: 1,
     max_people: 10,
     itinerary: '',
-      meals: { breakfast: false, lunch: false, dinner: false }
-    }],
     included: [''],
     excluded: [''],
     notes: [''],
