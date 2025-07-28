@@ -463,7 +463,7 @@ export default function PackageDetail() {
                 {packageData.itinerary && Array.isArray(packageData.itinerary) && packageData.itinerary.length > 0 ? (
                   packageData.itinerary.map((day, index) => (
                     <div key={day.day || index} className='border-l-4 border-blue-500 pl-4 pb-6'>
-                      {day.title && (
+                      {day.title && !day.title.startsWith('Day') && (
                         <h3 className='text-xl font-semibold mb-2'>{day.title}</h3>
                       )}
                       <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description || '일정 상세 내용이 준비 중입니다.'}</p>
