@@ -43,11 +43,7 @@ export default function EditPackage() {
     type: '',
     min_people: 1,
     max_people: 10,
-    itinerary: [{
-      day: 1,
-      title: '',
-      description: '',
-      accommodation: '',
+    itinerary: '',
       meals: { breakfast: false, lunch: false, dinner: false }
     }],
     included: [''],
@@ -130,13 +126,7 @@ export default function EditPackage() {
             type: pkg.type || '',
             min_people: pkg.min_people || 1,
             max_people: pkg.max_people || 10,
-            itinerary: Array.isArray(pkg.itinerary) ? pkg.itinerary : [{
-              day: 1,
-              title: '',
-              description: '',
-              accommodation: '',
-              meals: { breakfast: false, lunch: false, dinner: false }
-            }],
+            itinerary: typeof pkg.itinerary === 'string' ? pkg.itinerary : '',
             included: Array.isArray(pkg.included) ? pkg.included : [''],
             excluded: Array.isArray(pkg.excluded) ? pkg.excluded : [''],
             notes: Array.isArray(pkg.notes) ? pkg.notes : [''],
