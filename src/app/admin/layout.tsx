@@ -108,9 +108,6 @@ export default function AdminLayout({
         setIsLoading(false)
       }
     }
-        }
-      }
-    }
 
     checkAdmin()
 
