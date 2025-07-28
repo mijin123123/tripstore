@@ -43,7 +43,7 @@ export default function EditPackage() {
     type: '',
     min_people: 1,
     max_people: 10,
-    itinerary: '',
+    itinerary: [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
     included: [''],
     excluded: [''],
     notes: [''],
@@ -110,6 +110,28 @@ export default function EditPackage() {
           
           const location = pkg.features?.location || '';
           
+          // itinerary 데이터 처리
+          let itineraryData = [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}];
+          
+          if (Array.isArray(pkg.itinerary) && pkg.itinerary.length > 0) {
+            itineraryData = pkg.itinerary.map((item: any, index: number) => ({
+              day: index + 1,
+              title: item.title || '',
+              description: item.description || '',
+              accommodation: item.accommodation || '',
+              meals: item.meals || {breakfast: false, lunch: false, dinner: false}
+            }));
+          } else if (typeof pkg.itinerary === 'string' && pkg.itinerary.trim()) {
+            // 문자열인 경우 간단한 파싱
+            itineraryData = [{
+              day: 1,
+              title: 'Day 1',
+              description: pkg.itinerary,
+              accommodation: '',
+              meals: {breakfast: false, lunch: false, dinner: false}
+            }];
+          }
+          
           setFormData({
             id: pkg.id || '',
             name: pkg.title || '',
@@ -124,7 +146,7 @@ export default function EditPackage() {
             type: pkg.type || '',
             min_people: pkg.min_people || 1,
             max_people: pkg.max_people || 10,
-            itinerary: typeof pkg.itinerary === 'string' ? pkg.itinerary : '',
+            itinerary: itineraryData,
             included: Array.isArray(pkg.included) ? pkg.included : [''],
             excluded: Array.isArray(pkg.excluded) ? pkg.excluded : [''],
             notes: Array.isArray(pkg.notes) ? pkg.notes : [''],
@@ -775,7 +797,8 @@ export default function EditPackage() {
                         
                         // 순차적으로 파일 업로드
                         let uploadIndex = 0
-                        for (const [fileIndex, file] of files.entries()) {
+                        for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+                          const file = files[fileIndex]
                           try {
                             // 빈 슬롯 찾기
                             while (uploadIndex < currentImages.length && currentImages[uploadIndex].trim() !== '') {
