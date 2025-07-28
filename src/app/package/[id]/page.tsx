@@ -122,7 +122,13 @@ export default function PackageDetail() {
           const id = params.id as string;
           console.log('패키지 ID로 데이터 로드:', id);
           
-          const packageInfo = await getPackageById(id);
+          // API를 통해 패키지 데이터 가져오기
+          const response = await fetch(`/api/packages/${id}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const packageInfo = await response.json();
           console.log('로드된 패키지 정보:', packageInfo);
           console.log('여행 일정 데이터:', {
             itinerary: packageInfo?.itinerary,
@@ -153,7 +159,7 @@ export default function PackageDetail() {
             // 추가 이미지 추가 (images 배열에서) - images 필드가 존재하는 경우에만
             if (packageInfo.images && Array.isArray(packageInfo.images) && packageInfo.images.length > 0) {
               console.log('추가 이미지 배열 처리 시작:', packageInfo.images);
-              packageInfo.images.forEach((img, index) => {
+              packageInfo.images.forEach((img: any, index: number) => {
                 if (typeof img === 'string' && img.trim() !== '') {
                   const mappedImage = getValidImagePath(img, packageInfo.type || '', packageInfo.region || '');
                   // 중복 이미지 체크 (Base64의 경우 정확한 비교)
@@ -444,13 +450,15 @@ export default function PackageDetail() {
               <h2 className='text-2xl font-bold mb-6'>상세 일정</h2>
               
               <div className='space-y-6'>
-                {/* 디버깅을 위한 로깅 */}
-                {console.log('일정 렌더링 체크:', {
-                  itinerary: packageData.itinerary,
-                  type: typeof packageData.itinerary,
-                  isArray: Array.isArray(packageData.itinerary),
-                  length: Array.isArray(packageData.itinerary) ? packageData.itinerary.length : 'N/A'
-                })}
+                {(() => {
+                  console.log('일정 렌더링 체크:', {
+                    itinerary: packageData.itinerary,
+                    type: typeof packageData.itinerary,
+                    isArray: Array.isArray(packageData.itinerary),
+                    length: Array.isArray(packageData.itinerary) ? packageData.itinerary.length : 'N/A'
+                  });
+                  return null;
+                })()}
                 
                 {packageData.itinerary && Array.isArray(packageData.itinerary) && packageData.itinerary.length > 0 ? (
                   packageData.itinerary.map((day, index) => (
