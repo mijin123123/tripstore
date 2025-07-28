@@ -147,6 +147,7 @@ export default function PackageDetail() {
             
             // 추가 이미지 추가 (images 배열에서) - images 필드가 존재하는 경우에만
             if (packageInfo.images && Array.isArray(packageInfo.images) && packageInfo.images.length > 0) {
+              console.log('추가 이미지 배열 처리 시작:', packageInfo.images);
               packageInfo.images.forEach((img, index) => {
                 if (typeof img === 'string' && img.trim() !== '') {
                   const mappedImage = getValidImagePath(img, packageInfo.type || '', packageInfo.region || '');
