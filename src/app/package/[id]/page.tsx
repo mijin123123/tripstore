@@ -124,6 +124,11 @@ export default function PackageDetail() {
           
           const packageInfo = await getPackageById(id);
           console.log('로드된 패키지 정보:', packageInfo);
+          console.log('여행 일정 데이터:', {
+            itinerary: packageInfo?.itinerary,
+            itineraryType: typeof packageInfo?.itinerary,
+            itineraryLength: Array.isArray(packageInfo?.itinerary) ? packageInfo.itinerary.length : 'Not an array'
+          });
           
           setPackageData(packageInfo);
           
@@ -439,36 +444,50 @@ export default function PackageDetail() {
               <h2 className='text-2xl font-bold mb-6'>상세 일정</h2>
               
               <div className='space-y-6'>
-                {packageData.itinerary?.map((day) => (
-                  <div key={day.day} className='border-l-4 border-blue-500 pl-4 pb-6'>
-                    <div className='flex items-center gap-2 mb-2'>
-                      <div className='bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold'>
-                        {day.day}
+                {packageData.itinerary && Array.isArray(packageData.itinerary) && packageData.itinerary.length > 0 ? (
+                  packageData.itinerary.map((day) => (
+                    <div key={day.day} className='border-l-4 border-blue-500 pl-4 pb-6'>
+                      <div className='flex items-center gap-2 mb-2'>
+                        <div className='bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold'>
+                          {day.day}
+                        </div>
+                        <h3 className='text-xl font-semibold'>{day.title || `Day ${day.day}`}</h3>
                       </div>
-                      <h3 className='text-xl font-semibold'>{day.title}</h3>
+                      <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description}</p>
+                      
+                      <div className='flex flex-wrap gap-4 items-center mt-3'>
+                        {day.accommodation && (
+                          <div className='flex items-center'>
+                            <span className='text-sm text-gray-500'>숙박:</span>
+                            <span className='ml-2 text-sm font-medium'>{day.accommodation}</span>
+                          </div>
+                        )}
+                        {day.meals && (
+                          <div className='flex items-center gap-2'>
+                            <span className='text-sm text-gray-500'>식사:</span>
+                            <span className={`inline-flex items-center p-1 rounded ${day.meals.breakfast ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
+                              <Coffee className='w-3 h-3 mr-1' /> 조식
+                            </span>
+                            <span className={`inline-flex items-center p-1 rounded ${day.meals.lunch ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                              <Utensils className='w-3 h-3 mr-1' /> 중식
+                            </span>
+                            <span className={`inline-flex items-center p-1 rounded ${day.meals.dinner ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'}`}>
+                              <Utensils className='w-3 h-3 mr-1' /> 석식
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description}</p>
-                    
-                    <div className='flex flex-wrap gap-4 items-center mt-3'>
-                      <div className='flex items-center'>
-                        <span className='text-sm text-gray-500'>숙박:</span>
-                        <span className='ml-2 text-sm font-medium'>{day.accommodation}</span>
-                      </div>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-sm text-gray-500'>식사:</span>
-                        <span className={`inline-flex items-center p-1 rounded ${day.meals.breakfast ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
-                          <Coffee className='w-3 h-3 mr-1' /> 조식
-                        </span>
-                        <span className={`inline-flex items-center p-1 rounded ${day.meals.lunch ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
-                          <Utensils className='w-3 h-3 mr-1' /> 중식
-                        </span>
-                        <span className={`inline-flex items-center p-1 rounded ${day.meals.dinner ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'}`}>
-                          <Utensils className='w-3 h-3 mr-1' /> 석식
-                        </span>
-                      </div>
+                  ))
+                ) : (
+                  <div className='text-center py-8'>
+                    <div className='mb-4'>
+                      <Calendar className='w-12 h-12 text-gray-400 mx-auto' />
                     </div>
+                    <p className='text-gray-500 text-lg'>상세 일정 정보가 준비 중입니다.</p>
+                    <p className='text-gray-400 text-sm mt-2'>곧 업데이트될 예정입니다.</p>
                   </div>
-                ))}
+                )}
               </div>
             </section>
 
