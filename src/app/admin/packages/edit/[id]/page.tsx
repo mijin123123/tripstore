@@ -168,6 +168,57 @@ export default function EditPackage() {
     return num.toLocaleString('ko-KR')
   }
 
+  // 이미지 파일을 Base64로 변환하는 함수
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  // 일정 텍스트에 이미지 붙여넣기 핸들러
+  const handleItineraryPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData.items;
+    
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // 이미지 파일인 경우
+      if (item.type.startsWith('image/')) {
+        e.preventDefault(); // 기본 붙여넣기 방지
+        
+        const file = item.getAsFile();
+        if (file) {
+          try {
+            const base64 = await convertToBase64(file);
+            const currentValue = formData.itinerary;
+            const textarea = e.target as HTMLTextAreaElement;
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            
+            // 이미지 마크다운 문법으로 삽입
+            const imageMarkdown = `![이미지](${base64})`;
+            const newValue = currentValue.substring(0, startPos) + imageMarkdown + currentValue.substring(endPos);
+            
+            handleItineraryChange(newValue);
+            
+            // 커서 위치를 이미지 태그 뒤로 이동
+            setTimeout(() => {
+              textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
+              textarea.focus();
+            }, 0);
+          } catch (error) {
+            console.error('이미지 변환 실패:', error);
+            alert('이미지 처리 중 오류가 발생했습니다.');
+          }
+        }
+        break;
+      }
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     
@@ -1012,9 +1063,10 @@ export default function EditPackage() {
             <textarea
               value={formData.itinerary}
               onChange={(e) => handleItineraryChange(e.target.value)}
+              onPaste={handleItineraryPaste}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={4}
-              placeholder="간략한 여행 일정을 입력하세요&#10;예: 3박 4일&#10;아시아나항공&#10;하노이-사파-하이퐁(1)"
+              rows={6}
+              placeholder="간략한 여행 일정을 입력하세요&#10;예: 3박 4일&#10;아시아나항공&#10;하노이-사파-하이퐁(1)&#10;&#10;📷 이미지도 붙여넣기 가능합니다!"
             />
           </div>
         </div>
