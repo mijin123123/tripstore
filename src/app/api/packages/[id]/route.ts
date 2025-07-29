@@ -26,6 +26,16 @@ export async function GET(request: Request) {
       return Response.json({ error: 'Package not found' }, { status: 404 })
     }
     
+    // 일정 데이터 디버깅
+    console.log('API에서 받은 일정 데이터:', {
+      id: data.id,
+      title: data.title,
+      itinerary: data.itinerary,
+      itineraryType: typeof data.itinerary,
+      isArray: Array.isArray(data.itinerary),
+      length: Array.isArray(data.itinerary) ? data.itinerary.length : 'N/A'
+    });
+
     // 데이터 정규화
     const normalizedData = {
       ...data,
@@ -38,18 +48,11 @@ export async function GET(request: Request) {
       included: Array.isArray(data.included) ? data.included : [],
       excluded: Array.isArray(data.excluded) ? data.excluded : [],
       notes: Array.isArray(data.notes) ? data.notes : [],
-      itinerary: Array.isArray(data.itinerary) && data.itinerary.length > 0 
-        ? data.itinerary 
-        : [
-            {
-              day: 1,
-              title: "여행 시작",
-              description: "상세 일정이 곧 업데이트될 예정입니다.",
-              accommodation: "",
-              meals: { breakfast: false, lunch: false, dinner: false }
-            }
-          ]
+      // 일정 데이터를 그대로 전달 (기본값 설정하지 않음)
+      itinerary: data.itinerary || []
     }
+
+    console.log('정규화된 일정 데이터:', normalizedData.itinerary);
     
     return Response.json(normalizedData)
   } catch (error: any) {

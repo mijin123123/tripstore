@@ -463,9 +463,14 @@ export default function PackageDetail() {
                 {packageData.itinerary && Array.isArray(packageData.itinerary) && packageData.itinerary.length > 0 ? (
                   packageData.itinerary.map((day, index) => (
                     <div key={day.day || index} className='border-l-4 border-blue-500 pl-4 pb-6'>
-                      {day.title && !day.title.startsWith('Day') && (
-                        <h3 className='text-xl font-semibold mb-2'>{day.title}</h3>
-                      )}
+                      <div className='flex items-center gap-2 mb-2'>
+                        <div className='bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold'>
+                          {day.day}
+                        </div>
+                        {day.title && (
+                          <h3 className='text-xl font-semibold'>{day.title}</h3>
+                        )}
+                      </div>
                       <p className='text-gray-700 mb-3 whitespace-pre-wrap'>{day.description || '일정 상세 내용이 준비 중입니다.'}</p>
                       
                       <div className='flex flex-wrap gap-4 items-center mt-3'>
@@ -478,13 +483,13 @@ export default function PackageDetail() {
                         {day.meals && (
                           <div className='flex items-center gap-2'>
                             <span className='text-sm text-gray-500'>식사:</span>
-                            <span className={`inline-flex items-center p-1 rounded ${day.meals.breakfast ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs ${day.meals.breakfast ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
                               <Coffee className='w-3 h-3 mr-1' /> 조식
                             </span>
-                            <span className={`inline-flex items-center p-1 rounded ${day.meals.lunch ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs ${day.meals.lunch ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
                               <Utensils className='w-3 h-3 mr-1' /> 중식
                             </span>
-                            <span className={`inline-flex items-center p-1 rounded ${day.meals.dinner ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'}`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs ${day.meals.dinner ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'}`}>
                               <Utensils className='w-3 h-3 mr-1' /> 석식
                             </span>
                           </div>
@@ -504,7 +509,8 @@ export default function PackageDetail() {
                       <strong>디버깅 정보:</strong><br/>
                       일정 데이터: {JSON.stringify(packageData.itinerary)}<br/>
                       타입: {typeof packageData.itinerary}<br/>
-                      배열 여부: {Array.isArray(packageData.itinerary) ? 'Yes' : 'No'}
+                      배열 여부: {Array.isArray(packageData.itinerary) ? 'Yes' : 'No'}<br/>
+                      데이터 길이: {Array.isArray(packageData.itinerary) ? packageData.itinerary.length : 'Not array'}
                     </div>
                   </div>
                 )}

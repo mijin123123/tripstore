@@ -43,7 +43,7 @@ export default function EditPackage() {
     type: '',
     min_people: 1,
     max_people: 10,
-    itinerary: [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
+    itinerary: '', // 문자열로 변경
     included: [''],
     excluded: [''],
     notes: [''],
@@ -110,26 +110,17 @@ export default function EditPackage() {
           
           const location = pkg.features?.location || '';
           
-          // itinerary 데이터 처리
-          let itineraryData = [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}];
+          // itinerary 데이터 처리 - 문자열로 변환
+          let itineraryString = '';
           
           if (Array.isArray(pkg.itinerary) && pkg.itinerary.length > 0) {
-            itineraryData = pkg.itinerary.map((item: any, index: number) => ({
-              day: index + 1,
-              title: item.title || '',
-              description: item.description || '',
-              accommodation: item.accommodation || '',
-              meals: item.meals || {breakfast: false, lunch: false, dinner: false}
-            }));
+            // 배열 형태의 일정을 문자열로 변환
+            itineraryString = pkg.itinerary.map((item: any) => 
+              `Day ${item.day}: ${item.title || ''}\n${item.description || ''}`
+            ).join('\n\n');
           } else if (typeof pkg.itinerary === 'string' && pkg.itinerary.trim()) {
-            // 문자열인 경우 간단한 파싱
-            itineraryData = [{
-              day: 1,
-              title: 'Day 1',
-              description: pkg.itinerary,
-              accommodation: '',
-              meals: {breakfast: false, lunch: false, dinner: false}
-            }];
+            // 이미 문자열인 경우 그대로 사용
+            itineraryString = pkg.itinerary;
           }
           
           setFormData({
@@ -146,7 +137,7 @@ export default function EditPackage() {
             type: pkg.type || '',
             min_people: pkg.min_people || 1,
             max_people: pkg.max_people || 10,
-            itinerary: itineraryData,
+            itinerary: itineraryString,
             included: Array.isArray(pkg.included) ? pkg.included : [''],
             excluded: Array.isArray(pkg.excluded) ? pkg.excluded : [''],
             notes: Array.isArray(pkg.notes) ? pkg.notes : [''],
@@ -425,41 +416,8 @@ export default function EditPackage() {
     }
   }
 
-  const handleItineraryChange = (index: number, field: string, value: any) => {
-    const newItinerary = [...formData.itinerary]
-    
-    if (field === 'breakfast' || field === 'lunch' || field === 'dinner') {
-      newItinerary[index].meals = {
-        ...newItinerary[index].meals,
-        [field]: value
-      }
-    } else {
-      // @ts-ignore
-      newItinerary[index][field] = value
-    }
-    
-    setFormData({ ...formData, itinerary: newItinerary })
-  }
-
-  const addItineraryDay = () => {
-    const lastDay = formData.itinerary[formData.itinerary.length - 1].day
-    const newDay = {
-      day: lastDay + 1,
-      title: '',
-      description: '',
-      accommodation: '',
-      meals: { breakfast: false, lunch: false, dinner: false }
-    }
-    
-    setFormData({ ...formData, itinerary: [...formData.itinerary, newDay] })
-  }
-
-  const removeItineraryDay = (index: number) => {
-    const newItinerary = formData.itinerary
-      .filter((_, i) => i !== index)
-      .map((day, i) => ({ ...day, day: i + 1 }))
-      
-    setFormData({ ...formData, itinerary: newItinerary })
+  const handleItineraryChange = (value: string) => {
+    setFormData({ ...formData, itinerary: value })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -479,12 +437,8 @@ export default function EditPackage() {
       const notes = formData.notes.filter(item => item.trim() !== '')
       const images = formData.images.filter(item => item.trim() !== '')
       
-      // 여행 일정 검증
-      const itinerary = formData.itinerary.map(day => ({
-        ...day,
-        title: day.title.trim() || `Day ${day.day}`,
-        description: day.description.trim()
-      }))
+      // 여행 일정은 문자열로 저장
+      const itinerary = formData.itinerary || ''
       
       // 데이터베이스 업데이트 준비
       const supabase = createClient()
@@ -504,7 +458,7 @@ export default function EditPackage() {
           duration: formData.duration || '',
           departure: formData.departure || '',
           highlights: highlights.length ? highlights : [''],
-          itinerary: itinerary || [{day: 1, title: '', description: '', accommodation: '', meals: {breakfast: false, lunch: false, dinner: false}}],
+          itinerary: itinerary || '',
           included: included.length ? included : [''],
           excluded: excluded.length ? excluded : [''],
           notes: notes.length ? notes : [''],
@@ -1048,108 +1002,21 @@ export default function EditPackage() {
 
         {/* 여행 일정 */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="itinerary-section">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">여행 일정</h2>
-            <button
-              type="button"
-              onClick={addItineraryDay}
-              className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
-            >
-              <Plus size={16} className="mr-1" /> 일정 추가
-            </button>
-          </div>
+          <h2 className="text-lg font-semibold mb-4">여행 일정</h2>
           
-          {formData.itinerary.map((day, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-medium text-gray-900">Day {day.day}</h3>
-                <button
-                  type="button"
-                  onClick={() => removeItineraryDay(index)}
-                  className="text-red-600 hover:text-red-800"
-                  disabled={formData.itinerary.length <= 1}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    일정 제목
-                  </label>
-                  <input
-                    type="text"
-                    value={day.title}
-                    onChange={(e) => handleItineraryChange(index, 'title', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={`Day ${day.day} 제목`}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    숙박
-                  </label>
-                  <input
-                    type="text"
-                    value={day.accommodation}
-                    onChange={(e) => handleItineraryChange(index, 'accommodation', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="숙박 정보"
-                  />
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    일정 설명
-                  </label>
-                  <textarea
-                    value={day.description}
-                    onChange={(e) => handleItineraryChange(index, 'description', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="상세 일정을 입력하세요"
-                  />
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    식사 포함
-                  </label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={day.meals.breakfast}
-                        onChange={(e) => handleItineraryChange(index, 'breakfast', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">조식</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={day.meals.lunch}
-                        onChange={(e) => handleItineraryChange(index, 'lunch', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">중식</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={day.meals.dinner}
-                        onChange={(e) => handleItineraryChange(index, 'dinner', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">석식</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              간략 일정 
+              <span className="text-gray-500 text-xs ml-1">(예: 3박 4일, 아시아나항공, 하노이-사파-하이퐁(1))</span>
+            </label>
+            <textarea
+              value={formData.itinerary}
+              onChange={(e) => handleItineraryChange(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={4}
+              placeholder="간략한 여행 일정을 입력하세요&#10;예: 3박 4일&#10;아시아나항공&#10;하노이-사파-하이퐁(1)"
+            />
+          </div>
         </div>
 
         {/* 포함 사항 */}
