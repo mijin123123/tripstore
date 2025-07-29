@@ -1,6 +1,6 @@
 'use client'
 
-import { MapPin, Calendar, Users, Star, Clock, Plane, Thermometer, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Clock, Plane, Thermometer, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -13,6 +13,8 @@ export default function AmericasPage() {
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [packages, setPackages] = useState<Package[]>([]);
+  const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const packagesPerPage = 12;
 
@@ -32,6 +34,7 @@ export default function AmericasPage() {
         );
         console.log('미주 패키지:', americasPackages);
         setPackages(americasPackages);
+        setFilteredPackages(americasPackages);
       } catch (error) {
         console.error('데이터 로딩 오류:', error);
       } finally {
@@ -42,11 +45,30 @@ export default function AmericasPage() {
     fetchData();
   }, []);
 
+  // 검색 필터링
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredPackages(packages);
+    } else {
+      const filtered = packages.filter(pkg => 
+        pkg.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pkg.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pkg.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredPackages(filtered);
+    }
+    setCurrentPage(1); // 검색할 때 첫 페이지로 리셋
+  }, [searchTerm, packages]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   // 페이지네이션 계산
-  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const totalPages = Math.ceil(filteredPackages.length / packagesPerPage)
   const startIndex = (currentPage - 1) * packagesPerPage
   const endIndex = startIndex + packagesPerPage
-  const currentPackages = packages.slice(startIndex, endIndex)
+  const currentPackages = filteredPackages.slice(startIndex, endIndex)
 
   // 페이지 변경 처리
   const handlePageChange = (page: number) => {
@@ -100,6 +122,29 @@ export default function AmericasPage() {
         </div>
       </section>
 
+      {/* 검색 섹션 */}
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-md mx-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="미주 여행 패키지 검색..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            {searchTerm && (
+              <p className="mt-2 text-sm text-gray-600 text-center">
+                총 {filteredPackages.length}개의 패키지를 찾았습니다.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* 메인 컨텐츠 */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -109,18 +154,24 @@ export default function AmericasPage() {
               광활한 대자연과 현대 문명이 조화를 이룬 북미 대륙에서 특별한 경험을 만나보세요.
             </p>
             <div className="mt-4 text-sm text-gray-500">
-              총 {packages.length}개의 패키지
+              총 {filteredPackages.length}개의 패키지
             </div>
           </div>
 
-          {packages.length === 0 ? (
+          {currentPackages.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-6xl mb-4">🗽</div>
               <h3 className="text-2xl font-semibold text-gray-700 mb-2">
-                현재 등록된 미주 패키지가 없습니다
+                {searchTerm 
+                  ? `"${searchTerm}"에 대한 검색 결과가 없습니다` 
+                  : '현재 등록된 미주 패키지가 없습니다'
+                }
               </h3>
               <p className="text-gray-500 mb-8">
-                새로운 패키지가 곧 추가될 예정입니다.
+                {searchTerm 
+                  ? '다른 검색어로 다시 시도해보세요.' 
+                  : '새로운 패키지가 곧 추가될 예정입니다.'
+                }
               </p>
               <button 
                 onClick={() => router.push('/overseas')}

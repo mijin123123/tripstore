@@ -27,6 +27,8 @@ export default function LuxuryEuropePage() {
     loadHeroImage()
   }, [])
 
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)
@@ -39,9 +41,6 @@ export default function LuxuryEuropePage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  
-  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
-  const packages: any[] = [];
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/luxury-europe-hero.jpg'

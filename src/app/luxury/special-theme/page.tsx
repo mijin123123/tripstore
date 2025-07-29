@@ -10,6 +10,8 @@ import { getHeroImage, HeroImage } from '@/lib/heroImages'
 export default function LuxurySpecialThemePage() {
   const router = useRouter();
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
+  const [currentPage, setCurrentPage] = useState(1);
+  const packagesPerPage = 12;
 
   useEffect(() => {
     async function loadHeroImage() {
@@ -25,6 +27,8 @@ export default function LuxurySpecialThemePage() {
     loadHeroImage()
   }, [])
 
+  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
+  const packages: any[] = [];
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(packages.length / packagesPerPage)
@@ -37,9 +41,6 @@ export default function LuxurySpecialThemePage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  
-  // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
-  const packages: any[] = [];
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/luxury-special-theme-hero.jpg'

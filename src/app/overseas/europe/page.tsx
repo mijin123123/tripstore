@@ -1,6 +1,6 @@
 'use client'
 
-import { MapPin, Calendar, Users, Star, Clock, Plane, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Clock, Plane, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
@@ -10,6 +10,8 @@ import { getHeroImage, HeroImage } from '@/lib/heroImages'
 export default function EuropePage() {
   const router = useRouter();
   const [europePackages, setEuropePackages] = useState<Package[]>([]);
+  const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,6 +38,7 @@ export default function EuropePage() {
         console.log('유럽 페이지: 조회된 패키지 개수:', packages.length);
         console.log('유럽 페이지: 히어로 이미지:', heroImg);
         setEuropePackages(packages);
+        setFilteredPackages(packages);
         setHeroImage(heroImg);
       } catch (error) {
         console.error('유럽 패키지를 가져오는데 실패했습니다:', error);
@@ -46,12 +49,34 @@ export default function EuropePage() {
 
     fetchData();
   }, []);
+
+  // 검색 기능
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredPackages(europePackages);
+    } else {
+      const filtered = europePackages.filter(pkg =>
+        (pkg.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (pkg.description && pkg.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pkg.highlights && pkg.highlights.some(highlight => 
+          highlight.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
+      );
+      setFilteredPackages(filtered);
+    }
+    setCurrentPage(1); // 검색 시 첫 페이지로 리셋
+  }, [searchTerm, europePackages]);
+
+  // 검색어 변경 핸들러
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
   
   // 페이지네이션 계산
-  const totalPages = Math.ceil(europePackages.length / packagesPerPage)
+  const totalPages = Math.ceil(filteredPackages.length / packagesPerPage)
   const startIndex = (currentPage - 1) * packagesPerPage
   const endIndex = startIndex + packagesPerPage
-  const currentPackages = europePackages.slice(startIndex, endIndex)
+  const currentPackages = filteredPackages.slice(startIndex, endIndex)
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
@@ -101,6 +126,31 @@ export default function EuropePage() {
         </div>
       </section>
 
+      {/* 검색 섹션 */}
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="패키지명, 설명, 특징으로 검색하세요... (예: 파리, 런던, 로마)"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+            {searchTerm && (
+              <div className="mt-2 text-sm text-gray-600 text-center">
+                "{searchTerm}"에 대한 검색 결과: {filteredPackages.length}개
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* 패키지 리스트 */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
@@ -111,21 +161,31 @@ export default function EuropePage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
-                {/* 이미지 섹션 */}
-                <div className="relative h-48 flex-shrink-0">
-                  <img 
-                    src={pkg.image} 
-                    alt={pkg.title}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    유럽
+          {currentPackages.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500 text-lg">
+                {searchTerm 
+                  ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` 
+                  : '현재 등록된 유럽 여행 패키지가 없습니다.'
+                }
+              </p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {currentPackages.map((pkg) => (
+                <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col" onClick={() => router.push(`/package/${pkg.id}`)}>
+                  {/* 이미지 섹션 */}
+                  <div className="relative h-48 flex-shrink-0">
+                    <img 
+                      src={pkg.image} 
+                      alt={pkg.title}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                      유럽
+                    </div>
                   </div>
-                </div>
 
                 <div className="p-6 flex flex-col flex-grow">
                   <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
@@ -178,7 +238,8 @@ export default function EuropePage() {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
 
           {/* 페이지네이션 */}
           {totalPages > 1 && (
