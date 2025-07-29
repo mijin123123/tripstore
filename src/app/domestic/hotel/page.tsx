@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, Star, Calendar, Home, Bed, Coffee, Wifi, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Star, Calendar, Home, Bed, Coffee, Wifi, Users, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/types'
 import { getPackagesByTypeAndRegion } from '@/lib/api'
@@ -10,6 +10,8 @@ import { getHeroImage, HeroImage } from '@/lib/heroImages'
 export default function DomesticHotelPage() {
   const router = useRouter();
   const [packages, setPackages] = useState<Package[]>([]);
+  const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -28,6 +30,7 @@ export default function DomesticHotelPage() {
         console.log('국내 호텔/리조트 히어로 이미지:', heroImageData)
         
         setPackages(hotelData);
+        setFilteredPackages(hotelData);
         setHeroImage(heroImageData)
       } catch (error) {
         console.error('데이터를 가져오는 중 오류 발생:', error);
@@ -39,11 +42,30 @@ export default function DomesticHotelPage() {
     fetchData();
   }, []);
 
+  // 검색 필터링
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredPackages(packages);
+    } else {
+      const filtered = packages.filter(pkg => 
+        pkg.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pkg.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pkg.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredPackages(filtered);
+    }
+    setCurrentPage(1); // 검색할 때 첫 페이지로 리셋
+  }, [searchTerm, packages]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   // 페이지네이션 계산
-  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const totalPages = Math.ceil(filteredPackages.length / packagesPerPage)
   const startIndex = (currentPage - 1) * packagesPerPage
   const endIndex = startIndex + packagesPerPage
-  const currentPackages = packages.slice(startIndex, endIndex)
+  const currentPackages = filteredPackages.slice(startIndex, endIndex)
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
@@ -94,6 +116,29 @@ export default function DomesticHotelPage() {
         </div>
       </section>
 
+      {/* 검색 섹션 */}
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-md mx-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="국내 호텔/리조트 검색..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+            {searchTerm && (
+              <p className="mt-2 text-sm text-gray-600 text-center">
+                총 {filteredPackages.length}개의 패키지를 찾았습니다.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* 패키지 리스트 */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
@@ -105,7 +150,16 @@ export default function DomesticHotelPage() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {packages.length > 0 ? (
+            {currentPackages.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">
+                  {searchTerm 
+                    ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` 
+                    : '현재 등록된 국내 호텔/리조트 패키지가 없습니다.'
+                  }
+                </p>
+              </div>
+            ) : (
               currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
@@ -172,16 +226,11 @@ export default function DomesticHotelPage() {
                   </div>
                 </div>
               ))
-            ) : (
-              <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 text-lg">등록된 호텔/리조트 패키지가 없습니다.</p>
-                <p className="text-gray-400 text-sm mt-2">관리자가 곧 새로운 패키지를 추가할 예정입니다.</p>
-              </div>
             )}
           </div>
 
           {/* 페이지네이션 */}
-          {packages.length > packagesPerPage && (
+          {filteredPackages.length > packagesPerPage && (
             <div className="flex justify-center items-center mt-12 space-x-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
