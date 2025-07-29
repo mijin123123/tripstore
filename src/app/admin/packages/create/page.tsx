@@ -240,9 +240,16 @@ export default function CreatePackage() {
 
     try {
       const imageUrl = await uploadImage(file, index)
-      const newImages = [...formData.images]
-      newImages[index] = imageUrl
-      setFormData({ ...formData, images: newImages })
+      
+      if (index === -1) {
+        // 대표 이미지 업로드
+        setFormData({ ...formData, image: imageUrl })
+      } else {
+        // 추가 이미지 업로드
+        const newImages = [...formData.images]
+        newImages[index] = imageUrl
+        setFormData({ ...formData, images: newImages })
+      }
     } catch (error) {
       alert('이미지 업로드에 실패했습니다.')
     }
@@ -508,24 +515,262 @@ export default function CreatePackage() {
             </div>
           </div>
 
-          {/* 기타 설정 */}
+          {/* 이미지 관리 */}
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h2 className="text-lg font-semibold mb-4">기타 설정</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  대표 이미지 URL
-                </label>
+            <h2 className="text-lg font-semibold mb-4">이미지 관리</h2>
+            
+            {/* 대표 이미지 */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                대표 이미지 <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-3">
                 <input
                   type="url"
                   name="image"
                   value={formData.image}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="대표 이미지 URL을 입력하세요"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="대표 이미지 URL 또는 파일 업로드"
                 />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleImageUpload(e, -1); // -1은 대표 이미지를 의미
+                    }
+                  }}
+                  className="hidden"
+                  id="main-image-upload"
+                />
+                <label
+                  htmlFor="main-image-upload"
+                  className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 cursor-pointer border border-blue-300"
+                >
+                  파일 선택
+                </label>
               </div>
-              
+            </div>
+
+            {/* 추가 이미지들 */}
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  추가 이미지 (최대 10장)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => addArrayItem('images')}
+                  disabled={formData.images.length >= 10}
+                  className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Plus className="w-4 h-4" />
+                  이미지 추가
+                </button>
+              </div>
+              <div className="space-y-3">
+                {formData.images.map((image, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <span className="text-sm text-gray-500 min-w-[20px]">{index + 1}.</span>
+                    <input
+                      type="url"
+                      value={image}
+                      onChange={(e) => updateArrayItem('images', index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="이미지 URL 또는 파일 업로드"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, index)}
+                      className="hidden"
+                      id={`image-upload-${index}`}
+                    />
+                    <label
+                      htmlFor={`image-upload-${index}`}
+                      className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer border border-gray-300"
+                    >
+                      {uploadingImages.includes(index) ? '업로드 중...' : '파일 선택'}
+                    </label>
+                    {formData.images.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeArrayItem('images', index)}
+                        className="p-2 text-red-600 hover:text-red-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 포함/불포함 사항 */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 className="text-lg font-semibold mb-4">포함/불포함 사항</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 포함 사항 */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    포함 사항
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => addArrayItem('included')}
+                    className="flex items-center gap-1 text-sm text-green-600 hover:text-green-700"
+                  >
+                    <Plus className="w-4 h-4" />
+                    항목 추가
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {formData.included.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => updateArrayItem('included', index, e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="포함 사항을 입력하세요"
+                      />
+                      {formData.included.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeArrayItem('included', index)}
+                          className="p-2 text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 불포함 사항 */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    불포함 사항
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => addArrayItem('excluded')}
+                    className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
+                  >
+                    <Plus className="w-4 h-4" />
+                    항목 추가
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {formData.excluded.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => updateArrayItem('excluded', index, e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="불포함 사항을 입력하세요"
+                      />
+                      {formData.excluded.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeArrayItem('excluded', index)}
+                          className="p-2 text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 주요 특징 */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">주요 특징</h2>
+              <button
+                type="button"
+                onClick={() => addArrayItem('highlights')}
+                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+              >
+                <Plus className="w-4 h-4" />
+                특징 추가
+              </button>
+            </div>
+            <div className="space-y-3">
+              {formData.highlights.map((highlight, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={highlight}
+                    onChange={(e) => updateArrayItem('highlights', index, e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="패키지의 주요 특징을 입력하세요"
+                  />
+                  {formData.highlights.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem('highlights', index)}
+                      className="p-2 text-red-600 hover:text-red-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 주의사항 */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">주의사항</h2>
+              <button
+                type="button"
+                onClick={() => addArrayItem('notes')}
+                className="flex items-center gap-1 text-sm text-yellow-600 hover:text-yellow-700"
+              >
+                <Plus className="w-4 h-4" />
+                주의사항 추가
+              </button>
+            </div>
+            <div className="space-y-3">
+              {formData.notes.map((note, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={note}
+                    onChange={(e) => updateArrayItem('notes', index, e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="여행 시 주의사항을 입력하세요"
+                  />
+                  {formData.notes.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem('notes', index)}
+                      className="p-2 text-red-600 hover:text-red-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 기타 설정 */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 className="text-lg font-semibold mb-4">기타 설정</h2>
+            <div className="space-y-4">
               <div className="flex items-center">
                 <input
                   type="checkbox"
