@@ -41,35 +41,6 @@ export default function LuxuryCruisePage() {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const cruises = [
-    {
-      id: 'luxury-cruise-1',
-      name: '지중해 럭셔리 크루즈',
-      location: '지중해',
-      image: '/images/cruise-mediterranean.jpg',
-      rating: 5,
-      price: '₩4,200,000',
-      features: ['스위트룸', '미슐랭 레스토랑', '개인 발코니'],
-    },
-    {
-      id: 'luxury-cruise-2',
-      name: '카리브해 프리미엄 크루즈',
-      location: '카리브해',
-      image: '/images/cruise-caribbean.jpg',
-      rating: 5,
-      price: '₩3,800,000',
-      features: ['오션뷰 스위트', '프라이빗 풀', '버틀러 서비스'],
-    },
-    {
-      id: 'luxury-cruise-3',
-      name: '노르웨이 피오르드 크루즈',
-      location: '노르웨이',
-      image: '/images/cruise-norway.jpg',
-      rating: 5,
-      price: '₩5,500,000',
-      features: ['파노라마 스위트', '스파', '자연 관찰'],
-    },
-  ]
 
   // 히어로 이미지 데이터 또는 기본값
   const backgroundImage = heroImage?.image_url || '/images/luxury-cruise-hero.jpg'
@@ -116,11 +87,28 @@ export default function LuxuryCruisePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {cruises.map((cruise) => (
-              <div key={cruise.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col">
-                <div className="relative h-48 flex-shrink-0 flex-shrink-0">
+          {currentPackages.length === 0 ? (
+            <div className="col-span-full text-center py-16">
+              <div className="text-6xl mb-4">🚢</div>
+              <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+                현재 등록된 럭셔리 크루즈 패키지가 없습니다
+              </h3>
+              <p className="text-gray-500 mb-8">
+                새로운 패키지가 곧 추가될 예정입니다.
+              </p>
+              <button 
+                onClick={() => router.push('/luxury')}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                다른 럭셔리 여행 보기
+              </button>
+            </div>
+          ) : (
+            currentPackages.map((cruise: any) => (
+              <div key={cruise.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
+                <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
-                    <span className="text-white font-semibold">{cruise.name}</span>
+                    <span className="text-white font-semibold">{cruise.name || cruise.title}</span>
                   </div>
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <div className="flex items-center gap-1">
@@ -131,7 +119,7 @@ export default function LuxuryCruisePage() {
                 </div>
                 
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{cruise.name}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{cruise.name || cruise.title}</h3>
                   <div className="flex items-center gap-1 text-gray-600 mb-3">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span className="text-sm truncate">{cruise.location}</span>
@@ -139,7 +127,7 @@ export default function LuxuryCruisePage() {
                   
                   <div className="mb-4 flex-grow">
                     <div className="flex flex-wrap gap-2">
-                      {cruise.features.map((feature, index) => (
+                      {cruise.features?.map((feature: string, index: number) => (
                         <span key={index} className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full">
                           {feature}
                         </span>
@@ -164,7 +152,8 @@ export default function LuxuryCruisePage() {
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+          )}
           </div>
         </div>
       </section>
