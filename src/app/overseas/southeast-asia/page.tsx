@@ -191,7 +191,7 @@ export default function SoutheastAsiaPage() {
               {currentPackages.map((pkg) => (
                 <div 
                   key={pkg.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
                   onClick={() => router.push(`/package/${pkg.id}`)}
                 >
                   {/* 이미지 섹션 */}
