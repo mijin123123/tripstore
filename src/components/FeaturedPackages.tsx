@@ -215,7 +215,7 @@ const FeaturedPackages = () => {
                   {/* Price */}
                   <div className="flex justify-between items-center mt-auto">
                     <div className="flex flex-col">
-                      <span className={`text-xl font-bold ${
+                      <span className={`text-lg font-bold ${
                         pkg.category === 'overseas' ? 'text-blue-600' : 
                         pkg.category === 'domestic' ? 'text-green-600' : 
                         pkg.category === 'luxury' ? 'text-purple-600' : 'text-blue-500'

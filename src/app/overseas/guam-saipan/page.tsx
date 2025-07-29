@@ -174,7 +174,7 @@ export default function GuamSaipanPage() {
                       
                       <div className="flex items-center justify-between">
                         <div className="text-right">
-                          <span className="text-xl font-bold text-gray-900 line-clamp-2">{pkg.price}원</span>
+                          <span className="text-lg font-bold text-gray-900 line-clamp-2">{pkg.price}원</span>
                           <div className="text-sm text-gray-500">1인 기준</div>
                         </div>
                         <button 

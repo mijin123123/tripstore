@@ -119,7 +119,7 @@ export default function LuxurySpecialThemePage() {
                   
                   <div className="flex items-center justify-between mt-auto">
                     <div>
-                      <span className="text-2xl font-bold text-purple-600">{pkg.price}</span>
+                      <span className="text-lg font-bold text-purple-600">{pkg.price}</span>
                       <span className="text-gray-500 text-sm">/인</span>
                     </div>
                     <button 

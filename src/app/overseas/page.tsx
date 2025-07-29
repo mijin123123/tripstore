@@ -275,7 +275,7 @@ export default function OverseasPage() {
                   {/* 가격 및 예약 */}
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                      <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                      <span className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
                         {pkg.price}원
                       </span>
                       <span className="text-gray-500 text-xs">/ 1인</span>

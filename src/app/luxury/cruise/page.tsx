@@ -145,7 +145,7 @@ export default function LuxuryCruisePage() {
                   
                   <div className="flex items-center justify-between mt-auto">
                     <div>
-                      <span className="text-2xl font-bold text-blue-600">{cruise.price}</span>
+                      <span className="text-lg font-bold text-blue-600">{cruise.price}</span>
                       <span className="text-gray-500 text-sm">/인</span>
                     </div>
                     <button 

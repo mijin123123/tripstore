@@ -174,7 +174,7 @@ export default function HotelAmericasPage() {
                   
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{hotel.price}</span>
+                        <span className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{hotel.price}</span>
                       <span className="text-gray-500 text-xs">/박</span>
                     </div>
                     <button 

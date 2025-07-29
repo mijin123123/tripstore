@@ -284,7 +284,7 @@ export default function DomesticPage() {
                         {/* 가격 */}
                         <div className="flex justify-between items-center mt-auto">
                           <div className="flex flex-col">
-                            <span className="text-xl font-bold text-green-600">
+                            <span className="text-lg font-bold text-green-600">
                               {(typeof pkg.price === 'string' ? parseInt(pkg.price) : pkg.price).toLocaleString()}원
                             </span>
                           </div>

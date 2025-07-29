@@ -38,7 +38,17 @@ export async function GET(request: Request) {
       included: Array.isArray(data.included) ? data.included : [],
       excluded: Array.isArray(data.excluded) ? data.excluded : [],
       notes: Array.isArray(data.notes) ? data.notes : [],
-      itinerary: Array.isArray(data.itinerary) ? data.itinerary : []
+      itinerary: Array.isArray(data.itinerary) && data.itinerary.length > 0 
+        ? data.itinerary 
+        : [
+            {
+              day: 1,
+              title: "여행 시작",
+              description: "상세 일정이 곧 업데이트될 예정입니다.",
+              accommodation: "",
+              meals: { breakfast: false, lunch: false, dinner: false }
+            }
+          ]
     }
     
     return Response.json(normalizedData)
