@@ -110,7 +110,7 @@ export default function LuxuryJapanPage() {
                   
                   <div className="mb-4 flex-grow">
                     <div className="flex flex-wrap gap-2">
-                      {pkg.features.map((feature, index) => (
+                      {pkg.features && pkg.features.map((feature: string, index: number) => (
                         <span key={index} className="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full">
                           {feature}
                         </span>

@@ -67,8 +67,8 @@ export default function CreatePackage() {
             const imageMarkdown = `![이미지](${base64})`;
             
             const textarea = e.currentTarget;
-            const startPos = textarea.selectionStart;
-            const endPos = textarea.selectionEnd;
+            const startPos = textarea.selectionStart || 0;
+            const endPos = textarea.selectionEnd || 0;
             const beforeText = formData.itinerary.substring(0, startPos);
             const afterText = formData.itinerary.substring(endPos);
             
@@ -77,7 +77,9 @@ export default function CreatePackage() {
             
             // 커서 위치 조정
             setTimeout(() => {
-              textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
+              if (textarea.selectionStart !== null) {
+                textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
+              }
               textarea.focus();
             }, 0);
           }
@@ -308,6 +310,20 @@ export default function CreatePackage() {
     setError('')
 
     try {
+      // 필수 필드 검증
+      if (!formData.name.trim()) {
+        throw new Error('패키지명을 입력해주세요.')
+      }
+      if (!formData.price.trim()) {
+        throw new Error('가격을 입력해주세요.')
+      }
+      if (!formData.location.trim()) {
+        throw new Error('위치를 입력해주세요.')
+      }
+      if (!formData.region.trim()) {
+        throw new Error('지역을 선택해주세요.')
+      }
+
       const supabase = createClient()
       
       // 빈 이미지 URL 제거
@@ -320,33 +336,36 @@ export default function CreatePackage() {
       const validNotes = formData.notes.filter(item => item.trim() !== '')
 
       const packageData = {
-        name: formData.name,
-        price: formData.price,
-        duration: formData.duration,
-        region: formData.region,
-        region_ko: formData.regionKo,
-        description: formData.description,
-        image: formData.image,
+        name: formData.name.trim(),
+        price: formData.price.trim(),
+        duration: formData.duration.trim(),
+        region: formData.region.trim(),
+        region_ko: formData.regionKo.trim(),
+        description: formData.description.trim(),
+        image: formData.image.trim(),
         images: validImages,
         highlights: validHighlights,
-        departure: formData.departure,
-        type: formData.type,
-        min_people: formData.min_people,
-        max_people: formData.max_people,
-        itinerary: formData.itinerary,
+        departure: formData.departure.trim(),
+        type: formData.type.trim(),
+        min_people: parseInt(formData.min_people.toString()) || 1,
+        max_people: parseInt(formData.max_people.toString()) || 10,
+        itinerary: formData.itinerary.trim(),
         included: validIncluded,
         excluded: validExcluded,
         notes: validNotes,
         is_featured: formData.is_featured,
-        category: formData.category,
-        location: formData.location
+        category: formData.category.trim(),
+        location: formData.location.trim()
       }
+
+      console.log('패키지 데이터:', packageData) // 디버깅용
 
       const { error } = await supabase
         .from('packages')
         .insert([packageData])
 
       if (error) {
+        console.error('Supabase 오류:', error)
         throw error
       }
 
