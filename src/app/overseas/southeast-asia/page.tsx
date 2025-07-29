@@ -1,6 +1,6 @@
 'use client'
 
-import { MapPin, Calendar, Users, Star, Clock, Plane, Thermometer, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Calendar, Users, Star, Clock, Plane, Thermometer, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -13,6 +13,8 @@ export default function SoutheastAsiaPage() {
   const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [packages, setPackages] = useState<Package[]>([]);
+  const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const packagesPerPage = 12;
 
@@ -32,6 +34,7 @@ export default function SoutheastAsiaPage() {
         );
         console.log('동남아시아 패키지:', southeastAsiaPackages);
         setPackages(southeastAsiaPackages);
+        setFilteredPackages(southeastAsiaPackages);
       } catch (error) {
         console.error('데이터 로딩 오류:', error);
       } finally {
@@ -41,15 +44,37 @@ export default function SoutheastAsiaPage() {
     
     fetchData();
   }, []);
+
+  // 검색 기능
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredPackages(packages);
+    } else {
+      const filtered = packages.filter(pkg =>
+        (pkg.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (pkg.description && pkg.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (pkg.highlights && pkg.highlights.some(highlight => 
+          highlight.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
+      );
+      setFilteredPackages(filtered);
+    }
+    setCurrentPage(1); // 검색 시 첫 페이지로 리셋
+  }, [searchTerm, packages]);
+
+  // 검색어 변경 핸들러
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
   
   // 데이터베이스에서 패키지를 가져오는 로직을 추가하거나 빈 배열로 초기화
   // const packages: any[] = [];
 
   // 페이지네이션 계산
-  const totalPages = Math.ceil(packages.length / packagesPerPage)
+  const totalPages = Math.ceil(filteredPackages.length / packagesPerPage)
   const startIndex = (currentPage - 1) * packagesPerPage
   const endIndex = startIndex + packagesPerPage
-  const currentPackages = packages.slice(startIndex, endIndex)
+  const currentPackages = filteredPackages.slice(startIndex, endIndex)
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
@@ -91,6 +116,31 @@ export default function SoutheastAsiaPage() {
         </div>
       </section>
 
+      {/* 검색 섹션 */}
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="패키지명, 설명, 특징으로 검색하세요... (예: 방콕, 푸켓, 호치민)"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+            {searchTerm && (
+              <div className="mt-2 text-sm text-gray-600 text-center">
+                "{searchTerm}"에 대한 검색 결과: {filteredPackages.length}개
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* 패키지 리스트 */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
@@ -120,11 +170,20 @@ export default function SoutheastAsiaPage() {
                 </div>
               ))}
             </div>
-          ) : packages.length === 0 ? (
-            // 패키지 없음
+          ) : filteredPackages.length === 0 ? (
+            // 패키지 없음 또는 검색 결과 없음
             <div className="text-center py-12">
-              <p className="text-gray-600 text-lg mb-2">동남아시아 여행 패키지가 준비 중입니다.</p>
-              <p className="text-gray-500">관리자 페이지에서 패키지를 추가해주세요.</p>
+              {searchTerm ? (
+                <>
+                  <p className="text-gray-600 text-lg mb-2">"{searchTerm}"에 대한 검색 결과가 없습니다.</p>
+                  <p className="text-gray-500">다른 검색어를 시도해보세요.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-gray-600 text-lg mb-2">동남아시아 여행 패키지가 준비 중입니다.</p>
+                  <p className="text-gray-500">관리자 페이지에서 패키지를 추가해주세요.</p>
+                </>
+              )}
             </div>
           ) : (
             // 패키지 목록
