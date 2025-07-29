@@ -175,7 +175,7 @@ export default function AmericasPage() {
               </p>
               <button 
                 onClick={() => router.push('/overseas')}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
               >
                 다른 해외여행 보기
               </button>
@@ -185,8 +185,8 @@ export default function AmericasPage() {
               {/* 패키지 그리드 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
                 {currentPackages.map((pkg, index) => (
-                  <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                    <div className="relative h-48 overflow-hidden">
+                  <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group h-full flex flex-col">
+                    <div className="relative h-48 overflow-hidden flex-shrink-0">
                       <img 
                         src={pkg.images?.[0] || '/api/placeholder/400/300'} 
                         alt={pkg.title}
@@ -200,7 +200,7 @@ export default function AmericasPage() {
                       </div>
                     </div>
                     
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-grow">
                       <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
                       
                       <div className="space-y-2 mb-4">
@@ -223,7 +223,7 @@ export default function AmericasPage() {
                         </div>
                       </div>
                       
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mt-auto">
                         <div className="text-right">
                           <span className="text-lg font-bold text-gray-900 line-clamp-2">{pkg.price}원</span>
                           <div className="text-sm text-gray-500">1인 기준</div>
@@ -232,7 +232,7 @@ export default function AmericasPage() {
                           onClick={() => {
                             router.push(`/package/${pkg.id}`);
                           }}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
                         >
                           자세히 보기
                         </button>

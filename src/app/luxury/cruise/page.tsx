@@ -98,14 +98,14 @@ export default function LuxuryCruisePage() {
               </p>
               <button 
                 onClick={() => router.push('/luxury')}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
               >
                 다른 럭셔리 여행 보기
               </button>
             </div>
           ) : (
             currentPackages.map((cruise: any) => (
-              <div key={cruise.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
+              <div key={cruise.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col">
                 <div className="relative h-48 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
                     <span className="text-white font-semibold">{cruise.name || cruise.title}</span>

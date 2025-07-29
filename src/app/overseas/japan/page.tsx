@@ -167,7 +167,7 @@ export default function JapanPage() {
             currentPackages.map((packageItem) => (
                 <div 
                   key={packageItem.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col"
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
                   <div className="relative h-48 flex-shrink-0 flex-shrink-0">

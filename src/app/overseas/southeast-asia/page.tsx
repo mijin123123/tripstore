@@ -158,7 +158,7 @@ export default function SoutheastAsiaPage() {
                 <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden h-96">
                   <div className="animate-pulse">
                     <div className="bg-gray-200 h-48 w-full"></div>
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-grow">
                       <div className="bg-gray-200 h-6 w-3/4 mb-2 rounded"></div>
                       <div className="bg-gray-200 h-4 w-1/2 mb-4 rounded"></div>
                       <div className="flex justify-between">
@@ -191,7 +191,7 @@ export default function SoutheastAsiaPage() {
               {currentPackages.map((pkg) => (
                 <div 
                   key={pkg.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col"
                   onClick={() => router.push(`/package/${pkg.id}`)}
                 >
                   {/* 이미지 섹션 */}
@@ -204,7 +204,7 @@ export default function SoutheastAsiaPage() {
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">{pkg.rating || 5}</span>
+                        <span className="text-sm truncate">{pkg.rating || 5}</span>
                       </div>
                     </div>
                     <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -236,7 +236,7 @@ export default function SoutheastAsiaPage() {
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center space-x-1">
                         <Clock className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm">{pkg.duration || '준비중'}</span>
+                        <span className="text-sm truncate">{pkg.duration || '준비중'}</span>
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-bold text-green-600">

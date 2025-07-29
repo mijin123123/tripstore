@@ -88,7 +88,7 @@ export default function LuxuryJapanPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {currentPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col">
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col h-full flex flex-col">
                 <div className="relative h-48 flex-shrink-0 flex-shrink-0">
                   <div className="w-full h-full bg-gradient-to-r from-red-400 to-orange-500 flex items-center justify-center">
                     <span className="text-white font-semibold">{pkg.name}</span>
@@ -120,7 +120,7 @@ export default function LuxuryJapanPage() {
                   
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        <span className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 line-clamp-2">{pkg.price}</span>
+                        <span className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{pkg.price}</span>
                       <span className="text-gray-500 text-xs">/인</span>
                     </div>
                     <button 
