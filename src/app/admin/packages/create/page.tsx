@@ -255,6 +255,53 @@ export default function CreatePackage() {
     }
   }
 
+  const handleMultipleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    // 현재 이미지 개수와 새로 업로드할 이미지 개수를 확인하여 10개 제한
+    const currentImageCount = formData.images.filter(img => img.trim() !== '').length
+    const filesToUpload = Array.from(files).slice(0, 10 - currentImageCount)
+    
+    if (filesToUpload.length < files.length) {
+      alert(`최대 10장까지만 업로드할 수 있습니다. ${filesToUpload.length}장만 업로드됩니다.`)
+    }
+
+    try {
+      // 필요한 만큼 빈 슬롯 추가
+      const newImages = [...formData.images]
+      while (newImages.length < currentImageCount + filesToUpload.length) {
+        newImages.push('')
+      }
+      
+      setFormData({ ...formData, images: newImages })
+
+      // 각 파일을 순차적으로 업로드
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i]
+        const targetIndex = currentImageCount + i
+        
+        try {
+          const imageUrl = await uploadImage(file, targetIndex)
+          
+          setFormData(prevData => {
+            const updatedImages = [...prevData.images]
+            updatedImages[targetIndex] = imageUrl
+            return { ...prevData, images: updatedImages }
+          })
+        } catch (error) {
+          console.error(`이미지 ${i + 1} 업로드 실패:`, error)
+        }
+      }
+    } catch (error) {
+      console.error('다중 이미지 업로드 실패:', error)
+      alert('이미지 업로드 중 오류가 발생했습니다.')
+    }
+
+    // 파일 입력 초기화
+    e.target.value = ''
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
@@ -560,15 +607,32 @@ export default function CreatePackage() {
                 <label className="block text-sm font-medium text-gray-700">
                   추가 이미지 (최대 10장)
                 </label>
-                <button
-                  type="button"
-                  onClick={() => addArrayItem('images')}
-                  disabled={formData.images.length >= 10}
-                  className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Plus className="w-4 h-4" />
-                  이미지 추가
-                </button>
+                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleMultipleImageUpload}
+                    className="hidden"
+                    id="multiple-image-upload"
+                  />
+                  <label
+                    htmlFor="multiple-image-upload"
+                    className="flex items-center gap-1 text-sm bg-blue-100 text-blue-700 px-3 py-2 rounded-md hover:bg-blue-200 cursor-pointer border border-blue-300"
+                  >
+                    <Plus className="w-4 h-4" />
+                    여러 이미지 업로드
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => addArrayItem('images')}
+                    disabled={formData.images.length >= 10}
+                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Plus className="w-4 h-4" />
+                    URL 추가
+                  </button>
+                </div>
               </div>
               <div className="space-y-3">
                 {formData.images.map((image, index) => (
@@ -605,6 +669,16 @@ export default function CreatePackage() {
                     )}
                   </div>
                 ))}
+                {uploadingImages.length > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm text-blue-700">
+                        {uploadingImages.length}개 이미지 업로드 중...
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
