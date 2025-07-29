@@ -1,4 +1,4 @@
-ï»¿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -20,7 +20,7 @@ export default function CreatePackage() {
     regionKo: '',
     description: '',
     image: '',
-    images: [''], // ì—¬ëŸ¬ ì´ë¯¸ì§€ë¥¼ ìœ„í•œ ë°°ì—´
+    images: [''], // ¿©·¯ ÀÌ¹ÌÁö¸¦ À§ÇÑ ¹è¿­
     highlights: [''],
     departure: '',
     type: '',
@@ -35,12 +35,12 @@ export default function CreatePackage() {
     location: ''
   })
 
-  // ìˆ«ìë¥¼ ì²œ ë‹¨ìœ„ ì½¤ë§ˆ í˜•ì‹ìœ¼ë¡œ ë³€í™˜í•˜ëŠ” í•¨ìˆ˜
+  // ¼ıÀÚ¸¦ Ãµ ´ÜÀ§ ÄŞ¸¶ Çü½ÄÀ¸·Î º¯È¯ÇÏ´Â ÇÔ¼ö
   const formatNumber = (num: number): string => {
     return num.toLocaleString('ko-KR')
   }
 
-  // ì´ë¯¸ì§€ íŒŒì¼ì„ Base64ë¡œ ë³€í™˜í•˜ëŠ” í•¨ìˆ˜
+  // ÀÌ¹ÌÁö ÆÄÀÏÀ» Base64·Î º¯È¯ÇÏ´Â ÇÔ¼ö
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -50,16 +50,16 @@ export default function CreatePackage() {
     });
   };
 
-  // ì¼ì • í…ìŠ¤íŠ¸ì— ì´ë¯¸ì§€ ë¶™ì—¬ë„£ê¸° í•¸ë“¤ëŸ¬
+  // ÀÏÁ¤ ÅØ½ºÆ®¿¡ ÀÌ¹ÌÁö ºÙ¿©³Ö±â ÇÚµé·¯
   const handleItineraryPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData.items;
     
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       
-      // ì´ë¯¸ì§€ íŒŒì¼ì¸ ê²½ìš°
+      // ÀÌ¹ÌÁö ÆÄÀÏÀÎ °æ¿ì
       if (item.type.startsWith('image/')) {
-        e.preventDefault(); // ê¸°ë³¸ ë¶™ì—¬ë„£ê¸° ë°©ì§€
+        e.preventDefault(); // ±âº» ºÙ¿©³Ö±â ¹æÁö
         
         const file = item.getAsFile();
         if (file) {
@@ -70,20 +70,20 @@ export default function CreatePackage() {
             const startPos = textarea.selectionStart;
             const endPos = textarea.selectionEnd;
             
-            // ì´ë¯¸ì§€ ë§ˆí¬ë‹¤ìš´ ë¬¸ë²•ìœ¼ë¡œ ì‚½ì…
-            const imageMarkdown = `![ì´ë¯¸ì§€](${base64})`;
+            // ÀÌ¹ÌÁö ¸¶Å©´Ù¿î ¹®¹ıÀ¸·Î »ğÀÔ
+            const imageMarkdown = `![ÀÌ¹ÌÁö](${base64})`;
             const newValue = currentValue.substring(0, startPos) + imageMarkdown + currentValue.substring(endPos);
             
             setFormData({ ...formData, itinerary: newValue });
             
-            // ì»¤ì„œ ìœ„ì¹˜ë¥¼ ì´ë¯¸ì§€ íƒœê·¸ ë’¤ë¡œ ì´ë™
+            // Ä¿¼­ À§Ä¡¸¦ ÀÌ¹ÌÁö ÅÂ±× µÚ·Î ÀÌµ¿
             setTimeout(() => {
               textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
               textarea.focus();
             }, 0);
           } catch (error) {
-            console.error('ì´ë¯¸ì§€ ë³€í™˜ ì‹¤íŒ¨:', error);
-            alert('ì´ë¯¸ì§€ ì²˜ë¦¬ ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤.');
+            console.error('ÀÌ¹ÌÁö º¯È¯ ½ÇÆĞ:', error);
+            alert('ÀÌ¹ÌÁö Ã³¸® Áß ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù.');
           }
         }
         break;
@@ -95,7 +95,7 @@ export default function CreatePackage() {
     const { name, value, type } = e.target
     
     if (name === 'price') {
-      // ì½¤ë§ˆ ì œê±° í›„ ìˆ«ìë§Œ ì¶”ì¶œ
+      // ÄŞ¸¶ Á¦°Å ÈÄ ¼ıÀÚ¸¸ ÃßÃâ
       const numericValue = value.replace(/[^\d]/g, '')
       setFormData({ ...formData, [name]: parseInt(numericValue) || 0 })
     } else if (name === 'min_people' || name === 'max_people') {
@@ -103,7 +103,7 @@ export default function CreatePackage() {
     } else if ((e.target as HTMLInputElement).type === 'checkbox') {
       setFormData({ ...formData, [name]: (e.target as HTMLInputElement).checked })
     } else if (name === 'category') {
-      // ì¹´í…Œê³ ë¦¬ ë³€ê²½ ì‹œ typeê³¼ region ìë™ ì„¤ì •
+      // Ä«Å×°í¸® º¯°æ ½Ã type°ú region ÀÚµ¿ ¼³Á¤
       let newType = '';
       let newRegion = '';
       let newRegionKo = '';
@@ -111,55 +111,55 @@ export default function CreatePackage() {
       if (value === 'overseas-europe') {
         newType = 'overseas';
         newRegion = 'europe';
-        newRegionKo = 'ìœ ëŸ½';
+        newRegionKo = 'À¯·´';
       } else if (value === 'overseas-japan') {
         newType = 'overseas';
         newRegion = 'japan';
-        newRegionKo = 'ì¼ë³¸';
+        newRegionKo = 'ÀÏº»';
       } else if (value === 'overseas-southeast-asia') {
         newType = 'overseas';
         newRegion = 'southeast-asia';
-        newRegionKo = 'ë™ë‚¨ì•„';
+        newRegionKo = 'µ¿³²¾Æ';
       } else if (value === 'overseas-americas') {
         newType = 'overseas';
         newRegion = 'americas';
-        newRegionKo = 'ë¯¸ì£¼/ìºë‚˜ë‹¤/í•˜ì™€ì´';
+        newRegionKo = '¹ÌÁÖ/Ä³³ª´Ù/ÇÏ¿ÍÀÌ';
       } else if (value === 'overseas-taiwan-hongkong-macau') {
         newType = 'overseas';
         newRegion = 'taiwan-hongkong-macau';
-        newRegionKo = 'ëŒ€ë§Œ/í™ì½©/ë§ˆì¹´ì˜¤';
+        newRegionKo = '´ë¸¸/È«Äá/¸¶Ä«¿À';
       } else if (value === 'overseas-guam-saipan') {
         newType = 'overseas';
         newRegion = 'guam-saipan';
-        newRegionKo = 'ê´Œ/ì‚¬ì´íŒ';
+        newRegionKo = '±¡/»çÀÌÆÇ';
       } else if (value === 'domestic-hotel') {
         newType = 'domestic';
         newRegion = 'hotel';
-        newRegionKo = 'í˜¸í…”/ë¦¬ì¡°íŠ¸';
+        newRegionKo = 'È£ÅÚ/¸®Á¶Æ®';
       } else if (value === 'domestic-pool-villa') {
         newType = 'domestic';
         newRegion = 'pool-villa';
-        newRegionKo = 'í’€ë¹Œë¼/íœì…˜';
+        newRegionKo = 'Ç®ºô¶ó/Ææ¼Ç';
       } else if (value === 'luxury-europe') {
         newType = 'luxury';
         newRegion = 'europe';
-        newRegionKo = 'ìœ ëŸ½';
+        newRegionKo = 'À¯·´';
       } else if (value === 'luxury-japan') {
         newType = 'luxury';
         newRegion = 'japan';
-        newRegionKo = 'ì¼ë³¸';
+        newRegionKo = 'ÀÏº»';
       } else if (value === 'luxury-southeast-asia') {
         newType = 'luxury';
         newRegion = 'southeast-asia';
-        newRegionKo = 'ë™ë‚¨ì•„';
+        newRegionKo = 'µ¿³²¾Æ';
       } else if (value === 'luxury-cruise') {
         newType = 'luxury';
         newRegion = 'cruise';
-        newRegionKo = 'í¬ë£¨ì¦ˆ';
+        newRegionKo = 'Å©·çÁî';
       } else if (value === 'luxury-special-theme') {
         newType = 'luxury';
         newRegion = 'special-theme';
-        newRegionKo = 'ì´ìƒ‰í…Œë§ˆ';
+        newRegionKo = 'ÀÌ»öÅ×¸¶';
       }
       
       setFormData({ 
@@ -182,7 +182,7 @@ export default function CreatePackage() {
 
   const addArrayItem = (field: 'highlights' | 'included' | 'excluded' | 'notes' | 'images') => {
     if (field === 'images' && formData.images.length >= 10) {
-      alert('ì´ë¯¸ì§€ëŠ” ìµœëŒ€ 10ê°œê¹Œì§€ë§Œ ì¶”ê°€í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.');
+      alert('ÀÌ¹ÌÁö´Â ÃÖ´ë 10°³±îÁö¸¸ Ãß°¡ÇÒ ¼ö ÀÖ½À´Ï´Ù.');
       return;
     }
     const newArray = [...formData[field], '']
@@ -194,7 +194,7 @@ export default function CreatePackage() {
     setFormData({ ...formData, [field]: newArray })
   }
 
-  // ì´ë¯¸ì§€ ìˆœì„œ ì¡°ì • í•¨ìˆ˜ë“¤
+  // ÀÌ¹ÌÁö ¼ø¼­ Á¶Á¤ ÇÔ¼öµé
   const moveImageUp = (index: number) => {
     if (index === 0) return
     const newImages = [...formData.images]
@@ -213,7 +213,7 @@ export default function CreatePackage() {
     setFormData({ ...formData, images: newImages })
   }
 
-  // ë“œë˜ê·¸ ì•¤ ë“œë¡­ ê´€ë ¨ ìƒíƒœ
+  // µå·¡±× ¾Ø µå·Ó °ü·Ã »óÅÂ
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -239,20 +239,20 @@ export default function CreatePackage() {
     setDraggedIndex(null)
   }
 
-  // íŒŒì¼ ì—…ë¡œë“œ ì²˜ë¦¬ í•¨ìˆ˜
+  // ÆÄÀÏ ¾÷·Îµå Ã³¸® ÇÔ¼ö
   const handleFileUpload = async (file: File, index: number): Promise<void> => {
     if (!file) return
 
-    // íŒŒì¼ íƒ€ì… ì²´í¬
+    // ÆÄÀÏ Å¸ÀÔ Ã¼Å©
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
     if (!allowedTypes.includes(file.type)) {
-      alert('JPG, PNG, WebP, GIF, AVIF íŒŒì¼ë§Œ ì—…ë¡œë“œ ê°€ëŠ¥í•©ë‹ˆë‹¤.')
+      alert('JPG, PNG, WebP, GIF, AVIF ÆÄÀÏ¸¸ ¾÷·Îµå °¡´ÉÇÕ´Ï´Ù.')
       return
     }
 
-    // íŒŒì¼ í¬ê¸° ì²´í¬ (5MB ì œí•œ)
+    // ÆÄÀÏ Å©±â Ã¼Å© (5MB Á¦ÇÑ)
     if (file.size > 5 * 1024 * 1024) {
-      alert('íŒŒì¼ í¬ê¸°ëŠ” 5MB ì´í•˜ë¡œ ì œí•œë©ë‹ˆë‹¤.')
+      alert('ÆÄÀÏ Å©±â´Â 5MB ÀÌÇÏ·Î Á¦ÇÑµË´Ï´Ù.')
       return
     }
 
@@ -261,23 +261,23 @@ export default function CreatePackage() {
       
       const supabase = createClient()
       
-      // í˜„ì¬ ì‚¬ìš©ì í™•ì¸
+      // ÇöÀç »ç¿ëÀÚ È®ÀÎ
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       
       if (userError || !user) {
-        console.error('ì‚¬ìš©ì ì¸ì¦ ì‹¤íŒ¨:', userError)
-        alert('ë¡œê·¸ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤.')
+        console.error('»ç¿ëÀÚ ÀÎÁõ ½ÇÆĞ:', userError)
+        alert('·Î±×ÀÎÀÌ ÇÊ¿äÇÕ´Ï´Ù.')
         return
       }
 
-      console.log('í˜„ì¬ ì‚¬ìš©ì:', user.email)
+      console.log('ÇöÀç »ç¿ëÀÚ:', user.email)
       
-      // íŒŒì¼ëª… ìƒì„± (íƒ€ì„ìŠ¤íƒ¬í”„ + ëœë¤ ë¬¸ìì—´)
+      // ÆÄÀÏ¸í »ı¼º (Å¸ÀÓ½ºÅÆÇÁ + ·£´ı ¹®ÀÚ¿­)
       const fileExt = file.name.split('.').pop()?.toLowerCase()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `packages/${fileName}`
 
-      console.log('ì—…ë¡œë“œ ì‹œë„:', {
+      console.log('¾÷·Îµå ½Ãµµ:', {
         fileName,
         filePath,
         fileSize: file.size,
@@ -285,7 +285,7 @@ export default function CreatePackage() {
         targetIndex: index
       })
 
-      // Supabase Storageì— íŒŒì¼ ì—…ë¡œë“œ
+      // Supabase Storage¿¡ ÆÄÀÏ ¾÷·Îµå
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filePath, file, {
@@ -295,45 +295,45 @@ export default function CreatePackage() {
         })
 
       if (error) {
-        console.error('íŒŒì¼ ì—…ë¡œë“œ ì‹¤íŒ¨:', {
+        console.error('ÆÄÀÏ ¾÷·Îµå ½ÇÆĞ:', {
           error,
           message: error.message,
           statusCode: error.statusCode
         })
         
         if (error.message?.includes('already exists')) {
-          alert('ê°™ì€ ì´ë¦„ì˜ íŒŒì¼ì´ ì´ë¯¸ ì¡´ì¬í•©ë‹ˆë‹¤. ë‹¤ì‹œ ì‹œë„í•´ì£¼ì„¸ìš”.')
+          alert('°°Àº ÀÌ¸§ÀÇ ÆÄÀÏÀÌ ÀÌ¹Ì Á¸ÀçÇÕ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.')
         } else if (error.message?.includes('not allowed')) {
-          alert('íŒŒì¼ í˜•ì‹ì´ í—ˆìš©ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.')
+          alert('ÆÄÀÏ Çü½ÄÀÌ Çã¿ëµÇÁö ¾Ê½À´Ï´Ù.')
         } else if (error.message?.includes('size')) {
-          alert('íŒŒì¼ í¬ê¸°ê°€ ë„ˆë¬´ í½ë‹ˆë‹¤.')
+          alert('ÆÄÀÏ Å©±â°¡ ³Ê¹« Å®´Ï´Ù.')
         } else {
-          alert(`íŒŒì¼ ì—…ë¡œë“œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤: ${error.message}`)
+          alert(`ÆÄÀÏ ¾÷·Îµå¿¡ ½ÇÆĞÇß½À´Ï´Ù: ${error.message}`)
         }
         return
       }
 
-      console.log('ì—…ë¡œë“œ ì„±ê³µ:', data)
+      console.log('¾÷·Îµå ¼º°ø:', data)
 
-      // ì—…ë¡œë“œëœ íŒŒì¼ì˜ ê³µê°œ URL ê°€ì ¸ì˜¤ê¸°
+      // ¾÷·ÎµåµÈ ÆÄÀÏÀÇ °ø°³ URL °¡Á®¿À±â
       const { data: { publicUrl } } = supabase.storage
         .from('images')
         .getPublicUrl(filePath)
 
-      console.log('ê³µê°œ URL:', publicUrl)
+      console.log('°ø°³ URL:', publicUrl)
 
-      // í¼ ë°ì´í„° ì—…ë°ì´íŠ¸ (í•¨ìˆ˜í˜• ì—…ë°ì´íŠ¸ë¡œ ìµœì‹  ìƒíƒœ ë³´ì¥)
+      // Æû µ¥ÀÌÅÍ ¾÷µ¥ÀÌÆ® (ÇÔ¼öÇü ¾÷µ¥ÀÌÆ®·Î ÃÖ½Å »óÅÂ º¸Àå)
       setFormData(prev => {
         const newImages = [...prev.images]
         newImages[index] = publicUrl
         return { ...prev, images: newImages }
       })
 
-      console.log(`ì´ë¯¸ì§€ ${index + 1} ì—…ë¡œë“œ ì™„ë£Œ:`, publicUrl)
+      console.log(`ÀÌ¹ÌÁö ${index + 1} ¾÷·Îµå ¿Ï·á:`, publicUrl)
 
     } catch (error) {
-      console.error('íŒŒì¼ ì—…ë¡œë“œ ì¤‘ ì˜¤ë¥˜:', error)
-      alert(`íŒŒì¼ ì—…ë¡œë“œ ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤: ${error}`)
+      console.error('ÆÄÀÏ ¾÷·Îµå Áß ¿À·ù:', error)
+      alert(`ÆÄÀÏ ¾÷·Îµå Áß ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù: ${error}`)
     } finally {
       setUploadingImages(prev => prev.filter(i => i !== index))
     }
@@ -344,22 +344,22 @@ export default function CreatePackage() {
     setIsSaving(true)
     
     try {
-      // í•„ìˆ˜ í•„ë“œ ê²€ì¦
+      // ÇÊ¼ö ÇÊµå °ËÁõ
       if (!formData.name || !formData.price || !formData.category) {
-        throw new Error('í•„ìˆ˜ í•„ë“œë¥¼ ëª¨ë‘ ì…ë ¥í•´ì£¼ì„¸ìš”. (ì´ë¦„, ê°€ê²©, ì¹´í…Œê³ ë¦¬)')
+        throw new Error('ÇÊ¼ö ÇÊµå¸¦ ¸ğµÎ ÀÔ·ÂÇØÁÖ¼¼¿ä. (ÀÌ¸§, °¡°İ, Ä«Å×°í¸®)')
       }
       
-      // ë°°ì—´ í•„ë“œì—ì„œ ë¹ˆ í•­ëª© í•„í„°ë§
+      // ¹è¿­ ÇÊµå¿¡¼­ ºó Ç×¸ñ ÇÊÅÍ¸µ
       const highlights = formData.highlights.filter(item => item.trim() !== '')
       const included = formData.included.filter(item => item.trim() !== '')
       const excluded = formData.excluded.filter(item => item.trim() !== '')
       const notes = formData.notes.filter(item => item.trim() !== '')
       const images = formData.images.filter(item => item.trim() !== '')
       
-      // ë°ì´í„°ë² ì´ìŠ¤ ì‚½ì… ì¤€ë¹„
+      // µ¥ÀÌÅÍº£ÀÌ½º »ğÀÔ ÁØºñ
       const supabase = createClient()
       
-      // ê³ ìœ í•œ íŒ¨í‚¤ì§€ ID ìƒì„±
+      // °íÀ¯ÇÑ ÆĞÅ°Áö ID »ı¼º
       const packageId = `pkg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       
       const { error } = await supabase
@@ -373,7 +373,7 @@ export default function CreatePackage() {
           type: formData.type,
           description: formData.description || '',
           image: images.length > 0 ? images[0] : '',
-          images: images, // ì´ë¯¸ì§€ ë°°ì—´ ì €ì¥
+          images: images, // ÀÌ¹ÌÁö ¹è¿­ ÀúÀå
           is_featured: formData.is_featured,
           duration: formData.duration || '',
           departure: formData.departure || '',
@@ -384,23 +384,23 @@ export default function CreatePackage() {
           notes: notes.length ? notes : [''],
           min_people: formData.min_people || 1,
           max_people: formData.max_people || 10,
-          rating: 4.5 // ê¸°ë³¸ í‰ì 
+          rating: 4.5 // ±âº» ÆòÁ¡
         })
       
       if (error) throw error
       
-      console.log('íŒ¨í‚¤ì§€ ìƒì„± ì„±ê³µ:', packageId)
+      console.log('ÆĞÅ°Áö »ı¼º ¼º°ø:', packageId)
       
-      // ì„±ê³µ í›„ í•´ë‹¹ íŒ¨í‚¤ì§€ ìƒì„¸ í˜ì´ì§€ë¡œ ì´ë™í•˜ì—¬ ì¦‰ì‹œ ê²°ê³¼ í™•ì¸
-      alert(`íŒ¨í‚¤ì§€ê°€ ì„±ê³µì ìœ¼ë¡œ ìƒì„±ë˜ì—ˆìŠµë‹ˆë‹¤! (ID: ${packageId})`)
+      // ¼º°ø ÈÄ ÇØ´ç ÆĞÅ°Áö »ó¼¼ ÆäÀÌÁö·Î ÀÌµ¿ÇÏ¿© Áï½Ã °á°ú È®ÀÎ
+      alert(`ÆĞÅ°Áö°¡ ¼º°øÀûÀ¸·Î »ı¼ºµÇ¾ú½À´Ï´Ù! (ID: ${packageId})`)
       
-      // íŒ¨í‚¤ì§€ ëª©ë¡ê³¼ í•´ë‹¹ íŒ¨í‚¤ì§€ í˜ì´ì§€ ëª¨ë‘ ìƒˆë¡œê³ ì¹¨
+      // ÆĞÅ°Áö ¸ñ·Ï°ú ÇØ´ç ÆĞÅ°Áö ÆäÀÌÁö ¸ğµÎ »õ·Î°íÄ§
       router.push(`/package/${packageId}`)
       router.refresh()
       
     } catch (error: any) {
-      console.error('íŒ¨í‚¤ì§€ ìƒì„± ì‹¤íŒ¨:', error)
-      setError(error.message || 'íŒ¨í‚¤ì§€ ìƒì„± ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤')
+      console.error('ÆĞÅ°Áö »ı¼º ½ÇÆĞ:', error)
+      setError(error.message || 'ÆĞÅ°Áö »ı¼º Áß ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù')
     } finally {
       setIsSaving(false)
     }
@@ -413,20 +413,20 @@ export default function CreatePackage() {
           <Link href="/admin/packages" className="mr-4 text-gray-500 hover:text-gray-800 transition-colors">
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="text-2xl font-bold">íŒ¨í‚¤ì§€ ì¶”ê°€</h1>
+          <h1 className="text-2xl font-bold">ÆĞÅ°Áö Ãß°¡</h1>
         </div>
         <div className="flex space-x-2">
           <a href="#itinerary-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
-            ìƒì„¸ ì¼ì •
+            »ó¼¼ ÀÏÁ¤
           </a>
           <a href="#included-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
-            í¬í•¨ ì‚¬í•­
+            Æ÷ÇÔ »çÇ×
           </a>
           <a href="#excluded-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
-            ë¶ˆí¬í•¨ ì‚¬í•­
+            ºÒÆ÷ÇÔ »çÇ×
           </a>
           <a href="#notes-section" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100">
-            ì°¸ê³ ì‚¬í•­
+            Âü°í»çÇ×
           </a>
         </div>
       </div>
@@ -438,19 +438,19 @@ export default function CreatePackage() {
       )}
       
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* ê¸°ë³¸ ì •ë³´ */}
+        {/* ±âº» Á¤º¸ */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold mb-4">ê¸°ë³¸ ì •ë³´</h2>
+          <h2 className="text-lg font-semibold mb-4">±âº» Á¤º¸</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                íŒ¨í‚¤ì§€ëª… <span className="text-red-500">*</span>
+                ÆĞÅ°Áö¸í <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -458,124 +458,124 @@ export default function CreatePackage() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ì¹´í…Œê³ ë¦¬ <span className="text-red-500">*</span>
+                Ä«Å×°í¸® <span className="text-red-500">*</span>
               </label>
               <select
                 name="category"
                 value={formData.category}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="">ì¹´í…Œê³ ë¦¬ ì„ íƒ</option>
-                <optgroup label="í•´ì™¸ì—¬í–‰">
-                  <option value="overseas-europe">ìœ ëŸ½</option>
-                  <option value="overseas-japan">ì¼ë³¸</option>
-                  <option value="overseas-southeast-asia">ë™ë‚¨ì•„</option>
-                  <option value="overseas-americas">ë¯¸ì£¼/ìºë‚˜ë‹¤/í•˜ì™€ì´</option>
-                  <option value="overseas-taiwan-hongkong-macau">ëŒ€ë§Œ/í™ì½©/ë§ˆì¹´ì˜¤</option>
-                  <option value="overseas-guam-saipan">ê´Œ/ì‚¬ì´íŒ</option>
+                <option value="">Ä«Å×°í¸® ¼±ÅÃ</option>
+                <optgroup label="ÇØ¿Ü¿©Çà">
+                  <option value="overseas-europe">À¯·´</option>
+                  <option value="overseas-japan">ÀÏº»</option>
+                  <option value="overseas-southeast-asia">µ¿³²¾Æ</option>
+                  <option value="overseas-americas">¹ÌÁÖ/Ä³³ª´Ù/ÇÏ¿ÍÀÌ</option>
+                  <option value="overseas-taiwan-hongkong-macau">´ë¸¸/È«Äá/¸¶Ä«¿À</option>
+                  <option value="overseas-guam-saipan">±¡/»çÀÌÆÇ</option>
                 </optgroup>
-                <optgroup label="êµ­ë‚´ì—¬í–‰">
-                  <option value="domestic-hotel">í˜¸í…”/ë¦¬ì¡°íŠ¸</option>
-                  <option value="domestic-pool-villa">í’€ë¹Œë¼/íœì…˜</option>
+                <optgroup label="±¹³»¿©Çà">
+                  <option value="domestic-hotel">È£ÅÚ/¸®Á¶Æ®</option>
+                  <option value="domestic-pool-villa">Ç®ºô¶ó/Ææ¼Ç</option>
                 </optgroup>
-                <optgroup label="ëŸ­ì…”ë¦¬">
-                  <option value="luxury-europe">ìœ ëŸ½</option>
-                  <option value="luxury-japan">ì¼ë³¸</option>
-                  <option value="luxury-southeast-asia">ë™ë‚¨ì•„</option>
-                  <option value="luxury-cruise">í¬ë£¨ì¦ˆ</option>
-                  <option value="luxury-special-theme">ì´ìƒ‰í…Œë§ˆ</option>
+                <optgroup label="·°¼Å¸®">
+                  <option value="luxury-europe">À¯·´</option>
+                  <option value="luxury-japan">ÀÏº»</option>
+                  <option value="luxury-southeast-asia">µ¿³²¾Æ</option>
+                  <option value="luxury-cruise">Å©·çÁî</option>
+                  <option value="luxury-special-theme">ÀÌ»öÅ×¸¶</option>
                 </optgroup>
               </select>
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ê°€ê²© <span className="text-red-500">*</span>
+                °¡°İ <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
                   type="text"
                   name="price"
                   value={formatNumber(formData.price)}
-                  onChange={handleInputChange}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   placeholder="0"
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                  ì›
+                  ¿ø
                 </span>
               </div>
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ìœ„ì¹˜
+                À§Ä¡
               </label>
               <input
                 type="text"
                 name="location"
                 value={formData.location}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ì˜ˆ: í”„ë‘ìŠ¤ íŒŒë¦¬, ë°©ì½•, ì œì£¼ë„"
+                placeholder="¿¹: ÇÁ¶û½º ÆÄ¸®, ¹æÄÛ, Á¦ÁÖµµ"
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ì—¬í–‰ ê¸°ê°„
+                ¿©Çà ±â°£
               </label>
               <input
                 type="text"
                 name="duration"
                 value={formData.duration}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ì˜ˆ: 3ë°• 4ì¼"
+                placeholder="¿¹: 3¹Ú 4ÀÏ"
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ì¶œë°œì§€
+                Ãâ¹ßÁö
               </label>
               <input
                 type="text"
                 name="departure"
                 value={formData.departure}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ì˜ˆ: ì¸ì²œê³µí•­"
+                placeholder="¿¹: ÀÎÃµ°øÇ×"
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ìœ„ì¹˜
+                À§Ä¡
               </label>
               <input
                 type="text"
                 name="location"
                 value={formData.location}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ì˜ˆ: ì„œìš¸"
+                placeholder="¿¹: ¼­¿ï"
               />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ìµœì†Œ ì¸ì›
+                  ÃÖ¼Ò ÀÎ¿ø
                 </label>
                 <input
                   type="number"
                   name="min_people"
                   value={formData.min_people}
-                  onChange={handleInputChange}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min="1"
                 />
@@ -583,13 +583,13 @@ export default function CreatePackage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ìµœëŒ€ ì¸ì›
+                  ÃÖ´ë ÀÎ¿ø
                 </label>
                 <input
                   type="number"
                   name="max_people"
                   value={formData.max_people}
-                  onChange={handleInputChange}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min="1"
                 />
@@ -598,22 +598,22 @@ export default function CreatePackage() {
             
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                íŒ¨í‚¤ì§€ ì„¤ëª…
+                ÆĞÅ°Áö ¼³¸í
               </label>
               <textarea
                 name="description"
                 value={formData.description}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="íŒ¨í‚¤ì§€ì— ëŒ€í•œ ìƒì„¸ ì„¤ëª…ì„ ì…ë ¥í•˜ì„¸ìš”"
+                placeholder="ÆĞÅ°Áö¿¡ ´ëÇÑ »ó¼¼ ¼³¸íÀ» ÀÔ·ÂÇÏ¼¼¿ä"
               ></textarea>
             </div>
             
             <div className="md:col-span-2">
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  íŒ¨í‚¤ì§€ ì´ë¯¸ì§€
+                  ÆĞÅ°Áö ÀÌ¹ÌÁö
                 </label>
                 <button
                   type="button"
@@ -625,11 +625,11 @@ export default function CreatePackage() {
                       : 'text-blue-600 hover:text-blue-800'
                   }`}
                 >
-                  <Plus size={16} className="mr-1" /> ì´ë¯¸ì§€ ì¶”ê°€
+                  <Plus size={16} className="mr-1" /> ÀÌ¹ÌÁö Ãß°¡
                 </button>
               </div>
               
-              {/* ë‹¤ì¤‘ íŒŒì¼ ì—…ë¡œë“œ ì„¹ì…˜ */}
+              {/* ´ÙÁß ÆÄÀÏ ¾÷·Îµå ¼½¼Ç */}
               <div className="mb-3 p-3 border border-dashed border-gray-300 rounded-md bg-gray-50">
                 <div className="text-center">
                   <input
@@ -639,50 +639,50 @@ export default function CreatePackage() {
                     onChange={async (e) => {
                       const files = Array.from(e.target.files || [])
                       if (files.length > 0) {
-                        console.log(`${files.length}ê°œ íŒŒì¼ ì„ íƒë¨`)
+                        console.log(`${files.length}°³ ÆÄÀÏ ¼±ÅÃµÊ`)
                         
-                        // í˜„ì¬ ì‚¬ìš©ëœ ìŠ¬ë¡¯ ê°œìˆ˜ í™•ì¸
+                        // ÇöÀç »ç¿ëµÈ ½½·Ô °³¼ö È®ÀÎ
                         const usedSlots = formData.images.filter(img => img.trim()).length
                         
-                        // ìµœëŒ€ 10ê°œ ì œí•œ í™•ì¸
+                        // ÃÖ´ë 10°³ Á¦ÇÑ È®ÀÎ
                         if (usedSlots + files.length > 10) {
-                          alert(`ì´ë¯¸ì§€ëŠ” ìµœëŒ€ 10ê°œê¹Œì§€ë§Œ ì—…ë¡œë“œ ê°€ëŠ¥í•©ë‹ˆë‹¤. í˜„ì¬ ${usedSlots}ê°œ ë“±ë¡ë¨, ${files.length}ê°œ ì„ íƒë¨`)
+                          alert(`ÀÌ¹ÌÁö´Â ÃÖ´ë 10°³±îÁö¸¸ ¾÷·Îµå °¡´ÉÇÕ´Ï´Ù. ÇöÀç ${usedSlots}°³ µî·ÏµÊ, ${files.length}°³ ¼±ÅÃµÊ`)
                           e.target.value = ''
                           return
                         }
                         
-                        // í•„ìš”í•œ ë§Œí¼ ì´ë¯¸ì§€ ìŠ¬ë¡¯ í™•ë³´
+                        // ÇÊ¿äÇÑ ¸¸Å­ ÀÌ¹ÌÁö ½½·Ô È®º¸
                         const currentImages = [...formData.images]
                         while (currentImages.length < usedSlots + files.length) {
                           currentImages.push('')
                         }
                         
-                        // ìƒíƒœ ì—…ë°ì´íŠ¸
+                        // »óÅÂ ¾÷µ¥ÀÌÆ®
                         setFormData(prev => ({ ...prev, images: currentImages }))
                         
-                        // ìˆœì°¨ì ìœ¼ë¡œ íŒŒì¼ ì—…ë¡œë“œ
+                        // ¼øÂ÷ÀûÀ¸·Î ÆÄÀÏ ¾÷·Îµå
                         let uploadIndex = 0
                         for (const [fileIndex, file] of files.entries()) {
                           try {
-                            // ë¹ˆ ìŠ¬ë¡¯ ì°¾ê¸°
+                            // ºó ½½·Ô Ã£±â
                             while (uploadIndex < currentImages.length && currentImages[uploadIndex].trim() !== '') {
                               uploadIndex++
                             }
                             
                             if (uploadIndex < 10) {
-                              console.log(`íŒŒì¼ ${fileIndex + 1}/${files.length} ì—…ë¡œë“œ ì‹œì‘ (ìŠ¬ë¡¯ ${uploadIndex})`)
+                              console.log(`ÆÄÀÏ ${fileIndex + 1}/${files.length} ¾÷·Îµå ½ÃÀÛ (½½·Ô ${uploadIndex})`)
                               await handleFileUpload(file, uploadIndex)
-                              // ì—…ë¡œë“œ ì™„ë£Œ í›„ í•´ë‹¹ ìŠ¬ë¡¯ì„ ì‚¬ìš©ë¨ìœ¼ë¡œ í‘œì‹œ
-                              currentImages[uploadIndex] = 'uploading' // ì„ì‹œ í‘œì‹œ
+                              // ¾÷·Îµå ¿Ï·á ÈÄ ÇØ´ç ½½·ÔÀ» »ç¿ëµÊÀ¸·Î Ç¥½Ã
+                              currentImages[uploadIndex] = 'uploading' // ÀÓ½Ã Ç¥½Ã
                               uploadIndex++
                             }
                           } catch (error) {
-                            console.error(`íŒŒì¼ ${fileIndex + 1} ì—…ë¡œë“œ ì‹¤íŒ¨:`, error)
+                            console.error(`ÆÄÀÏ ${fileIndex + 1} ¾÷·Îµå ½ÇÆĞ:`, error)
                           }
                         }
                         
-                        e.target.value = '' // ì…ë ¥ ì´ˆê¸°í™”
-                        console.log('ëª¨ë“  íŒŒì¼ ì—…ë¡œë“œ ì™„ë£Œ')
+                        e.target.value = '' // ÀÔ·Â ÃÊ±âÈ­
+                        console.log('¸ğµç ÆÄÀÏ ¾÷·Îµå ¿Ï·á')
                       }
                     }}
                     className="hidden"
@@ -698,13 +698,13 @@ export default function CreatePackage() {
                     }`}
                   >
                     <Plus size={14} className="mr-1" />
-                    {uploadingImages.length > 0 ? 'ì—…ë¡œë“œ ì¤‘...' : 'ì—¬ëŸ¬ ì´ë¯¸ì§€ í•œë²ˆì— ì—…ë¡œë“œ'}
+                    {uploadingImages.length > 0 ? '¾÷·Îµå Áß...' : '¿©·¯ ÀÌ¹ÌÁö ÇÑ¹ø¿¡ ¾÷·Îµå'}
                   </label>
                   <p className="text-xs text-gray-500 mt-2">
-                    ìµœëŒ€ 10ê°œê¹Œì§€ ì„ íƒ ê°€ëŠ¥ (ê° íŒŒì¼ 5MB ì´í•˜)
+                    ÃÖ´ë 10°³±îÁö ¼±ÅÃ °¡´É (°¢ ÆÄÀÏ 5MB ÀÌÇÏ)
                     {uploadingImages.length > 0 && (
                       <span className="text-blue-600 block mt-1">
-                        ì—…ë¡œë“œ ì§„í–‰ ì¤‘: {uploadingImages.length}ê°œ
+                        ¾÷·Îµå ÁøÇà Áß: {uploadingImages.length}°³
                       </span>
                     )}
                   </p>
@@ -723,7 +723,7 @@ export default function CreatePackage() {
                   onDrop={(e) => handleDrop(e, index)}
                 >
                   <div className="flex items-center space-x-2">
-                    {/* ë“œë˜ê·¸ í•¸ë“¤ ë° ìˆœì„œ ì¡°ì • ë²„íŠ¼ */}
+                    {/* µå·¡±× ÇÚµé ¹× ¼ø¼­ Á¶Á¤ ¹öÆ° */}
                     <div className="flex flex-col items-center space-y-1">
                       <GripVertical size={12} className="text-gray-400 cursor-move" />
                       <div className="flex flex-col space-y-0.5">
@@ -754,13 +754,13 @@ export default function CreatePackage() {
                       </div>
                     </div>
 
-                    {/* ì´ë¯¸ì§€ í”„ë¦¬ë·° */}
+                    {/* ÀÌ¹ÌÁö ÇÁ¸®ºä */}
                     <div className="flex-shrink-0">
                       {imageUrl && (
                         <div className="relative h-20 w-28 border rounded overflow-hidden bg-gray-50">
                           <img
                             src={imageUrl}
-                            alt={`íŒ¨í‚¤ì§€ ì´ë¯¸ì§€ ${index + 1}`}
+                            alt={`ÆĞÅ°Áö ÀÌ¹ÌÁö ${index + 1}`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement
@@ -770,16 +770,16 @@ export default function CreatePackage() {
                                   target.src = imageUrl + '?t=' + Date.now()
                                 }, 1000)
                               } else {
-                                target.src = "https://via.placeholder.com/300x200?text=ì´ë¯¸ì§€+ë¡œë”©+ì‹¤íŒ¨"
+                                target.src = "https://via.placeholder.com/300x200?text=ÀÌ¹ÌÁö+·Îµù+½ÇÆĞ"
                               }
                             }}
                             onLoad={() => {
-                              console.log(`ì´ë¯¸ì§€ ${index + 1} ë¡œë”© ì„±ê³µ:`, imageUrl.substring(0, 50) + '...')
+                              console.log(`ÀÌ¹ÌÁö ${index + 1} ·Îµù ¼º°ø:`, imageUrl.substring(0, 50) + '...')
                             }}
                           />
                           {index === 0 && (
                             <div className="absolute top-0.5 left-0.5 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
-                              ë©”ì¸
+                              ¸ŞÀÎ
                             </div>
                           )}
                           <div className="absolute top-0.5 right-0.5 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
@@ -789,7 +789,7 @@ export default function CreatePackage() {
                       )}
                     </div>
 
-                    {/* íŒŒì¼ ì—…ë¡œë“œ ë° URL */}
+                    {/* ÆÄÀÏ ¾÷·Îµå ¹× URL */}
                     <div className="flex-1 min-w-0 max-w-md">
                       <div className="flex items-center space-x-1 mb-1">
                         <input
@@ -806,7 +806,7 @@ export default function CreatePackage() {
                           disabled={uploadingImages.includes(index)}
                         />
                         
-                        {/* ì‚­ì œ ë²„íŠ¼ */}
+                        {/* »èÁ¦ ¹öÆ° */}
                         <button
                           type="button"
                           onClick={() => removeArrayItem(index, 'images')}
@@ -817,23 +817,23 @@ export default function CreatePackage() {
                         </button>
                       </div>
 
-                      {/* ì´ë¯¸ì§€ URL í¸ì§‘ */}
+                      {/* ÀÌ¹ÌÁö URL ÆíÁı */}
                       {imageUrl && (
                         <input
                           type="url"
                           value={imageUrl}
                           onChange={(e) => handleArrayChange(index, e.target.value, 'images')}
                           className="w-full max-w-sm px-1 py-0.5 border border-gray-200 rounded text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-300"
-                          placeholder="ì´ë¯¸ì§€ URL"
+                          placeholder="ÀÌ¹ÌÁö URL"
                           readOnly={uploadingImages.includes(index)}
                         />
                       )}
 
-                      {/* ì—…ë¡œë“œ ìƒíƒœ í‘œì‹œ */}
+                      {/* ¾÷·Îµå »óÅÂ Ç¥½Ã */}
                       {uploadingImages.includes(index) && (
                         <div className="text-xs text-blue-600 mt-1 flex items-center">
                           <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
-                          ì—…ë¡œë“œ ì¤‘...
+                          ¾÷·Îµå Áß...
                         </div>
                       )}
                       
@@ -842,7 +842,7 @@ export default function CreatePackage() {
                           <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
-                          ì™„ë£Œ
+                          ¿Ï·á
                         </div>
                       )}
                     </div>
@@ -851,12 +851,12 @@ export default function CreatePackage() {
               ))}
               
               <p className="text-xs text-gray-500 mt-4">
-                â€¢ ì²« ë²ˆì§¸ ì´ë¯¸ì§€ê°€ ë©”ì¸ ì´ë¯¸ì§€ë¡œ ì‚¬ìš©ë©ë‹ˆë‹¤.<br/>
-                â€¢ ë“œë˜ê·¸í•˜ê±°ë‚˜ ìœ„/ì•„ë˜ ë²„íŠ¼ìœ¼ë¡œ ì´ë¯¸ì§€ ìˆœì„œë¥¼ ë³€ê²½í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.<br/>
-                â€¢ "ì—¬ëŸ¬ ì´ë¯¸ì§€ í•œë²ˆì— ì—…ë¡œë“œ" ë²„íŠ¼ìœ¼ë¡œ ìµœëŒ€ 10ê°œê¹Œì§€ ì„ íƒí•˜ì—¬ í•œë²ˆì— ì—…ë¡œë“œ ê°€ëŠ¥<br/>
-                â€¢ ì´ë¯¸ì§€ íŒŒì¼ í¬ê¸°ëŠ” 5MB ì´í•˜ë¡œ ì œí•œë©ë‹ˆë‹¤.<br/>
-                â€¢ ì§€ì› í˜•ì‹: JPEG, PNG, WebP, GIF, AVIF<br/>
-                â€¢ ì´ë¯¸ì§€ëŠ” ìµœëŒ€ 10ê°œê¹Œì§€ ì¶”ê°€ ê°€ëŠ¥í•©ë‹ˆë‹¤.
+                ? Ã¹ ¹øÂ° ÀÌ¹ÌÁö°¡ ¸ŞÀÎ ÀÌ¹ÌÁö·Î »ç¿ëµË´Ï´Ù.<br/>
+                ? µå·¡±×ÇÏ°Å³ª À§/¾Æ·¡ ¹öÆ°À¸·Î ÀÌ¹ÌÁö ¼ø¼­¸¦ º¯°æÇÒ ¼ö ÀÖ½À´Ï´Ù.<br/>
+                ? "¿©·¯ ÀÌ¹ÌÁö ÇÑ¹ø¿¡ ¾÷·Îµå" ¹öÆ°À¸·Î ÃÖ´ë 10°³±îÁö ¼±ÅÃÇÏ¿© ÇÑ¹ø¿¡ ¾÷·Îµå °¡´É<br/>
+                ? ÀÌ¹ÌÁö ÆÄÀÏ Å©±â´Â 5MB ÀÌÇÏ·Î Á¦ÇÑµË´Ï´Ù.<br/>
+                ? Áö¿ø Çü½Ä: JPEG, PNG, WebP, GIF, AVIF<br/>
+                ? ÀÌ¹ÌÁö´Â ÃÖ´ë 10°³±îÁö Ãß°¡ °¡´ÉÇÕ´Ï´Ù.
               </p>
             </div>
             
@@ -866,26 +866,26 @@ export default function CreatePackage() {
                 id="is_featured"
                 name="is_featured"
                 checked={formData.is_featured}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <label htmlFor="is_featured" className="ml-2 block text-sm text-gray-700">
-                ì¶”ì²œ íŒ¨í‚¤ì§€ (ë©”ì¸ í˜ì´ì§€ì— í‘œì‹œ)
+                ÃßÃµ ÆĞÅ°Áö (¸ŞÀÎ ÆäÀÌÁö¿¡ Ç¥½Ã)
               </label>
             </div>
           </div>
         </div>
         
-        {/* í•˜ì´ë¼ì´íŠ¸ */}
+        {/* ÇÏÀÌ¶óÀÌÆ® */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">ì—¬í–‰ í•˜ì´ë¼ì´íŠ¸</h2>
+            <h2 className="text-lg font-semibold">¿©Çà ÇÏÀÌ¶óÀÌÆ®</h2>
             <button
               type="button"
               onClick={() => addArrayItem('highlights')}
               className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
             >
-              <Plus size={16} className="mr-1" /> ì¶”ê°€
+              <Plus size={16} className="mr-1" /> Ãß°¡
             </button>
           </div>
           
@@ -896,7 +896,7 @@ export default function CreatePackage() {
                 value={highlight}
                 onChange={(e) => handleArrayChange(index, e.target.value, 'highlights')}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ì—¬í–‰ì˜ íŠ¹ë³„í•œ ì ì„ ê¸°ì¬í•˜ì„¸ìš”"
+                placeholder="¿©ÇàÀÇ Æ¯º°ÇÑ Á¡À» ±âÀçÇÏ¼¼¿ä"
               />
               <button
                 type="button"
@@ -910,14 +910,14 @@ export default function CreatePackage() {
           ))}
         </div>
 
-        {/* ì—¬í–‰ ì¼ì • */}
+        {/* ¿©Çà ÀÏÁ¤ */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="itinerary-section">
-          <h2 className="text-lg font-semibold mb-4">ì—¬í–‰ ì¼ì •</h2>
+          <h2 className="text-lg font-semibold mb-4">¿©Çà ÀÏÁ¤</h2>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              ê°„ëµ ì¼ì • 
-              <span className="text-gray-500 text-xs ml-1">(ì˜ˆ: 3ë°• 4ì¼, ì•„ì‹œì•„ë‚˜í•­ê³µ, í•˜ë…¸ì´-ì‚¬íŒŒ-í•˜ì´í(1))</span>
+              °£·« ÀÏÁ¤ 
+              <span className="text-gray-500 text-xs ml-1">(¿¹: 3¹Ú 4ÀÏ, ¾Æ½Ã¾Æ³ªÇ×°ø, ÇÏ³ëÀÌ-»çÆÄ-ÇÏÀÌÆş(1))</span>
             </label>
             <textarea
               value={formData.itinerary}
@@ -925,21 +925,21 @@ export default function CreatePackage() {
               onPaste={handleItineraryPaste}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={6}
-              placeholder="ê°„ëµí•œ ì—¬í–‰ ì¼ì •ì„ ì…ë ¥í•˜ì„¸ìš”&#10;ì˜ˆ: 3ë°• 4ì¼&#10;ì•„ì‹œì•„ë‚˜í•­ê³µ&#10;í•˜ë…¸ì´-ì‚¬íŒŒ-í•˜ì´í(1)&#10;&#10;ğŸ“· ì´ë¯¸ì§€ë„ ë¶™ì—¬ë„£ê¸° ê°€ëŠ¥í•©ë‹ˆë‹¤!"
+              placeholder="°£·«ÇÑ ¿©Çà ÀÏÁ¤À» ÀÔ·ÂÇÏ¼¼¿ä&#10;¿¹: 3¹Ú 4ÀÏ&#10;¾Æ½Ã¾Æ³ªÇ×°ø&#10;ÇÏ³ëÀÌ-»çÆÄ-ÇÏÀÌÆş(1)&#10;&#10;?? ÀÌ¹ÌÁöµµ ºÙ¿©³Ö±â °¡´ÉÇÕ´Ï´Ù!"
             />
           </div>
         </div>
 
-        {/* í¬í•¨ ì‚¬í•­ */}
+        {/* Æ÷ÇÔ »çÇ× */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="included-section">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">í¬í•¨ ì‚¬í•­</h2>
+            <h2 className="text-lg font-semibold">Æ÷ÇÔ »çÇ×</h2>
             <button
               type="button"
               onClick={() => addArrayItem('included')}
               className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
             >
-              <Plus size={16} className="mr-1" /> ì¶”ê°€
+              <Plus size={16} className="mr-1" /> Ãß°¡
             </button>
           </div>
           
@@ -950,7 +950,7 @@ export default function CreatePackage() {
                 value={item}
                 onChange={(e) => handleArrayChange(index, e.target.value, 'included')}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="í¬í•¨ë˜ëŠ” í•­ëª©ì„ ì…ë ¥í•˜ì„¸ìš”"
+                placeholder="Æ÷ÇÔµÇ´Â Ç×¸ñÀ» ÀÔ·ÂÇÏ¼¼¿ä"
               />
               <button
                 type="button"
@@ -964,16 +964,16 @@ export default function CreatePackage() {
           ))}
         </div>
 
-        {/* ë¶ˆí¬í•¨ ì‚¬í•­ */}
+        {/* ºÒÆ÷ÇÔ »çÇ× */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="excluded-section">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">ë¶ˆí¬í•¨ ì‚¬í•­</h2>
+            <h2 className="text-lg font-semibold">ºÒÆ÷ÇÔ »çÇ×</h2>
             <button
               type="button"
               onClick={() => addArrayItem('excluded')}
               className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
             >
-              <Plus size={16} className="mr-1" /> ì¶”ê°€
+              <Plus size={16} className="mr-1" /> Ãß°¡
             </button>
           </div>
           
@@ -984,7 +984,7 @@ export default function CreatePackage() {
                 value={item}
                 onChange={(e) => handleArrayChange(index, e.target.value, 'excluded')}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="í¬í•¨ë˜ì§€ ì•ŠëŠ” í•­ëª©ì„ ì…ë ¥í•˜ì„¸ìš”"
+                placeholder="Æ÷ÇÔµÇÁö ¾Ê´Â Ç×¸ñÀ» ÀÔ·ÂÇÏ¼¼¿ä"
               />
               <button
                 type="button"
@@ -998,16 +998,16 @@ export default function CreatePackage() {
           ))}
         </div>
 
-        {/* ì˜ˆì•½ ì‹œ ì°¸ê³ ì‚¬í•­ */}
+        {/* ¿¹¾à ½Ã Âü°í»çÇ× */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="notes-section">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">ì˜ˆì•½ ì‹œ ì°¸ê³ ì‚¬í•­</h2>
+            <h2 className="text-lg font-semibold">¿¹¾à ½Ã Âü°í»çÇ×</h2>
             <button
               type="button"
               onClick={() => addArrayItem('notes')}
               className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
             >
-              <Plus size={16} className="mr-1" /> ì¶”ê°€
+              <Plus size={16} className="mr-1" /> Ãß°¡
             </button>
           </div>
           
@@ -1018,7 +1018,7 @@ export default function CreatePackage() {
                 value={note}
                 onChange={(e) => handleArrayChange(index, e.target.value, 'notes')}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ì£¼ì˜ì‚¬í•­ì´ë‚˜ ì°¸ê³ í•  ë‚´ìš©ì„ ì…ë ¥í•˜ì„¸ìš”"
+                placeholder="ÁÖÀÇ»çÇ×ÀÌ³ª Âü°íÇÒ ³»¿ëÀ» ÀÔ·ÂÇÏ¼¼¿ä"
               />
               <button
                 type="button"
@@ -1037,7 +1037,7 @@ export default function CreatePackage() {
             href="/admin/packages"
             className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
           >
-            ì·¨ì†Œ
+            Ãë¼Ò
           </Link>
           
           <button
@@ -1048,11 +1048,11 @@ export default function CreatePackage() {
             {isSaving ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                ì €ì¥ ì¤‘...
+                ÀúÀå Áß...
               </>
             ) : (
               <>
-                <Save size={18} className="mr-2" /> íŒ¨í‚¤ì§€ ìƒì„±
+                <Save size={18} className="mr-2" /> ÆĞÅ°Áö »ı¼º
               </>
             )}
           </button>
