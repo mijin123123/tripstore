@@ -195,8 +195,8 @@ export default function EditPackage() {
             const base64 = await convertToBase64(file);
             const currentValue = formData.itinerary;
             const textarea = e.target as HTMLTextAreaElement;
-            const startPos = textarea.selectionStart || 0;
-            const endPos = textarea.selectionEnd || 0;
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
             
             // 이미지 마크다운 문법으로 삽입
             const imageMarkdown = `![이미지](${base64})`;
@@ -206,9 +206,7 @@ export default function EditPackage() {
             
             // 커서 위치를 이미지 태그 뒤로 이동
             setTimeout(() => {
-              if (textarea.selectionStart !== null) {
-                textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
-              }
+              textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
               textarea.focus();
             }, 0);
           } catch (error) {

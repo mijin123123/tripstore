@@ -314,8 +314,8 @@ export default function CreatePackage() {
       if (!formData.name.trim()) {
         throw new Error('패키지명을 입력해주세요.')
       }
-      if (!formData.price.trim()) {
-        throw new Error('가격을 입력해주세요.')
+      if (!formData.price || formData.price <= 0) {
+        throw new Error('올바른 가격을 입력해주세요.')
       }
       if (!formData.location.trim()) {
         throw new Error('위치를 입력해주세요.')
@@ -337,7 +337,7 @@ export default function CreatePackage() {
 
       const packageData = {
         name: formData.name.trim(),
-        price: formData.price.trim(),
+        price: formData.price,
         duration: formData.duration.trim(),
         region: formData.region.trim(),
         region_ko: formData.regionKo.trim(),
@@ -365,7 +365,6 @@ export default function CreatePackage() {
         .insert([packageData])
 
       if (error) {
-        console.error('Supabase 오류:', error)
         throw error
       }
 
