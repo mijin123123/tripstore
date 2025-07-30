@@ -356,7 +356,7 @@ export default function EditPackage() {
                 type="text"
                 name="name"
                 value={formData.name}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -371,7 +371,7 @@ export default function EditPackage() {
                   type="text"
                   name="price"
                   value={formatNumber(formData.price)}
-                  onChange={handleInputChange}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="0"
                 />
@@ -410,7 +410,7 @@ export default function EditPackage() {
                 type="text"
                 name="regionKo"
                 value={formData.regionKo}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="예: 동남아시아"
               />
@@ -423,7 +423,7 @@ export default function EditPackage() {
               <select
                 name="type"
                 value={formData.type}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">타입 선택</option>
@@ -443,7 +443,7 @@ export default function EditPackage() {
                 type="text"
                 name="duration"
                 value={formData.duration}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="예: 3박 4일"
               />
@@ -457,7 +457,7 @@ export default function EditPackage() {
                 type="text"
                 name="departure"
                 value={formData.departure}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="예: 인천국제공항"
               />
@@ -471,7 +471,7 @@ export default function EditPackage() {
                 type="number"
                 name="min_people"
                 value={formData.min_people}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -485,7 +485,7 @@ export default function EditPackage() {
                 type="number"
                 name="max_people"
                 value={formData.max_people}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -499,7 +499,7 @@ export default function EditPackage() {
                 type="text"
                 name="location"
                 value={formData.location}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="예: 보홀, 세부"
               />
@@ -512,7 +512,7 @@ export default function EditPackage() {
               <textarea
                 name="description"
                 value={formData.description}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="패키지에 대한 상세 설명을 입력하세요"
@@ -526,7 +526,7 @@ export default function EditPackage() {
               <textarea
                 name="itinerary"
                 value={formData.itinerary}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 rows={6}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="간략한 여행 일정을 입력하세요"
@@ -539,7 +539,7 @@ export default function EditPackage() {
                 id="is_featured"
                 name="is_featured"
                 checked={formData.is_featured}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <label htmlFor="is_featured" className="ml-2 block text-sm text-gray-700">
