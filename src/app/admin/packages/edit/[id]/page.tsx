@@ -6,22 +6,11 @@ import { createClient } from '@/lib/supabase'
 import { ArrowLeft, Plus, X, Save, ChevronUp, ChevronDown, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 
-type Category = {
-  id: number
-  name: string
-  slug: string
-  parent_id: number | null
-}
-
 export default function EditPackage() {
   const router = useRouter()
   const params = useParams()
   const packageId = params?.id as string
   
-  const [categories, setCategories] = useState<Category[]>([])
-  const [mainCategories, setMainCategories] = useState<Category[]>([])
-  const [subCategories, setSubCategories] = useState<Category[]>([])
-  const [filteredSubCategories, setFilteredSubCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
@@ -54,28 +43,6 @@ export default function EditPackage() {
   })
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const supabase = createClient()
-        const { data: categoriesData, error } = await supabase
-          .from('categories')
-          .select('*')
-          .order('id', { ascending: true })
-        
-        if (error) throw error
-        
-        const mainCats = categoriesData.filter(cat => cat.parent_id === null)
-        const subCats = categoriesData.filter(cat => cat.parent_id !== null)
-        
-        setCategories(categoriesData)
-        setMainCategories(mainCats)
-        setSubCategories(subCats)
-        
-      } catch (error) {
-        console.error('카테고리를 불러오는데 실패했습니다:', error)
-      }
-    }
-    
     const fetchPackage = async () => {
       try {
         const supabase = createClient()
@@ -152,7 +119,6 @@ export default function EditPackage() {
       }
     }
     
-    fetchCategories()
     fetchPackage()
   }, [packageId])
 
