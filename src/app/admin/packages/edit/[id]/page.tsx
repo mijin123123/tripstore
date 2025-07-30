@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Plus, X, Save } from 'lucide-react'
 import Link from 'next/link'
 
 export default function EditPackage() {
@@ -14,6 +14,7 @@ export default function EditPackage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+  const [uploadingImages, setUploadingImages] = useState<number[]>([])
 
   const [formData, setFormData] = useState({
     name: '',
@@ -22,11 +23,17 @@ export default function EditPackage() {
     region: '',
     regionKo: '',
     description: '',
+    image: '',
+    images: [''], // 여러 이미지를 위한 배열
+    highlights: [''],
     departure: '',
     type: '',
     min_people: 1,
     max_people: 10,
     itinerary: '',
+    included: [''],
+    excluded: [''],
+    notes: [''],
     is_featured: false,
     location: '',
     category: ''
@@ -52,11 +59,17 @@ export default function EditPackage() {
             region: packageData.region || '',
             regionKo: packageData.region_ko || '',
             description: packageData.description || '',
+            image: (packageData.images && packageData.images[0]) || '',
+            images: packageData.images || [''],
+            highlights: packageData.highlights || [''],
             departure: packageData.departure || '',
             type: packageData.type || '',
             min_people: packageData.min_people || 1,
             max_people: packageData.max_people || 10,
             itinerary: packageData.itinerary || '',
+            included: packageData.included || [''],
+            excluded: packageData.excluded || [''],
+            notes: packageData.notes || [''],
             is_featured: packageData.is_featured || false,
             location: packageData.features?.location || '',
             category: `${packageData.type}-${packageData.region}` || ''
@@ -75,11 +88,76 @@ export default function EditPackage() {
     }
   }, [packageId])
 
+  // 숫자를 천 단위 콤마 형식으로 변환하는 함수
   const formatNumber = (num: number): string => {
     return num.toLocaleString('ko-KR')
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // 이미지 업로드 함수
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, imageIndex: number) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingImages(prev => [...prev, imageIndex])
+
+    try {
+      const supabase = createClient()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = `packages/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('package-images')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('package-images')
+        .getPublicUrl(filePath)
+
+      if (imageIndex === -1) {
+        // 대표 이미지
+        setFormData(prev => ({ ...prev, image: publicUrl }))
+      } else {
+        // 추가 이미지
+        const newImages = [...formData.images]
+        newImages[imageIndex] = publicUrl
+        setFormData(prev => ({ ...prev, images: newImages }))
+      }
+    } catch (error: any) {
+      console.error('이미지 업로드 실패:', error)
+      setError('이미지 업로드에 실패했습니다')
+    } finally {
+      setUploadingImages(prev => prev.filter(index => index !== imageIndex))
+    }
+  }
+
+  // 여러 이미지 업로드 함수
+  const handleMultipleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    for (const file of files) {
+      const emptyIndex = formData.images.findIndex(img => img === '')
+      if (emptyIndex === -1 && formData.images.length < 10) {
+        // 빈 슬롯이 없으면 새로 추가
+        setFormData(prev => ({ ...prev, images: [...prev.images, ''] }))
+        await new Promise(resolve => setTimeout(resolve, 100)) // 상태 업데이트 대기
+      }
+      
+      const targetIndex = emptyIndex !== -1 ? emptyIndex : formData.images.length - 1
+      
+      // 파일 업로드 시뮬레이션
+      const fakeEvent = {
+        target: { files: [file] }
+      } as React.ChangeEvent<HTMLInputElement>
+      
+      await handleImageUpload(fakeEvent, targetIndex)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     
     if (name === 'price') {
@@ -89,9 +167,107 @@ export default function EditPackage() {
       setFormData({ ...formData, [name]: parseInt(value) || 0 })
     } else if ((e.target as HTMLInputElement).type === 'checkbox') {
       setFormData({ ...formData, [name]: (e.target as HTMLInputElement).checked })
+    } else if (name === 'category') {
+      // 카테고리 변경 시 type과 region 자동 설정
+      let newType = '';
+      let newRegion = '';
+      let newRegionKo = '';
+      
+      if (value === 'overseas-europe') {
+        newType = 'overseas';
+        newRegion = 'europe';
+        newRegionKo = '유럽';
+      } else if (value === 'overseas-japan') {
+        newType = 'overseas';
+        newRegion = 'japan';
+        newRegionKo = '일본';
+      } else if (value === 'overseas-southeast-asia') {
+        newType = 'overseas';
+        newRegion = 'southeast-asia';
+        newRegionKo = '동남아';
+      } else if (value === 'overseas-americas') {
+        newType = 'overseas';
+        newRegion = 'americas';
+        newRegionKo = '미주/캐나다/하와이';
+      } else if (value === 'overseas-taiwan-hongkong-macau') {
+        newType = 'overseas';
+        newRegion = 'taiwan-hongkong-macau';
+        newRegionKo = '대만/홍콩/마카오';
+      } else if (value === 'overseas-guam-saipan') {
+        newType = 'overseas';
+        newRegion = 'guam-saipan';
+        newRegionKo = '괌/사이판';
+      } else if (value === 'domestic-hotel') {
+        newType = 'domestic';
+        newRegion = 'hotel';
+        newRegionKo = '호텔/리조트';
+      } else if (value === 'domestic-pool-villa') {
+        newType = 'domestic';
+        newRegion = 'pool-villa';
+        newRegionKo = '풀빌라/펜션';
+      } else if (value === 'luxury-europe') {
+        newType = 'luxury';
+        newRegion = 'europe';
+        newRegionKo = '유럽';
+      } else if (value === 'luxury-japan') {
+        newType = 'luxury';
+        newRegion = 'japan';
+        newRegionKo = '일본';
+      } else if (value === 'luxury-southeast-asia') {
+        newType = 'luxury';
+        newRegion = 'southeast-asia';
+        newRegionKo = '동남아';
+      } else if (value === 'luxury-cruise') {
+        newType = 'luxury';
+        newRegion = 'cruise';
+        newRegionKo = '크루즈';
+      } else if (value === 'luxury-special-theme') {
+        newType = 'luxury';
+        newRegion = 'special-theme';
+        newRegionKo = '이색테마';
+      }
+      
+      setFormData({ 
+        ...formData, 
+        [name]: value,
+        type: newType,
+        region: newRegion,
+        regionKo: newRegionKo
+      })
     } else {
       setFormData({ ...formData, [name]: value })
     }
+  }
+
+  const handleItineraryChange = (value: string) => {
+    setFormData({ ...formData, itinerary: value })
+  }
+
+  const addArrayItem = (fieldName: keyof typeof formData) => {
+    const currentArray = formData[fieldName] as string[]
+    setFormData({
+      ...formData,
+      [fieldName]: [...currentArray, '']
+    })
+  }
+
+  const removeArrayItem = (fieldName: keyof typeof formData, index: number) => {
+    const currentArray = formData[fieldName] as string[]
+    const newArray = currentArray.filter((_, i) => i !== index)
+    setFormData({
+      ...formData,
+      [fieldName]: newArray
+    })
+  }
+
+  const updateArrayItem = (fieldName: keyof typeof formData, index: number, value: string) => {
+    const currentArray = formData[fieldName] as string[]
+    const newArray = [...currentArray]
+    newArray[index] = value
+    setFormData({
+      ...formData,
+      [fieldName]: newArray
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,6 +296,11 @@ export default function EditPackage() {
           itinerary: formData.itinerary || '',
           min_people: formData.min_people || 1,
           max_people: formData.max_people || 10,
+          images: formData.images.filter(img => img.trim() !== ''),
+          highlights: formData.highlights.filter(h => h.trim() !== ''),
+          included: formData.included.filter(i => i.trim() !== ''),
+          excluded: formData.excluded.filter(e => e.trim() !== ''),
+          notes: formData.notes.filter(n => n.trim() !== ''),
           features: { 
             location: formData.location || ''
           }
@@ -368,6 +549,96 @@ export default function EditPackage() {
           </div>
         </div>
 
+        {/* 이미지 업로드 섹션 */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold mb-4">패키지 이미지</h2>
+          
+          {/* 기존 이미지 */}
+          {existingImages.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-md font-medium mb-3 text-gray-700">현재 이미지</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {existingImages.map((imageUrl, index) => (
+                  <div key={index} className="relative group">
+                    <div className="aspect-square relative rounded-lg overflow-hidden border border-gray-200">
+                      <Image
+                        src={imageUrl}
+                        alt={`패키지 이미지 ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeExistingImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 새 이미지 업로드 */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              새 이미지 추가
+            </label>
+            <div className="flex items-center justify-center w-full">
+              <label
+                htmlFor="image-upload"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="w-8 h-8 mb-3 text-gray-400" />
+                  <p className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">클릭하여 업로드</span> 또는 드래그 앤 드롭
+                  </p>
+                  <p className="text-xs text-gray-500">PNG, JPG (최대 10MB)</p>
+                </div>
+                <input
+                  id="image-upload"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* 업로드된 새 이미지 미리보기 */}
+          {imageFiles.length > 0 && (
+            <div>
+              <h3 className="text-md font-medium mb-3 text-gray-700">새로 추가할 이미지</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {imageFiles.map((file, index) => (
+                  <div key={index} className="relative group">
+                    <div className="aspect-square relative rounded-lg overflow-hidden border border-gray-200">
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt={`새 이미지 ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeImageFile(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="flex justify-between">
           <Link
             href="/admin/packages"
@@ -378,13 +649,13 @@ export default function EditPackage() {
           
           <button
             type="submit"
-            disabled={isSaving}
-            className={`px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+            disabled={isSaving || isUploading}
+            className={`px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center ${(isSaving || isUploading) ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            {isSaving ? (
+            {isSaving || isUploading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                저장 중...
+                {isUploading ? '이미지 업로드 중...' : '저장 중...'}
               </>
             ) : (
               <>
