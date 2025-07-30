@@ -324,9 +324,13 @@ export default function CreatePackage() {
       const validExcluded = formData.excluded.filter(item => item.trim() !== '')
       const validNotes = formData.notes.filter(item => item.trim() !== '')
 
+      // 패키지 ID 생성 (현재 시간 기반)
+      const packageId = `pkg_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+
       const packageData = {
+        id: packageId,
         title: formData.name,
-        price: formData.price,
+        price: formData.price.toString(),
         duration: formData.duration,
         region: formData.region,
         region_ko: formData.regionKo,
