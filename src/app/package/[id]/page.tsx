@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { MapPin, Calendar, Users, Star, Clock, Plane, CheckCircle, Coffee, Utensils, HelpCircle, CreditCard } from 'lucide-react'
 import { Package } from '@/types'
 import { getPackageById } from '@/lib/api'
+import MarkdownImage from '@/components/MarkdownImage'
 
 // 패키지 상세 페이지 컴포넌트
 export default function PackageDetail() {
@@ -494,8 +495,9 @@ export default function PackageDetail() {
                       <Calendar className='w-6 h-6 text-blue-500 mt-1' />
                       <div className='flex-1'>
                         <h3 className='text-lg font-semibold mb-3'>여행 일정</h3>
-                        <div className='text-gray-700 whitespace-pre-wrap leading-relaxed'>
-                          {packageData.itinerary}
+                        <div className='text-gray-700 leading-relaxed'>
+                          {/* 마크다운 이미지 렌더링 컴포넌트 사용 */}
+                          <MarkdownImage markdown={packageData.itinerary} />
                         </div>
                       </div>
                     </div>

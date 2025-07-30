@@ -29,7 +29,7 @@ export interface Package {
       lunch: boolean;
       dinner: boolean;
     }
-  }[];
+  }[] | string;
   included?: string[];
   excluded?: string[];
   notes?: string[];
