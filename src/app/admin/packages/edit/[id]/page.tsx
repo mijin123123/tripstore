@@ -348,6 +348,40 @@ export default function EditPackage() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h2 className="text-lg font-semibold mb-4">기본 정보</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                패키지 카테고리
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">카테고리를 선택하세요</option>
+                <optgroup label="해외여행">
+                  <option value="overseas-europe">유럽</option>
+                  <option value="overseas-japan">일본</option>
+                  <option value="overseas-southeast-asia">동남아시아</option>
+                  <option value="overseas-americas">미주/캐나다/하와이</option>
+                  <option value="overseas-taiwan-hongkong-macau">대만/홍콩/마카오</option>
+                  <option value="overseas-guam-saipan">괌/사이판</option>
+                </optgroup>
+                <optgroup label="국내여행">
+                  <option value="domestic-hotel">호텔/리조트</option>
+                  <option value="domestic-pool-villa">풀빌라/펜션</option>
+                </optgroup>
+                <optgroup label="럭셔리여행">
+                  <option value="luxury-europe">유럽</option>
+                  <option value="luxury-japan">일본</option>
+                  <option value="luxury-southeast-asia">동남아시아</option>
+                  <option value="luxury-cruise">크루즈</option>
+                  <option value="luxury-special-theme">이색테마</option>
+                </optgroup>
+              </select>
+            </div>
+            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 패키지명
@@ -358,13 +392,14 @@ export default function EditPackage() {
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="패키지명을 입력하세요"
                 required
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                가격
+                가격 (원)
               </label>
               <div className="relative">
                 <input
@@ -379,60 +414,6 @@ export default function EditPackage() {
                   원
                 </span>
               </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                지역
-              </label>
-              <select
-                name="region"
-                value={formData.region}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">지역 선택</option>
-                <option value="southeast-asia">동남아시아</option>
-                <option value="japan">일본</option>
-                <option value="europe">유럽</option>
-                <option value="americas">미주</option>
-                <option value="guam-saipan">괌/사이판</option>
-                <option value="taiwan-hongkong-macau">대만/홍콩/마카오</option>
-                <option value="domestic">국내</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                지역 (한국어)
-              </label>
-              <input
-                type="text"
-                name="regionKo"
-                value={formData.regionKo}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="예: 동남아시아"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                여행 타입
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">타입 선택</option>
-                <option value="package">패키지</option>
-                <option value="hotel">호텔</option>
-                <option value="luxury">럭셔리</option>
-                <option value="resort">리조트</option>
-                <option value="pool-villa">풀빌라</option>
-              </select>
             </div>
             
             <div>
