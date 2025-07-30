@@ -50,7 +50,6 @@ export default function EditPackage() {
     is_featured: false,
     start_date: '',
     end_date: '',
-    category: '',
     location: ''
   })
 
@@ -90,11 +89,6 @@ export default function EditPackage() {
         
         if (packageData) {
           const pkg = packageData as any;
-          
-          let categoryValue = '';
-          if (pkg.type && pkg.region) {
-            categoryValue = `${pkg.type}-${pkg.region}`;
-          }
           
           const featuresImages = pkg.features?.images || pkg.features?.all_images || pkg.features?.additional_images || [];
           const mainImage = pkg.image || '';
@@ -145,8 +139,7 @@ export default function EditPackage() {
             start_date: pkg.start_date || '',
             end_date: pkg.end_date || '',
             duration: pkg.duration || '',
-            location: location,
-            category: categoryValue
+            location: location
           })
           
           setPackageLoaded(true)
@@ -230,71 +223,35 @@ export default function EditPackage() {
       setFormData({ ...formData, [name]: parseInt(value) || 0 })
     } else if ((e.target as HTMLInputElement).type === 'checkbox') {
       setFormData({ ...formData, [name]: (e.target as HTMLInputElement).checked })
-    } else if (name === 'category') {
-      // 카테고리 변경 시 type과 region 자동 설정
-      let newType = '';
-      let newRegion = '';
+    } else if (name === 'region') {
+      // 지역 변경 시 regionKo 자동 설정
       let newRegionKo = '';
       
-      if (value === 'overseas-europe') {
-        newType = 'overseas';
-        newRegion = 'europe';
+      if (value === 'europe') {
         newRegionKo = '유럽';
-      } else if (value === 'overseas-japan') {
-        newType = 'overseas';
-        newRegion = 'japan';
+      } else if (value === 'japan') {
         newRegionKo = '일본';
-      } else if (value === 'overseas-southeast-asia') {
-        newType = 'overseas';
-        newRegion = 'southeast-asia';
+      } else if (value === 'southeast-asia') {
         newRegionKo = '동남아';
-      } else if (value === 'overseas-americas') {
-        newType = 'overseas';
-        newRegion = 'americas';
+      } else if (value === 'americas') {
         newRegionKo = '미주/캐나다/하와이';
-      } else if (value === 'overseas-taiwan-hongkong-macau') {
-        newType = 'overseas';
-        newRegion = 'taiwan-hongkong-macau';
+      } else if (value === 'taiwan-hongkong-macau') {
         newRegionKo = '대만/홍콩/마카오';
-      } else if (value === 'overseas-guam-saipan') {
-        newType = 'overseas';
-        newRegion = 'guam-saipan';
+      } else if (value === 'guam-saipan') {
         newRegionKo = '괌/사이판';
-      } else if (value === 'domestic-hotel') {
-        newType = 'domestic';
-        newRegion = 'hotel';
+      } else if (value === 'hotel') {
         newRegionKo = '호텔/리조트';
-      } else if (value === 'domestic-pool-villa') {
-        newType = 'domestic';
-        newRegion = 'pool-villa';
+      } else if (value === 'pool-villa') {
         newRegionKo = '풀빌라/펜션';
-      } else if (value === 'luxury-europe') {
-        newType = 'luxury';
-        newRegion = 'europe';
-        newRegionKo = '유럽';
-      } else if (value === 'luxury-japan') {
-        newType = 'luxury';
-        newRegion = 'japan';
-        newRegionKo = '일본';
-      } else if (value === 'luxury-southeast-asia') {
-        newType = 'luxury';
-        newRegion = 'southeast-asia';
-        newRegionKo = '동남아';
-      } else if (value === 'luxury-cruise') {
-        newType = 'luxury';
-        newRegion = 'cruise';
+      } else if (value === 'cruise') {
         newRegionKo = '크루즈';
-      } else if (value === 'luxury-special-theme') {
-        newType = 'luxury';
-        newRegion = 'special-theme';
+      } else if (value === 'special-theme') {
         newRegionKo = '이색테마';
       }
       
       setFormData({ 
         ...formData, 
         [name]: value,
-        type: newType,
-        region: newRegion,
         regionKo: newRegionKo
       })
     } else {
@@ -477,8 +434,8 @@ export default function EditPackage() {
     
     try {
       // 필수 필드 검증
-      if (!formData.name || !formData.price || !formData.category) {
-        throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 카테고리)')
+      if (!formData.name || !formData.price || !formData.type || !formData.region) {
+        throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 타입, 지역)')
       }
       
       // 배열 필드에서 빈 항목 필터링
@@ -598,35 +555,59 @@ export default function EditPackage() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                카테고리 <span className="text-red-500">*</span>
+                타입 <span className="text-red-500">*</span>
               </label>
               <select
-                name="category"
-                value={formData.category}
+                name="type"
+                value={formData.type}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="">카테고리 선택</option>
-                <optgroup label="해외여행">
-                  <option value="overseas-europe">유럽</option>
-                  <option value="overseas-japan">일본</option>
-                  <option value="overseas-southeast-asia">동남아</option>
-                  <option value="overseas-americas">미주/캐나다/하와이</option>
-                  <option value="overseas-taiwan-hongkong-macau">대만/홍콩/마카오</option>
-                  <option value="overseas-guam-saipan">괌/사이판</option>
-                </optgroup>
-                <optgroup label="국내여행">
-                  <option value="domestic-hotel">호텔/리조트</option>
-                  <option value="domestic-pool-villa">풀빌라/펜션</option>
-                </optgroup>
-                <optgroup label="럭셔리">
-                  <option value="luxury-europe">유럽</option>
-                  <option value="luxury-japan">일본</option>
-                  <option value="luxury-southeast-asia">동남아</option>
-                  <option value="luxury-cruise">크루즈</option>
-                  <option value="luxury-special-theme">이색테마</option>
-                </optgroup>
+                <option value="">타입 선택</option>
+                <option value="overseas">해외여행</option>
+                <option value="domestic">국내여행</option>
+                <option value="luxury">럭셔리</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                지역 <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="region"
+                value={formData.region}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">지역 선택</option>
+                {formData.type === 'overseas' && (
+                  <>
+                    <option value="europe">유럽</option>
+                    <option value="japan">일본</option>
+                    <option value="southeast-asia">동남아</option>
+                    <option value="americas">미주/캐나다/하와이</option>
+                    <option value="taiwan-hongkong-macau">대만/홍콩/마카오</option>
+                    <option value="guam-saipan">괌/사이판</option>
+                  </>
+                )}
+                {formData.type === 'domestic' && (
+                  <>
+                    <option value="hotel">호텔/리조트</option>
+                    <option value="pool-villa">풀빌라/펜션</option>
+                  </>
+                )}
+                {formData.type === 'luxury' && (
+                  <>
+                    <option value="europe">유럽</option>
+                    <option value="japan">일본</option>
+                    <option value="southeast-asia">동남아</option>
+                    <option value="cruise">크루즈</option>
+                    <option value="special-theme">이색테마</option>
+                  </>
+                )}
               </select>
             </div>
             
