@@ -10,7 +10,9 @@ export default function CreatePackage() {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
-  const [uploadingImages, setUploadingImages] = useState<number[]>([])
+  const [uploadingImages, setUploadingImages] = useState<numbe                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  가격
+                </label>>([])
 
   const [formData, setFormData] = useState({
     name: '',
@@ -308,10 +310,9 @@ export default function CreatePackage() {
     setError('')
 
     try {
-      // 필수 필드 검증
-      if (!formData.name || !formData.price || !formData.category || !formData.duration || 
-          !formData.region || !formData.departure || !formData.description || !formData.image) {
-        throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 카테고리, 여행 기간, 지역, 출발일, 설명, 대표 이미지)')
+      // 최소한의 필수 필드만 검증 (이름과 카테고리)
+      if (!formData.name) {
+        throw new Error('패키지 이름은 필수입니다.')
       }
       
       const supabase = createClient()
@@ -329,27 +330,30 @@ export default function CreatePackage() {
       const packageId = `pkg_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
 
       // JSONB 타입 필드를 위해 배열 데이터를 JSON 형식으로 변환
+      // 빈 필드에 기본값 설정
+      const defaultImage = 'https://placehold.co/600x400?text=여행+패키지';
+      
       const packageData = {
         id: packageId,
         title: formData.name,
-        price: formData.price.toString(),
-        duration: formData.duration,
-        region: formData.region,
-        region_ko: formData.regionKo,
-        description: formData.description,
-        image: formData.image,
-        images: validImages,
-        highlights: validHighlights, // JSONB 필드
-        departure: formData.departure,
-        type: formData.type,
-        min_people: formData.min_people,
-        max_people: formData.max_people,
-        itinerary: formData.itinerary, // 현재는 문자열이지만 JSONB로 변환해야할 수도 있음
-        included: validIncluded, // JSONB 필드
-        excluded: validExcluded, // JSONB 필드
-        notes: validNotes, // JSONB 필드
-        is_featured: formData.is_featured,
-        location: formData.location,
+        price: formData.price ? formData.price.toString() : "0",
+        duration: formData.duration || "미정",
+        region: formData.region || "기타",
+        region_ko: formData.regionKo || "기타",
+        description: formData.description || `${formData.name} 패키지입니다.`,
+        image: formData.image || defaultImage,
+        images: validImages.length > 0 ? validImages : [defaultImage],
+        highlights: validHighlights.length > 0 ? validHighlights : ["미정"], // JSONB 필드
+        departure: formData.departure || "미정",
+        type: formData.type || "기타",
+        min_people: formData.min_people || 1,
+        max_people: formData.max_people || 10,
+        itinerary: formData.itinerary || "준비 중입니다.", // 현재는 문자열이지만 JSONB로 변환해야할 수도 있음
+        included: validIncluded.length > 0 ? validIncluded : ["미정"], // JSONB 필드
+        excluded: validExcluded.length > 0 ? validExcluded : ["미정"], // JSONB 필드
+        notes: validNotes.length > 0 ? validNotes : ["미정"], // JSONB 필드
+        is_featured: formData.is_featured || false,
+        location: formData.location || "미정",
         rating: 4.0, // 기본 평점 추가
         features: [] // 빈 features 필드 추가
       }
@@ -395,6 +399,10 @@ export default function CreatePackage() {
           <h1 className="text-2xl font-bold text-gray-900">새 패키지 등록</h1>
         </div>
 
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-600">패키지명만 입력하면 됩니다. 나머지 정보는 선택사항입니다.</p>
+        </div>
+
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-600">{error}</p>
@@ -422,14 +430,13 @@ export default function CreatePackage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  카테고리 <span className="text-red-500">*</span>
+                  카테고리
                 </label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
                 >
                   <option value="">카테고리 선택</option>
                   <optgroup label="해외여행">
@@ -456,7 +463,7 @@ export default function CreatePackage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  가격 <span className="text-red-500">*</span>
+                  가격
                 </label>
                 <div className="relative">
                   <input
@@ -465,7 +472,6 @@ export default function CreatePackage() {
                     value={formatNumber(formData.price)}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
                     placeholder="0"
                   />
                   <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
@@ -587,7 +593,7 @@ export default function CreatePackage() {
             {/* 대표 이미지 */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                대표 이미지 <span className="text-red-500">*</span>
+                대표 이미지
               </label>
               <div className="flex items-center gap-3">
                 <input
