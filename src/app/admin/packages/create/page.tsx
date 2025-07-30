@@ -734,6 +734,26 @@ export default function CreatePackage() {
                   파일 선택
                 </label>
               </div>
+              
+              {/* 대표 이미지 미리보기 */}
+              {formData.image && (
+                <div className="mt-3 relative">
+                  <div className="bg-gray-100 p-2 rounded-md">
+                    <div className="text-xs text-gray-500 mb-1">미리보기:</div>
+                    <div className="relative aspect-video overflow-hidden rounded-md border border-gray-300">
+                      <img
+                        src={formData.image}
+                        alt="대표 이미지 미리보기"
+                        className="object-cover w-full h-full"
+                        onError={(e) => {
+                          // 이미지 로드 오류 시 대체 이미지나 메시지 표시
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x225?text=이미지+로드+오류';
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 추가 이미지들 */}
@@ -771,36 +791,56 @@ export default function CreatePackage() {
               </div>
               <div className="space-y-3">
                 {formData.images.map((image, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500 min-w-[20px]">{index + 1}.</span>
-                    <input
-                      type="url"
-                      value={image}
-                      onChange={(e) => updateArrayItem('images', index, e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="이미지 URL 또는 파일 업로드"
-                    />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e, index)}
-                      className="hidden"
-                      id={`image-upload-${index}`}
-                    />
-                    <label
-                      htmlFor={`image-upload-${index}`}
-                      className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer border border-gray-300"
-                    >
-                      {uploadingImages.includes(index) ? '업로드 중...' : '파일 선택'}
-                    </label>
-                    {formData.images.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeArrayItem('images', index)}
-                        className="p-2 text-red-600 hover:text-red-700"
+                  <div key={index} className="mb-5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-gray-500 min-w-[20px]">{index + 1}.</span>
+                      <input
+                        type="url"
+                        value={image}
+                        onChange={(e) => updateArrayItem('images', index, e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="이미지 URL 또는 파일 업로드"
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, index)}
+                        className="hidden"
+                        id={`image-upload-${index}`}
+                      />
+                      <label
+                        htmlFor={`image-upload-${index}`}
+                        className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer border border-gray-300"
                       >
-                        <X className="w-4 h-4" />
-                      </button>
+                        {uploadingImages.includes(index) ? '업로드 중...' : '파일 선택'}
+                      </label>
+                      {formData.images.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeArrayItem('images', index)}
+                          className="p-2 text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    
+                    {/* 추가 이미지 미리보기 */}
+                    {image && (
+                      <div className="mt-2 ml-9">
+                        <div className="bg-gray-50 p-2 rounded-md inline-block">
+                          <div className="relative w-24 h-24 overflow-hidden rounded-md border border-gray-300">
+                            <img
+                              src={image}
+                              alt={`추가 이미지 ${index + 1} 미리보기`}
+                              className="object-cover w-full h-full"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=오류';
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -815,6 +855,47 @@ export default function CreatePackage() {
                   </div>
                 )}
               </div>
+              
+              {/* 이미지 갤러리 미리보기 */}
+              {(formData.image || formData.images.some(img => img.trim() !== '')) && (
+                <div className="mt-6 bg-white p-4 border border-gray-200 rounded-md">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">패키지 이미지 갤러리</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {/* 대표 이미지 */}
+                    {formData.image && (
+                      <div className="relative aspect-square overflow-hidden rounded-md border border-blue-300 ring-2 ring-blue-100">
+                        <img
+                          src={formData.image}
+                          alt="대표 이미지"
+                          className="object-cover w-full h-full"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=대표+이미지';
+                          }}
+                        />
+                        <div className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-2 py-1">대표</div>
+                      </div>
+                    )}
+                    
+                    {/* 추가 이미지들 */}
+                    {formData.images
+                      .filter(img => img.trim() !== '')
+                      .map((img, i) => (
+                        <div key={`gallery-${i}`} className="relative aspect-square overflow-hidden rounded-md border border-gray-300">
+                          <img
+                            src={img}
+                            alt={`추가 이미지 ${i + 1}`}
+                            className="object-cover w-full h-full"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=이미지';
+                            }}
+                          />
+                          <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1">{i + 1}</div>
+                        </div>
+                      ))
+                    }
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

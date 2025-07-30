@@ -433,58 +433,6 @@ export default function PackageDetail() {
               <p className='text-gray-700 leading-relaxed mb-6 whitespace-pre-wrap'>
                 {packageData.description}
               </p>
-              
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-                {packageData.highlights ? packageData.highlights.map((highlight, index) => (
-                  <div key={index} className='bg-blue-50 rounded-lg p-3 text-center'>
-                    <span className='block text-blue-700 font-medium'>{highlight}</span>
-                  </div>
-                )) : (
-                  <div className='col-span-full text-center text-gray-500'>
-                    하이라이트 정보가 준비 중입니다.
-                  </div>
-                )}
-              </div>
-            </section>
-
-            {/* 포함/불포함 사항 */}
-            <section className='bg-white rounded-xl shadow-md p-6 mb-8'>
-              <h2 className='text-2xl font-bold mb-6'>포함 및 불포함 사항</h2>
-              
-              <div className='grid md:grid-cols-2 gap-6'>
-                <div>
-                  <h3 className='text-lg font-semibold mb-3 flex items-center text-green-700'>
-                    <CheckCircle className='w-5 h-5 mr-2' /> 포함 사항
-                  </h3>
-                  <ul className='space-y-2'>
-                    {packageData.included?.map((item, index) => (
-                      <li key={index} className='flex items-start'>
-                        <CheckCircle className='w-4 h-4 text-green-500 mr-2 mt-0.5' />
-                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h3 className='text-lg font-semibold mb-3 flex items-center text-red-700'>
-                    <span className='w-5 h-5 mr-2 relative'>
-                      <span className='absolute inset-0 text-red-500'>×</span>
-                    </span>
-                    불포함 사항
-                  </h3>
-                  <ul className='space-y-2'>
-                    {packageData.excluded?.map((item, index) => (
-                      <li key={index} className='flex items-start'>
-                        <span className='w-4 h-4 text-red-500 mr-2 mt-0.5 relative'>
-                          <span className='absolute inset-0 text-red-500'>×</span>
-                        </span>
-                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
             </section>
 
             {/* 일정 */}
@@ -579,20 +527,6 @@ export default function PackageDetail() {
                   <p className='text-sm text-gray-500 mt-1'>{packageData.duration} 일정의 세부 정보를 확인하세요</p>
                 </div>
               )}
-            </section>
-
-            {/* 유의사항 */}
-            <section className='bg-white rounded-xl shadow-md p-6'>
-              <h2 className='text-2xl font-bold mb-4'>예약 시 참고사항</h2>
-              
-              <ul className='space-y-2'>
-                {packageData.notes?.map((note, index) => (
-                  <li key={index} className='flex items-start'>
-                    <span className='text-blue-500 mr-2'>•</span>
-                    <span className='text-gray-700 whitespace-pre-wrap'>{note}</span>
-                  </li>
-                ))}
-              </ul>
             </section>
           </div>
 
