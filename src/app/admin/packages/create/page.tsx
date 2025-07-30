@@ -309,8 +309,9 @@ export default function CreatePackage() {
 
     try {
       // 필수 필드 검증
-      if (!formData.name || !formData.price || !formData.category) {
-        throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 카테고리)')
+      if (!formData.name || !formData.price || !formData.category || !formData.duration || 
+          !formData.region || !formData.departure || !formData.description || !formData.image) {
+        throw new Error('필수 필드를 모두 입력해주세요. (이름, 가격, 카테고리, 여행 기간, 지역, 출발일, 설명, 대표 이미지)')
       }
       
       const supabase = createClient()
@@ -327,6 +328,7 @@ export default function CreatePackage() {
       // 패키지 ID 생성 (현재 시간 기반)
       const packageId = `pkg_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
 
+      // JSONB 타입 필드를 위해 배열 데이터를 JSON 형식으로 변환
       const packageData = {
         id: packageId,
         title: formData.name,
@@ -337,26 +339,34 @@ export default function CreatePackage() {
         description: formData.description,
         image: formData.image,
         images: validImages,
-        highlights: validHighlights,
+        highlights: validHighlights, // JSONB 필드
         departure: formData.departure,
         type: formData.type,
         min_people: formData.min_people,
         max_people: formData.max_people,
-        itinerary: formData.itinerary,
-        included: validIncluded,
-        excluded: validExcluded,
-        notes: validNotes,
+        itinerary: formData.itinerary, // 현재는 문자열이지만 JSONB로 변환해야할 수도 있음
+        included: validIncluded, // JSONB 필드
+        excluded: validExcluded, // JSONB 필드
+        notes: validNotes, // JSONB 필드
         is_featured: formData.is_featured,
-        location: formData.location
+        location: formData.location,
+        rating: 4.0, // 기본 평점 추가
+        features: [] // 빈 features 필드 추가
       }
 
-      const { error } = await supabase
+      console.log('패키지 데이터 삽입 시도:', packageData);
+      
+      const { error, data } = await supabase
         .from('packages')
         .insert([packageData])
+        .select()
 
       if (error) {
+        console.error('Supabase 오류:', error);
         throw error
       }
+      
+      console.log('패키지 생성 성공:', data);
 
       alert('패키지가 성공적으로 생성되었습니다.')
       router.push('/admin/packages')
