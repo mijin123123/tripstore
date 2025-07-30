@@ -66,20 +66,43 @@ export default function CreatePackage() {
             const base64 = await convertToBase64(file);
             const imageMarkdown = `![이미지](${base64})`;
             
+            // textarea 요소가 존재하는지 확인
             const textarea = e.currentTarget;
-            const startPos = textarea.selectionStart;
-            const endPos = textarea.selectionEnd;
-            const beforeText = formData.itinerary.substring(0, startPos);
-            const afterText = formData.itinerary.substring(endPos);
+            if (!textarea) {
+              // textarea가 없으면 단순히 끝에 추가
+              const newItinerary = formData.itinerary + imageMarkdown;
+              handleItineraryChange(newItinerary);
+              console.log('텍스트영역을 찾을 수 없어 이미지를 끝에 추가했습니다.');
+              return;
+            }
             
-            const newItinerary = beforeText + imageMarkdown + afterText;
-            handleItineraryChange(newItinerary);
-            
-            // 커서 위치 조정
-            setTimeout(() => {
-              textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
-              textarea.focus();
-            }, 0);
+            try {
+              // 안전하게 선택 위치 확인
+              const startPos = textarea.selectionStart || 0;
+              const endPos = textarea.selectionEnd || startPos || 0;
+              const beforeText = formData.itinerary.substring(0, startPos);
+              const afterText = formData.itinerary.substring(endPos);
+              
+              const newItinerary = beforeText + imageMarkdown + afterText;
+              handleItineraryChange(newItinerary);
+              
+              // 커서 위치 조정 (안전하게)
+              setTimeout(() => {
+                try {
+                  if (textarea && typeof textarea.selectionStart !== 'undefined') {
+                    textarea.selectionStart = textarea.selectionEnd = startPos + imageMarkdown.length;
+                    textarea.focus();
+                  }
+                } catch (err) {
+                  console.log('커서 위치를 조정하는 중 오류 발생:', err);
+                }
+              }, 0);
+            } catch (selectionError) {
+              console.error('선택 위치 접근 오류:', selectionError);
+              // 오류가 발생하면 그냥 끝에 추가
+              const newItinerary = formData.itinerary + imageMarkdown;
+              handleItineraryChange(newItinerary);
+            }
           }
         } catch (error) {
           console.error('이미지 변환 실패:', error);
