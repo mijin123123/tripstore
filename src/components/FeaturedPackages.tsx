@@ -12,7 +12,7 @@ const FeaturedPackages = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const searchQuery = searchParams.get('search') || ''
-  const categoryFilter = searchParams.get('category') || ''
+  const typeFilter = searchParams.get('type') || ''
   
   const [packages, setPackages] = useState<Package[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -24,12 +24,12 @@ const FeaturedPackages = () => {
         const allPackages = await getAllPackages()
         
         // URL에 검색 파라미터가 있는 경우
-        if (searchQuery || categoryFilter) {
+        if (searchQuery || typeFilter) {
           let filteredPackages = allPackages
           
-          // 카테고리 필터 적용
-          if (categoryFilter) {
-            filteredPackages = filteredPackages.filter(pkg => pkg.category === categoryFilter)
+          // 타입 필터 적용
+          if (typeFilter) {
+            filteredPackages = filteredPackages.filter(pkg => pkg.type === typeFilter)
           }
           
           // 검색어 필터 적용 - 패키지명 우선, 그 다음 설명과 지역
@@ -78,7 +78,7 @@ const FeaturedPackages = () => {
     }
     
     fetchPackages()
-  }, [searchQuery, categoryFilter])
+  }, [searchQuery, typeFilter])
 
   return (
     <section className="py-16 bg-white">

@@ -1,7 +1,6 @@
 export interface Package {
   id: string;
   type?: string;
-  category?: string; // 데이터베이스 스키마에 있는 category 필드
   region?: string;
   regionKo?: string; // camelCase 사용 (database.types.ts와 일치시킴)
   region_ko?: string; // 호환성을 위한 별칭

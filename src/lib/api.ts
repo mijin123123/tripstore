@@ -23,7 +23,6 @@ export async function getAllPackages(): Promise<Package[]> {
       title: pkg.title || pkg.name, // title 필드가 있으면 사용, 없으면 name 사용
       regionKo: pkg.region_ko || pkg.region, // region_ko 필드가 있으면 사용, 없으면 region 사용
       name: pkg.title || pkg.name, // UI 호환성을 위해 name도 추가
-      category: pkg.type || pkg.category, // type 필드를 category로 매핑
       // 배열 필드들 안전하게 처리
       images: Array.isArray(pkg.images) ? pkg.images : [],
       highlights: Array.isArray(pkg.highlights) ? pkg.highlights : [],
@@ -61,7 +60,6 @@ export async function getPackagesByTypeAndRegion(type: string, region: string): 
     title: pkg.title || pkg.name,
     regionKo: pkg.region_ko || pkg.region,
     name: pkg.title || pkg.name,
-    category: pkg.type || pkg.category,
   })) || [];
   
   return mappedData as Package[];
@@ -91,7 +89,6 @@ export async function getPackageById(id: string): Promise<Package | null> {
     ...data,
     title: (data as any).title || data.name,
     regionKo: (data as any).region_ko || data.region,
-    category: (data as any).type || data.category,
     // 배열 필드들 안전하게 처리
     images: Array.isArray((data as any).images) ? (data as any).images : [],
     highlights: Array.isArray((data as any).highlights) ? (data as any).highlights : [],
