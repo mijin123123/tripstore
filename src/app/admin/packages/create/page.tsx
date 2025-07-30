@@ -10,9 +10,7 @@ export default function CreatePackage() {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
-  const [uploadingImages, setUploadingImages] = useState<numbe                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                  가격
-                </label>>([])
+  const [uploadingImages, setUploadingImages] = useState<number[]>([])
 
   const [formData, setFormData] = useState({
     name: '',
