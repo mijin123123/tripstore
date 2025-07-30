@@ -27,7 +27,7 @@ export default function GuamSaipanPage() {
         // 괌사이판 패키지 가져오기
         const allPackages = await getAllPackages();
         const guamSaipanPackages = allPackages.filter(pkg => 
-          pkg.category === 'overseas' && 
+          pkg.type === 'overseas' && 
           (pkg.region === 'guam-saipan' || pkg.regionKo === '괌' || pkg.regionKo === '사이판' || pkg.regionKo === '괌사이판')
         );
         console.log('괌사이판 패키지:', guamSaipanPackages);

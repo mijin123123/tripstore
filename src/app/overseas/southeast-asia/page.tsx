@@ -29,7 +29,7 @@ export default function SoutheastAsiaPage() {
         // 동남아 패키지 가져오기
         const allPackages = await getAllPackages();
         const southeastAsiaPackages = allPackages.filter(pkg => 
-          pkg.category === 'overseas' && 
+          pkg.type === 'overseas' && 
           (pkg.region === 'southeast-asia' || pkg.regionKo === '동남아')
         );
         console.log('동남아시아 패키지:', southeastAsiaPackages);

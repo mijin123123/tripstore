@@ -27,7 +27,7 @@ export default function TaiwanHongkongMacauPage() {
         // 대만홍콩마카오 패키지 가져오기
         const allPackages = await getAllPackages();
         const taiwanHongkongMacauPackages = allPackages.filter(pkg => 
-          pkg.category === 'overseas' && 
+          pkg.type === 'overseas' && 
           (pkg.region === 'taiwan-hongkong-macau' || 
            pkg.regionKo === '대만' || 
            pkg.regionKo === '홍콩' || 

@@ -29,7 +29,7 @@ export default function AmericasPage() {
         // 미주 패키지 가져오기
         const allPackages = await getAllPackages();
         const americasPackages = allPackages.filter(pkg => 
-          pkg.category === 'overseas' && 
+          pkg.type === 'overseas' && 
           (pkg.region === 'americas' || pkg.regionKo === '미주' || pkg.regionKo === '미국' || pkg.regionKo === '캐나다')
         );
         console.log('미주 패키지:', americasPackages);
