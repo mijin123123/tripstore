@@ -325,7 +325,7 @@ export default function CreatePackage() {
       const validNotes = formData.notes.filter(item => item.trim() !== '')
 
       const packageData = {
-        name: formData.name,
+        title: formData.name,
         price: formData.price,
         duration: formData.duration,
         region: formData.region,
