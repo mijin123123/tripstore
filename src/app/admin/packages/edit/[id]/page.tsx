@@ -549,94 +549,191 @@ export default function EditPackage() {
           </div>
         </div>
 
-        {/* 이미지 업로드 섹션 */}
+        {/* 이미지 관리 */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold mb-4">패키지 이미지</h2>
+          <h2 className="text-lg font-semibold mb-4">이미지 관리</h2>
           
-          {/* 기존 이미지 */}
-          {existingImages.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-md font-medium mb-3 text-gray-700">현재 이미지</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {existingImages.map((imageUrl, index) => (
-                  <div key={index} className="relative group">
-                    <div className="aspect-square relative rounded-lg overflow-hidden border border-gray-200">
-                      <Image
-                        src={imageUrl}
-                        alt={`패키지 이미지 ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeExistingImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 새 이미지 업로드 */}
-          <div className="mb-4">
+          {/* 대표 이미지 */}
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              새 이미지 추가
+              대표 이미지
             </label>
-            <div className="flex items-center justify-center w-full">
+            <div className="flex items-center gap-3">
+              <input
+                type="url"
+                name="image"
+                value={formData.image}
+                onChange={handleChange}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="대표 이미지 URL 또는 파일 업로드"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleImageUpload(e, -1); // -1은 대표 이미지를 의미
+                  }
+                }}
+                className="hidden"
+                id="main-image-upload"
+              />
               <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                htmlFor="main-image-upload"
+                className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 cursor-pointer border border-blue-300"
               >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-3 text-gray-400" />
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">클릭하여 업로드</span> 또는 드래그 앤 드롭
-                  </p>
-                  <p className="text-xs text-gray-500">PNG, JPG (최대 10MB)</p>
-                </div>
-                <input
-                  id="image-upload"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
+                파일 선택
               </label>
             </div>
+            
+            {/* 대표 이미지 미리보기 */}
+            {formData.image && (
+              <div className="mt-3 relative">
+                <div className="bg-gray-100 p-2 rounded-md">
+                  <div className="text-xs text-gray-500 mb-1">미리보기:</div>
+                  <div className="relative aspect-video overflow-hidden rounded-md border border-gray-300">
+                    <img
+                      src={formData.image}
+                      alt="대표 이미지 미리보기"
+                      className="object-cover w-full h-full"
+                      onError={(e) => {
+                        // 이미지 로드 오류 시 대체 이미지나 메시지 표시
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x225?text=이미지+로드+오류';
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* 업로드된 새 이미지 미리보기 */}
-          {imageFiles.length > 0 && (
-            <div>
-              <h3 className="text-md font-medium mb-3 text-gray-700">새로 추가할 이미지</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {imageFiles.map((file, index) => (
-                  <div key={index} className="relative group">
-                    <div className="aspect-square relative rounded-lg overflow-hidden border border-gray-200">
-                      <Image
-                        src={URL.createObjectURL(file)}
-                        alt={`새 이미지 ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeImageFile(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
+          {/* 추가 이미지들 */}
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <label className="block text-sm font-medium text-gray-700">
+                추가 이미지 (최대 10장)
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => addArrayItem('images')}
+                  disabled={formData.images.length >= 10}
+                  className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Plus className="w-4 h-4" />
+                  URL 추가
+                </button>
               </div>
             </div>
-          )}
+            <div className="space-y-3">
+              {formData.images.map((image, index) => (
+                <div key={index} className="mb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-500 min-w-[20px]">{index + 1}.</span>
+                    <input
+                      type="url"
+                      value={image}
+                      onChange={(e) => updateArrayItem('images', index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="이미지 URL 또는 파일 업로드"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, index)}
+                      className="hidden"
+                      id={`image-upload-${index}`}
+                    />
+                    <label
+                      htmlFor={`image-upload-${index}`}
+                      className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer border border-gray-300"
+                    >
+                      {uploadingImages.includes(index) ? '업로드 중...' : '파일 선택'}
+                    </label>
+                    {formData.images.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeArrayItem('images', index)}
+                        className="p-2 text-red-600 hover:text-red-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* 추가 이미지 미리보기 */}
+                  {image && (
+                    <div className="mt-2 ml-9">
+                      <div className="bg-gray-50 p-2 rounded-md inline-block">
+                        <div className="relative w-24 h-24 overflow-hidden rounded-md border border-gray-300">
+                          <img
+                            src={image}
+                            alt={`추가 이미지 ${index + 1} 미리보기`}
+                            className="object-cover w-full h-full"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=오류';
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {uploadingImages.length > 0 && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm text-blue-700">
+                      {uploadingImages.length}개 이미지 업로드 중...
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* 이미지 갤러리 미리보기 */}
+            {(formData.image || formData.images.some(img => img.trim() !== '')) && (
+              <div className="mt-6 bg-white p-4 border border-gray-200 rounded-md">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">패키지 이미지 갤러리</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {/* 대표 이미지 */}
+                  {formData.image && (
+                    <div className="relative aspect-square overflow-hidden rounded-md border border-blue-300 ring-2 ring-blue-100">
+                      <img
+                        src={formData.image}
+                        alt="대표 이미지"
+                        className="object-cover w-full h-full"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=대표+이미지';
+                        }}
+                      />
+                      <div className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-2 py-1">대표</div>
+                    </div>
+                  )}
+                  
+                  {/* 추가 이미지들 */}
+                  {formData.images
+                    .filter(img => img.trim() !== '')
+                    .map((img, i) => (
+                      <div key={`gallery-${i}`} className="relative aspect-square overflow-hidden rounded-md border border-gray-300">
+                        <img
+                          src={img}
+                          alt={`추가 이미지 ${i + 1}`}
+                          className="object-cover w-full h-full"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=이미지';
+                          }}
+                        />
+                        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1">{i + 1}</div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-between">
@@ -649,13 +746,13 @@ export default function EditPackage() {
           
           <button
             type="submit"
-            disabled={isSaving || isUploading}
-            className={`px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center ${(isSaving || isUploading) ? 'opacity-70 cursor-not-allowed' : ''}`}
+            disabled={isSaving}
+            className={`px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            {isSaving || isUploading ? (
+            {isSaving ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                {isUploading ? '이미지 업로드 중...' : '저장 중...'}
+                저장 중...
               </>
             ) : (
               <>
