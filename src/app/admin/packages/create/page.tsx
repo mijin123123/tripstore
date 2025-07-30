@@ -50,17 +50,80 @@ export default function CreatePackage() {
     });
   };
 
-  // 이미지 붙여넣기 핸들러
+  // 이미지 및 웹 콘텐츠 붙여넣기 핸들러
   const handleItineraryPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     console.log('붙여넣기 이벤트 감지됨');
     const items = e.clipboardData.items;
+    const types = e.clipboardData.types;
     console.log('클립보드 항목 수:', items.length);
+    console.log('클립보드 타입:', types);
     
     // 클립보드 항목 유형 로깅
     for (let i = 0; i < items.length; i++) {
       console.log(`항목 ${i} 유형:`, items[i].type);
     }
     
+    // HTML 콘텐츠가 있는지 확인 (드래그하여 복사한 웹 콘텐츠)
+    if (types.includes('text/html')) {
+      console.log('HTML 콘텐츠 감지됨');
+      e.preventDefault();
+      
+      try {
+        // HTML 콘텐츠 가져오기
+        const html = e.clipboardData.getData('text/html');
+        console.log('HTML 콘텐츠 길이:', html.length);
+        
+        // HTML에서 이미지 태그 찾기
+        const imgRegex = /<img[^>]+src="([^">]+)"/g;
+        const images: string[] = [];
+        let match;
+        
+        while ((match = imgRegex.exec(html)) !== null) {
+          if (match[1]) {
+            images.push(match[1]);
+          }
+        }
+        
+        console.log('찾은 이미지 수:', images.length);
+        
+        // 일반 텍스트 내용 가져오기 (이미지가 없거나 텍스트도 함께 처리할 경우)
+        let text = e.clipboardData.getData('text/plain');
+        
+        // textarea 요소와 커서 위치 확인
+        const textarea = e.currentTarget;
+        const startPos = textarea?.selectionStart || 0;
+        const endPos = textarea?.selectionEnd || startPos || 0;
+        const beforeText = formData.itinerary.substring(0, startPos);
+        const afterText = formData.itinerary.substring(endPos);
+        
+        // 이미지가 있다면 마크다운 형식으로 추가
+        if (images.length > 0) {
+          let newContent = text || '';
+          
+          // 드래그한 이미지는 일반적으로 절대 URL이므로 그대로 사용
+          for (const imgSrc of images) {
+            // 마크다운 이미지 형식으로 추가
+            newContent += `\n![이미지](${imgSrc})\n`;
+          }
+          
+          const newItinerary = beforeText + newContent + afterText;
+          handleItineraryChange(newItinerary);
+          console.log('HTML 콘텐츠와 이미지가 성공적으로 추가되었습니다.');
+        } else {
+          // 이미지가 없는 경우 일반 텍스트로 처리
+          const newItinerary = beforeText + text + afterText;
+          handleItineraryChange(newItinerary);
+          console.log('HTML에서 추출한 텍스트 콘텐츠가 추가되었습니다.');
+        }
+        
+        return; // HTML 처리 후 종료
+      } catch (error) {
+        console.error('HTML 콘텐츠 처리 실패:', error);
+        // HTML 처리 실패 시 기본 붙여넣기 동작 허용
+      }
+    }
+    
+    // 이미지 처리 (스크린샷 등 직접 이미지 복사 시)
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       
@@ -605,8 +668,13 @@ export default function CreatePackage() {
             <h2 className="text-lg font-semibold mb-4">상세 일정</h2>
             <div>
               <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-700 mb-3">
-                <p>💡 <strong>이미지 붙여넣기 사용법:</strong> 이미지를 복사한 후 아래 텍스트 영역에 커서를 놓고 Ctrl+V를 눌러 붙여넣으세요.</p>
-                <p className="mt-1">스크린샷 도구나 그림판에서 이미지를 복사한 후 사용하면 편리합니다.</p>
+                <p>💡 <strong>이미지/웹 콘텐츠 붙여넣기 사용법:</strong></p>
+                <ul className="list-disc pl-5 mt-1 space-y-1">
+                  <li>스크린샷 도구나 그림판에서 <strong>이미지</strong>를 복사한 후 붙여넣기</li>
+                  <li>웹 페이지에서 <strong>이미지가 포함된 영역</strong>을 드래그하여 복사한 후 붙여넣기</li>
+                  <li>웹 사이트 콘텐츠를 드래그하여 <strong>전체 선택 후 복사</strong>하고 붙여넣기</li>
+                </ul>
+                <p className="mt-2 text-xs">* 웹 페이지 콘텐츠를 붙여넣을 때 이미지도 함께 가져옵니다.</p>
               </div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 여행 일정
@@ -623,8 +691,8 @@ export default function CreatePackage() {
                   }
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={6}
-                placeholder="간략한 여행 일정을 입력하세요. 이미지도 붙여넣기 가능합니다! (Ctrl+V로 이미지 붙여넣기)"
+                rows={8}
+                placeholder="간략한 여행 일정을 입력하세요. 웹사이트 내용이나 이미지를 복사한 후 Ctrl+V로 붙여넣기 가능합니다!"
               />
             </div>
           </div>
