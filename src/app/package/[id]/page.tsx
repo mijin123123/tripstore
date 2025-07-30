@@ -105,6 +105,7 @@ export default function PackageDetail() {
   const [selectedPeople, setSelectedPeople] = useState<number>(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [packageImages, setPackageImages] = useState<string[]>(['/images/hotel-hero.jpg']);
+  const [isItineraryExpanded, setIsItineraryExpanded] = useState<boolean>(false); // 기본값은 접힌 상태
   
   // 패키지에 포함된 추천 출발일
   const availableDates = [
@@ -446,11 +447,69 @@ export default function PackageDetail() {
               </div>
             </section>
 
+            {/* 포함/불포함 사항 */}
+            <section className='bg-white rounded-xl shadow-md p-6 mb-8'>
+              <h2 className='text-2xl font-bold mb-6'>포함 및 불포함 사항</h2>
+              
+              <div className='grid md:grid-cols-2 gap-6'>
+                <div>
+                  <h3 className='text-lg font-semibold mb-3 flex items-center text-green-700'>
+                    <CheckCircle className='w-5 h-5 mr-2' /> 포함 사항
+                  </h3>
+                  <ul className='space-y-2'>
+                    {packageData.included?.map((item, index) => (
+                      <li key={index} className='flex items-start'>
+                        <CheckCircle className='w-4 h-4 text-green-500 mr-2 mt-0.5' />
+                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className='text-lg font-semibold mb-3 flex items-center text-red-700'>
+                    <span className='w-5 h-5 mr-2 relative'>
+                      <span className='absolute inset-0 text-red-500'>×</span>
+                    </span>
+                    불포함 사항
+                  </h3>
+                  <ul className='space-y-2'>
+                    {packageData.excluded?.map((item, index) => (
+                      <li key={index} className='flex items-start'>
+                        <span className='w-4 h-4 text-red-500 mr-2 mt-0.5 relative'>
+                          <span className='absolute inset-0 text-red-500'>×</span>
+                        </span>
+                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </section>
+
             {/* 일정 */}
             <section className='bg-white rounded-xl shadow-md p-6 mb-8'>
-              <h2 className='text-2xl font-bold mb-6'>상세 일정</h2>
+              <div className='flex justify-between items-center mb-6'>
+                <h2 className='text-2xl font-bold'>상세 일정</h2>
+                <button 
+                  onClick={() => setIsItineraryExpanded(!isItineraryExpanded)}
+                  className='flex items-center text-blue-600 hover:text-blue-800 transition-colors'
+                  aria-label={isItineraryExpanded ? '접기' : '펼치기'}
+                >
+                  <span className='mr-2 text-sm'>{isItineraryExpanded ? '접기' : '펼치기'}</span>
+                  {isItineraryExpanded ? (
+                    <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
+                      <path fillRule='evenodd' d='M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z' clipRule='evenodd' />
+                    </svg>
+                  ) : (
+                    <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
+                      <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
+                    </svg>
+                  )}
+                </button>
+              </div>
               
-              <div className='space-y-6'>
+              <div className={`space-y-6 transition-all duration-300 ease-in-out overflow-hidden ${isItineraryExpanded ? 'max-h-full opacity-100' : 'max-h-0 opacity-0'}`}>
                 {packageData.itinerary && Array.isArray(packageData.itinerary) && packageData.itinerary.length > 0 ? (
                   packageData.itinerary.map((day, index) => (
                     <div key={day.day || index} className='border-l-4 border-blue-500 pl-4 pb-6'>
@@ -512,46 +571,14 @@ export default function PackageDetail() {
                   </div>
                 )}
               </div>
-            </section>
-
-            {/* 포함/불포함 사항 */}
-            <section className='bg-white rounded-xl shadow-md p-6 mb-8'>
-              <h2 className='text-2xl font-bold mb-6'>포함 및 불포함 사항</h2>
               
-              <div className='grid md:grid-cols-2 gap-6'>
-                <div>
-                  <h3 className='text-lg font-semibold mb-3 flex items-center text-green-700'>
-                    <CheckCircle className='w-5 h-5 mr-2' /> 포함 사항
-                  </h3>
-                  <ul className='space-y-2'>
-                    {packageData.included?.map((item, index) => (
-                      <li key={index} className='flex items-start'>
-                        <CheckCircle className='w-4 h-4 text-green-500 mr-2 mt-0.5' />
-                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {/* 접힌 상태에서 보여줄 간략한 정보 */}
+              {!isItineraryExpanded && (
+                <div className='mt-2 p-4 bg-gray-50 rounded-lg text-center cursor-pointer' onClick={() => setIsItineraryExpanded(true)}>
+                  <p className='text-blue-600'>클릭하여 상세 일정 보기</p>
+                  <p className='text-sm text-gray-500 mt-1'>{packageData.duration} 일정의 세부 정보를 확인하세요</p>
                 </div>
-                
-                <div>
-                  <h3 className='text-lg font-semibold mb-3 flex items-center text-red-700'>
-                    <span className='w-5 h-5 mr-2 relative'>
-                      <span className='absolute inset-0 text-red-500'>×</span>
-                    </span>
-                    불포함 사항
-                  </h3>
-                  <ul className='space-y-2'>
-                    {packageData.excluded?.map((item, index) => (
-                      <li key={index} className='flex items-start'>
-                        <span className='w-4 h-4 text-red-500 mr-2 mt-0.5 relative'>
-                          <span className='absolute inset-0 text-red-500'>×</span>
-                        </span>
-                        <span className='text-gray-700 whitespace-pre-wrap'>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              )}
             </section>
 
             {/* 유의사항 */}

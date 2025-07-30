@@ -52,18 +52,28 @@ export default function CreatePackage() {
 
   // 이미지 붙여넣기 핸들러
   const handleItineraryPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    console.log('붙여넣기 이벤트 감지됨');
     const items = e.clipboardData.items;
+    console.log('클립보드 항목 수:', items.length);
+    
+    // 클립보드 항목 유형 로깅
+    for (let i = 0; i < items.length; i++) {
+      console.log(`항목 ${i} 유형:`, items[i].type);
+    }
     
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       
       if (item.type.indexOf('image') !== -1) {
+        console.log('이미지 항목 감지됨:', item.type);
         e.preventDefault();
         
         try {
           const file = item.getAsFile();
           if (file) {
+            console.log('이미지 파일 크기:', file.size, 'bytes');
             const base64 = await convertToBase64(file);
+            console.log('Base64 변환 완료, 길이:', base64.length);
             const imageMarkdown = `![이미지](${base64})`;
             
             // textarea 요소가 존재하는지 확인
@@ -85,6 +95,7 @@ export default function CreatePackage() {
               
               const newItinerary = beforeText + imageMarkdown + afterText;
               handleItineraryChange(newItinerary);
+              console.log('이미지가 성공적으로 추가되었습니다.');
               
               // 커서 위치 조정 (안전하게)
               setTimeout(() => {
@@ -593,6 +604,10 @@ export default function CreatePackage() {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">상세 일정</h2>
             <div>
+              <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-700 mb-3">
+                <p>💡 <strong>이미지 붙여넣기 사용법:</strong> 이미지를 복사한 후 아래 텍스트 영역에 커서를 놓고 Ctrl+V를 눌러 붙여넣으세요.</p>
+                <p className="mt-1">스크린샷 도구나 그림판에서 이미지를 복사한 후 사용하면 편리합니다.</p>
+              </div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 여행 일정
               </label>
@@ -600,9 +615,16 @@ export default function CreatePackage() {
                 value={formData.itinerary}
                 onChange={(e) => handleItineraryChange(e.target.value)}
                 onPaste={handleItineraryPaste}
+                onKeyDown={(e) => {
+                  // Ctrl+V 단축키 감지 및 핸들링
+                  if (e.ctrlKey && e.key === 'v') {
+                    console.log('Ctrl+V 단축키 감지됨');
+                    // 붙여넣기는 브라우저가 처리하게 두고, onPaste 이벤트가 작동할 것임
+                  }
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={6}
-                placeholder="간략한 여행 일정을 입력하세요. 이미지도 붙여넣기 가능합니다!"
+                placeholder="간략한 여행 일정을 입력하세요. 이미지도 붙여넣기 가능합니다! (Ctrl+V로 이미지 붙여넣기)"
               />
             </div>
           </div>
