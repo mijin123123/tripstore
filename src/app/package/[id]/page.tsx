@@ -601,7 +601,16 @@ export default function PackageDetail() {
                     </span>
                   </div>
                   <div className='flex justify-between items-center text-xs text-gray-500'>
-                    <span>1인 기준 (VAT 포함)</span>
+                    <span>
+                      {packageData.type === 'domestic' && 
+                       (packageData.category === 'domestic-hotel' || 
+                        packageData.category === 'domestic-resort' || 
+                        packageData.category === 'domestic-pool-villa' || 
+                        packageData.category === 'domestic-pension') 
+                        ? '2인 기준' 
+                        : '1인 기준 (VAT 포함)'
+                      }
+                    </span>
                   </div>
                 </div>
                 

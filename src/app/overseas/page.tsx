@@ -51,15 +51,15 @@ export default function OverseasPage() {
     },
     {
       id: 5,
-      title: '미주 대자연 투어 9일',
+      title: '하와이 대자연 투어 9일',
       price: '4,590,000',
       duration: '9일 7박',
       rating: 4.8,
       image: '/images/americas.jpg',
-      highlights: ['미국', '캐나다', '하와이', '남미'],
+      highlights: ['하와이', '오아후', '마우이', '빅아일랜드'],
       departure: '매주 수/토 출발',
       link: '/overseas/americas',
-      keywords: ['미주', '미국', '캐나다', '하와이', '남미', 'america', 'usa', 'canada', 'hawaii']
+      keywords: ['하와이', 'hawaii', '오아후', '마우이', '빅아일랜드', 'honolulu', 'maui']
     },
     {
       id: 6,

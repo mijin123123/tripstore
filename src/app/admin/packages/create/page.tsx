@@ -219,7 +219,7 @@ export default function CreatePackage() {
       } else if (value === 'overseas-americas') {
         newType = 'overseas';
         newRegion = 'americas';
-        newRegionKo = '미주/캐나다/하와이';
+        newRegionKo = '하와이';
       } else if (value === 'overseas-taiwan-hongkong-macau') {
         newType = 'overseas';
         newRegion = 'taiwan-hongkong-macau';
@@ -538,7 +538,7 @@ export default function CreatePackage() {
                     <option value="overseas-europe">유럽</option>
                     <option value="overseas-japan">일본</option>
                     <option value="overseas-southeast-asia">동남아</option>
-                    <option value="overseas-americas">미주/캐나다/하와이</option>
+                    <option value="overseas-americas">하와이</option>
                     <option value="overseas-taiwan-hongkong-macau">대만/홍콩/마카오</option>
                     <option value="overseas-guam-saipan">괌/사이판</option>
                   </optgroup>

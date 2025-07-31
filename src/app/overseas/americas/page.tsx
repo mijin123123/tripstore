@@ -23,16 +23,16 @@ export default function AmericasPage() {
       try {
         // 히어로 이미지 가져오기
         const heroImg = await getHeroImage('overseas', 'americas');
-        console.log('미주 페이지: 히어로 이미지:', heroImg);
+        console.log('하와이 페이지: 히어로 이미지:', heroImg);
         setHeroImage(heroImg);
 
-        // 미주 패키지 가져오기
+        // 하와이 패키지 가져오기
         const allPackages = await getAllPackages();
         const americasPackages = allPackages.filter(pkg => 
           pkg.type === 'overseas' && 
-          (pkg.region === 'americas' || pkg.regionKo === '미주' || pkg.regionKo === '미국' || pkg.regionKo === '캐나다')
+          (pkg.region === 'americas' || pkg.regionKo === '하와이' || pkg.regionKo === '미주' || pkg.regionKo === '미국' || pkg.regionKo === '캐나다')
         );
-        console.log('미주 패키지:', americasPackages);
+        console.log('하와이 패키지:', americasPackages);
         setPackages(americasPackages);
         setFilteredPackages(americasPackages);
       } catch (error) {
@@ -102,8 +102,8 @@ export default function AmericasPage() {
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="relative h-full flex items-center justify-center">
           <div className="text-center text-white max-w-4xl mx-auto px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">미주</h1>
-            <p className="text-xl md:text-2xl mb-8">미국과 캐나다의 웅장한 자연과 도시의 매력</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">하와이</h1>
+            <p className="text-xl md:text-2xl mb-8">태평양의 진주, 아름다운 하와이의 자연과 문화</p>
             <div className="flex items-center justify-center space-x-8 text-sm">
               <div className="flex items-center">
                 <Thermometer className="w-5 h-5 mr-2" />
@@ -130,7 +130,7 @@ export default function AmericasPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="미주 여행 패키지 검색..."
+                placeholder="하와이 여행 패키지 검색..."
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -149,7 +149,7 @@ export default function AmericasPage() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">미주 여행 패키지</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">하와이 여행 패키지</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               광활한 대자연과 현대 문명이 조화를 이룬 북미 대륙에서 특별한 경험을 만나보세요.
             </p>
@@ -164,7 +164,7 @@ export default function AmericasPage() {
               <h3 className="text-2xl font-semibold text-gray-700 mb-2">
                 {searchTerm 
                   ? `"${searchTerm}"에 대한 검색 결과가 없습니다` 
-                  : '현재 등록된 미주 패키지가 없습니다'
+                  : '현재 등록된 하와이 패키지가 없습니다'
                 }
               </h3>
               <p className="text-gray-500 mb-8">

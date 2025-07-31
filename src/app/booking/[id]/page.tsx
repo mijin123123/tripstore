@@ -21,6 +21,8 @@ interface Traveler {
 // 예약 정보 타입 정의
 interface BookingInfo {
   departureDate: string
+  checkoutDate: string // 체크아웃 날짜 추가
+  nights: number // 숙박 박수 추가
   travelerCount: number
   travelers: Traveler[]
   specialRequests: string
@@ -43,6 +45,8 @@ export default function BookingPage() {
   // 예약 정보 상태 관리
   const [bookingInfo, setBookingInfo] = useState<BookingInfo>({
     departureDate: "",
+    checkoutDate: "",
+    nights: 1,
     travelerCount: 1,
     travelers: [{ name: "", birthdate: "", gender: "", phone: "", email: "" }],
     specialRequests: "",
@@ -333,9 +337,34 @@ export default function BookingPage() {
   // 날짜 선택 핸들러
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
+    const checkoutDate = calculateCheckoutDate(date, bookingInfo.nights);
     setBookingInfo({
       ...bookingInfo,
-      departureDate: date
+      departureDate: date,
+      checkoutDate: checkoutDate
+    });
+  };
+
+  // 체크아웃 날짜 계산 함수
+  const calculateCheckoutDate = (checkinDate: string, nights: number) => {
+    const checkin = new Date(checkinDate);
+    const checkout = new Date(checkin);
+    checkout.setDate(checkin.getDate() + nights);
+    return checkout.toISOString().split('T')[0];
+  };
+
+  // 숙박 박수 변경 핸들러
+  const handleNightsChange = (nights: number) => {
+    if (nights < 1) nights = 1;
+    if (nights > 30) nights = 30; // 최대 30박까지 허용
+    
+    const checkoutDate = bookingInfo.departureDate ? 
+      calculateCheckoutDate(bookingInfo.departureDate, nights) : "";
+    
+    setBookingInfo({
+      ...bookingInfo,
+      nights: nights,
+      checkoutDate: checkoutDate
     });
   };
   
@@ -675,6 +704,89 @@ export default function BookingPage() {
                       {packageData.departure} (추천 출발일 선택)
                     </p>
                   </div>
+
+                  {/* 숙박 기간 선택 (국내 호텔/리조트/풀빌라/펜션만) */}
+                  {packageData.type === 'domestic' && (
+                    <div className="mt-6">
+                      <p className="text-sm font-medium text-gray-700 mb-3">숙박 기간</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* 박수 선택 */}
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">몇 박</label>
+                          <div className="flex items-center">
+                            <button
+                              type="button"
+                              onClick={() => handleNightsChange(bookingInfo.nights - 1)}
+                              className="p-2 border border-gray-300 rounded-l-md hover:bg-gray-50"
+                              disabled={bookingInfo.nights <= 1}
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              value={bookingInfo.nights}
+                              onChange={(e) => handleNightsChange(parseInt(e.target.value) || 1)}
+                              className="w-16 px-3 py-2 border-t border-b border-gray-300 text-center"
+                              min="1"
+                              max="30"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleNightsChange(bookingInfo.nights + 1)}
+                              className="p-2 border border-gray-300 rounded-r-md hover:bg-gray-50"
+                              disabled={bookingInfo.nights >= 30}
+                            >
+                              +
+                            </button>
+                            <span className="ml-2 text-sm text-gray-600">박</span>
+                          </div>
+                        </div>
+
+                        {/* 일수 표시 */}
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">총 일수</label>
+                          <div className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-700">
+                            {bookingInfo.nights + 1}일
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 체크인/체크아웃 날짜 표시 */}
+                      {bookingInfo.departureDate && (
+                        <div className="mt-3 p-3 bg-blue-50 rounded-md">
+                          <div className="flex justify-between text-sm">
+                            <div>
+                              <span className="font-medium text-gray-700">체크인:</span>
+                              <span className="ml-2 text-blue-700">
+                                {new Date(bookingInfo.departureDate).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  weekday: 'short'
+                                })}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">체크아웃:</span>
+                              <span className="ml-2 text-blue-700">
+                                {bookingInfo.checkoutDate && new Date(bookingInfo.checkoutDate).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  weekday: 'short'
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-center mt-2">
+                            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                              {bookingInfo.nights}박 {bookingInfo.nights + 1}일
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
