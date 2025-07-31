@@ -12,7 +12,7 @@ import MarkdownImage from '@/components/MarkdownImage'
 export default function PackageDetail() {
   // 이미지 경로를 실제 존재하는 이미지로 매핑하는 함수
   const getValidImagePath = (imagePath: string = '', type: string = '', region: string = '') => {
-    console.log('이미지 매핑 시도:', { imagePath: imagePath?.substring(0, 50) + (imagePath?.length > 50 ? '...' : ''), type, region });
+    consol                </div>', { imagePath: imagePath?.substring(0, 50) + (imagePath?.length > 50 ? '...' : ''), type, region });
     
     // Base64 이미지인 경우 그대로 사용
     if (imagePath && imagePath.startsWith('data:image/')) {
