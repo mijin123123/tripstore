@@ -478,10 +478,10 @@ export default function PackageDetail() {
                   // 문자열 형태의 일정 처리
                   <div className='bg-gray-50 rounded-lg p-6'>
                     <div className='flex items-start gap-3'>
-                      <Calendar className='w-6 h-6 text-blue-500 mt-1' />
-                      <div className='flex-1'>
+                      <Calendar className='w-6 h-6 text-blue-500 mt-1 flex-shrink-0' />
+                      <div className='flex-1 min-w-0'>
                         <h3 className='text-lg font-semibold mb-3'>여행 일정</h3>
-                        <div className='text-gray-700 leading-relaxed'>
+                        <div className='text-gray-700 leading-relaxed prose prose-sm max-w-none'>
                           {/* 마크다운 이미지 렌더링 컴포넌트 사용 */}
                           <MarkdownImage markdown={packageData.itinerary} />
                         </div>

@@ -18,15 +18,20 @@ export default function MarkdownImage({ markdown }: MarkdownImageProps) {
     // 마크다운 이미지 문법 정규식: ![텍스트](URL)
     const imageRegex = /!\[(.*?)\]\((.*?)\)/g;
     
+    // 먼저 줄바꿈을 <br> 태그로 변환
+    let html = markdown.replace(/\n/g, '<br>');
+    
     // Base64 이미지를 포함하는 마크다운을 HTML로 변환
-    const html = markdown.replace(imageRegex, (match, alt, src) => {
+    html = html.replace(imageRegex, (match, alt, src) => {
+      console.log('마크다운 이미지 처리:', { alt, src: src.substring(0, 50) + (src.length > 50 ? '...' : '') });
+      
       // Base64 이미지인 경우에만 특별히 처리
       if (src.startsWith('data:image')) {
-        return `<img src="${src}" alt="${alt || '이미지'}" class="my-2 rounded-lg max-w-full" style="max-width: 100%" />`;
+        return `<div style="margin: 16px 0;"><img src="${src}" alt="${alt || '이미지'}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onerror="console.log('이미지 로드 실패:', this.src.substring(0, 50));" onload="console.log('이미지 로드 성공');" /></div>`;
       }
       
       // 일반 이미지 URL
-      return `<img src="${src}" alt="${alt || '이미지'}" class="my-2 rounded-lg max-w-full" style="max-width: 100%" />`;
+      return `<div style="margin: 16px 0;"><img src="${src}" alt="${alt || '이미지'}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onerror="console.log('이미지 로드 실패:', this.src);" onload="console.log('이미지 로드 성공');" /></div>`;
     });
     
     return html;
@@ -37,7 +42,12 @@ export default function MarkdownImage({ markdown }: MarkdownImageProps) {
   return (
     <div 
       dangerouslySetInnerHTML={{ __html: renderedContent }} 
-      className="markdown-content whitespace-pre-wrap"
+      className="markdown-content"
+      style={{
+        wordWrap: 'break-word',
+        overflowWrap: 'break-word',
+        lineHeight: '1.6'
+      }}
     />
   );
 }
