@@ -133,6 +133,12 @@ export default function PackageDetail() {
           
           const packageInfo = await response.json();
           console.log('로드된 패키지 정보:', packageInfo);
+          console.log('패키지 타입 및 카테고리:', {
+            type: packageInfo?.type,
+            category: packageInfo?.category,
+            isDomestic: packageInfo?.type === 'domestic',
+            isAccommodation: ['domestic-hotel', 'domestic-resort', 'domestic-pool-villa', 'domestic-pension'].includes(packageInfo?.category)
+          });
           console.log('여행 일정 데이터:', {
             itinerary: packageInfo?.itinerary,
             itineraryType: typeof packageInfo?.itinerary,
@@ -215,11 +221,14 @@ export default function PackageDetail() {
       : parseInt(String(packageData.price).replace(/,/g, ''));
     
     // 국내 숙박 상품인 경우 박수로 계산, 해외 여행 상품인 경우 인원수로 계산
-    if (packageData.type === 'domestic' && 
-        (packageData.category === 'domestic-hotel' || 
-         packageData.category === 'domestic-resort' || 
-         packageData.category === 'domestic-pool-villa' || 
-         packageData.category === 'domestic-pension')) {
+    const isDomestic = packageData.type === 'domestic' || packageData.type === '국내';
+    const isAccommodation = ['domestic-hotel', 'domestic-resort', 'domestic-pool-villa', 'domestic-pension', '호텔', '리조트', '풀빌라', '펜션'].includes(packageData.category) || 
+                           packageData.category?.includes('hotel') || 
+                           packageData.category?.includes('resort') || 
+                           packageData.category?.includes('villa') || 
+                           packageData.category?.includes('pension');
+    
+    if (isDomestic && isAccommodation) {
       return basePrice * selectedNights;
     } else {
       return basePrice * selectedPeople;
@@ -613,14 +622,22 @@ export default function PackageDetail() {
                   </div>
                   <div className='flex justify-between items-center text-xs text-gray-500'>
                     <span>
-                      {packageData.type === 'domestic' && 
-                       (packageData.category === 'domestic-hotel' || 
-                        packageData.category === 'domestic-resort' || 
-                        packageData.category === 'domestic-pool-villa' || 
-                        packageData.category === 'domestic-pension') 
-                        ? '1박 기준' 
-                        : '1인 기준 (VAT 포함)'
-                      }
+                      {(() => {
+                        const isDomestic = packageData.type === 'domestic' || packageData.type === '국내';
+                        const isAccommodation = ['domestic-hotel', 'domestic-resort', 'domestic-pool-villa', 'domestic-pension', '호텔', '리조트', '풀빌라', '펜션'].includes(packageData.category) || 
+                                               packageData.category?.includes('hotel') || 
+                                               packageData.category?.includes('resort') || 
+                                               packageData.category?.includes('villa') || 
+                                               packageData.category?.includes('pension');
+                        console.log('가격 표시 조건:', { 
+                          type: packageData.type, 
+                          category: packageData.category,
+                          isDomestic, 
+                          isAccommodation,
+                          result: isDomestic && isAccommodation ? '1박 기준' : '1인 기준 (VAT 포함)'
+                        });
+                        return isDomestic && isAccommodation ? '1박 기준' : '1인 기준 (VAT 포함)';
+                      })()}
                     </span>
                   </div>
                 </div>
@@ -735,11 +752,15 @@ export default function PackageDetail() {
                   </div>
                   
                   {/* 국내 숙박 상품의 경우 박수 선택, 해외 여행 상품의 경우 인원 선택 */}
-                  {packageData.type === 'domestic' && 
-                   (packageData.category === 'domestic-hotel' || 
-                    packageData.category === 'domestic-resort' || 
-                    packageData.category === 'domestic-pool-villa' || 
-                    packageData.category === 'domestic-pension') ? (
+                  {(() => {
+                    const isDomestic = packageData.type === 'domestic' || packageData.type === '국내';
+                    const isAccommodation = ['domestic-hotel', 'domestic-resort', 'domestic-pool-villa', 'domestic-pension', '호텔', '리조트', '풀빌라', '펜션'].includes(packageData.category) || 
+                                           packageData.category?.includes('hotel') || 
+                                           packageData.category?.includes('resort') || 
+                                           packageData.category?.includes('villa') || 
+                                           packageData.category?.includes('pension');
+                    return isDomestic && isAccommodation;
+                  })() ? (
                     // 국내 숙박: 박수 선택
                     <div className='relative'>
                       <label className='flex items-center gap-2 text-sm font-medium mb-1 text-gray-700'>
