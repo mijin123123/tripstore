@@ -140,49 +140,28 @@ export default function PackageDetail() {
           
           setPackageData(packageInfo);
           
-          // 패키지 이미지 처리
+          // 패키지 이미지 처리 - 업로드한 이미지들만 사용
           if (packageInfo) {
             const images: string[] = [];
             
             console.log('패키지 이미지 정보:', {
-              image: packageInfo.image?.substring(0, 50) + ((packageInfo.image?.length || 0) > 50 ? '...' : ''),
               images: packageInfo.images,
               type: packageInfo.type,
               region: packageInfo.region
             });
             
-            // 메인 이미지 추가
-            if (typeof packageInfo.image === 'string' && packageInfo.image.trim() !== '') {
-              const mappedImage = getValidImagePath(packageInfo.image, packageInfo.type || '', packageInfo.region || '');
-              console.log('매핑된 메인 이미지:', mappedImage.substring(0, 50) + (mappedImage.length > 50 ? '...' : ''));
-              images.push(mappedImage);
-            }
-            
-            // 추가 이미지 추가 (images 배열에서) - images 필드가 존재하는 경우에만
+            // 업로드한 이미지들만 추가 (images 배열에서)
             if (packageInfo.images && Array.isArray(packageInfo.images) && packageInfo.images.length > 0) {
-              console.log('추가 이미지 배열 처리 시작:', packageInfo.images);
+              console.log('업로드된 이미지 배열 처리 시작:', packageInfo.images);
               packageInfo.images.forEach((img: any, index: number) => {
                 if (typeof img === 'string' && img.trim() !== '') {
                   const mappedImage = getValidImagePath(img, packageInfo.type || '', packageInfo.region || '');
-                  // 중복 이미지 체크 (Base64의 경우 정확한 비교)
-                  const isDuplicate = images.some(existingImg => {
-                    // Base64 이미지인 경우 앞 100자리로 비교 (완전히 같은지 확인)
-                    if (existingImg.startsWith('data:image/') && mappedImage.startsWith('data:image/')) {
-                      return existingImg.substring(0, 100) === mappedImage.substring(0, 100);
-                    }
-                    return existingImg === mappedImage;
-                  });
-                  
-                  if (!isDuplicate) {
-                    console.log(`추가된 이미지 ${index + 1}:`, mappedImage.substring(0, 50) + (mappedImage.length > 50 ? '...' : ''));
-                    images.push(mappedImage);
-                  } else {
-                    console.log(`중복 이미지 건너뛰기 ${index + 1}`);
-                  }
+                  console.log(`추가된 이미지 ${index + 1}:`, mappedImage.substring(0, 50) + (mappedImage.length > 50 ? '...' : ''));
+                  images.push(mappedImage);
                 }
               });
             } else {
-              console.log('images 필드가 없거나 비어있음 - 메인 이미지만 사용');
+              console.log('업로드된 이미지가 없음 - 기본 이미지 사용');
             }
             
             // 이미지가 없으면 기본 이미지 사용
@@ -525,6 +504,80 @@ export default function PackageDetail() {
                 <div className='mt-2 p-4 bg-gray-50 rounded-lg text-center cursor-pointer' onClick={() => setIsItineraryExpanded(true)}>
                   <p className='text-blue-600'>클릭하여 상세 일정 보기</p>
                   <p className='text-sm text-gray-500 mt-1'>{packageData.duration} 일정의 세부 정보를 확인하세요</p>
+                </div>
+              )}
+            </section>
+
+            {/* 포함/불포함 사항 */}
+            <section className='bg-white rounded-xl shadow-md p-6 mb-8'>
+              <h2 className='text-2xl font-bold mb-6'>포함/불포함 사항</h2>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                {/* 포함 사항 */}
+                <div>
+                  <h3 className='text-lg font-semibold text-green-700 mb-4 flex items-center'>
+                    <CheckCircle className='w-5 h-5 mr-2' />
+                    포함 사항
+                  </h3>
+                  {packageData.included && Array.isArray(packageData.included) && packageData.included.length > 0 ? (
+                    <ul className='space-y-2'>
+                      {packageData.included.map((item, index) => (
+                        <li key={index} className='flex items-start gap-2 text-gray-700'>
+                          <CheckCircle className='w-4 h-4 text-green-500 mt-0.5 flex-shrink-0' />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className='text-gray-500'>포함 사항 정보가 준비 중입니다.</p>
+                  )}
+                </div>
+
+                {/* 불포함 사항 */}
+                <div>
+                  <h3 className='text-lg font-semibold text-red-700 mb-4 flex items-center'>
+                    <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M6 18L18 6M6 6l12 12'></path>
+                    </svg>
+                    불포함 사항
+                  </h3>
+                  {packageData.excluded && Array.isArray(packageData.excluded) && packageData.excluded.length > 0 ? (
+                    <ul className='space-y-2'>
+                      {packageData.excluded.map((item, index) => (
+                        <li key={index} className='flex items-start gap-2 text-gray-700'>
+                          <svg className='w-4 h-4 text-red-500 mt-0.5 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M6 18L18 6M6 6l12 12'></path>
+                          </svg>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className='text-gray-500'>불포함 사항 정보가 준비 중입니다.</p>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* 주의사항 */}
+            <section className='bg-white rounded-xl shadow-md p-6 mb-8'>
+              <h2 className='text-2xl font-bold mb-6 flex items-center'>
+                <HelpCircle className='w-6 h-6 mr-2 text-amber-500' />
+                주의사항
+              </h2>
+              {packageData.notes && Array.isArray(packageData.notes) && packageData.notes.length > 0 ? (
+                <div className='bg-amber-50 border border-amber-200 rounded-lg p-4'>
+                  <ul className='space-y-3'>
+                    {packageData.notes.map((note, index) => (
+                      <li key={index} className='flex items-start gap-3 text-gray-700'>
+                        <div className='w-2 h-2 bg-amber-500 rounded-full mt-2 flex-shrink-0'></div>
+                        <span>{note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
+                  <p className='text-gray-500'>주의사항 정보가 준비 중입니다.</p>
                 </div>
               )}
             </section>
