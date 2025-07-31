@@ -102,7 +102,8 @@ export default function PackageDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
-  const [selectedPeople, setSelectedPeople] = useState<number>(1);
+  const [selectedPeople, setSelectedPeople] = useState<number>(2); // 국내 숙박은 기본 2명
+  const [selectedNights, setSelectedNights] = useState<number>(1); // 숙박 박수 추가
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [packageImages, setPackageImages] = useState<string[]>(['/images/hotel-hero.jpg']);
   const [isItineraryExpanded, setIsItineraryExpanded] = useState<boolean>(false); // 기본값은 접힌 상태
@@ -212,7 +213,17 @@ export default function PackageDetail() {
     const basePrice = typeof packageData.price === 'number' 
       ? packageData.price 
       : parseInt(String(packageData.price).replace(/,/g, ''));
-    return basePrice * selectedPeople;
+    
+    // 국내 숙박 상품인 경우 박수로 계산, 해외 여행 상품인 경우 인원수로 계산
+    if (packageData.type === 'domestic' && 
+        (packageData.category === 'domestic-hotel' || 
+         packageData.category === 'domestic-resort' || 
+         packageData.category === 'domestic-pool-villa' || 
+         packageData.category === 'domestic-pension')) {
+      return basePrice * selectedNights;
+    } else {
+      return basePrice * selectedPeople;
+    }
   };
 
   // 로딩 중 상태 표시
@@ -607,7 +618,7 @@ export default function PackageDetail() {
                         packageData.category === 'domestic-resort' || 
                         packageData.category === 'domestic-pool-villa' || 
                         packageData.category === 'domestic-pension') 
-                        ? '2인 기준' 
+                        ? '1박 기준' 
                         : '1인 기준 (VAT 포함)'
                       }
                     </span>
@@ -723,33 +734,70 @@ export default function PackageDetail() {
                     </div>
                   </div>
                   
-                  <div className='relative'>
-                    <label className='flex items-center gap-2 text-sm font-medium mb-1 text-gray-700'>
-                      <Users className='w-4 h-4 text-blue-600' />
-                      인원
-                    </label>
+                  {/* 국내 숙박 상품의 경우 박수 선택, 해외 여행 상품의 경우 인원 선택 */}
+                  {packageData.type === 'domestic' && 
+                   (packageData.category === 'domestic-hotel' || 
+                    packageData.category === 'domestic-resort' || 
+                    packageData.category === 'domestic-pool-villa' || 
+                    packageData.category === 'domestic-pension') ? (
+                    // 국내 숙박: 박수 선택
                     <div className='relative'>
-                      <select 
-                        className='w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors'
-                        value={selectedPeople}
-                        onChange={(e) => setSelectedPeople(parseInt(e.target.value))}
-                      >
-                        <option value='1'>성인 1명</option>
-                        <option value='2'>성인 2명</option>
-                        <option value='3'>성인 3명</option>
-                        <option value='4'>성인 4명</option>
-                        <option value='5'>성인 5명</option>
-                        <option value='6'>성인 6명</option>
-                        <option value='7'>성인 7명</option>
-                        <option value='8'>성인 8명</option>
-                      </select>
-                      <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600'>
-                        <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
-                          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M19 9l-7 7-7-7'></path>
-                        </svg>
+                      <label className='flex items-center gap-2 text-sm font-medium mb-1 text-gray-700'>
+                        <Calendar className='w-4 h-4 text-blue-600' />
+                        숙박 기간
+                      </label>
+                      <div className='relative'>
+                        <select 
+                          className='w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors'
+                          value={selectedNights}
+                          onChange={(e) => setSelectedNights(parseInt(e.target.value))}
+                        >
+                          <option value='1'>1박 2일</option>
+                          <option value='2'>2박 3일</option>
+                          <option value='3'>3박 4일</option>
+                          <option value='4'>4박 5일</option>
+                          <option value='5'>5박 6일</option>
+                          <option value='6'>6박 7일</option>
+                          <option value='7'>7박 8일</option>
+                        </select>
+                        <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600'>
+                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M19 9l-7 7-7-7'></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <p className='text-xs text-gray-500 mt-1'>기본 2인 기준 가격입니다</p>
+                    </div>
+                  ) : (
+                    // 해외 여행: 인원 선택
+                    <div className='relative'>
+                      <label className='flex items-center gap-2 text-sm font-medium mb-1 text-gray-700'>
+                        <Users className='w-4 h-4 text-blue-600' />
+                        인원
+                      </label>
+                      <div className='relative'>
+                        <select 
+                          className='w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors'
+                          value={selectedPeople}
+                          onChange={(e) => setSelectedPeople(parseInt(e.target.value))}
+                        >
+                          <option value='1'>성인 1명</option>
+                          <option value='2'>성인 2명</option>
+                          <option value='3'>성인 3명</option>
+                          <option value='4'>성인 4명</option>
+                          <option value='5'>성인 5명</option>
+                          <option value='6'>성인 6명</option>
+                          <option value='7'>성인 7명</option>
+                          <option value='8'>성인 8명</option>
+                        </select>
+                        <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600'>
+                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M19 9l-7 7-7-7'></path>
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 
                 <div className='mb-5'>
@@ -759,27 +807,44 @@ export default function PackageDetail() {
                       {formatPrice(calculateTotalPrice())}원
                     </span>
                   </div>
-                  {selectedPeople > 1 && (
-                    <div className='flex justify-between items-center text-xs text-gray-400 mt-1'>
-                      <span>
-                        {formatPrice(typeof packageData.price === 'number' ? 
-                          packageData.price : 
-                          parseInt(String(packageData.price).replace(/,/g, '')))}원 × {selectedPeople}명
-                      </span>
-                    </div>
+                  {/* 국내 숙박: 박수 계산 표시, 해외 여행: 인원수 계산 표시 */}
+                  {packageData.type === 'domestic' && 
+                   (packageData.category === 'domestic-hotel' || 
+                    packageData.category === 'domestic-resort' || 
+                    packageData.category === 'domestic-pool-villa' || 
+                    packageData.category === 'domestic-pension') ? (
+                    selectedNights > 1 && (
+                      <div className='flex justify-between items-center text-xs text-gray-400 mt-1'>
+                        <span>
+                          {formatPrice(typeof packageData.price === 'number' ? 
+                            packageData.price : 
+                            parseInt(String(packageData.price).replace(/,/g, '')))}원 × {selectedNights}박
+                        </span>
+                      </div>
+                    )
+                  ) : (
+                    selectedPeople > 1 && (
+                      <div className='flex justify-between items-center text-xs text-gray-400 mt-1'>
+                        <span>
+                          {formatPrice(typeof packageData.price === 'number' ? 
+                            packageData.price : 
+                            parseInt(String(packageData.price).replace(/,/g, '')))}원 × {selectedPeople}명
+                        </span>
+                      </div>
+                    )
                   )}
                 </div>
                 
                 <div className='space-y-2'>
                   <button 
                     className='w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm'
-                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}&action=reserve`)}
+                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}&nights=${selectedNights}&action=reserve`)}
                   >
                     예약하기
                   </button>
                   <button 
                     className='w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors flex justify-center items-center text-sm'
-                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}&action=payment`)}
+                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}&nights=${selectedNights}&action=payment`)}
                   >
                     <CreditCard className='w-4 h-4 mr-1' />
                     결제하기
