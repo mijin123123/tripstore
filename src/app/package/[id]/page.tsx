@@ -637,22 +637,6 @@ export default function PackageDetail() {
                     바로결제
                   </button>
                 </div>
-                
-                <div className='space-y-2'>
-                  <button 
-                    className='w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm'
-                    onClick={() => router.push(`/booking/${packageData.id}?action=reserve`)}
-                  >
-                    예약하기
-                  </button>
-                  <button 
-                    className='w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors flex justify-center items-center text-sm'
-                    onClick={() => router.push(`/booking/${packageData.id}?action=payment`)}
-                  >
-                    <CreditCard className='w-4 h-4 mr-1' />
-                    바로결제
-                  </button>
-                </div>
               </div>
             </div>
           </div>
