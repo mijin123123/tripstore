@@ -177,7 +177,7 @@ export default function EuropePage() {
                   {/* 이미지 섹션 */}
                   <div className="relative h-48 flex-shrink-0">
                     <img 
-                      src={pkg.image} 
+                      src={pkg.images && pkg.images.length > 0 ? pkg.images[0] : '/images/europe-hero.jpg'} 
                       alt={pkg.title}
                       className="w-full h-full object-cover"
                     />

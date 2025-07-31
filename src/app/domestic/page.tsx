@@ -239,7 +239,7 @@ export default function DomesticPage() {
                       {/* 이미지 */}
                       <div className="relative h-64 overflow-hidden flex-shrink-0">
                         <img 
-                          src={pkg.image} 
+                          src={pkg.images && pkg.images.length > 0 ? pkg.images[0] : '/images/domestic-hero.jpg'} 
                           alt={pkg.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
