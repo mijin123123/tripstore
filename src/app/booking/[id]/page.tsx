@@ -437,7 +437,7 @@ export default function BookingPage() {
     
     // 패키지 가격이 이미 숫자 타입
     const basePrice = typeof packageData.price === 'number' ? packageData.price : parseInt(String(packageData.price).replace(/,/g, ''));
-    return basePrice * bookingInfo.travelerCount;
+    return basePrice * bookingInfo.nights;
   };
   
   // 금액을 한국어 형식으로 포맷팅하는 함수 (예: 1,234,567원)
@@ -1018,12 +1018,12 @@ export default function BookingPage() {
                 
                 <div className="border-t pt-4">
                   <div className="flex justify-between mb-1 text-sm">
-                    <span>기본 가격 (1인)</span>
+                    <span>기본 가격 (1박)</span>
                     <span>{packageData.price}원</span>
                   </div>
                   <div className="flex justify-between mb-1 text-sm">
-                    <span>인원</span>
-                    <span>{bookingInfo.travelerCount}명</span>
+                    <span>숙박 기간</span>
+                    <span>{bookingInfo.nights}박</span>
                   </div>
                 </div>
                 

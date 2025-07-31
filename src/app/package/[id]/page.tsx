@@ -622,225 +622,35 @@ export default function PackageDetail() {
                   </div>
                 </div>
                 
-                <div className='space-y-3 mb-5'>
-                  <div className='relative'>
-                    <label className='flex items-center gap-2 text-sm font-medium mb-1 text-gray-700'>
-                      <Calendar className='w-4 h-4 text-blue-600' />
-                      출발일
-                    </label>
-                    <div className='relative'>
-                      {/* 날짜 선택 입력 필드 */}
-                      <div 
-                        className='w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm cursor-pointer hover:border-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-200 focus-within:border-blue-500 transition-colors flex justify-between items-center'
-                        onClick={() => setShowCalendar(!showCalendar)}
-                      >
-                        <span className={selectedDate ? 'text-gray-900' : 'text-gray-400'}>
-                          {selectedDate ? 
-                            `${selectedDate.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1.$2.$3')} (${['일','월','화','수','목','금','토'][new Date(selectedDate).getDay()]})` : 
-                            '날짜를 선택하세요'}
-                        </span>
-                        <Calendar className='w-4 h-4 text-blue-600' />
-                      </div>
-                      
-                      {/* 달력 팝업 */}
-                      {showCalendar && (
-                        <div className='absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 p-3'>
-                          {/* 달력 헤더 */}
-                          <div className='flex justify-between items-center mb-2 border-b pb-2'>
-                            <h4 className='font-semibold text-sm'>2025년 8월</h4>
-                            <button 
-                              type='button'
-                              className='text-gray-400 hover:text-gray-600'
-                              onClick={() => setShowCalendar(false)}
-                            >
-                              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
-                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M6 18L18 6M6 6l12 12'></path>
-                              </svg>
-                            </button>
-                          </div>
-                          
-                          {/* 요일 표시 */}
-                          <div className='grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500 mb-1'>
-                            {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
-                              <div key={index} className='py-1'>
-                                {day}
-                              </div>
-                            ))}
-                          </div>
-                          
-                          {/* 날짜 그리드 */}
-                          <div className='grid grid-cols-7 gap-1 text-center text-sm'>
-                            {/* 8월 1일이 목요일(4)부터 시작하도록 빈 셀 추가 */}
-                            {[...Array(3)].map((_, index) => (
-                              <div key={`empty-${index}`} className='p-1 text-gray-300'></div>
-                            ))}
-                            
-                            {/* 8월 1일부터 31일까지 */}
-                            {[...Array(31)].map((_, index) => {
-                              const day = index + 1;
-                              const dateString = `2025-08-${day.toString().padStart(2, '0')}`;
-                              const isRecommended = availableDates.some(d => d.date === dateString);
-                              const isSelected = selectedDate === dateString;
-                              
-                              return (
-                                <div 
-                                  key={day}
-                                  className={`p-1 relative ${
-                                    isSelected ? 'bg-blue-600 text-white rounded-full' : 
-                                    'text-gray-700 hover:bg-blue-100 hover:rounded-full'
-                                  } cursor-pointer flex items-center justify-center`}
-                                  onClick={() => {
-                                    setSelectedDate(dateString);
-                                    setShowCalendar(false);
-                                  }}
-                                >
-                                  {day}
-                                  {isRecommended && !isSelected && (
-                                    <span className='absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full'></span>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                          
-                          {/* 가능한 날짜 리스트 */}
-                          <div className='mt-2 pt-2 border-t border-gray-100'>
-                            <p className='text-xs text-gray-500 mb-1'>추천 출발일:</p>
-                            <div className='flex flex-wrap gap-1'>
-                              {availableDates.map((date, index) => (
-                                <button
-                                  key={index}
-                                  type='button'
-                                  className={`px-2 py-1 text-xs rounded-full ${
-                                    selectedDate === date.date ? 
-                                    'bg-blue-600 text-white' : 
-                                    'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                                  }`}
-                                  onClick={() => {
-                                    setSelectedDate(date.date);
-                                    setShowCalendar(false);
-                                  }}
-                                >
-                                  {date.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2.$3')} ({date.day})
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* 모든 상품에서 박수 선택 */}
-                  {true ? (
-                    // 국내 숙박: 박수 선택
-                    <div className='relative'>
-                      <label className='flex items-center gap-2 text-sm font-medium mb-1 text-gray-700'>
-                        <Calendar className='w-4 h-4 text-blue-600' />
-                        숙박 기간
-                      </label>
-                      <div className='relative'>
-                        <select 
-                          className='w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors'
-                          value={selectedNights}
-                          onChange={(e) => setSelectedNights(parseInt(e.target.value))}
-                        >
-                          <option value='1'>1박 2일</option>
-                          <option value='2'>2박 3일</option>
-                          <option value='3'>3박 4일</option>
-                          <option value='4'>4박 5일</option>
-                          <option value='5'>5박 6일</option>
-                          <option value='6'>6박 7일</option>
-                          <option value='7'>7박 8일</option>
-                        </select>
-                        <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600'>
-                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M19 9l-7 7-7-7'></path>
-                          </svg>
-                        </div>
-                      </div>
-                      <p className='text-xs text-gray-500 mt-1'>기본 2인 기준 가격입니다</p>
-                    </div>
-                  ) : (
-                    // 해외 여행: 인원 선택
-                    <div className='relative'>
-                      <label className='flex items-center gap-2 text-sm font-medium mb-1 text-gray-700'>
-                        <Users className='w-4 h-4 text-blue-600' />
-                        인원
-                      </label>
-                      <div className='relative'>
-                        <select 
-                          className='w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-colors'
-                          value={selectedPeople}
-                          onChange={(e) => setSelectedPeople(parseInt(e.target.value))}
-                        >
-                          <option value='1'>성인 1명</option>
-                          <option value='2'>성인 2명</option>
-                          <option value='3'>성인 3명</option>
-                          <option value='4'>성인 4명</option>
-                          <option value='5'>성인 5명</option>
-                          <option value='6'>성인 6명</option>
-                          <option value='7'>성인 7명</option>
-                          <option value='8'>성인 8명</option>
-                        </select>
-                        <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600'>
-                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M19 9l-7 7-7-7'></path>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className='mb-5'>
-                  <div className='flex justify-between items-center mb-1'>
-                    <span className='font-medium'>총액</span>
-                    <span className='text-xl font-bold text-blue-700'>
-                      {formatPrice(calculateTotalPrice())}원
-                    </span>
-                  </div>
-                  {/* 국내 숙박: 박수 계산 표시, 해외 여행: 인원수 계산 표시 */}
-                  {packageData.type === 'domestic' && 
-                   (packageData.category === 'domestic-hotel' || 
-                    packageData.category === 'domestic-resort' || 
-                    packageData.category === 'domestic-pool-villa' || 
-                    packageData.category === 'domestic-pension') ? (
-                    selectedNights > 1 && (
-                      <div className='flex justify-between items-center text-xs text-gray-400 mt-1'>
-                        <span>
-                          {formatPrice(typeof packageData.price === 'number' ? 
-                            packageData.price : 
-                            parseInt(String(packageData.price).replace(/,/g, '')))}원 × {selectedNights}박
-                        </span>
-                      </div>
-                    )
-                  ) : (
-                    selectedPeople > 1 && (
-                      <div className='flex justify-between items-center text-xs text-gray-400 mt-1'>
-                        <span>
-                          {formatPrice(typeof packageData.price === 'number' ? 
-                            packageData.price : 
-                            parseInt(String(packageData.price).replace(/,/g, '')))}원 × {selectedPeople}명
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-                
                 <div className='space-y-2'>
                   <button 
                     className='w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm'
-                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}&nights=${selectedNights}&action=reserve`)}
+                    onClick={() => router.push(`/booking/${packageData.id}?action=reserve`)}
                   >
                     예약하기
                   </button>
                   <button 
                     className='w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors flex justify-center items-center text-sm'
-                    onClick={() => router.push(`/booking/${packageData.id}?people=${selectedPeople}&date=${selectedDate}&nights=${selectedNights}&action=payment`)}
+                    onClick={() => router.push(`/booking/${packageData.id}?action=payment`)}
                   >
                     <CreditCard className='w-4 h-4 mr-1' />
-                    결제하기
+                    바로결제
+                  </button>
+                </div>
+                
+                <div className='space-y-2'>
+                  <button 
+                    className='w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm'
+                    onClick={() => router.push(`/booking/${packageData.id}?action=reserve`)}
+                  >
+                    예약하기
+                  </button>
+                  <button 
+                    className='w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors flex justify-center items-center text-sm'
+                    onClick={() => router.push(`/booking/${packageData.id}?action=payment`)}
+                  >
+                    <CreditCard className='w-4 h-4 mr-1' />
+                    바로결제
                   </button>
                 </div>
               </div>
