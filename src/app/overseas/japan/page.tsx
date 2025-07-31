@@ -171,9 +171,9 @@ export default function JapanPage() {
                   onClick={() => router.push(`/package/${packageItem.id}`)}
                 >
                   <div className="relative h-48 flex-shrink-0">
-                    {packageItem.image ? (
+                    {packageItem.images && packageItem.images.length > 0 ? (
                       <img 
-                        src={packageItem.image} 
+                        src={packageItem.images[0]} 
                         alt={packageItem.title || packageItem.name}
                         className="w-full h-full object-cover"
                       />
