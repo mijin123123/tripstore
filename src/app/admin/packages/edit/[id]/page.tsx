@@ -570,17 +570,16 @@ export default function EditPackage() {
             
             {/* 대표 이미지 미리보기 */}
             {formData.image && (
-              <div className="mt-3 relative">
-                <div className="bg-gray-100 p-2 rounded-md">
-                  <div className="text-xs text-gray-500 mb-1">미리보기:</div>
-                  <div className="relative aspect-video overflow-hidden rounded-md border border-gray-300">
+              <div className="mt-3">
+                <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                  <div className="text-xs text-gray-600 mb-2">미리보기:</div>
+                  <div className="relative w-24 h-24 overflow-hidden rounded-md border border-gray-300">
                     <img
                       src={formData.image}
                       alt="대표 이미지 미리보기"
                       className="object-cover w-full h-full"
                       onError={(e) => {
-                        // 이미지 로드 오류 시 대체 이미지나 메시지 표시
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x225?text=이미지+로드+오류';
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/96?text=오류';
                       }}
                     />
                   </div>
