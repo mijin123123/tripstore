@@ -506,7 +506,7 @@ export default function CreatePackage() {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* 기본 정보 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">기본 정보</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -698,64 +698,9 @@ export default function CreatePackage() {
           </div>
 
           {/* 이미지 관리 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">이미지 관리</h2>
             
-            {/* 대표 이미지 */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                대표 이미지
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="url"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="대표 이미지 URL 또는 파일 업로드"
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      handleImageUpload(e, -1); // -1은 대표 이미지를 의미
-                    }
-                  }}
-                  className="hidden"
-                  id="main-image-upload"
-                />
-                <label
-                  htmlFor="main-image-upload"
-                  className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 cursor-pointer border border-blue-300"
-                >
-                  파일 선택
-                </label>
-              </div>
-              
-              {/* 대표 이미지 미리보기 */}
-              {formData.image && (
-                <div className="mt-3 relative">
-                  <div className="bg-gray-100 p-2 rounded-md">
-                    <div className="text-xs text-gray-500 mb-1">미리보기:</div>
-                    <div className="relative aspect-video overflow-hidden rounded-md border border-gray-300">
-                      <img
-                        src={formData.image}
-                        alt="대표 이미지 미리보기"
-                        className="object-cover w-full h-full"
-                        onError={(e) => {
-                          // 이미지 로드 오류 시 대체 이미지나 메시지 표시
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x225?text=이미지+로드+오류';
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* 추가 이미지들 */}
             <div>
               <div className="flex justify-between items-center mb-3">
@@ -900,7 +845,7 @@ export default function CreatePackage() {
           </div>
 
           {/* 포함/불포함 사항 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">포함/불포함 사항</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* 포함 사항 */}
@@ -984,7 +929,7 @@ export default function CreatePackage() {
           </div>
 
           {/* 주요 특징 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">주요 특징</h2>
               <button
@@ -1021,7 +966,7 @@ export default function CreatePackage() {
           </div>
 
           {/* 주의사항 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">주의사항</h2>
               <button
@@ -1058,7 +1003,7 @@ export default function CreatePackage() {
           </div>
 
           {/* 기타 설정 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">기타 설정</h2>
             <div className="space-y-4">
               <div className="flex items-center">
