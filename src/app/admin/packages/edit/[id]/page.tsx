@@ -676,21 +676,21 @@ export default function EditPackage() {
             
             {/* 이미지 갤러리 미리보기 */}
             {(formData.image || formData.images.some(img => img.trim() !== '')) && (
-              <div className="mt-6 bg-white p-4 border border-gray-200 rounded-md">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">패키지 이미지 갤러리</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="mt-6 bg-gray-50 p-4 border border-gray-200 rounded-md">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">패키지 이미지 미리보기</h3>
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
                   {/* 대표 이미지 */}
                   {formData.image && (
-                    <div className="relative aspect-square overflow-hidden rounded-md border border-blue-300 ring-2 ring-blue-100">
+                    <div className="relative w-16 h-16 overflow-hidden rounded-md border-2 border-blue-300 ring-1 ring-blue-100">
                       <img
                         src={formData.image}
                         alt="대표 이미지"
                         className="object-cover w-full h-full"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=대표+이미지';
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=대표';
                         }}
                       />
-                      <div className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-2 py-1">대표</div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-blue-500 text-white text-xs px-1 py-0.5 text-center">대표</div>
                     </div>
                   )}
                   
@@ -698,16 +698,16 @@ export default function EditPackage() {
                   {formData.images
                     .filter(img => img.trim() !== '')
                     .map((img, i) => (
-                      <div key={`gallery-${i}`} className="relative aspect-square overflow-hidden rounded-md border border-gray-300">
+                      <div key={`gallery-${i}`} className="relative w-16 h-16 overflow-hidden rounded-md border border-gray-300">
                         <img
                           src={img}
                           alt={`추가 이미지 ${i + 1}`}
                           className="object-cover w-full h-full"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=이미지';
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64?text=' + (i + 1);
                           }}
                         />
-                        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1">{i + 1}</div>
+                        <div className="absolute top-0 right-0 bg-gray-700 text-white text-xs w-4 h-4 flex items-center justify-center rounded-bl-md">{i + 1}</div>
                       </div>
                     ))
                   }
