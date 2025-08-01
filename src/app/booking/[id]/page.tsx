@@ -577,9 +577,6 @@ export default function BookingPage() {
                           console.log('이미지 로드 실패. 원본 이미지:', packageData.image);
                           target.src = '/images/package1.jpg';
                         }}
-                      />
-                    </div>
-                        }}
                         onLoad={() => {
                           console.log('이미지 로드 성공:', packageData.image?.substring(0, 50));
                         }}
