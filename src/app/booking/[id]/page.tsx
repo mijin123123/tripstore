@@ -156,6 +156,9 @@ export default function BookingPage() {
           
           if (packageInfo) {
             console.log('Booking page - Package data:', packageInfo.title);
+            console.log('Booking page - Package image:', packageInfo.image?.substring(0, 100));
+            console.log('Booking page - Package type:', packageInfo.type);
+            console.log('Booking page - Package category:', packageInfo.category);
             setPackageData(packageInfo);
             
             // 현재 날짜로부터 향후 3개월간의 추천 출발일 생성 (예시)
@@ -566,12 +569,18 @@ export default function BookingPage() {
                   <div className="flex items-start">
                     <div className="w-24 h-24 rounded-lg overflow-hidden mr-4 shrink-0">
                       <img 
-                        src={packageData.image || '/images/package1.jpg'} 
+                        src={packageData.image && packageData.image.startsWith('data:image/') ? 
+                          packageData.image : 
+                          packageData.image || '/images/package1.jpg'} 
                         alt={packageData.title} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
+                          console.log('이미지 로드 실패:', packageData.image);
                           target.src = '/images/package1.jpg';
+                        }}
+                        onLoad={() => {
+                          console.log('이미지 로드 성공:', packageData.image?.substring(0, 50));
                         }}
                       />
                     </div>
