@@ -52,6 +52,12 @@ export default function BookingPage() {
       return imagePath;
     }
     
+    // Supabase 스토리지 이미지 URL인 경우 그대로 사용
+    if (imagePath && imagePath.includes('supabase.co/storage')) {
+      console.log('Supabase 스토리지 이미지 사용:', imagePath);
+      return imagePath;
+    }
+    
     // 이미지 경로가 이미 올바른 경우 그대로 반환
     if (imagePath && imagePath.startsWith('/images/') && 
         ['hotel-hero.jpg', 'europe-hero.jpg', 'japan-hero.jpg', 'luxury-hero.jpg', 
@@ -608,16 +614,26 @@ export default function BookingPage() {
                   <div className="flex items-start">
                     <div className="w-24 h-24 rounded-lg overflow-hidden mr-4 shrink-0">
                       <img 
-                        src={getValidImagePath(packageData.image, packageData.type, packageData.region)} 
+                        src={
+                          // 실제 업로드된 이미지가 있으면 첫 번째 이미지 사용, 없으면 메인 이미지 사용
+                          packageData.images && packageData.images.length > 0 
+                            ? packageData.images[0] 
+                            : getValidImagePath(packageData.image, packageData.type, packageData.region)
+                        } 
                         alt={packageData.title} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          console.log('이미지 로드 실패. 원본 이미지:', packageData.image);
-                          target.src = '/images/package1.jpg';
+                          console.log('첫 번째 이미지 로드 실패. 다음 이미지 시도중...');
+                          // 첫 번째 이미지 실패시 메인 이미지로 대체
+                          if (packageData.images && packageData.images.length > 1) {
+                            target.src = packageData.images[1];
+                          } else {
+                            target.src = '/images/package1.jpg';
+                          }
                         }}
                         onLoad={() => {
-                          console.log('이미지 로드 성공:', packageData.image?.substring(0, 50));
+                          console.log('패키지 이미지 로드 성공');
                         }}
                       />
                     </div>

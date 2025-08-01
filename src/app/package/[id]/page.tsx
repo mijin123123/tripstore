@@ -29,6 +29,12 @@ export default function PackageDetail() {
       return imagePath;
     }
     
+    // Supabase 스토리지 이미지 URL인 경우 그대로 사용
+    if (imagePath && imagePath.includes('supabase.co/storage')) {
+      console.log('Supabase 스토리지 이미지 사용:', imagePath);
+      return imagePath;
+    }
+    
     // 일반 URL 이미지 경로인 경우 그대로 사용
     if (imagePath && (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('/'))) {
       console.log('URL 이미지 경로 사용:', imagePath);
