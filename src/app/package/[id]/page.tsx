@@ -617,7 +617,12 @@ export default function PackageDetail() {
                   </div>
                   <div className='flex justify-between items-center text-xs text-gray-500'>
                     <span>
-                      1박 기준
+                      {packageData.type === 'domestic' && 
+                       (packageData.category === 'domestic-hotel' || 
+                        packageData.category === 'domestic-resort' || 
+                        packageData.category === 'domestic-pool-villa' || 
+                        packageData.category === 'domestic-pension') ? 
+                        '1박 기준' : '1인 기준'}
                     </span>
                   </div>
                 </div>

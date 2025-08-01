@@ -437,7 +437,17 @@ export default function BookingPage() {
     
     // 패키지 가격이 이미 숫자 타입
     const basePrice = typeof packageData.price === 'number' ? packageData.price : parseInt(String(packageData.price).replace(/,/g, ''));
-    return basePrice * bookingInfo.nights;
+    
+    // 국내 숙박은 박수 기준, 해외여행은 인원 기준
+    if (packageData.type === 'domestic' && 
+        (packageData.category === 'domestic-hotel' || 
+         packageData.category === 'domestic-resort' || 
+         packageData.category === 'domestic-pool-villa' || 
+         packageData.category === 'domestic-pension')) {
+      return basePrice * bookingInfo.nights;
+    } else {
+      return basePrice * bookingInfo.travelerCount;
+    }
   };
   
   // 금액을 한국어 형식으로 포맷팅하는 함수 (예: 1,234,567원)
@@ -810,32 +820,38 @@ export default function BookingPage() {
               
               {openSection === "travelerInfo" && (
                 <div className="px-6 pb-6 border-t pt-4">
-                  {/* 여행자 수 선택 */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      여행자 수
-                    </label>
-                    <div className="flex items-center">
-                      <button 
-                        type="button"
-                        className="w-10 h-10 bg-gray-100 rounded-l-lg flex items-center justify-center hover:bg-gray-200"
-                        onClick={() => handleTravelerCountChange(bookingInfo.travelerCount - 1)}
-                      >
-                        <span className="text-xl">-</span>
-                      </button>
-                      <span className="w-12 h-10 flex items-center justify-center border-t border-b">
-                        {bookingInfo.travelerCount}
-                      </span>
-                      <button 
-                        type="button"
-                        className="w-10 h-10 bg-gray-100 rounded-r-lg flex items-center justify-center hover:bg-gray-200"
-                        onClick={() => handleTravelerCountChange(bookingInfo.travelerCount + 1)}
-                      >
-                        <span className="text-xl">+</span>
-                      </button>
-                      <span className="ml-2 text-sm text-gray-600">명</span>
+                  {/* 여행자 수 선택 - 해외여행만 */}
+                  {!(packageData.type === 'domestic' && 
+                    (packageData.category === 'domestic-hotel' || 
+                     packageData.category === 'domestic-resort' || 
+                     packageData.category === 'domestic-pool-villa' || 
+                     packageData.category === 'domestic-pension')) && (
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        여행자 수
+                      </label>
+                      <div className="flex items-center">
+                        <button 
+                          type="button"
+                          className="w-10 h-10 bg-gray-100 rounded-l-lg flex items-center justify-center hover:bg-gray-200"
+                          onClick={() => handleTravelerCountChange(bookingInfo.travelerCount - 1)}
+                        >
+                          <span className="text-xl">-</span>
+                        </button>
+                        <span className="w-12 h-10 flex items-center justify-center border-t border-b">
+                          {bookingInfo.travelerCount}
+                        </span>
+                        <button 
+                          type="button"
+                          className="w-10 h-10 bg-gray-100 rounded-r-lg flex items-center justify-center hover:bg-gray-200"
+                          onClick={() => handleTravelerCountChange(bookingInfo.travelerCount + 1)}
+                        >
+                          <span className="text-xl">+</span>
+                        </button>
+                        <span className="ml-2 text-sm text-gray-600">명</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                   
                   {/* 예약자 정보 입력 폼 (1명만) */}
                   <div className="mb-6">
@@ -1018,13 +1034,29 @@ export default function BookingPage() {
                 
                 <div className="border-t pt-4">
                   <div className="flex justify-between mb-1 text-sm">
-                    <span>기본 가격 (1박)</span>
+                    <span>기본 가격 ({packageData.type === 'domestic' && 
+                       (packageData.category === 'domestic-hotel' || 
+                        packageData.category === 'domestic-resort' || 
+                        packageData.category === 'domestic-pool-villa' || 
+                        packageData.category === 'domestic-pension') ? 
+                        '1박' : '1인'})</span>
                     <span>{packageData.price}원</span>
                   </div>
-                  <div className="flex justify-between mb-1 text-sm">
-                    <span>숙박 기간</span>
-                    <span>{bookingInfo.nights}박</span>
-                  </div>
+                  {packageData.type === 'domestic' && 
+                   (packageData.category === 'domestic-hotel' || 
+                    packageData.category === 'domestic-resort' || 
+                    packageData.category === 'domestic-pool-villa' || 
+                    packageData.category === 'domestic-pension') ? (
+                    <div className="flex justify-between mb-1 text-sm">
+                      <span>숙박 기간</span>
+                      <span>{bookingInfo.nights}박</span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between mb-1 text-sm">
+                      <span>인원</span>
+                      <span>{bookingInfo.travelerCount}명</span>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="border-t pt-4">
