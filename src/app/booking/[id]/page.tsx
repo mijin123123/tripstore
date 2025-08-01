@@ -55,37 +55,76 @@ export default function BookingPage() {
     // 이미지 경로가 이미 올바른 경우 그대로 반환
     if (imagePath && imagePath.startsWith('/images/') && 
         ['hotel-hero.jpg', 'europe-hero.jpg', 'japan-hero.jpg', 'luxury-hero.jpg', 
-         'cruise-hero.jpg', 'premium-hero.jpg', 'resort-hero.jpg', 'pension-hero.jpg',
-         'backpacking-hero.jpg', 'package-tour-hero.jpg', 'family-hero.jpg'].some(img => imagePath.includes(img))) {
+         'overseas-hero.jpg', 'domestic-hero.jpg', 'guam-hero.jpg', 'hongkong-hero.jpg',
+         'americas-hero.jpg', 'southeast-asia-hero.jpg', 'hotel-europe-hero.jpg'].some(img => imagePath.includes(img))) {
       console.log('기존 이미지 경로 사용:', imagePath);
       return imagePath;
     }
     
-    // 타입과 지역에 따른 기본 이미지 매핑
-    const getDefaultImage = () => {
-      if (type === 'domestic') {
-        switch (region) {
-          case 'busan': return '/images/hotel-hero.jpg';
-          case 'gangwon': return '/images/resort-hero.jpg';
-          case 'jeju': return '/images/resort-hero.jpg';
-          default: return '/images/hotel-hero.jpg';
-        }
-      } else {
-        // 해외 여행의 경우
-        switch (region) {
-          case 'europe': return '/images/europe-hero.jpg';
-          case 'japan': return '/images/japan-hero.jpg';
-          case 'america': return '/images/luxury-hero.jpg';
-          case 'asia': return '/images/japan-hero.jpg';
-          case 'oceania': return '/images/luxury-hero.jpg';
-          default: return '/images/europe-hero.jpg';
-        }
-      }
+    // 일반 URL 이미지 경로인 경우 그대로 사용
+    if (imagePath && (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('/'))) {
+      console.log('URL 이미지 경로 사용:', imagePath);
+      return imagePath;
+    }
+    
+    // 타입과 지역에 따른 기본 이미지 매핑 (더 포괄적으로 수정)
+    const imageMapping: Record<string, string> = {
+      // 해외여행 이미지
+      'overseas-europe': '/images/europe-hero.jpg',
+      'overseas-japan': '/images/japan-hero.jpg',
+      'overseas-guam': '/images/guam-hero.jpg',
+      'overseas-guam-saipan': '/images/guam-hero.jpg',
+      'overseas-hongkong': '/images/hongkong-hero.jpg',
+      'overseas-china-hongkong': '/images/hongkong-hero.jpg',
+      'overseas-americas': '/images/americas-hero.jpg',
+      'overseas-southeast-asia': '/images/southeast-asia-hero.jpg',
+      
+      // 호텔 이미지
+      'hotel-europe': '/images/hotel-europe-hero.jpg',
+      'hotel-japan': '/images/japan-hero.jpg',
+      'hotel-guam': '/images/guam-hero.jpg',
+      'hotel-guam-saipan': '/images/guam-hero.jpg',
+      'hotel-hongkong': '/images/hongkong-hero.jpg',
+      'hotel-china-hongkong': '/images/hongkong-hero.jpg',
+      'hotel-americas': '/images/americas-hero.jpg',
+      'hotel-southeast-asia': '/images/southeast-asia-hero.jpg',
+      
+      // 국내 여행 이미지
+      'domestic-hotel': '/images/domestic-hero.jpg',
+      'domestic-resort': '/images/domestic-hero.jpg',
+      'domestic-pool-villa': '/images/domestic-hero.jpg',
+      
+      // 럭셔리 이미지
+      'luxury-europe': '/images/luxury-hero.jpg',
+      'luxury-japan': '/images/japan-hero.jpg',
+      'luxury-southeast-asia': '/images/southeast-asia-hero.jpg',
+      
+      // 기본 이미지
+      'hotel-default': '/images/hotel-hero.jpg',
+      'luxury-default': '/images/luxury-hero.jpg',
+      'domestic-default': '/images/domestic-hero.jpg',
+      'overseas-default': '/images/overseas-hero.jpg'
     };
     
-    const defaultImage = getDefaultImage();
-    console.log('기본 이미지 사용:', defaultImage);
-    return defaultImage;
+    // 타입과 지역 조합으로 이미지 찾기
+    const key = `${type}-${region}`;
+    console.log('매핑 키 시도:', key);
+    
+    if (imageMapping[key]) {
+      console.log('매핑된 이미지:', imageMapping[key]);
+      return imageMapping[key];
+    }
+    
+    // 타입별 기본 이미지
+    const typeKey = `${type}-default`;
+    if (imageMapping[typeKey]) {
+      console.log('타입별 기본 이미지:', imageMapping[typeKey]);
+      return imageMapping[typeKey];
+    }
+    
+    // 최후의 기본 이미지
+    console.log('최종 기본 이미지 사용');
+    return '/images/hotel-hero.jpg';
   };
   
   // 예약 정보 상태 관리
@@ -569,7 +608,7 @@ export default function BookingPage() {
                   <div className="flex items-start">
                     <div className="w-24 h-24 rounded-lg overflow-hidden mr-4 shrink-0">
                       <img 
-                        src={packageData.image} 
+                        src={getValidImagePath(packageData.image, packageData.type, packageData.region)} 
                         alt={packageData.title} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
