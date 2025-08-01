@@ -628,7 +628,7 @@ export default function PackageDetail() {
                         packageData.category === 'domestic-resort' || 
                         packageData.category === 'domestic-pool-villa' || 
                         packageData.category === 'domestic-pension') ? 
-                        '1박 기준' : '1인 기준'}
+                        '박당' : '1인 기준'}
                     </span>
                   </div>
                 </div>
