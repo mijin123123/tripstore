@@ -569,15 +569,16 @@ export default function BookingPage() {
                   <div className="flex items-start">
                     <div className="w-24 h-24 rounded-lg overflow-hidden mr-4 shrink-0">
                       <img 
-                        src={packageData.image && packageData.image.startsWith('data:image/') ? 
-                          packageData.image : 
-                          packageData.image || '/images/package1.jpg'} 
+                        src={packageData.image} 
                         alt={packageData.title} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          console.log('이미지 로드 실패:', packageData.image);
+                          console.log('이미지 로드 실패. 원본 이미지:', packageData.image);
                           target.src = '/images/package1.jpg';
+                        }}
+                      />
+                    </div>
                         }}
                         onLoad={() => {
                           console.log('이미지 로드 성공:', packageData.image?.substring(0, 50));
