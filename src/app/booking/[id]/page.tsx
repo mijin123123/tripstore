@@ -797,6 +797,87 @@ export default function BookingPage() {
                       )}
                     </div>
                   )}
+
+                  {/* 인원수 선택 (해외여행만) */}
+                  {!(packageData.type === 'domestic' && 
+                    (packageData.category === 'domestic-hotel' || 
+                     packageData.category === 'domestic-resort' || 
+                     packageData.category === 'domestic-pool-villa' || 
+                     packageData.category === 'domestic-pension')) && (
+                    <div className="mt-6">
+                      <p className="text-sm font-medium text-gray-700 mb-3">여행 인원</p>
+                      <div className="grid grid-cols-1 gap-4">
+                        {/* 인원수 선택 */}
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">여행자 수</label>
+                          <div className="flex items-center">
+                            <button
+                              type="button"
+                              onClick={() => handleTravelerCountChange(bookingInfo.travelerCount - 1)}
+                              className="p-2 border border-gray-300 rounded-l-md hover:bg-gray-50"
+                              disabled={bookingInfo.travelerCount <= 1}
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              value={bookingInfo.travelerCount}
+                              onChange={(e) => handleTravelerCountChange(parseInt(e.target.value) || 1)}
+                              className="w-16 px-3 py-2 border-t border-b border-gray-300 text-center"
+                              min="1"
+                              max="10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleTravelerCountChange(bookingInfo.travelerCount + 1)}
+                              className="p-2 border border-gray-300 rounded-r-md hover:bg-gray-50"
+                              disabled={bookingInfo.travelerCount >= 10}
+                            >
+                              +
+                            </button>
+                            <span className="ml-2 text-sm text-gray-600">명</span>
+                          </div>
+                        </div>
+
+                        {/* 인원 정보 표시 */}
+                        <div>
+                          <div className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-700">
+                            성인 {bookingInfo.travelerCount}명
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 여행 인원 정보 표시 */}
+                      {bookingInfo.departureDate && (
+                        <div className="mt-3 p-3 bg-blue-50 rounded-md">
+                          <div className="flex justify-between text-sm">
+                            <div>
+                              <span className="font-medium text-gray-700">출발일:</span>
+                              <span className="ml-2 text-blue-700">
+                                {new Date(bookingInfo.departureDate).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  weekday: 'short'
+                                })}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">여행자:</span>
+                              <span className="ml-2 text-blue-700">
+                                {bookingInfo.travelerCount}명
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-center mt-2">
+                            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                              총 {bookingInfo.travelerCount}명 여행
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
