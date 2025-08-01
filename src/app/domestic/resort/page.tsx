@@ -182,7 +182,9 @@ export default function DomesticResortPage() {
                       <span className="text-sm">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
-                        '국내'
+                        packageItem.regionKo || 
+                        packageItem.region_ko ||
+                        '위치 정보 없음'
                       }</span>
                     </div>
                     

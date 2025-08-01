@@ -191,7 +191,9 @@ export default function DomesticHotelPage() {
                       <span className="text-sm truncate">{
                         (typeof packageItem.features === 'object' && !Array.isArray(packageItem.features) && packageItem.features?.location) || 
                         packageItem.location || 
-                        '서울'
+                        packageItem.regionKo || 
+                        packageItem.region_ko ||
+                        '위치 정보 없음'
                       }</span>
                     </div>
                     
