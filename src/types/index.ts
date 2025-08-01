@@ -16,6 +16,7 @@ export interface Package {
   description?: string;
   min_people?: number; // 최소 인원
   max_people?: number; // 최대 인원
+  category?: string; // 패키지 카테고리 (domestic-hotel, domestic-resort 등)
   category_id?: number; // 카테고리 ID
   is_featured?: boolean; // 추천 패키지 여부
   location?: string; // 데이터베이스 스키마에 있는 location 필드
