@@ -566,9 +566,13 @@ export default function BookingPage() {
                   <div className="flex items-start">
                     <div className="w-24 h-24 rounded-lg overflow-hidden mr-4 shrink-0">
                       <img 
-                        src={getValidImagePath(packageData.image, packageData.type, packageData.region)} 
+                        src={packageData.image || '/images/package1.jpg'} 
                         alt={packageData.title} 
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/images/package1.jpg';
+                        }}
                       />
                     </div>
                     <div>
