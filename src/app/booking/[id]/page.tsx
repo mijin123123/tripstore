@@ -88,48 +88,6 @@ export default function BookingPage() {
     return defaultImage;
   };
   
-  // 이미지 경로를 실제 존재하는 이미지로 매핑하는 함수
-  const getValidImagePath = (imagePath: string = '', type: string = '', region: string = '') => {
-    console.log('getValidImagePath 호출됨:', { imagePath: imagePath?.substring(0, 50) + (imagePath?.length > 50 ? '...' : ''), type, region });
-    
-    // Base64 이미지인 경우 그대로 사용
-    if (imagePath && imagePath.startsWith('data:image/')) {
-      console.log('Base64 이미지 사용:', imagePath.substring(0, 50) + '...');
-      return imagePath;
-    }
-    
-    // 이미지 경로가 이미 올바른 경우 그대로 반환
-    if (imagePath && imagePath.startsWith('/images/') && 
-        ['hotel-hero.jpg', 'europe-hero.jpg', 'japan-hero.jpg', 'luxury-hero.jpg', 
-         'oceania-hero.jpg', 'southeast-asia-hero.jpg', 'america-hero.jpg', 'package1.jpg'].includes(imagePath.split('/').pop() || '')) {
-      console.log('올바른 이미지 경로 사용:', imagePath);
-      return imagePath;
-    }
-    
-    // 타입별 기본 이미지 설정
-    if (type === 'domestic') {
-      console.log('국내 여행 기본 이미지 사용');
-      return '/images/hotel-hero.jpg';
-    } else if (type === 'overseas') {
-      // 지역별 이미지 설정
-      const regionImageMap: { [key: string]: string } = {
-        'europe': '/images/europe-hero.jpg',
-        'japan': '/images/japan-hero.jpg', 
-        'southeast-asia': '/images/southeast-asia-hero.jpg',
-        'oceania': '/images/oceania-hero.jpg',
-        'america': '/images/america-hero.jpg'
-      };
-      
-      const defaultImage = regionImageMap[region] || '/images/luxury-hero.jpg';
-      console.log(`해외 여행 기본 이미지 사용 (${region}):`, defaultImage);
-      return defaultImage;
-    }
-    
-    // 기본 이미지
-    console.log('기본 패키지 이미지 사용');
-    return '/images/package1.jpg';
-  };
-  
   // 예약 정보 상태 관리
   const [bookingInfo, setBookingInfo] = useState<BookingInfo>({
     departureDate: "",
